@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GymForge.Application\GymForge.Application.csproj" />
+    <ProjectReference Include="..\GymForge.Infrastructure\GymForge.Infrastructure.csproj" />
+    <ProjectReference Include="..\GymForge.Shared\GymForge.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\Gym\" />
+    <Folder Include="Controllers\Dashboard\" />
+    <Folder Include="Controllers\User\" />
+    <Folder Include="Controllers\Members\" />
+  </ItemGroup>
+
+</Project>

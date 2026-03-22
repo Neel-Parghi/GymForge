@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.1.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GymForge.Contracts\GymForge.Contracts.csproj" />
+    <ProjectReference Include="..\GymForge.Domain\GymForge.Domain.csproj" />
+    <ProjectReference Include="..\GymForge.Infrastructure\GymForge.Infrastructure.csproj" />
+    <ProjectReference Include="..\GymForge.Shared\GymForge.Shared.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Modules\Gym\Services\" />
+	  <Folder Include="Modules\Gym\Interfaces\" />
+	</ItemGroup>
+	
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

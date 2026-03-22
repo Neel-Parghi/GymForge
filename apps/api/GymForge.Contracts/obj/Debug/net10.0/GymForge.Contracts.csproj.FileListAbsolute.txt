@@ -1,0 +1,11 @@
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\bin\Debug\net10.0\GymForge.Contracts.deps.json
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\bin\Debug\net10.0\GymForge.Contracts.dll
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\bin\Debug\net10.0\GymForge.Contracts.pdb
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\GymForge.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\GymForge.Contracts.AssemblyInfoInputs.cache
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\GymForge.Contracts.AssemblyInfo.cs
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\GymForge.Contracts.csproj.CoreCompileInputs.cache
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\GymForge.Contracts.dll
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\refint\GymForge.Contracts.dll
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\GymForge.Contracts.pdb
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Contracts\obj\Debug\net10.0\ref\GymForge.Contracts.dll

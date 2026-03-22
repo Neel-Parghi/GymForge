@@ -1,0 +1,11 @@
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\bin\Debug\net10.0\GymForge.Domain.deps.json
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\bin\Debug\net10.0\GymForge.Domain.dll
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\bin\Debug\net10.0\GymForge.Domain.pdb
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\GymForge.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\GymForge.Domain.AssemblyInfoInputs.cache
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\GymForge.Domain.AssemblyInfo.cs
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\GymForge.Domain.csproj.CoreCompileInputs.cache
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\GymForge.Domain.dll
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\refint\GymForge.Domain.dll
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\GymForge.Domain.pdb
+D:\Coding\Web\NetCore\GymForge\src\api\GymForge.Domain\obj\Debug\net10.0\ref\GymForge.Domain.dll
