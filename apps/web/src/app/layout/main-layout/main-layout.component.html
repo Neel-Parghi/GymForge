@@ -1,0 +1,48 @@
+<div class="layout-wrapper">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>GymForge</h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a routerLink="/super-admin/dashboard" routerLinkActive="active" class="nav-link">
+            <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            Dashboard
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        Log Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-search">
+        <!-- Search input placeholder -->
+      </div>
+      <div class="topbar-profile">
+        <div class="profile-avatar">S</div>
+        <span class="profile-name">Super Admin</span>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+    
+  </div>
+</div>
