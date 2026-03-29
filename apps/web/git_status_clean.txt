@@ -1,0 +1,130 @@
+ M apps/api/.vs/GymForge.slnx/DesignTimeBuild/.dtbcache.v2
+ D apps/api/.vs/GymForge.slnx/FileContentIndex/d77658aa-4e80-4a38-a26e-a8351acf2440.vsidx
+ D apps/api/.vs/ProjectEvaluation/gymforge.metadata.v9.bin
+ D apps/api/.vs/ProjectEvaluation/gymforge.projects.v9.bin
+ D apps/api/.vs/ProjectEvaluation/gymforge.strings.v9.bin
+ M apps/api/GymForge.Api/appsettings.json
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Api.dll
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Api.exe
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Api.pdb
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Application.dll
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Application.pdb
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Contracts.dll
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Contracts.pdb
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Domain.dll
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Domain.pdb
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Infrastructure.dll
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Infrastructure.pdb
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Shared.dll
+ M apps/api/GymForge.Api/bin/Debug/net10.0/GymForge.Shared.pdb
+ M apps/api/GymForge.Api/bin/Debug/net10.0/appsettings.json
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.AssemblyInfo.cs
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.AssemblyInfoInputs.cache
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.csproj.AssemblyReference.cache
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.csproj.CoreCompileInputs.cache
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.csproj.FileListAbsolute.txt
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.dll
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.genruntimeconfig.cache
+ M apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.pdb
+ M apps/api/GymForge.Api/obj/Debug/net10.0/apphost.exe
+ M apps/api/GymForge.Api/obj/Debug/net10.0/ref/GymForge.Api.dll
+ M apps/api/GymForge.Api/obj/Debug/net10.0/refint/GymForge.Api.dll
+ M apps/api/GymForge.Api/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
+ M apps/api/GymForge.Api/obj/Debug/net10.0/rjsmrazor.dswa.cache.json
+ M apps/api/GymForge.Api/obj/Debug/net10.0/rpswa.dswa.cache.json
+ M apps/api/GymForge.Api/obj/GymForge.Api.csproj.nuget.dgspec.json
+ M apps/api/GymForge.Api/obj/GymForge.Api.csproj.nuget.g.props
+ M apps/api/GymForge.Api/obj/project.nuget.cache
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Application.dll
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Application.pdb
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Contracts.dll
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Contracts.pdb
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Domain.dll
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Domain.pdb
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Infrastructure.dll
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Infrastructure.pdb
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Shared.dll
+ M apps/api/GymForge.Application/bin/Debug/net10.0/GymForge.Shared.pdb
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.AssemblyInfo.cs
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.AssemblyInfoInputs.cache
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.csproj.AssemblyReference.cache
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.csproj.CoreCompileInputs.cache
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.csproj.FileListAbsolute.txt
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.dll
+ M apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.pdb
+ M apps/api/GymForge.Application/obj/Debug/net10.0/ref/GymForge.Application.dll
+ M apps/api/GymForge.Application/obj/Debug/net10.0/refint/GymForge.Application.dll
+ M apps/api/GymForge.Application/obj/GymForge.Application.csproj.nuget.dgspec.json
+ M apps/api/GymForge.Application/obj/GymForge.Application.csproj.nuget.g.props
+ M apps/api/GymForge.Application/obj/project.nuget.cache
+ M apps/api/GymForge.Contracts/bin/Debug/net10.0/GymForge.Contracts.dll
+ M apps/api/GymForge.Contracts/bin/Debug/net10.0/GymForge.Contracts.pdb
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/GymForge.Contracts.AssemblyInfo.cs
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/GymForge.Contracts.AssemblyInfoInputs.cache
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/GymForge.Contracts.csproj.FileListAbsolute.txt
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/GymForge.Contracts.dll
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/GymForge.Contracts.pdb
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/ref/GymForge.Contracts.dll
+ M apps/api/GymForge.Contracts/obj/Debug/net10.0/refint/GymForge.Contracts.dll
+ M apps/api/GymForge.Contracts/obj/GymForge.Contracts.csproj.nuget.dgspec.json
+ M apps/api/GymForge.Contracts/obj/GymForge.Contracts.csproj.nuget.g.props
+ M apps/api/GymForge.Contracts/obj/project.nuget.cache
+ M apps/api/GymForge.Domain/bin/Debug/net10.0/GymForge.Domain.dll
+ M apps/api/GymForge.Domain/bin/Debug/net10.0/GymForge.Domain.pdb
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/GymForge.Domain.AssemblyInfo.cs
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/GymForge.Domain.AssemblyInfoInputs.cache
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/GymForge.Domain.csproj.FileListAbsolute.txt
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/GymForge.Domain.dll
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/GymForge.Domain.pdb
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/ref/GymForge.Domain.dll
+ M apps/api/GymForge.Domain/obj/Debug/net10.0/refint/GymForge.Domain.dll
+ M apps/api/GymForge.Domain/obj/GymForge.Domain.csproj.nuget.dgspec.json
+ M apps/api/GymForge.Domain/obj/GymForge.Domain.csproj.nuget.g.props
+ M apps/api/GymForge.Domain/obj/project.nuget.cache
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Contracts.dll
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Contracts.pdb
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Domain.dll
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Domain.pdb
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Infrastructure.dll
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Infrastructure.pdb
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Shared.dll
+ M apps/api/GymForge.Infrastructure/bin/Debug/net10.0/GymForge.Shared.pdb
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.AssemblyInfo.cs
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.AssemblyInfoInputs.cache
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.csproj.AssemblyReference.cache
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.csproj.CoreCompileInputs.cache
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.csproj.FileListAbsolute.txt
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.dll
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.genruntimeconfig.cache
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.pdb
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/ref/GymForge.Infrastructure.dll
+ M apps/api/GymForge.Infrastructure/obj/Debug/net10.0/refint/GymForge.Infrastructure.dll
+ M apps/api/GymForge.Infrastructure/obj/GymForge.Infrastructure.csproj.nuget.dgspec.json
+ M apps/api/GymForge.Infrastructure/obj/GymForge.Infrastructure.csproj.nuget.g.props
+ M apps/api/GymForge.Infrastructure/obj/project.nuget.cache
+ M apps/api/GymForge.Shared/bin/Debug/net10.0/GymForge.Shared.dll
+ M apps/api/GymForge.Shared/bin/Debug/net10.0/GymForge.Shared.pdb
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/GymForge.Shared.AssemblyInfo.cs
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/GymForge.Shared.AssemblyInfoInputs.cache
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/GymForge.Shared.csproj.FileListAbsolute.txt
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/GymForge.Shared.dll
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/GymForge.Shared.pdb
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/ref/GymForge.Shared.dll
+ M apps/api/GymForge.Shared/obj/Debug/net10.0/refint/GymForge.Shared.dll
+ M apps/api/GymForge.Shared/obj/GymForge.Shared.csproj.nuget.dgspec.json
+ M apps/api/GymForge.Shared/obj/GymForge.Shared.csproj.nuget.g.props
+ M apps/api/GymForge.Shared/obj/project.nuget.cache
+?? apps/api/.vs/GymForge.slnx/FileContentIndex/29562dcf-6b5e-4d6a-9766-56335982fe0d.vsidx
+?? apps/api/.vs/GymForge.slnx/config/
+?? apps/api/.vs/GymForge.slnx/v18/
+?? apps/api/.vs/ProjectEvaluation/gymforge.metadata.v10.bin
+?? apps/api/.vs/ProjectEvaluation/gymforge.projects.v10.bin
+?? apps/api/.vs/ProjectEvaluation/gymforge.strings.v10.bin
+?? apps/api/GymForge.Api/obj/Debug/net10.0/GymForge.Api.sourcelink.json
+?? apps/api/GymForge.Application/obj/Debug/net10.0/GymForge.Application.sourcelink.json
+?? apps/api/GymForge.Contracts/obj/Debug/net10.0/GymForge.Contracts.sourcelink.json
+?? apps/api/GymForge.Domain/obj/Debug/net10.0/GymForge.Domain.sourcelink.json
+?? apps/api/GymForge.Infrastructure/obj/Debug/net10.0/GymForge.Infrastructure.sourcelink.json
+?? apps/api/GymForge.Shared/obj/Debug/net10.0/GymForge.Shared.sourcelink.json
+?? apps/web/git_status.txt
+?? apps/web/git_status_clean.txt
