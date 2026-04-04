@@ -15,7 +15,16 @@ export class MainLayoutComponent {
   private authApiService = inject(AuthApiService);
   private themeService = inject(ThemeService);
 
+  isSidebarCollapsed = false;
   isGymManagementExpanded = false;
+
+  toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    // Optional: auto-collapse submenus when sidebar collapses
+    if (this.isSidebarCollapsed) {
+      this.isGymManagementExpanded = false;
+    }
+  }
 
   toggleTheme() {
     this.themeService.toggleTheme();

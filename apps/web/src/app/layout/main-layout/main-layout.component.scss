@@ -15,12 +15,75 @@
   flex-direction: column;
   transition: width 0.3s ease, background-color 0.3s ease;
   z-index: 20;
+  position: relative;
+  overflow-x: hidden;
+
+  &.collapsed {
+    width: 70px;
+
+    .sidebar-header {
+      padding: 0;
+      justify-content: center;
+      flex-direction: column;
+
+      .toggle-icon-btn {
+        margin-top: 4px;
+      }
+    }
+
+    .sidebar-nav {
+      ul {
+        li {
+          .nav-link {
+            justify-content: center;
+            padding: 12px 0;
+            border-left-width: 0;
+
+            .nav-icon {
+              margin-right: 0;
+            }
+          }
+        }
+
+        .nav-group-title {
+          justify-content: center;
+          padding: 12px 0;
+
+          .title-left {
+            .nav-icon {
+              margin-right: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .nav-label,
+    .chevron-icon {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 16px 0;
+      align-items: center;
+
+      .logout-btn {
+        justify-content: center;
+        padding: 12px 0;
+
+        .nav-icon {
+          margin-right: 0;
+        }
+      }
+    }
+  }
 
   .sidebar-header {
     height: 70px;
     display: flex;
     align-items: center;
     padding: 0 24px;
+    justify-content: space-between;
 
     h2 {
       margin: 0;
@@ -29,6 +92,39 @@
       letter-spacing: -0.5px;
       color: #ffffff;
       text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .logo-mini {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: var(--accent-color);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .toggle-icon-btn {
+      background: transparent;
+      border: none;
+      color: #a0aec0;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
     }
   }
 
@@ -61,6 +157,11 @@
             height: 18px;
             margin-right: 12px;
             font-size: 1.1rem;
+            flex-shrink: 0;
+          }
+
+          .nav-label {
+            white-space: nowrap;
           }
 
           &:hover {
