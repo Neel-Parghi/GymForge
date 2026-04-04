@@ -1,25 +1,55 @@
 <div class="layout-wrapper">
-  
+
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <h2>GymForge</h2>
     </div>
-    
+
     <nav class="sidebar-nav">
       <ul>
         <li>
           <a routerLink="/super-admin/dashboard" routerLinkActive="active" class="nav-link">
-            <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            <svg viewBox="0 0 24 24" class="nav-icon">
+              <path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+            </svg>
             Dashboard
           </a>
+        </li>
+        <!-- Gym Management Section -->
+        <li class="nav-group">
+          <div class="nav-group-title" (click)="isGymManagementExpanded = !isGymManagementExpanded">
+            <div class="title-left">
+              <svg viewBox="0 0 24 24" class="nav-icon">
+                <path fill="currentColor"
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM8 15h8v-2H8v2zm0-4h8V9H8v2z" />
+              </svg>
+              Gym Management
+            </div>
+            <svg viewBox="0 0 24 24" class="chevron-icon"
+              [style.transform]="isGymManagementExpanded ? 'rotate(180deg)' : 'rotate(0deg)'">
+              <path fill="currentColor" d="M7 10l5 5 5-5z" />
+            </svg>
+          </div>
+          <ul class="sub-nav" *ngIf="isGymManagementExpanded">
+            <li>
+              <a routerLink="/super-admin/gym-list" routerLinkActive="active" class="nav-link">
+                Gym List
+              </a>
+            </li>
+            <li>
+              <a routerLink="/super-admin/gym-owners" routerLinkActive="active" class="nav-link">
+                Gym Owners
+              </a>
+            </li>
+          </ul>
         </li>
       </ul>
     </nav>
 
     <div class="sidebar-footer">
       <button class="logout-btn" (click)="logout()">
-        <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        <i class="fas fa-sign-out-alt nav-icon"></i>
         Log Out
       </button>
     </div>
@@ -27,15 +57,20 @@
 
   <!-- Main Content Area -->
   <div class="main-content">
-    
+
     <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-search">
         <!-- Search input placeholder -->
       </div>
-      <div class="topbar-profile">
-        <div class="profile-avatar">S</div>
-        <span class="profile-name">Super Admin</span>
+      <div class="topbar-right">
+        <!-- <button class="theme-toggle" (click)="toggleTheme()" [title]="'Switch to ' + (currentTheme === 'light' ? 'dark' : 'light') + ' mode'">
+          <i class="fas" [class.fa-sun]="currentTheme === 'dark'" [class.fa-moon]="currentTheme === 'light'"></i>
+        </button> -->
+        <div class="topbar-profile">
+          <div class="profile-avatar">S</div>
+          <span class="profile-name">Super Admin</span>
+        </div>
       </div>
     </header>
 
@@ -43,6 +78,6 @@
     <main class="page-content">
       <router-outlet></router-outlet>
     </main>
-    
+
   </div>
 </div>

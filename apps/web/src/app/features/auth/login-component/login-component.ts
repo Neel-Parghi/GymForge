@@ -36,7 +36,6 @@ export class LoginComponent {
       this.isLoading = true;
       this.authApiService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          console.log(response)
           const token = response?.Data?.token || response?.token;
           if (token) {
             this.authApiService.saveToken(token);

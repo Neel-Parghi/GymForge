@@ -1,0 +1,55 @@
+<div class="data-grid-container" *ngIf="config">
+  <table class="data-grid-table">
+    <thead>
+      <tr>
+        <th *ngIf="selectable" class="checkbox-col">
+          <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)">
+        </th>
+        <th *ngFor="let col of columns">{{ col.label }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data" [class.selected]="isSelected(row)">
+        <td *ngIf="selectable" class="checkbox-col">
+          <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
+        </td>
+        <td *ngFor="let col of columns" [ngSwitch]="col.type">
+          <!-- Action Buttons -->
+          <ng-container *ngSwitchCase="'action'">
+            <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="action-btn delete-btn" (click)="onAction('delete', row)" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </ng-container>
+
+          <!-- Badges -->
+          <ng-container *ngSwitchCase="'badge'">
+            <span class="badge" [ngClass]="row[col.key] ? 'badge-active' : 'badge-inactive'">
+              {{ row[col.key] ? 'Active' : 'Inactive' }}
+            </span>
+          </ng-container>
+
+          <!-- Text / Clickable Links -->
+          <ng-container *ngSwitchDefault>
+            <span *ngIf="col.isClickable; else plainText" class="clickable-cell" (click)="onAction('click_' + col.key, row)">
+              {{ row[col.key] }}
+            </span>
+            <ng-template #plainText>
+              {{ row[col.key] }}
+            </ng-template>
+          </ng-container>
+        </td>
+      </tr>
+      <tr *ngIf="data.length === 0">
+        <td [attr.colspan]="selectable ? columns.length + 1 : columns.length" class="empty-state">
+          No data available
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,15 @@
+<div class="page-header">
+  <h2>Gym List</h2>
+  <ng-container *ngIf="selectedGyms.length === 0; else bulkEdit">
+    <button class="primary-btn">Add Gym</button>
+  </ng-container>
+  <ng-template #bulkEdit>
+    <button class="primary-btn edit-mode">Edit ({{ selectedGyms.length }} selected)</button>
+  </ng-template>
+</div>
+<app-data-grid 
+  [config]="gridConfig" 
+  [data]="data" 
+  (selectionChange)="onSelectionChange($event)"
+  (actionEvent)="handleAction($event)">
+</app-data-grid>

@@ -1,1 +1,65 @@
-<p>dashboard-component works!</p>
+<div class="dashboard-container">
+  <div class="page-header">
+    <h2>Platform Overview</h2>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-icon-wrapper" [style.background-color]="stat.color + '15'">
+        <i class="fas" [class]="stat.icon" [style.color]="stat.color"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">{{ stat.label }}</span>
+        <div class="stat-value-row">
+          <h3 class="stat-value">{{ stat.value }}</h3>
+          <span class="stat-trend" [class.trend-up]="stat.trendUp" [class.trend-down]="!stat.trendUp">
+            <i class="fas" [class]="stat.trendUp ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+            {{ stat.trend }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="dashboard-content">
+    <div class="content-card">
+      <div class="card-header">
+        <h3>Recent Gym Registrations</h3>
+        <button class="text-btn">View All</button>
+      </div>
+      <div class="table-responsive">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gym Name</th>
+              <th>Owner</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reg of recentRegistrations">
+              <td class="id-cell">#{{ reg.id }}</td>
+              <td><strong>{{ reg.name }}</strong></td>
+              <td>{{ reg.owner }}</td>
+              <td>{{ reg.date }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(reg.status)">
+                  {{ reg.status }}
+                </span>
+              </td>
+              <td>
+                <button class="icon-btn" title="Review"><i class="fas fa-search"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

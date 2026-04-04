@@ -1,0 +1,15 @@
+<div class="page-header">
+  <h2>Gym Owners</h2>
+  <ng-container *ngIf="selectedOwners.length === 0; else bulkEdit">
+    <button class="primary-btn">Add Owner</button>
+  </ng-container>
+  <ng-template #bulkEdit>
+    <button class="primary-btn edit-mode">Edit ({{ selectedOwners.length }} selected)</button>
+  </ng-template>
+</div>
+<app-data-grid 
+  [config]="gridConfig" 
+  [data]="data" 
+  (selectionChange)="onSelectionChange($event)"
+  (actionEvent)="handleAction($event)">
+</app-data-grid>

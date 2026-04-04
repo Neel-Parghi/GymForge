@@ -1,0 +1,215 @@
+.dashboard-container {
+  padding-bottom: 40px;
+
+  .page-header {
+    margin-bottom: 32px;
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+
+  .stat-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.05);
+      [data-theme="dark"] & {
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .stat-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-info {
+      flex: 1;
+
+      .stat-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .stat-value-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+
+        .stat-value {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: var(--text-main);
+          margin: 0;
+        }
+
+        .stat-trend {
+          font-size: 0.75rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          &.trend-up {
+            color: #10b981;
+          }
+          &.trend-down {
+            color: #ef4444;
+          }
+        }
+      }
+    }
+  }
+}
+
+.dashboard-content {
+  .content-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-main);
+      }
+
+      .text-btn {
+        background: none;
+        border: none;
+        color: var(--accent-color);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th, td {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+
+  th {
+    background-color: var(--bg-surface);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  tbody tr {
+    transition: background-color 0.1s ease;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.01);
+      [data-theme="dark"] & {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+    }
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  .id-cell {
+    font-family: monospace;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    &.badge-approved {
+      background-color: #e6fffa;
+      color: #2c7a7b;
+      [data-theme="dark"] & {
+        background-color: rgba(44, 122, 123, 0.2);
+        color: #4fd1c5;
+      }
+    }
+    &.badge-pending {
+      background-color: #fffaf0;
+      color: #b7791f;
+      [data-theme="dark"] & {
+        background-color: rgba(183, 121, 31, 0.2);
+        color: #f6e05e;
+      }
+    }
+  }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+      color: var(--text-main);
+      border-color: var(--text-main);
+      background-color: var(--bg-surface);
+    }
+  }
+}

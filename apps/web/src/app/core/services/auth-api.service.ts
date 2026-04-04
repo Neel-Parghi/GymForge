@@ -78,7 +78,6 @@ export class AuthApiService extends BaseApiService {
 
   redirectUserByRole() {
     const role = this.getUserRole();
-    console.log(role);
     switch (role) {
 
       case 'SuperAdmin':

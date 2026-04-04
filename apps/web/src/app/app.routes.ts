@@ -3,6 +3,8 @@ import { LoginComponent } from './features/auth/login-component/login-component'
 import { RegisterComponent } from './features/auth/register-component/register-component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { DashboardComponent } from './features/super-admin/dashboard-component/dashboard-component';
+import { GymOwners } from './features/super-admin/gym-management/gym-owners/gym-owners';
+import { GymList } from './features/super-admin/gym-management/gym-list/gym-list';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -12,7 +14,9 @@ export const routes: Routes = [
     path: 'super-admin', 
     component: MainLayoutComponent,
     children: [
-      { path: 'dashboard', component: DashboardComponent }
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'gym-owners', component: GymOwners },
+      { path: 'gym-list', component: GymList }
     ]
   }
 ];
