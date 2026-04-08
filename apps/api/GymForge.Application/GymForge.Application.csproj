@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.1.0" />
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
   </ItemGroup>
@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\GymForge.Contracts\GymForge.Contracts.csproj" />
     <ProjectReference Include="..\GymForge.Domain\GymForge.Domain.csproj" />
-    <ProjectReference Include="..\GymForge.Infrastructure\GymForge.Infrastructure.csproj" />
     <ProjectReference Include="..\GymForge.Shared\GymForge.Shared.csproj" />
   </ItemGroup>
 

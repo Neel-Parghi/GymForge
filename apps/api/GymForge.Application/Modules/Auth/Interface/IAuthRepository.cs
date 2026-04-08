@@ -1,7 +1,7 @@
-﻿using GymForge.Contracts.Auth;
+using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
 
-namespace GymForge.Infrastructure.Modules.Auth.Interface
+namespace GymForge.Application.Modules.Auth.Interface
 {
     public interface IAuthRepository
     {

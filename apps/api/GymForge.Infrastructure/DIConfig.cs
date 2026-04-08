@@ -1,4 +1,4 @@
-﻿using GymForge.Infrastructure.Modules.Auth.Interface;
+using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Infrastructure.Modules.Auth.Repositories;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

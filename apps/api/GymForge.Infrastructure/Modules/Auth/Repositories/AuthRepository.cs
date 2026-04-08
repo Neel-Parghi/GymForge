@@ -1,6 +1,6 @@
-﻿using GymForge.Contracts.Auth;
+using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
-using GymForge.Infrastructure.Modules.Auth.Interface;
+using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

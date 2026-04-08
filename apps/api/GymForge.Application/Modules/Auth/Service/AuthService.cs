@@ -1,8 +1,7 @@
-﻿using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Enums;
-using GymForge.Infrastructure.Modules.Auth.Interface;
 
 namespace GymForge.Application.Modules.Auth.Service
 {
