@@ -1,6 +1,6 @@
-using GymForge.Application.Modules.Auth.Interface;
-using GymForge.Infrastructure.Modules.Auth.Repositories;
+using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
+using GymForge.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +18,8 @@ namespace GymForge.Infrastructure
                 ));
 
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IGymManagementRepository, GymManagementRepository>();
 
             return services;
         }

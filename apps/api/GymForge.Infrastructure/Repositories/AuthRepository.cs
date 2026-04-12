@@ -1,10 +1,10 @@
 using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
-using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace GymForge.Infrastructure.Modules.Auth.Repositories
+namespace GymForge.Infrastructure.Repositories
 {
     public class AuthRepository : IAuthRepository
     { 
@@ -18,7 +18,11 @@ namespace GymForge.Infrastructure.Modules.Auth.Repositories
         public async Task RegisterSuperAdmin(User user)
         {
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
         }
 
         public async Task<User?> Login(LoginRequestDto userRequest)
