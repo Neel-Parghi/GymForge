@@ -1,4 +1,4 @@
-﻿using GymForge.Domain.Enums;
+using GymForge.Shared.Enums;
 
 namespace GymForge.Domain.Entities
 {

@@ -1,4 +1,4 @@
-﻿namespace GymForge.Domain.Enums
+namespace GymForge.Shared.Enums
 {
     public enum UserRole
     {

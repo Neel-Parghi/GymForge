@@ -1,4 +1,4 @@
-﻿using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Contracts.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

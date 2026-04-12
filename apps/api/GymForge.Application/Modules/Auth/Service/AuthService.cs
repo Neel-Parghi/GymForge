@@ -1,7 +1,8 @@
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
-using GymForge.Domain.Enums;
+using GymForge.Shared.Enums;
+using GymForge.Domain.Interface;
 
 namespace GymForge.Application.Modules.Auth.Service
 {
@@ -10,12 +11,14 @@ namespace GymForge.Application.Modules.Auth.Service
         private readonly IPasswordService _passwordService;
         private readonly IJwtService _jwtService;
         private readonly IAuthRepository _authRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository)
+        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUnitOfWork unitOfWork)
         {
             _passwordService = passwordService;
             _jwtService = jwtService;
             _authRepository = authRepository;   
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> RegisterSuperAdmin(RegisterRequestDto userDto)
@@ -32,6 +35,7 @@ namespace GymForge.Application.Modules.Auth.Service
             };
 
             await _authRepository.RegisterSuperAdmin(user);
+            await _unitOfWork.SaveChangesAsync();
 
             return _jwtService.GenerateToken(user);
 

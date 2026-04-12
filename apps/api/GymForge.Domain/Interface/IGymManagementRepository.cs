@@ -1,9 +1,12 @@
-﻿using GymForge.Contracts.Gym;
+using GymForge.Domain.Entities;
 
 namespace GymForge.Domain.Interface
 {
     public interface IGymManagementRepository
     {
-        Task GymOnboarding(GymOnboardingDto gymOnboardingDto);
+        Task AddAddressAsync(Address address);
+        Task AddGymAsync(Gym gym);
+        Task AddBranchAsync(Branch branch);
+        Task AddGymSubscriptionAsync(GymSubscription subscription);
     }
 }
