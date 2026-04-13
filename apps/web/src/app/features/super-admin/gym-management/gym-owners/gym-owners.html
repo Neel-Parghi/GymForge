@@ -1,15 +1,18 @@
 <div class="page-header">
   <h2>Gym Owners</h2>
-  <ng-container *ngIf="selectedOwners.length === 0; else bulkEdit">
-    <button class="primary-btn">Add Owner</button>
-  </ng-container>
-  <ng-template #bulkEdit>
-    <button class="primary-btn edit-mode">Edit ({{ selectedOwners.length }} selected)</button>
-  </ng-template>
+  @if (selectedOwners.length === 0) {
+  <button class="primary-btn" (click)="openAddOwnerModal()">Add Owner</button>
+  } @else {
+  <button class="primary-btn edit-mode">Edit ({{ selectedOwners.length }} selected)</button>
+  }
 </div>
-<app-data-grid 
-  [config]="gridConfig" 
-  [data]="data" 
-  (selectionChange)="onSelectionChange($event)"
+<app-data-grid [config]="gridConfig" [data]="data" (selectionChange)="onSelectionChange($event)"
   (actionEvent)="handleAction($event)">
 </app-data-grid>
+
+@if (isAddOwnerModalOpen) {
+  <app-add-owner-modal 
+    (close)="closeAddOwnerModal()" 
+    (ownerInvited)="onOwnerInvited()">
+  </app-add-owner-modal>
+}

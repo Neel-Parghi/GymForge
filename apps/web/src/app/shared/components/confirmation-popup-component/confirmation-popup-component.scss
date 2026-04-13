@@ -1,0 +1,159 @@
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  // backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-card {
+  background: #ffffff;
+  width: 90vw;
+  max-width: 400px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.danger {
+    .icon-wrapper {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    .action-btn {
+      background: #ef4444;
+
+      &:hover {
+        background: #dc2626;
+      }
+    }
+  }
+
+  &.warning {
+    .icon-wrapper {
+      background: #fffbeb;
+      color: #f59e0b;
+    }
+
+    .action-btn {
+      background: #f59e0b;
+
+      &:hover {
+        background: #d97706;
+      }
+    }
+  }
+
+  &.info {
+    .icon-wrapper {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .action-btn {
+      background: #111827;
+
+      &:hover {
+        background: #374151;
+      }
+    }
+  }
+}
+
+.confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  .icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+  }
+}
+
+.confirm-body {
+  margin-bottom: 24px;
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+.confirm-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+
+  button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .secondary-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+
+  .action-btn {
+    color: #ffffff;
+    border: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

@@ -3,10 +3,12 @@ import { GridConfigDef } from '../models/grid-config.model';
 export const AppGridConfig: Record<string, GridConfigDef> = {
   GymList: {
     columns: [
-      { key: 'id', label: 'Gym ID', isClickable: true },
-      { key: 'name', label: 'Gym Name' },
-      { key: 'location', label: 'Location' },
-      { key: 'members', label: 'Total Members' },
+      { key: 'gymName', label: 'Gym Name', isClickable: true },
+      { key: 'brandName', label: 'Brand / Franchise' },
+      { key: 'ownerName', label: 'Owner' },
+      { key: 'contact', label: 'Contact Email' },
+      { key: 'branchesCount', label: 'Branches' },
+      { key: 'verification', label: 'Verification', type: 'badge' },
       { key: 'status', label: 'Status', type: 'badge' },
       { key: 'actions', label: 'Manage', type: 'action' }
     ],
@@ -14,9 +16,10 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
   },
   GymOwners: {
     columns: [
-      { key: 'id', label: 'ID', isClickable: true },
-      { key: 'name', label: 'Name' },
+      { key: 'name', label: 'Owner Name', isClickable: true },
       { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone Number' },
+      { key: 'gymsOwned', label: 'Gyms Owned' },
       { key: 'status', label: 'Status', type: 'badge' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],

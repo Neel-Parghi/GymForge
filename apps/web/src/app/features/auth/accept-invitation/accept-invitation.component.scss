@@ -1,0 +1,70 @@
+@import "../register-component/register-component.scss";
+
+/* Custom styles for Accept Invitation Feature */
+
+.auth-subtitle {
+  margin-bottom: 24px;
+}
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  gap: 16px;
+  color: #4b5563;
+  font-weight: 500;
+
+  &.error {
+    color: #ef4444;
+  }
+
+  .loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1a1a1a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .error-icon {
+    width: 64px;
+    height: 64px;
+    color: #ef4444;
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.password-requirements {
+  margin-top: -15px;
+  margin-bottom: 15px;
+  text-align: left;
+  padding-left: 4px;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

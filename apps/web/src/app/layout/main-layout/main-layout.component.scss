@@ -166,7 +166,7 @@
 
           &:hover {
             color: #b5b5b5;
-            background-color: rgba(0, 0, 0, 0.03);
+            background-color: rgba(255, 255, 255, 0.03);
 
             [data-theme="dark"] & {
               background-color: rgba(255, 255, 255, 0.05);
@@ -175,52 +175,68 @@
 
           &.active {
             color: #ffffff;
-            background-color: rgba(0, 0, 0, 0.04);
+            background-color: rgba(255, 255, 255, 0.08);
             border-left-color: #ffffff;
             font-weight: 600;
-
-            [data-theme="dark"] & {
-              background-color: rgba(255, 255, 255, 0.08);
-            }
           }
         }
-      }
 
-      .nav-group-title {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 24px;
-        color: var(--text-muted);
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        font-weight: 700;
-        margin-top: 16px;
-        cursor: pointer;
-        opacity: 0.8;
-
-        .title-left {
+        .nav-group-title {
           display: flex;
           align-items: center;
+          justify-content: space-between;
+          padding: 12px 24px;
+          color: var(--text-muted);
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 1.2px;
+          font-weight: 700;
+          margin-top: 16px;
+          cursor: pointer;
+          opacity: 0.8;
+          transition: all 0.2s ease;
+          border-left: 3px solid transparent;
+
+          .title-left {
+            display: flex;
+            align-items: center;
+
+            .nav-icon {
+              width: 16px;
+              height: 16px;
+              margin-right: 12px;
+            }
+          }
+
+          .chevron-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+          }
+
+          &:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.03);
+          }
         }
 
-        .nav-icon {
-          width: 16px;
-          height: 16px;
-          margin-right: 12px;
+        &.group-active {
+          .nav-group-title {
+            color: #ffffff;
+            opacity: 1;
+            border-left-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+          }
         }
 
-        .chevron-icon {
-          width: 24px;
-          height: 24px;
-          transition: transform 0.3s ease;
-        }
-      }
+        .sub-nav {
+          list-style: none;
+          padding: 0;
+          margin: 0;
 
-      .sub-nav {
-        li .nav-link {
-          padding-left: 52px;
+          li .nav-link {
+            padding-left: 52px;
+          }
         }
       }
     }

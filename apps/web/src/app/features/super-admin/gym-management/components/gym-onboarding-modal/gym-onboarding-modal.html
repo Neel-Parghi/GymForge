@@ -1,0 +1,282 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2>Gym Onboarding</h2>
+        <p>Complete the steps to register a new gym on the platform.</p>
+      </div>
+      <button class="close-btn" (click)="onTopClose()" title="Cancel">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor"
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Stepper Navigation -->
+    <div class="stepper-container">
+      <div class="step" *ngFor="let step of steps" [class.active]="currentStep === step.id"
+        [class.completed]="currentStep > step.id">
+        <div class="step-circle">{{ step.id }}</div>
+        <span class="step-label">{{ step.label }}</span>
+        <div class="step-line" *ngIf="step.id < totalSteps"></div>
+      </div>
+    </div>
+
+    <!-- Modal Body with Form -->
+    <div class="modal-body">
+      <form [formGroup]="onboardingForm" class="onboarding-form">
+
+        <!-- Step 1: Gym Info -->
+        <div class="step-content" *ngIf="currentStep === 1" formGroupName="gymInfo">
+          <h3>Gym Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Gym Name *</label>
+              <input type="text" formControlName="name" placeholder="Enter gym name">
+            </div>
+            <div class="form-group">
+              <label>Brand Name</label>
+              <input type="text" formControlName="brandName" placeholder="Enter brand name">
+            </div>
+            <div class="form-group lg">
+              <label>Description</label>
+              <textarea formControlName="description" placeholder="A short description of the gym"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Registration Number</label>
+              <input type="text" formControlName="registrationNumber" placeholder="Reg #">
+            </div>
+            <div class="form-group">
+              <label>GST/Tax Number</label>
+              <input type="text" formControlName="gstNumber" placeholder="Optional">
+            </div>
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" formControlName="email" placeholder="contact@gym.com">
+            </div>
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <input type="text" formControlName="phone" placeholder="+1 234 567 8900">
+            </div>
+            <div class="form-group">
+              <label>Established Date</label>
+              <input type="date" formControlName="establishedDate">
+            </div>
+            <div class="form-group">
+              <label>Website</label>
+              <input type="text" formControlName="websiteUrl" placeholder="https://www.gym.com">
+            </div>
+
+            <div class="form-section-title lg">Registered Address</div>
+            <div class="form-grid lg" formGroupName="address">
+              <div class="form-group lg">
+                <label>Address Line 1 *</label>
+                <input type="text" formControlName="line1" placeholder="Street address">
+              </div>
+              <div class="form-group lg">
+                <label>Address Line 2 (Optional)</label>
+                <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+              </div>
+              <div class="form-group">
+                <label>City *</label>
+                <input type="text" formControlName="city">
+              </div>
+              <div class="form-group">
+                <label>State *</label>
+                <input type="text" formControlName="state">
+              </div>
+              <div class="form-group">
+                <label>Country *</label>
+                <input type="text" formControlName="country">
+              </div>
+              <div class="form-group">
+                <label>Postal Code *</label>
+                <input type="text" formControlName="postalCode">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Branches -->
+        <div class="step-content" *ngIf="currentStep === 2">
+          <div class="step-header-row">
+            <h3>Gym Branches</h3>
+            <button type="button" class="secondary-btn small" (click)="addBranch()">
+              + Add Another Branch
+            </button>
+          </div>
+          <div formArrayName="branches" class="branches-container">
+            <div class="branch-card" *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i"
+              [class.collapsed]="collapsedBranches[i]">
+              <div class="branch-card-header" (click)="toggleBranchCollapse(i)">
+                <div class="header-left">
+                  <svg class="chevron-icon" [class.rotated]="!collapsedBranches[i]" viewBox="0 0 24 24" width="20"
+                    height="20">
+                    <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                  </svg>
+                  <h4>Branch {{ i + 1 }}: {{ branch.get('name')?.value || 'Unnamed Branch' }}</h4>
+                </div>
+                <div class="header-right">
+                  <button type="button" class="icon-btn remove-btn" *ngIf="branches.length > 1"
+                    (click)="$event.stopPropagation(); removeBranch(i)" title="Remove Branch">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                      <path fill="currentColor"
+                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="branch-form-content" *ngIf="!collapsedBranches[i]">
+                <div class="form-grid">
+                  <div class="form-group lg">
+                    <label>Branch Name/Alias *</label>
+                    <input type="text" formControlName="name" placeholder="e.g. Downtown Hub">
+                  </div>
+                  <div class="form-grid lg" formGroupName="address">
+                    <div class="form-group lg">
+                      <label>Address Line 1 *</label>
+                      <input type="text" formControlName="line1" placeholder="Street address">
+                    </div>
+                    <div class="form-group lg">
+                      <label>Address Line 2 (Optional)</label>
+                      <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+                    </div>
+                    <div class="form-group">
+                      <label>City *</label>
+                      <input type="text" formControlName="city">
+                    </div>
+                    <div class="form-group">
+                      <label>State *</label>
+                      <input type="text" formControlName="state">
+                    </div>
+                    <div class="form-group">
+                      <label>Country *</label>
+                      <input type="text" formControlName="country">
+                    </div>
+                    <div class="form-group">
+                      <label>Postal Code *</label>
+                      <input type="text" formControlName="postalCode">
+                    </div>
+                  </div>
+                  <div class="form-group lg">
+                    <label>Phone Number *</label>
+                    <input type="text" formControlName="contactNumber">
+                  </div>
+                  <div class="form-group">
+                    <label>Opening Time</label>
+                    <input type="time" formControlName="openTime">
+                  </div>
+                  <div class="form-group">
+                    <label>Closing Time</label>
+                    <input type="time" formControlName="closeTime">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Owner -->
+        <div class="step-content" *ngIf="currentStep === 3">
+          <h3>Assign Gym Owner</h3>
+          <p class="subtitle">Select the user who will be the primary owner of this gym.</p>
+          <div class="form-grid">
+            <div class="form-group lg">
+              <label>Select Owner *</label>
+              <select formControlName="assignedOwnerId">
+                <option value="">Select an owner...</option>
+                <option *ngFor="let owner of dummyOwners" [value]="owner.id">
+                  {{ owner.name }} ({{ owner.email }})
+                </option>
+              </select>
+            </div>
+            <div class="info-card lg">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor"
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+              </svg>
+              <p>Once assigned, the owner will receive an invitation to set up their dashboard.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Plan -->
+        <div class="step-content" *ngIf="currentStep === 4" formGroupName="plan">
+          <h3>Subscription Plan</h3>
+          <div class="form-grid">
+            <div class="form-group lg">
+              <label>Select Plan Tier</label>
+              <select formControlName="subscriptionId">
+                <option value="">No Plan Selected (Trialing)</option>
+                <option value="3fa85f64-5717-4562-b3fc-2c963f66afa6">Basic - $49/mo</option>
+                <option value="4fb96g75-6828-5673-c4gd-3d074g77bgb7">Pro - $99/mo</option>
+              </select>
+            </div>
+            <div class="form-group lg checkbox-group">
+              <label>
+                <input type="checkbox" formControlName="isTrial"> Enable 14-day Free Trial
+              </label>
+            </div>
+            <div class="form-group lg" *ngIf="!onboardingForm.get('plan.isTrial')?.value">
+              <label>Billing Cycle</label>
+              <select formControlName="billingCycle">
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly (-10%)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Review -->
+        <div class="step-content review-step" *ngIf="currentStep === 5">
+          <h3>Review Summary</h3>
+
+          <div class="summary-section">
+            <h4>1. Gym Details</h4>
+            <div class="summary-grid">
+              <div><span>Name:</span> {{ onboardingForm.get('gymInfo.name')?.value }}</div>
+              <div><span>Brand:</span> {{ onboardingForm.get('gymInfo.brandName')?.value }}</div>
+              <div><span>Email:</span> {{ onboardingForm.get('gymInfo.email')?.value }}</div>
+              <div><span>Phone:</span> {{ onboardingForm.get('gymInfo.phone')?.value }}</div>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h4>2. Branches ({{ branches.length }})</h4>
+            <div *ngFor="let branch of branches.controls; let i=index" class="branch-summary">
+              <strong>{{ branch.get('name')?.value }}</strong>: {{ branch.get('address.city')?.value }}, {{
+              branch.get('address.country')?.value }}
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h4>3. Assigned Owner</h4>
+            <div class="summary-grid">
+              <div><span>Owner ID:</span> {{ onboardingForm.get('assignedOwnerId')?.value }}</div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="modal-footer">
+      <div class="footer-left">
+        <button class="secondary-btn" (click)="onTopClose()">Cancel</button>
+      </div>
+      <div class="footer-right">
+        <button class="secondary-btn" *ngIf="currentStep > 1" (click)="prevStep()">Back</button>
+        <button class="primary-btn" *ngIf="currentStep < totalSteps" (click)="nextStep()"
+          [disabled]="!isCurrentStepValid()">Next</button>
+        <button class="success-btn" *ngIf="currentStep === totalSteps" (click)="submit()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Onboarding...' : 'Submit & Onboard' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
