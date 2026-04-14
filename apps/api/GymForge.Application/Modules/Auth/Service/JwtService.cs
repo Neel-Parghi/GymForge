@@ -1,9 +1,11 @@
-﻿using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace GymForge.Application.Modules.Auth.Service
@@ -17,7 +19,7 @@ namespace GymForge.Application.Modules.Auth.Service
             _config = config;
         }
 
-        public string GenerateToken(User user)
+        public TokenResponseDto GenerateToken(User user)
         {
             Claim[] claims =
             [
@@ -27,18 +29,29 @@ namespace GymForge.Application.Modules.Auth.Service
             ];
 
             SymmetricSecurityKey key = new (Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-
             SigningCredentials creds = new (key, SecurityAlgorithms.HmacSha256);
 
             JwtSecurityToken token = new (
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(3),
+                expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new TokenResponseDto
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = GenerateRefreshToken()
+            };
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }

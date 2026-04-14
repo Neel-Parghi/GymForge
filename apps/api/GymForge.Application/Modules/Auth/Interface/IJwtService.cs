@@ -1,9 +1,11 @@
-﻿using GymForge.Domain.Entities;
+using GymForge.Contracts.Auth;
+using GymForge.Domain.Entities;
 
 namespace GymForge.Application.Modules.Auth.Interface
 {
     public interface IJwtService
     {
-        string GenerateToken(User user);
+        TokenResponseDto GenerateToken(User user);
+        string GenerateRefreshToken();
     }
 }

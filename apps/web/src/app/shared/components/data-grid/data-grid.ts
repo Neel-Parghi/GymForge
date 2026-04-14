@@ -55,4 +55,21 @@ export class DataGrid {
   isSelected(row: any) {
     return this.selectedRows.includes(row);
   }
+
+  getBadgeClass(status: string): string {
+    if (!status) return 'badge-inactive';
+    const s = status.toLowerCase();
+    switch (s) {
+      case 'active':
+      case 'accepted':
+        return 'badge-active';
+      case 'inactive':
+      case 'expired':
+        return 'badge-inactive';
+      case 'pending':
+        return 'badge-pending';
+      default:
+        return 'badge-neutral';
+    }
+  }
 }

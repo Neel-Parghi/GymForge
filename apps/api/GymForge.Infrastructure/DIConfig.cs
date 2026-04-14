@@ -11,6 +11,7 @@ namespace GymForge.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHttpClient();
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
@@ -20,6 +21,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IGymManagementRepository, GymManagementRepository>();
+            services.AddScoped<IEmailService, Services.BrevoEmailService>();
 
             return services;
         }

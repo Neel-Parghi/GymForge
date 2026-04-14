@@ -29,9 +29,14 @@
 
           <!-- Badges -->
           <ng-container *ngSwitchCase="'badge'">
-            <span class="badge" [ngClass]="row[col.key] ? 'badge-active' : 'badge-inactive'">
-              {{ row[col.key] ? 'Active' : 'Inactive' }}
+            <span class="badge" [ngClass]="getBadgeClass(row[col.key])">
+              {{ row[col.key] }}
             </span>
+          </ng-container>
+
+          <!-- Date -->
+          <ng-container *ngSwitchCase="'date'">
+            {{ row[col.key] | date:'mediumDate' }}
           </ng-container>
 
           <!-- Text / Clickable Links -->

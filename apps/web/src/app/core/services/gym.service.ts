@@ -15,4 +15,12 @@ export class GymService extends BaseApiService {
     onboardGym(payload: any): Observable<any> {
         return this.post(API_CONSTANTS.GYM.ONBOARD, payload);
     }
+
+    getGymOwners(): Observable<any> {
+        return this.get(API_CONSTANTS.GYM.GYM_OWNER);
+    }
+
+    getGymList(): Observable<any> {
+        return this.get(API_CONSTANTS.GYM.GYM_LIST);
+    }
 }

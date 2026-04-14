@@ -16,5 +16,7 @@ export const API_CONSTANTS = {
   },
   GYM: {
     ONBOARD: '/gym/onboard',
+    GYM_OWNER: '/gym/gym-owner',
+    GYM_LIST: '/gym/gym-list',
   },
 };

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../../../core/services/notification.service';
 import { UserService } from '../../../../../core/services/user.service';
 import { ConfirmationPopupComponent } from "../../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
 
@@ -22,7 +22,7 @@ export class AddOwnerModalComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
-  private toastr = inject(ToastrService);
+  private notification = inject(NotificationService);
 
   ngOnInit(): void {
     this.inviteForm = this.fb.group({
@@ -50,13 +50,13 @@ export class AddOwnerModalComponent implements OnInit {
       this.isSubmitting = true;
       this.userService.inviteOwner(this.inviteForm.value).subscribe({
         next: () => {
-          this.toastr.success('Invitation sent successfully!');
+          this.notification.success('Invitation sent successfully!');
           this.ownerInvited.emit();
           this.closeModal();
           this.isSubmitting = false;
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Failed to send invitation');
+          this.notification.error(err.error?.message || 'Failed to send invitation');
           this.isSubmitting = false;
         }
       });

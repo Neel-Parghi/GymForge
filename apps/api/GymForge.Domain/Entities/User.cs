@@ -12,7 +12,7 @@ namespace GymForge.Domain.Entities
         
         public string Phone { get; set; } = string.Empty;
 
-        public string PasswordHash { get; set; } = string.Empty;
+        public string? PasswordHash { get; set; }
 
         public Guid? GymId { get; set; }
 
@@ -23,6 +23,15 @@ namespace GymForge.Domain.Entities
         public UserRole Role { get; set; }
 
         public bool IsActive { get; set; }
+
+        public string? InvitationToken { get; set; }
+
+        public DateTime? InvitationExpiry { get; set; }
+
+        public bool IsInvitationAccepted { get; set; } = false;
+
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
 
         public Address? Address { get; set; }
 

@@ -188,7 +188,7 @@
               <label>Select Owner *</label>
               <select formControlName="assignedOwnerId">
                 <option value="">Select an owner...</option>
-                <option *ngFor="let owner of dummyOwners" [value]="owner.id">
+                <option *ngFor="let owner of gymOwners" [value]="owner.id">
                   {{ owner.name }} ({{ owner.email }})
                 </option>
               </select>
@@ -280,3 +280,11 @@
 
   </div>
 </div>
+
+
+@if (isConfirmCancelOpen) {
+<app-confirmation-popup title="Discard Changes?" message="You have unsaved changes. Are you sure you want to cancel?"
+  confirmText="Discard" cancelText="Keep Editing" type="danger" (confirm)="closeModal()"
+  (cancel)="isConfirmCancelOpen = false">
+</app-confirmation-popup>
+}

@@ -20,16 +20,29 @@ namespace GymForge.Api.Controllers
         [HttpPost("register-superadmin")]
         public async Task<IActionResult> RegisterSuperAdmin(RegisterRequestDto dto)
         {
-            string token = await _authService.RegisterSuperAdmin(dto);
-
-            return Ok(new { token });
+            TokenResponseDto response = await _authService.RegisterSuperAdmin(dto);
+            return Ok(response);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {
-            string token = await _authService.Login(dto);
-            return Ok(new { token });
+            TokenResponseDto response = await _authService.Login(dto);
+            return Ok(response);
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(RefreshTokenRequestDto dto)
+        {
+            try
+            {
+                TokenResponseDto response = await _authService.RefreshTokenAsync(dto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [Authorize]

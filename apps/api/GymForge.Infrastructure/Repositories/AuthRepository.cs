@@ -32,5 +32,19 @@ namespace GymForge.Infrastructure.Repositories
             return user;
         }
 
+        public async Task<User?> GetByTokenAsync(string token)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.InvitationToken == token);
+        }
+
+        public async Task<User?> GetUserByIdAsync(Guid userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+
+        public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        }
     }
 }

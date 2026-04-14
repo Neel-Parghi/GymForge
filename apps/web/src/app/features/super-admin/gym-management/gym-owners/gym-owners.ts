@@ -4,7 +4,9 @@ import { DataGrid } from '../../../../shared/components/data-grid/data-grid';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { AddOwnerModalComponent } from '../components/add-owner-modal/add-owner-modal.component';
 import { UserService } from '../../../../core/services/user.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { GymService } from '../../../../core/services/gym.service';
+import { ApiResponse } from '../../../../shared/models/api-response.model';
 
 @Component({
   selector: 'app-gym-owners',
@@ -21,18 +23,23 @@ export class GymOwners implements OnInit {
   selectedOwners: any[] = [];
 
   private userService = inject(UserService);
-  private toastr = inject(ToastrService);
+  private gymService = inject(GymService);
+  private notification = inject(NotificationService);
 
   ngOnInit(): void {
-    this.loadOwners();
+    this.getGymOwners();
   }
 
-  loadOwners() {
-    this.data = [
-      { id: '1', name: 'John Doe', email: 'john@example.com', phone: '1234567890', gymsOwned: 2, status: true },
-      { id: '2', name: 'Jane Smith', email: 'jane@example.com', phone: '0987654321', gymsOwned: 1, status: false },
-      { id: '3', name: 'Mike Johnson', email: 'mike@example.com', phone: '5556667777', gymsOwned: 0, status: true },
-    ];
+  getGymOwners() {
+    this.gymService.getGymOwners().subscribe({
+      next: (res: ApiResponse) => {
+        this.data = res.Data;
+        console.log(this.data)
+      },
+      error: (err: any) => {
+        this.notification.error(err.error?.message || 'Failed to load owners');
+      }
+    });
   }
 
   handleAction(event: { action: string, row: any }) {
@@ -44,8 +51,12 @@ export class GymOwners implements OnInit {
 
   reInvite(ownerId: string) {
     this.userService.reInviteOwner(ownerId).subscribe({
-      next: () => this.toastr.success('Re-invitation sent successfully!'),
-      error: (err) => this.toastr.error(err.error?.message || 'Failed to re-invite owner')
+      next: () => {
+        this.notification.success('Re-invitation sent successfully!');
+      },
+      error: (err) => {
+        this.notification.error(err.error?.message || 'Failed to re-invite owner');
+      }
     });
   }
 
@@ -62,6 +73,6 @@ export class GymOwners implements OnInit {
   }
 
   onOwnerInvited() {
-    this.loadOwners();
+    this.getGymOwners();
   }
 }

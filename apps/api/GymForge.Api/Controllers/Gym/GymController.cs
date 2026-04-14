@@ -21,7 +21,6 @@ namespace GymForge.Api.Controllers.Gym
         {
             if (dto == null) return BadRequest("Invalid request data.");
 
-            // Use the selected owner from the onboarding form
             Guid ownerId = dto.AssignedOwnerId ?? Guid.Empty;
             
             if (ownerId == Guid.Empty) return BadRequest("Owner assignment is required.");
@@ -30,5 +29,12 @@ namespace GymForge.Api.Controllers.Gym
             
             return Ok(new { message = "Gym onboarded successfully" });
         }
+
+        [HttpGet("gym-owner")]
+        public async Task<ActionResult> GetGymOwnersList()
+        {
+            return Ok(await _gymManagementService.GetGymOwnersList());
+        }
+
     }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-register-component',
@@ -16,7 +16,7 @@ export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
   private router = inject(Router);
-  private toastr = inject(ToastrService);
+  private notification = inject(NotificationService);
 
   registerForm = this.fb.group({
     name: ['', [Validators.required]],
@@ -36,12 +36,12 @@ export class RegisterComponent {
       this.isLoading = true;
       this.authApiService.register(this.registerForm.value).subscribe({
         next: () => {
-          this.toastr.success('Registration successful! Please sign in.');
+          this.notification.success('Registration successful! Please sign in.');
           this.router.navigate(['/login']);
           this.isLoading = false;
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Registration failed. Please try again.');
+          this.notification.error(err.error?.message || 'Registration failed. Please try again.');
           this.isLoading = false;
         },
       });

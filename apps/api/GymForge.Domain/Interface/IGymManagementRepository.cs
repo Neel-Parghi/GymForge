@@ -1,3 +1,4 @@
+using GymForge.Contracts.Gym;
 using GymForge.Domain.Entities;
 
 namespace GymForge.Domain.Interface
@@ -8,5 +9,6 @@ namespace GymForge.Domain.Interface
         Task AddGymAsync(Gym gym);
         Task AddBranchAsync(Branch branch);
         Task AddGymSubscriptionAsync(GymSubscription subscription);
+        Task<List<GymOwnersDto>> GetGymOwnersList();
     }
 }

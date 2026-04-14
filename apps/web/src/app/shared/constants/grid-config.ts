@@ -18,8 +18,10 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
     columns: [
       { key: 'name', label: 'Owner Name', isClickable: true },
       { key: 'email', label: 'Email' },
+      { key: 'joinedDate', label: 'Joined Date', type: 'date' },
       { key: 'phone', label: 'Phone Number' },
       { key: 'gymsOwned', label: 'Gyms Owned' },
+      { key: 'invitationStatus', label: 'Invite Status', type: 'badge' },
       { key: 'status', label: 'Status', type: 'badge' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],

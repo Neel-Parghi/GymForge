@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
 
@@ -17,7 +17,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
   private router = inject(Router);
-  private toastr = inject(ToastrService);
+  private notification = inject(NotificationService);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -39,16 +39,16 @@ export class LoginComponent {
           const data = response?.Data || response?.data || response;
           const token = data?.accessToken;
           if (token) {
-            this.toastr.success('Login successful!');
+            this.notification.success('Login successful!');
             this.authApiService.redirectUserByRole();
           } else {
             console.error('No token received from login API', response);
-            this.toastr.error('Authentication failed. No token received.');
+            this.notification.error('Authentication failed. No token received.');
           }
           this.isLoading = false;
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Login failed. Please try again.');
+          this.notification.error(err.error?.message || 'Login failed. Please try again.');
           this.isLoading = false;
         },
       });

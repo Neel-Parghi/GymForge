@@ -1,5 +1,4 @@
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { Router } from '@angular/router';
@@ -11,7 +10,6 @@ import { API_CONSTANTS } from '../constants/api-constants';
 })
 export class AuthApiService extends BaseApiService {
 
-  private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
 
   constructor() {
@@ -35,25 +33,17 @@ export class AuthApiService extends BaseApiService {
   }
 
   saveTokens(res: any) {
-    if (isPlatformBrowser(this.platformId)) {
-      const data = res?.Data || res?.data || res;
-      if (data?.accessToken) localStorage.setItem('token', data.accessToken);
-      if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-    }
+    const data = res?.Data || res?.data || res;
+    if (data?.accessToken) localStorage.setItem('token', data.accessToken);
+    if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
   }
 
   getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token');
-    }
-    return null;
+    return localStorage.getItem('token');
   }
 
   getRefreshToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('refreshToken');
-    }
-    return null;
+    return localStorage.getItem('refreshToken');
   }
 
   refreshToken(): Observable<any> {
@@ -65,10 +55,8 @@ export class AuthApiService extends BaseApiService {
   }
 
   logout() {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     this.router.navigate(['/login']);
   }
 

@@ -8,13 +8,13 @@ namespace GymForge.Application.Modules.Gym.Services
 {
     public class GymManagementService : IGymManagementService
     {
-        private readonly IGymManagementRepository _repository;
+        private readonly IGymManagementRepository _gymManagementRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public GymManagementService(IGymManagementRepository repository, IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _repository = repository;
+            _gymManagementRepository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -24,7 +24,7 @@ namespace GymForge.Application.Modules.Gym.Services
             // 1. Setup and Add Address
             Address address = _mapper.Map<Address>(gymOnboardingDto.Address);
             address.Id = Guid.NewGuid();
-            await _repository.AddAddressAsync(address);
+            await _gymManagementRepository.AddAddressAsync(address);
 
             // 2. Setup and Add Gym
             Domain.Entities.Gym gym = _mapper.Map<Domain.Entities.Gym>(gymOnboardingDto);
@@ -33,7 +33,7 @@ namespace GymForge.Application.Modules.Gym.Services
             gym.OwnerUserId = ownerId;
             gym.IsActive = true;
             gym.IsVerified = false;
-            await _repository.AddGymAsync(gym);
+            await _gymManagementRepository.AddGymAsync(gym);
 
             // 3. Setup and Add Branches
             bool isFirstBranch = true;
@@ -41,7 +41,7 @@ namespace GymForge.Application.Modules.Gym.Services
             {
                 Address branchAddress = _mapper.Map<Address>(branchDto.Address);
                 branchAddress.Id = Guid.NewGuid();
-                await _repository.AddAddressAsync(branchAddress);
+                await _gymManagementRepository.AddAddressAsync(branchAddress);
 
                 Branch branch = _mapper.Map<Branch>(branchDto);
                 branch.Id = Guid.NewGuid();
@@ -50,7 +50,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 branch.IsMainBranch = isFirstBranch;
                 branch.IsActive = true;
                 
-                await _repository.AddBranchAsync(branch);
+                await _gymManagementRepository.AddBranchAsync(branch);
                 isFirstBranch = false;
             }
 
@@ -67,10 +67,15 @@ namespace GymForge.Application.Modules.Gym.Services
                 PriceAtPurchase = 0m,
                 Notes = "Initial Onboarding Subscription"
             };
-            await _repository.AddGymSubscriptionAsync(subscription);
+            await _gymManagementRepository.AddGymSubscriptionAsync(subscription);
 
             // 5. Commit Transaction
             await _unitOfWork.SaveChangesAsync();
+        }
+    
+        public async Task<List<GymOwnersDto>> GetGymOwnersList()
+        {
+            return await _gymManagementRepository.GetGymOwnersList();
         }
     }
 }

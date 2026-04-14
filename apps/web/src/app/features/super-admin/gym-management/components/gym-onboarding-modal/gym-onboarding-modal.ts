@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../../../../core/services/notification.service';
 import { GymService } from '../../../../../core/services/gym.service';
+import { ApiResponse } from '../../../../../shared/models/api-response.model';
+import { ConfirmationPopupComponent } from "../../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
 
 @Component({
   selector: 'app-gym-onboarding-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent],
   templateUrl: './gym-onboarding-modal.html',
   styleUrl: './gym-onboarding-modal.scss'
 })
@@ -24,7 +26,7 @@ export class GymOnboardingModalComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private gymService = inject(GymService);
-  private toastr = inject(ToastrService);
+  private notification = inject(NotificationService);
 
   steps = [
     { id: 1, label: 'Gym Info', key: 'gymInfo' },
@@ -34,15 +36,13 @@ export class GymOnboardingModalComponent implements OnInit {
     { id: 5, label: 'Review', key: null }
   ];
 
-  dummyOwners = [
-    { id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', name: 'John Doe', email: 'john.doe@example.com' },
-    { id: 'bb873c9f-333e-42c2-b942-8395ed548f0e', name: 'Jane Smith', email: 'jane.smith@example.com' }
-  ];
+  gymOwners: any;
 
   constructor() { }
 
   ngOnInit(): void {
     this.initForm();
+    this.getGymOwners();
   }
 
   private initForm() {
@@ -171,12 +171,12 @@ export class GymOnboardingModalComponent implements OnInit {
 
       this.gymService.onboardGym(payload).subscribe({
         next: () => {
-          this.toastr.success('Gym onboarded successfully!');
+          this.notification.success('Gym onboarded successfully!');
           this.isSubmitting = false;
           this.closeModal();
         },
         error: (error) => {
-          this.toastr.error(error.error?.message || 'Failed to onboard gym');
+          this.notification.error(error.error?.message || 'Failed to onboard gym');
           this.isSubmitting = false;
         }
       });
@@ -185,5 +185,16 @@ export class GymOnboardingModalComponent implements OnInit {
 
   get f() {
     return this.onboardingForm.value;
+  }
+
+  getGymOwners() {
+    this.gymService.getGymOwners().subscribe({
+      next: (res: ApiResponse) => {
+        this.gymOwners = res.Data;
+      },
+      error: (err: any) => {
+        this.notification.error(err.error?.message || 'Failed to load owners');
+      }
+    });
   }
 }

@@ -2,6 +2,8 @@
 using GymForge.Application.Modules.Auth.Service;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Application.Modules.Gym.Services;
+using GymForge.Application.Modules.Users.Interface;
+using GymForge.Application.Modules.Users.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +21,7 @@ namespace GymForge.Application
 
             services.AddScoped<IGymManagementService, GymManagementService>();
 
+            services.AddScoped<IUserService, UserService>();
 
             return services;
         }

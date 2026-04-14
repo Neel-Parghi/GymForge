@@ -17,11 +17,11 @@ namespace GymForge.Application.Modules.Auth.Service
         {
             _passwordService = passwordService;
             _jwtService = jwtService;
-            _authRepository = authRepository;   
+            _authRepository = authRepository;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> RegisterSuperAdmin(RegisterRequestDto userDto)
+        public async Task<TokenResponseDto> RegisterSuperAdmin(RegisterRequestDto userDto)
         {
             User user = new()
             {
@@ -37,23 +37,44 @@ namespace GymForge.Application.Modules.Auth.Service
             await _authRepository.RegisterSuperAdmin(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return _jwtService.GenerateToken(user);
-
+            return await GenerateAndSaveTokens(user);
         }
 
-        public async Task<string> Login(LoginRequestDto userDto)
+        public async Task<TokenResponseDto> Login(LoginRequestDto userDto)
         {
             User? user = await _authRepository.Login(userDto);
 
             if (user == null)
                 throw new Exception("Invalid credentials");
 
-            bool validPassword = _passwordService.VerifyPasword(userDto.Password, user.PasswordHash);
+            bool validPassword = _passwordService.VerifyPasword(userDto.Password, user.PasswordHash!);
 
             if (!validPassword)
                 throw new Exception("Invalid credentials");
-            
-            return _jwtService.GenerateToken(user);
+
+            return await GenerateAndSaveTokens(user);
+        }
+
+        public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
+        {
+            User? user = await _authRepository.GetByRefreshTokenAsync(dto.RefreshToken);
+
+            if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+                throw new Exception("Invalid or expired refresh token");
+
+            return await GenerateAndSaveTokens(user);
+        }
+
+        private async Task<TokenResponseDto> GenerateAndSaveTokens(User user)
+        {
+            TokenResponseDto tokenResponse = _jwtService.GenerateToken(user);
+
+            user.RefreshToken = tokenResponse.RefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return tokenResponse;
         }
     }
 }

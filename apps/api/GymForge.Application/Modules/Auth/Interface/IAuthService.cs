@@ -1,11 +1,13 @@
-﻿using GymForge.Contracts.Auth;
+using GymForge.Contracts.Auth;
 
 namespace GymForge.Application.Modules.Auth.Interface
 {
     public interface IAuthService
     {
-        Task<string> RegisterSuperAdmin(RegisterRequestDto dto);
+        Task<TokenResponseDto> RegisterSuperAdmin(RegisterRequestDto dto);
 
-        Task<string> Login(LoginRequestDto dto);
+        Task<TokenResponseDto> Login(LoginRequestDto dto);
+
+        Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto);
     }
 }
