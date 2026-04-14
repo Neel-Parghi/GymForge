@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthApiService } from '../../core/services/auth-api.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { NavigationService } from '../../core/services/navigation.service';
+import { NavItem } from '../../core/models/nav-Item.model';
 
 @Component({
   selector: 'app-main-layout',
@@ -15,28 +17,34 @@ export class MainLayoutComponent {
   private authApiService = inject(AuthApiService);
   private themeService = inject(ThemeService);
   private router = inject(Router);
+  private readonly navService = inject(NavigationService);
 
   isSidebarCollapsed = false;
-  isGymManagementExpanded = false;
+  menuItems: NavItem[] = [];
+
+  constructor() {
+    this.menuItems = this.navService.getMenuItems();
+  }
 
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
-    // Optional: auto-collapse submenus when sidebar collapses
+  }
+
+  toggleGroup(item: NavItem) {
     if (this.isSidebarCollapsed) {
-      this.isGymManagementExpanded = false;
+      this.isSidebarCollapsed = false;
     }
+    item.expanded = !item.expanded;
   }
 
-  toggleTheme() {
-    this.themeService.toggleTheme();
-  }
-
-  get currentTheme() {
-    return this.themeService.getCurrentTheme();
-  }
-
-  get isGymManagementActive() {
-    return this.router.url.startsWith('/super-admin/gym-');
+  isGroupActive(item: NavItem): boolean {
+    if (!item.children || item.children.length === 0) return false;
+    const currentUrl = this.router.url.split(/[?#]/)[0].replace(/\/$/, "");
+    return item.children.some(child => {
+      if (!child.route) return false;
+      const cleanRoute = child.route.replace(/\/$/, "");
+      return currentUrl === cleanRoute || currentUrl.startsWith(cleanRoute + '/');
+    });
   }
 
   logout() {

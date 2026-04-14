@@ -153,8 +153,10 @@
           border-left: 3px solid transparent;
 
           .nav-icon {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-right: 12px;
             font-size: 1.1rem;
             flex-shrink: 0;
@@ -202,9 +204,12 @@
             align-items: center;
 
             .nav-icon {
-              width: 16px;
-              height: 16px;
+              width: 20px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               margin-right: 12px;
+              font-size: 1.1rem;
             }
           }
 
@@ -220,12 +225,14 @@
           }
         }
 
-        &.group-active {
-          .nav-group-title {
-            color: #ffffff;
-            opacity: 1;
-            border-left-color: #ffffff;
-            background-color: rgba(255, 255, 255, 0.05);
+        .nav-group {
+          &.group-active {
+            .nav-group-title {
+              color: #ffffff;
+              opacity: 1;
+              border-left-color: #ffffff;
+              background-color: rgba(255, 255, 255, 0.05);
+            }
           }
         }
 
