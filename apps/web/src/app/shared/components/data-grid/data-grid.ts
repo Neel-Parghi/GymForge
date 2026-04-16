@@ -41,7 +41,7 @@ export class DataGrid {
   toggleAll(event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      this.selectedRows = [...this.data];
+      this.selectedRows = [...(this.data || [])];
     } else {
       this.selectedRows = [];
     }
@@ -49,7 +49,7 @@ export class DataGrid {
   }
 
   isAllSelected() {
-    return this.data.length > 0 && this.selectedRows.length === this.data.length;
+    return this.data?.length > 0 && this.selectedRows.length === this.data.length;
   }
 
   isSelected(row: any) {

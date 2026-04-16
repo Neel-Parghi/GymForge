@@ -6,19 +6,21 @@ import { MainLayoutComponent } from './layout/main-layout/main-layout.component'
 import { DashboardComponent } from './features/super-admin/dashboard-component/dashboard-component';
 import { GymOwners } from './features/super-admin/gym-management/gym-owners/gym-owners';
 import { GymList } from './features/super-admin/gym-management/gym-list/gym-list';
+import { PricingList } from './features/super-admin/pricing/pricing-list/pricing-list';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'accept-invitation', component: AcceptInvitationComponent },
-  { 
-    path: 'super-admin', 
+  {
+    path: 'super-admin',
     component: MainLayoutComponent,
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'gym-owners', component: GymOwners },
-      { path: 'gym-list', component: GymList }
+      { path: 'gym-list', component: GymList },
+      { path: 'pricing', component: PricingList }
     ]
   }
 ];

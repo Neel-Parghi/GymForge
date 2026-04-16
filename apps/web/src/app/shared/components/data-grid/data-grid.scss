@@ -166,5 +166,21 @@
         }
       }
     }
+
+    .icon-bool-true {
+      color: #10b981;
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
+
+    .icon-bool-false {
+      color: #000000;
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
   }
 }

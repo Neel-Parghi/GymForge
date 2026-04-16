@@ -211,8 +211,9 @@
               <label>Select Plan Tier</label>
               <select formControlName="subscriptionId">
                 <option value="">No Plan Selected (Trialing)</option>
-                <option value="3fa85f64-5717-4562-b3fc-2c963f66afa6">Basic - $49/mo</option>
-                <option value="4fb96g75-6828-5673-c4gd-3d074g77bgb7">Pro - $99/mo</option>
+                <option *ngFor="let plan of plans" [value]="plan.id">
+                  {{ plan.name }} - ${{ plan.price }}/{{ plan.durationInDays === 30 ? 'mo' : (plan.durationInDays + ' days') }}
+                </option>
               </select>
             </div>
             <div class="form-group lg checkbox-group">

@@ -1,0 +1,18 @@
+<div class="page-header">
+    <h2>Plans List</h2>
+    @if (selectedPlans.length === 0) {
+    <button class="primary-btn" (click)="openAddPlanModal()">Add Plan</button>
+    } @else {
+    <button class="primary-btn edit-mode">Edit ({{ selectedPlans.length }} selected)</button>
+    }
+</div>
+<app-data-grid [config]="gridConfig" [data]="data" (selectionChange)="onSelectionChange($event)"
+    (actionEvent)="handleAction($event)">
+</app-data-grid>
+
+<!-- Add Pricing Modal -->
+@if (isAddPlanModalOpen)
+{
+<app-add-pricing (close)="closeAddPlanModal()" (planAdded)="onPlanAdded($event)">
+</app-add-pricing>
+}

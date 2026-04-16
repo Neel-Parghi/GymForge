@@ -19,4 +19,11 @@ export const API_CONSTANTS = {
     GYM_OWNER: '/gym/gym-owner',
     GYM_LIST: '/gym/gym-list',
   },
+  PRICING: {
+    GET_LIST: '/SaaSPlan/list',
+    GET_BY_ID: '/SaaSPlan/get',
+    ADD: '/SaaSPlan/add',
+    UPDATE: '/SaaSPlan/update',
+    DELETE: '/SaaSPlan/delete',
+  }
 };

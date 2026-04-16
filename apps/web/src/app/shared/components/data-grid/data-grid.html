@@ -13,44 +13,58 @@
         <td *ngIf="selectable" class="checkbox-col">
           <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
         </td>
-        <td *ngFor="let col of columns" [ngSwitch]="col.type">
-          <!-- Action Buttons -->
-          <ng-container *ngSwitchCase="'action'">
-            <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-            <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="action-btn delete-btn" (click)="onAction('delete', row)" title="Delete">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </ng-container>
+        <td *ngFor="let col of columns">
+          @switch (col.type) {
+            <!-- Action Buttons -->
+            @case ('action') {
+              <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="action-btn delete-btn" (click)="onAction('delete', row)" title="Delete">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            }
 
-          <!-- Badges -->
-          <ng-container *ngSwitchCase="'badge'">
-            <span class="badge" [ngClass]="getBadgeClass(row[col.key])">
-              {{ row[col.key] }}
-            </span>
-          </ng-container>
+            <!-- Badges -->
+            @case ('badge') {
+              @if (row[col.key] !== null && row[col.key] !== undefined) {
+                <span class="badge" [ngClass]="getBadgeClass(row[col.key])">
+                  {{ row[col.key] }}
+                </span>
+              } @else {
+                <span>-</span>
+              }
+            }
 
-          <!-- Date -->
-          <ng-container *ngSwitchCase="'date'">
-            {{ row[col.key] | date:'mediumDate' }}
-          </ng-container>
+            <!-- Date -->
+            @case ('date') {
+              {{ row[col.key] | date:'mediumDate' }}
+            }
 
-          <!-- Text / Clickable Links -->
-          <ng-container *ngSwitchDefault>
-            <span *ngIf="col.isClickable; else plainText" class="clickable-cell" (click)="onAction('click_' + col.key, row)">
-              {{ row[col.key] }}
-            </span>
-            <ng-template #plainText>
-              {{ row[col.key] }}
-            </ng-template>
-          </ng-container>
+            <!-- Boolean -->
+            @case ('bool') {
+              <span [ngClass]="row[col.key] ? 'icon-bool-true' : 'icon-bool-false'" [title]="row[col.key] ? 'Yes' : 'No'">
+                <i class="fa-solid" [ngClass]="row[col.key] ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+              </span>
+            }
+
+            <!-- Text / Clickable Links -->
+            @default {
+              @if (col.isClickable) {
+                <span class="clickable-cell" (click)="onAction('click_' + col.key, row)">
+                  {{ row[col.key] }}
+                </span>
+              } @else {
+                {{ row[col.key] }}
+              }
+            }
+          }
         </td>
       </tr>
-      <tr *ngIf="data.length === 0">
+      <tr *ngIf="!data || data.length === 0">
         <td [attr.colspan]="selectable ? columns.length + 1 : columns.length" class="empty-state">
           No data available
         </td>

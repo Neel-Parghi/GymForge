@@ -27,9 +27,9 @@ export const MenuConfig: NavItem[] = [
         ]
     },
     {
-        label: 'Plan Catalog',
-        icon: 'fa-brands fa-buffer',
-        route: '/super-admin/plan-catalog',
+        label: 'Pricing',
+        icon: 'fa-solid fa-tags',
+        route: '/super-admin/pricing',
         roles: ['SuperAdmin'],
     },
     {

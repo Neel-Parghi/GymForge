@@ -5,6 +5,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
 import { GymService } from '../../../../../core/services/gym.service';
 import { ApiResponse } from '../../../../../shared/models/api-response.model';
 import { ConfirmationPopupComponent } from "../../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
+import { PricingService } from '../../../../../core/services/pricing.service';
 
 @Component({
   selector: 'app-gym-onboarding-modal',
@@ -37,12 +38,15 @@ export class GymOnboardingModalComponent implements OnInit {
   ];
 
   gymOwners: any;
+  pricingService = inject(PricingService);
+  plans: any;
 
   constructor() { }
 
   ngOnInit(): void {
     this.initForm();
     this.getGymOwners();
+    this.loadPlans();
   }
 
   private initForm() {
@@ -82,6 +86,12 @@ export class GymOnboardingModalComponent implements OnInit {
 
   get branches(): FormArray {
     return this.onboardingForm.get('branches') as FormArray;
+  }
+
+  loadPlans() {
+    this.pricingService.getAllPlans().subscribe((res: any) => {
+      this.plans = res?.data || res?.Data || [];
+    });
   }
 
   addBranch() {

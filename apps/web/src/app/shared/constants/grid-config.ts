@@ -9,7 +9,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'contact', label: 'Contact Email' },
       { key: 'branchesCount', label: 'Branches' },
       { key: 'verification', label: 'Verification', type: 'badge' },
-      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'status', label: 'Status', type: 'bool' },
       { key: 'actions', label: 'Manage', type: 'action' }
     ],
     selectable: true
@@ -22,7 +22,22 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'phone', label: 'Phone Number' },
       { key: 'gymsOwned', label: 'Gyms Owned' },
       { key: 'invitationStatus', label: 'Invite Status', type: 'badge' },
+      { key: 'status', label: 'Status', type: 'bool' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: true
+  },
+  PricingList: {
+    columns: [
+      { key: 'name', label: 'Plan Name', isClickable: true },
+      { key: 'description', label: 'Description' },
+      { key: 'durationInDays', label: 'Duration (Days)', type: 'number' },
+      { key: 'price', label: 'Price', type: 'currency' },
+      { key: 'maxBranches', label: 'Max Branches', type: 'number' },
+      { key: 'maxMembers', label: 'Max Members', type: 'number' },
+      // { key: 'createdAt', label: 'Created Date', type: 'date' },
       { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'isTrial', label: 'Trial', type: 'bool' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: true
