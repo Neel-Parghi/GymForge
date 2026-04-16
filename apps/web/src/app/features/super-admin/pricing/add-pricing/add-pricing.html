@@ -20,9 +20,7 @@
           <div class="form-group lg">
             <label>Plan Name <span class="required">*</span></label>
             <input type="text" formControlName="name" placeholder="e.g. Pro Tier" />
-            <div class="error-msg" *ngIf="pricingForm.get('name')?.touched && pricingForm.get('name')?.invalid">
-              Plan name is required
-            </div>
+            <app-validation-message [control]="pricingForm.get('name')" fieldName="Plan name"></app-validation-message>
           </div>
 
           <div class="form-group lg">
@@ -33,17 +31,13 @@
           <div class="form-group">
             <label>Price ($) <span class="required">*</span></label>
             <input type="number" formControlName="price" placeholder="49.99" />
-            <div class="error-msg" *ngIf="pricingForm.get('price')?.touched && pricingForm.get('price')?.invalid">
-              Valid price is required
-            </div>
+            <app-validation-message [control]="pricingForm.get('price')" fieldName="Price"></app-validation-message>
           </div>
 
           <div class="form-group">
             <label>Duration (Days) <span class="required">*</span></label>
             <input type="number" formControlName="durationInDays" placeholder="30" />
-            <div class="error-msg" *ngIf="pricingForm.get('durationInDays')?.touched && pricingForm.get('durationInDays')?.invalid">
-              Duration is required
-            </div>
+            <app-validation-message [control]="pricingForm.get('durationInDays')" fieldName="Duration"></app-validation-message>
           </div>
 
           <div class="form-group">

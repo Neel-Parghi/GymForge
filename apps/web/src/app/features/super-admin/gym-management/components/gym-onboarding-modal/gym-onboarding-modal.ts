@@ -6,11 +6,12 @@ import { GymService } from '../../../../../core/services/gym.service';
 import { ApiResponse } from '../../../../../shared/models/api-response.model';
 import { ConfirmationPopupComponent } from "../../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
 import { PricingService } from '../../../../../core/services/pricing.service';
+import { ValidationMessage } from "../../../../../shared/components/validation-message/validation-message";
 
 @Component({
   selector: 'app-gym-onboarding-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage],
   templateUrl: './gym-onboarding-modal.html',
   styleUrl: './gym-onboarding-modal.scss'
 })

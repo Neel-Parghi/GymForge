@@ -2,11 +2,12 @@ import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PricingService } from '../../../../core/services/pricing.service';
+import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message';
 
 @Component({
   selector: 'app-add-pricing',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ValidationMessage],
   templateUrl: './add-pricing.html',
   styleUrl: './add-pricing.scss',
 })
