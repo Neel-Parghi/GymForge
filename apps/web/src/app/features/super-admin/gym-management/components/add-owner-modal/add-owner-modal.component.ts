@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { UserService } from '../../../../../core/services/user.service';
 import { ConfirmationPopupComponent } from "../../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
+import { ValidationMessage } from '../../../../../shared/components/validation-message/validation-message';
 
 @Component({
   selector: 'app-add-owner-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage],
   templateUrl: './add-owner-modal.component.html',
   styleUrl: './add-owner-modal.component.scss'
 })

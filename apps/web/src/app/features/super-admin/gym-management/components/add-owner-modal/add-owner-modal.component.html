@@ -22,18 +22,25 @@
           <div class="form-group">
             <label>First Name *</label>
             <input type="text" formControlName="firstName" placeholder="Enter first name">
+            <app-validation-message [control]="inviteForm.get('firstName')"
+              fieldName="First name"></app-validation-message>
           </div>
           <div class="form-group">
             <label>Last Name *</label>
             <input type="text" formControlName="lastName" placeholder="Enter last name">
+            <app-validation-message [control]="inviteForm.get('lastName')"
+              fieldName="Last name"></app-validation-message>
           </div>
           <div class="form-group">
             <label>Email Address *</label>
             <input type="email" formControlName="email" placeholder="owner@example.com">
+            <app-validation-message [control]="inviteForm.get('email')" fieldName="Email"></app-validation-message>
           </div>
           <div class="form-group">
             <label>Phone Number *</label>
             <input type="text" formControlName="phone" placeholder="+1 234 567 8900">
+            <app-validation-message [control]="inviteForm.get('phone')"
+              fieldName="Phone number"></app-validation-message>
           </div>
         </div>
 

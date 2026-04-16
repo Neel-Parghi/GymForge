@@ -144,11 +144,12 @@
         .nav-link {
           display: flex;
           align-items: center;
-          padding: 10px 24px;
+          padding: 12px 24px;
           color: var(--text-muted);
           text-decoration: none;
-          font-size: 0.9rem;
-          font-weight: 500;
+          font-size: 0.95rem;
+          font-weight: 400;
+          letter-spacing: 0.3px;
           transition: all 0.2s ease;
           border-left: 3px solid transparent;
 
@@ -176,7 +177,7 @@
           }
 
           &.active {
-            color: #ffffff;
+            color: #7dc4ff;
             background-color: rgba(255, 255, 255, 0.08);
             border-left-color: #ffffff;
             font-weight: 600;
@@ -189,13 +190,10 @@
           justify-content: space-between;
           padding: 12px 24px;
           color: var(--text-muted);
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 1.2px;
-          font-weight: 700;
-          margin-top: 16px;
+          font-size: 0.95rem;
+          font-weight: 400;
+          letter-spacing: 0.3px;
           cursor: pointer;
-          opacity: 0.8;
           transition: all 0.2s ease;
           border-left: 3px solid transparent;
 
@@ -284,6 +282,11 @@
       }
     }
   }
+}
+
+.sidebar-logo {
+  width: 150px;
+  cursor: pointer;
 }
 
 .main-content {
