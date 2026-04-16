@@ -1,7 +1,6 @@
 using GymForge.Domain.Interface;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace GymForge.Infrastructure.Services
 {
@@ -35,11 +34,11 @@ namespace GymForge.Infrastructure.Services
                     htmlContent = $"<strong>Hello {name},</strong><br><br>Please click <a href='{inviteLink}'>here</a> to set your password and join GymForge."
                 };
 
-                using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
+                using HttpRequestMessage request = new(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
                 request.Headers.Add("api-key", apiKey);
                 request.Content = JsonContent.Create(payload);
 
-                var response = await _httpClient.SendAsync(request);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                 {

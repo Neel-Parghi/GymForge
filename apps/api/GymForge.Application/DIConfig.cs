@@ -23,6 +23,8 @@ namespace GymForge.Application
 
             services.AddScoped<IUserService, UserService>();
 
+            services.AddScoped<ISaaSPlanService, SaaSPlanService>();
+
             return services;
         }
     }

@@ -37,7 +37,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             // 3. Setup and Add Branches
             bool isFirstBranch = true;
-            foreach(var branchDto in gymOnboardingDto.Branches)
+            foreach(BranchDto branchDto in gymOnboardingDto.Branches)
             {
                 Address branchAddress = _mapper.Map<Address>(branchDto.Address);
                 branchAddress.Id = Guid.NewGuid();

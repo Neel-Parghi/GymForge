@@ -28,7 +28,7 @@ namespace GymForge.Api.Controllers.User
         [AllowAnonymous]
         public async Task<IActionResult> ValidateInvitation(string token)
         {
-            var isValid = await _userService.ValidateInvitationTokenAsync(token);
+            bool isValid = await _userService.ValidateInvitationTokenAsync(token);
             return Ok(new { isValid });
         }
 

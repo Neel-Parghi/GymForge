@@ -48,8 +48,8 @@ namespace GymForge.Application.Modules.Auth.Service
 
         public string GenerateRefreshToken()
         {
-            var randomNumber = new byte[64];
-            using var rng = RandomNumberGenerator.Create();
+            byte[] randomNumber = new byte[64];
+            using RandomNumberGenerator rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
