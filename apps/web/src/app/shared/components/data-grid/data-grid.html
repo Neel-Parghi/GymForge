@@ -1,74 +1,115 @@
 <div class="data-grid-container" *ngIf="config">
-  <table class="data-grid-table">
-    <thead>
-      <tr>
-        <th *ngIf="selectable" class="checkbox-col">
-          <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)">
-        </th>
-        <th *ngFor="let col of columns">{{ col.label }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of data" [class.selected]="isSelected(row)">
-        <td *ngIf="selectable" class="checkbox-col">
-          <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
-        </td>
-        <td *ngFor="let col of columns">
-          @switch (col.type) {
+  <div class="table-wrapper">
+    <table class="data-grid-table">
+      <thead>
+        <tr>
+          <th *ngIf="selectable" class="checkbox-col">
+            <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)">
+          </th>
+          <th *ngFor="let col of columns">{{ col.label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of data" [class.selected]="isSelected(row)">
+          <td *ngIf="selectable" class="checkbox-col">
+            <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
+          </td>
+          <td *ngFor="let col of columns">
+            @switch (col.type) {
             <!-- Action Buttons -->
             @case ('action') {
-              <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-              <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button class="action-btn delete-btn" (click)="onAction('delete', row)" title="Delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+            <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="action-btn delete-btn" (click)="onAction('delete', row)" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
             }
 
             <!-- Badges -->
             @case ('badge') {
-              @if (row[col.key] !== null && row[col.key] !== undefined) {
-                <span class="badge" [ngClass]="getBadgeClass(row[col.key])">
-                  {{ row[col.key] }}
-                </span>
-              } @else {
-                <span>-</span>
-              }
+            @if (row[col.key] !== null && row[col.key] !== undefined) {
+            <span class="badge" [ngClass]="getBadgeClass(row[col.key])">
+              {{ row[col.key] }}
+            </span>
+            } @else {
+            <span>-</span>
+            }
             }
 
             <!-- Date -->
             @case ('date') {
-              {{ row[col.key] | date:'mediumDate' }}
+            {{ row[col.key] | date:'mediumDate' }}
             }
 
             <!-- Boolean -->
             @case ('bool') {
-              <span [ngClass]="row[col.key] ? 'icon-bool-true' : 'icon-bool-false'" [title]="row[col.key] ? 'Yes' : 'No'">
-                <i class="fa-solid" [ngClass]="row[col.key] ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
-              </span>
+            <span [ngClass]="row[col.key] ? 'icon-bool-true' : 'icon-bool-false'" [title]="row[col.key] ? 'Yes' : 'No'">
+              <i class="fa-solid" [ngClass]="row[col.key] ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+            </span>
             }
 
             <!-- Text / Clickable Links -->
             @default {
-              @if (col.isClickable) {
-                <span class="clickable-cell" (click)="onAction('click_' + col.key, row)">
-                  {{ row[col.key] }}
-                </span>
-              } @else {
-                {{ row[col.key] }}
-              }
+            @if (col.isClickable) {
+            <span class="clickable-cell" (click)="onAction('row-click', row)">
+              {{ row[col.key] }}
+            </span>
+            } @else {
+            {{ row[col.key] }}
             }
-          }
-        </td>
-      </tr>
-      <tr *ngIf="!data || data.length === 0">
-        <td [attr.colspan]="selectable ? columns.length + 1 : columns.length" class="empty-state">
-          No data available
-        </td>
-      </tr>
-    </tbody>
-  </table>
+            }
+            }
+          </td>
+        </tr>
+        <tr *ngIf="!data || data.length === 0">
+          <td [attr.colspan]="selectable ? columns.length + 1 : columns.length" class="empty-state">
+            No data available
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Footer remains constant below the scrollable table area -->
+  <div class="grid-footer">
+    <div class="footer-left">
+      <div class="record-count">
+        Showing <b>{{ totalItems > 0 ? startRange : 0 }}</b> to <b>{{ endRange }}</b> of <b>{{ totalItems }}</b> items
+      </div>
+
+      <div class="page-size-selector">
+        <span>Show</span>
+        <select [value]="pageSize" (change)="onPageSizeChange($event)">
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+        <span>per page</span>
+      </div>
+    </div>
+
+    <div class="footer-right">
+      <button class="pager-btn" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+        <button class="pager-btn"
+          *ngIf="i + 1 === 1 || i + 1 === totalPages || (i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1)"
+          [class.active]="currentPage === i + 1" (click)="onPageChange(i + 1)">
+          {{ i + 1 }}
+        </button>
+        <span *ngIf="(i + 1 === 2 && currentPage > 3) || (i + 1 === totalPages - 1 && currentPage < totalPages - 2)"
+          class="page-indicator">...</span>
+      </ng-container>
+
+      <button class="pager-btn" [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
 </div>

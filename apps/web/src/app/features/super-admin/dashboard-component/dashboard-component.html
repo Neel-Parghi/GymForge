@@ -1,63 +1,151 @@
 <div class="dashboard-container">
-  <div class="page-header">
-    <h2>Platform Overview</h2>
-  </div>
-
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <div class="stat-card" *ngFor="let stat of stats">
-      <div class="stat-icon-wrapper" [style.background-color]="stat.color + '15'">
-        <i class="fas" [class]="stat.icon" [style.color]="stat.color"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-label">{{ stat.label }}</span>
-        <div class="stat-value-row">
-          <h3 class="stat-value">{{ stat.value }}</h3>
-          <span class="stat-trend" [class.trend-up]="stat.trendUp" [class.trend-down]="!stat.trendUp">
-            <i class="fas" [class]="stat.trendUp ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-            {{ stat.trend }}
-          </span>
-        </div>
-      </div>
+  <!-- Header Section -->
+  <div class="dashboard-header-row">
+    <div class="title-group">
+      <h2 class="title">Platform Overview</h2>
+      <p class="subtitle">Architecture-level metrics and system performance health.</p>
+    </div>
+    <div class="action-group">
+      <button class="secondary-btn">Download Report</button>
+      <button class="primary-btn">Global Config</button>
     </div>
   </div>
 
-  <!-- Recent Activity -->
-  <div class="dashboard-content">
-    <div class="content-card">
-      <div class="card-header">
-        <h3>Recent Gym Registrations</h3>
-        <button class="text-btn">View All</button>
+  <!-- Metric Cards Row -->
+  <div class="metric-cards">
+    <!-- Platform Health -->
+    <div class="card">
+      <div class="card-header-row">
+        <i class="fas fa-check-circle health-icon"></i>
+        <span class="badge success">OPTIMAL</span>
       </div>
-      <div class="table-responsive">
-        <table class="simple-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Gym Name</th>
-              <th>Owner</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let reg of recentRegistrations">
-              <td class="id-cell">#{{ reg.id }}</td>
-              <td><strong>{{ reg.name }}</strong></td>
-              <td>{{ reg.owner }}</td>
-              <td>{{ reg.date }}</td>
-              <td>
-                <span class="status-badge" [ngClass]="getStatusClass(reg.status)">
-                  {{ reg.status }}
-                </span>
-              </td>
-              <td>
-                <button class="icon-btn" title="Review"><i class="fas fa-search"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="card-body">
+        <span class="label">PLATFORM HEALTH</span>
+        <h3 class="value">{{ stats.platformHealth.value }}</h3>
+        <p class="subtext"><i class="far fa-clock"></i> {{ stats.platformHealth.subtext }}</p>
+      </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="card">
+      <span class="label">TOTAL REVENUE</span>
+      <h3 class="value">{{ stats.totalRevenue.value }}</h3>
+      <div class="sparkline-container">
+        <svg viewBox="0 0 100 30" class="sparkline">
+          <polyline fill="none" stroke="#10b981" stroke-width="2" [attr.points]="getSparklinePoints(stats.totalRevenue.sparkline)" />
+        </svg>
+        <span class="trend positive">{{ stats.totalRevenue.trend }}</span>
+      </div>
+      <p class="subtext">{{ stats.totalRevenue.subtext }}</p>
+    </div>
+
+    <!-- Subscriptions -->
+    <div class="card">
+      <span class="label">SUBSCRIPTIONS</span>
+      <h3 class="value">{{ stats.subscriptions.value }}</h3>
+      <div class="progress-container">
+        <div class="progress-bar" [style.width.%]="stats.subscriptions.progress"></div>
+      </div>
+      <div class="subtext-row">
+        <span>{{ stats.subscriptions.renewalRate }} Renewal Rate</span>
+        <span>Target: {{ stats.subscriptions.target }}</span>
+      </div>
+    </div>
+
+    <!-- Total Gyms -->
+    <div class="card">
+      <span class="label">TOTAL GYMS</span>
+      <h3 class="value">{{ stats.totalGyms.value }}</h3>
+      <div class="avatar-row">
+        @for (owner of stats.totalGyms.owners; track owner.name) {
+          <img [src]="owner.avatar" [alt]="owner.name" class="avatar">
+        }
+        <div class="avatar-extra">+{{ stats.totalGyms.extraCount }}</div>
+      </div>
+      <p class="subtext">{{ stats.totalGyms.trend }}</p>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="dashboard-grid">
+    <!-- Recently Registered Gyms -->
+    <div class="main-column">
+      <div class="content-card">
+        <div class="card-header">
+          <h3>Recently Registered Gyms</h3>
+          <a href="#" class="view-all">View All Registeries</a>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>GYM NAME</th>
+                <th>OWNER</th>
+                <th>DATE JOINED</th>
+                <th>TIER</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (reg of recentRegistrations; track reg.id) {
+                <tr>
+                  <td>
+                    <div class="gym-cell">
+                      <div class="gym-initials" [style.background-color]="reg.color">{{ reg.initials }}</div>
+                      <span class="gym-name">{{ reg.name }}</span>
+                    </div>
+                  </td>
+                  <td>{{ reg.owner }}</td>
+                  <td>{{ reg.date }}</td>
+                  <td><span class="tier-badge">{{ reg.tier }}</span></td>
+                  <td>
+                    <div class="status-cell">
+                      <span class="status-dot" [class.active]="reg.status === 'Active'"></span>
+                      {{ reg.status }}
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Top Performing & Status -->
+    <div class="side-column">
+      <div class="content-card">
+        <div class="card-header">
+          <h3>Top Performing Branches</h3>
+        </div>
+        <div class="list-container">
+          @for (branch of topBranches; track branch.name) {
+            <div class="list-item">
+              <div class="item-icon">
+                <img [src]="branch.icon" [alt]="branch.name">
+              </div>
+              <div class="item-info">
+                <div class="item-name">{{ branch.name }}</div>
+                <div class="item-sub">{{ branch.members }} Members • {{ branch.mrr }} MRR</div>
+              </div>
+              <i class="fas trend-icon" [class.fa-arrow-trend-up]="branch.trend === 'up'" [class.fa-arrow-right]="branch.trend === 'neutral'"></i>
+            </div>
+          }
+        </div>
+        <div class="card-footer">
+          <button class="footer-btn">Detailed Analytics</button>
+        </div>
+      </div>
+
+      <div class="alert-card info">
+        <div class="alert-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Platform Status</h4>
+          <p>Scheduled maintenance for Database Node 4 is set for Sunday 2 AM UTC. This may cause 1-2 minutes of latency.</p>
+          <a href="#" class="alert-link">Read Announcement</a>
+        </div>
       </div>
     </div>
   </div>

@@ -1,13 +1,18 @@
 <div class="page-header">
     <h2>Plans List</h2>
     @if (selectedPlans.length === 0) {
-    <button class="primary-btn" (click)="openAddPlanModal()">Add Plan</button>
+    <button class="btn-add" (click)="openAddPlanModal()">Add Plan</button>
     } @else {
     <button class="primary-btn edit-mode">Edit ({{ selectedPlans.length }} selected)</button>
     }
 </div>
-<app-data-grid [config]="gridConfig" [data]="data" (selectionChange)="onSelectionChange($event)"
-    (actionEvent)="handleAction($event)">
+<!-- <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search plans by name or description..."
+    (filterChanged)="onFilterChanged($event)">
+</app-filter-bar> -->
+
+<app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
+    [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
+    (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
 </app-data-grid>
 
 <!-- Add Pricing Modal -->

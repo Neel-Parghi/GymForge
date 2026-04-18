@@ -1,13 +1,18 @@
 <div class="page-header">
   <h2>Gym List</h2>
   @if (selectedGyms.length === 0) {
-  <button class="primary-btn" (click)="openAddGymModal()">Add Gym</button>
+  <button class="btn-add" (click)="openAddGymModal()">Add Gym</button>
   } @else {
   <button class="primary-btn edit-mode">Edit ({{ selectedGyms.length }} selected)</button>
   }
 </div>
-<app-data-grid [config]="gridConfig" [data]="data" (selectionChange)="onSelectionChange($event)"
-  (actionEvent)="handleAction($event)">
+<!-- <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search gyms by name or location..."
+  (filterChanged)="onFilterChanged($event)">
+</app-filter-bar> -->
+
+<app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
+  [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
+  (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
 </app-data-grid>
 
 <!-- Gym Onboarding Modal -->

@@ -1,0 +1,149 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background-color: white;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.search-container {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 11px 16px 11px 42px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1a1c1c;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+
+    &:focus {
+      outline: none;
+      background-color: white;
+      border-color: var(--primary-precision, #005bbc);
+      box-shadow: 0 0 0 4px rgba(0, 91, 188, 0.08);
+    }
+  }
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-select-wrapper {
+  position: relative;
+  min-width: 160px;
+
+  select {
+    width: 100%;
+    appearance: none;
+    padding: 10px 36px 10px 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-precision, #005bbc);
+    }
+  }
+
+  &::after {
+    content: "\f0d7";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.8rem;
+    pointer-events: none;
+  }
+}
+
+.btn-clear {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+}
+
+@media (max-width: 640px) {
+  .filter-bar {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .search-container {
+    min-width: 100%;
+  }
+
+  .filter-group {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+}

@@ -6,4 +6,5 @@ export interface NavItem {
     children?: NavItem[];
     expanded?: boolean;
     roles: string[];
+    isHeading?: boolean;
 }

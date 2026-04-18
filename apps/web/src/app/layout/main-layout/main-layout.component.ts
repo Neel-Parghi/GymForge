@@ -47,6 +47,18 @@ export class MainLayoutComponent {
     });
   }
 
+  get userInitials(): string {
+    const decoded = this.authApiService.decodeToken();
+    if (!decoded) return 'SA';
+    const name = decoded?.unique_name || decoded?.name || decoded?.email || 'Super Admin';
+    return name
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
   logout() {
     this.authApiService.logout();
   }

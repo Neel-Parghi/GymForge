@@ -12,16 +12,44 @@ import { ColumnDef } from '../../models/column-def.model';
 export class DataGrid {
   @Input() config!: { columns: ColumnDef[], selectable?: boolean };
   @Input() data: any[] = [];
+  @Input() totalItems: number = 0;
+  @Input() pageSize: number = 10;
+  @Input() currentPage: number = 1;
+
+  @Output() actionEvent = new EventEmitter<{ action: string, row: any }>();
+  @Output() selectionChange = new EventEmitter<any[]>();
+  @Output() pageChange = new EventEmitter<number>();
+  @Output() pageSizeChange = new EventEmitter<number>();
 
   get columns() { return this.config?.columns || []; }
   get selectable() { return this.config?.selectable || false; }
-  @Output() actionEvent = new EventEmitter<{ action: string, row: any }>();
-  @Output() selectionChange = new EventEmitter<any[]>();
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize);
+  }
+
+  get startRange(): number {
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endRange(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalItems);
+  }
 
   selectedRows: any[] = [];
 
   ngOnInit() {
-    console.log(this.config)
+  }
+
+  onPageSizeChange(event: Event) {
+    const size = +(event.target as HTMLSelectElement).value;
+    this.pageSizeChange.emit(size);
+  }
+
+  onPageChange(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.pageChange.emit(page);
+    }
   }
 
   onAction(action: string, row: any) {

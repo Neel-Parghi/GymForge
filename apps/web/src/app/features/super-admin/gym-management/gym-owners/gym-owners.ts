@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DataGrid } from '../../../../shared/components/data-grid/data-grid';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { AddOwnerModalComponent } from '../components/add-owner-modal/add-owner-modal.component';
+import { FilterBarComponent, FilterConfig } from '../../../../shared/components/filter-bar/filter-bar.component';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { GymService } from '../../../../core/services/gym.service';
@@ -14,7 +15,7 @@ import { CONSTANTS } from '../../../../core/constants/constants';
 @Component({
   selector: 'app-gym-owners',
   standalone: true,
-  imports: [CommonModule, DataGrid, AddOwnerModalComponent, OwnerDetailsDrawerComponent],
+  imports: [CommonModule, DataGrid, AddOwnerModalComponent, OwnerDetailsDrawerComponent, FilterBarComponent],
   templateUrl: './gym-owners.html',
   styleUrl: './gym-owners.scss',
 })
@@ -24,7 +25,29 @@ export class GymOwners implements OnInit {
   isViewDrawerOpen = false;
   isEditMode: boolean = false;
 
-  data: GymOwnerResponse[] = [];
+  // Data state
+  originalData: GymOwnerResponse[] = [];
+  filteredData: GymOwnerResponse[] = [];
+  displayData: GymOwnerResponse[] = [];
+
+  // Pagination state
+  totalItems = 0;
+  pageSize = 10;
+  currentPage = 1;
+
+  // Filter configuration
+  filterConfigs: FilterConfig[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { label: 'Active', value: 'Active' },
+        { label: 'Pending', value: 'Pending' },
+        { label: 'Inactive', value: 'Inactive' }
+      ]
+    }
+  ];
+
   selectedOwners: GymOwnerResponse[] = [];
   selectedContext: GymOwnerResponse | null = null;
 
@@ -39,12 +62,59 @@ export class GymOwners implements OnInit {
   getGymOwners() {
     this.gymService.getGymOwners().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
-        this.data = res.Data;
+        this.originalData = res.Data;
+        this.applyFilters({ search: '' }); // Initial apply
       },
       error: (err: any) => {
         this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_LOAD_ERROR_MESSAGE);
       }
     });
+  }
+
+  applyFilters(filters: any) {
+    this.currentPage = 1; // Reset to first page on filter change
+
+    let results = [...this.originalData];
+
+    // Search filter (Name, Email, or Gym Name)
+    if (filters.search) {
+      const s = filters.search.toLowerCase();
+      results = results.filter(item =>
+        item.name.toLowerCase().includes(s) ||
+        item.email.toLowerCase().includes(s) ||
+        (item.name && item.name.toLowerCase().includes(s))
+      );
+    }
+
+    // Status filter
+    if (filters.status) {
+      results = results.filter(item => item.status === filters.status);
+    }
+
+    this.filteredData = results;
+    this.totalItems = results.length;
+    this.updateDisplayData();
+  }
+
+  updateDisplayData() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.displayData = this.filteredData.slice(startIndex, endIndex);
+  }
+
+  onFilterChanged(filters: any) {
+    this.applyFilters(filters);
+  }
+
+  onPageChanged(page: number) {
+    this.currentPage = page;
+    this.updateDisplayData();
+  }
+
+  onPageSizeChanged(size: number) {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.updateDisplayData();
   }
 
   openDrawer(rowInfo: GymOwnerResponse, action: string) {
@@ -54,6 +124,7 @@ export class GymOwners implements OnInit {
   }
 
   handleAction(event: { action: string, row: GymOwnerResponse }) {
+    console.log(event);
     if (event.action === CONSTANTS.EDIT || event.action === CONSTANTS.VIEW || event.action === CONSTANTS.ROW_CLICK) {
       this.openDrawer(event.row, event.action);
       return;

@@ -3,28 +3,39 @@ import { NavItem } from "../../core/models/nav-Item.model";
 export const MenuConfig: NavItem[] = [
     {
         label: 'Dashboard',
-        icon: 'fa-brands fa-dashcube',
+        icon: 'fa-solid fa-house',
         route: '/super-admin/dashboard',
         roles: ['SuperAdmin']
     },
     {
-        label: 'Gym Management',
-        icon: 'fa-brands fa-maxcdn',
+        label: 'GYM MANAGEMENT',
+        icon: '',
         roles: ['SuperAdmin'],
-        children: [
-            {
-                label: 'Gym List',
-                icon: 'fa-solid fa-list-ul',
-                route: '/super-admin/gym-list',
-                roles: ['SuperAdmin']
-            },
-            {
-                label: 'Gym Owners',
-                icon: 'fa-solid fa-user-group',
-                route: '/super-admin/gym-owners',
-                roles: ['SuperAdmin']
-            }
-        ]
+        isHeading: true
+    },
+    {
+        label: 'Gym Owners',
+        icon: 'fa-solid fa-user-group',
+        route: '/super-admin/gym-owners',
+        roles: ['SuperAdmin']
+    },
+    {
+        label: 'Gym List',
+        icon: 'fa-solid fa-list-ul',
+        route: '/super-admin/gym-list',
+        roles: ['SuperAdmin']
+    },
+    {
+        label: 'FINANCIALS',
+        icon: '',
+        roles: ['SuperAdmin'],
+        isHeading: true
+    },
+    {
+        label: 'Payments',
+        icon: 'fa-solid fa-credit-card',
+        route: '/super-admin/payments',
+        roles: ['SuperAdmin']
     },
     {
         label: 'Pricing',

@@ -2,32 +2,46 @@
 @import 'ngx-toastr/toastr';
 
 :root {
-  // Pexels Light Theme (Default)
-  --bg-color: #ffffff;
-  --bg-surface: #fcfcfc;
-  --text-main: #1a1a1a;
-  --text-muted: #5e5e5e;
-  --border-color: #eeeeee;
-  --accent-color: #1a1a1a; // Pexels uses black accents mostly
-  --accent-hover: #333333;
-  --glass-bg: rgba(255, 255, 255, 0.8);
+  // GYM FORGE Modern Light Theme
+  --bg-color: #f3f6f9;
+  --bg-surface: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --accent-color: #2563eb;
+  --accent-hover: #1d4ed8;
+  --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-blur: blur(8px);
-  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --sidebar-width: 260px;
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --sidebar-width: 250px;
+  --topbar-height: 64px;
+
+  // Specific Button Themes
+  --btn-add-bg: #0a1f44;
+  --btn-add-text: #ffffff;
+
+  // New Design System Tokens
+  --primary-precision: #005bbc;
+  --primary-precision-gradient: linear-gradient(135deg, #005bbc 0%, #1473e6 100%);
+  --surface-precision: #f9f9f9;
+  --on-surface-precision: #1a1c1c;
+  --secondary-precision: #5e5e5e;
+  --outline-精密: rgba(193, 198, 214, 0.3);
+  --card-shadow-precision: 0 12px 40px rgba(26, 28, 28, 0.04);
 }
 
 [data-theme="dark"] {
-  // Dark Glass Theme (Backup)
-  --bg-color: #1a1c23;
-  --bg-surface: rgba(26, 28, 35, 0.75);
+  // Keeping dark variables for theoretical future use, but optimized for now
+  --bg-color: #0f172a;
+  --bg-surface: #1e293b;
   --text-main: #f8fafc;
-  --text-muted: #a0aec0;
-  --border-color: rgba(255, 255, 255, 0.05);
+  --text-muted: #94a3b8;
+  --border-color: #334155;
   --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
-  --glass-bg: rgba(26, 28, 35, 0.65);
-  --glass-blur: blur(16px);
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --accent-hover: #60a5fa;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  --btn-add-bg: #1e293b;
 }
 
 body {
@@ -37,8 +51,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   transition: background-color 0.3s ease, color 0.3s ease;
-  
-  // Optional: keep your bg-gym1.jpg for dark mode specifically if desired
+
   [data-theme="dark"] & {
     background-image: url('assets/images/bg-gym1.jpg');
     background-size: cover;
@@ -51,4 +64,53 @@ body {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.btn-add {
+  background-color: var(--btn-add-bg);
+  color: var(--btn-add-text);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(10, 31, 68, 0.15);
+
+  &::before {
+    content: '+';
+    width: 22px;
+    height: 22px;
+    background-color: #ffffff;
+    color: var(--btn-add-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(10, 31, 68, 0.25);
+    background-color: #0d3278;
+  }
+
+  &.small {
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    gap: 8px;
+
+    &::before {
+      width: 18px;
+      height: 18px;
+      font-size: 0.85rem;
+    }
+  }
 }

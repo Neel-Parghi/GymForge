@@ -3,14 +3,18 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="sidebar-header">
-      <!-- <h2 *ngIf="!isSidebarCollapsed">GymForge</h2> -->
-      @if (!isSidebarCollapsed) {
-      <img src="/images/logo.png" alt="Logo" class="sidebar-logo">
-      }
-      <!-- <div class="logo-mini" *ngIf="isSidebarCollapsed">GF</div> -->
+      <div class="brand-container" [routerLink]="['/super-admin/dashboard']">
+
+        @if (!isSidebarCollapsed) {
+        <div class="brand-logo">GF</div>
+        <div class="brand-text">
+          <span class="brand-name">GYM FORGE</span>
+          <span class="brand-subtext">Super Admin Portal</span>
+        </div>
+        }
+      </div>
       <button class="toggle-icon-btn" (click)="toggleSidebar()">
-        <!-- Hamburger Icon -->
-        <svg viewBox="0 0 24 24" width="20" height="20">
+        <svg viewBox="0 0 24 24" width="18" height="18">
           <path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
         </svg>
       </button>
@@ -20,14 +24,20 @@
       <ul>
         @for (item of menuItems; track item.label) {
         <li>
-          @if (!item.children || item.children.length === 0) {
+          @if (item.isHeading) {
+          @if (!isSidebarCollapsed) {
+          <div class="nav-heading">{{ item.label }}</div>
+          } @else {
+          <div class="nav-divider"></div>
+          }
+          } @else if (!item.children || item.children.length === 0) {
           <!-- Single Link -->
           <a [routerLink]="item.route" routerLinkActive="active" class="nav-link">
             <i [class]="item.icon + ' nav-icon'"></i>
             <span class="nav-label">{{ item.label }}</span>
           </a>
           } @else {
-          <!-- Group with Sub-navigation -->
+          <!-- Group with Sub-navigation (if needed) -->
           <div class="nav-group" [class.group-active]="isGroupActive(item)">
             <div class="nav-group-title" (click)="toggleGroup(item)">
               <div class="title-left">
@@ -62,7 +72,7 @@
     <div class="sidebar-footer">
       <button class="logout-btn" (click)="logout()" title="Log Out">
         <i class="fas fa-sign-out-alt nav-icon"></i>
-        <span class="nav-label">Log Out</span>
+        <span class="nav-label">Logout</span>
       </button>
     </div>
   </aside>
@@ -72,16 +82,21 @@
 
     <!-- Topbar -->
     <header class="topbar">
-      <div class="topbar-search">
-        <!-- Search input placeholder -->
-      </div>
+      <!-- <div class="topbar-search">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" placeholder="Global platform search...">
+      </div> -->
+
       <div class="topbar-right">
-        <!-- <button class="theme-toggle" (click)="toggleTheme()" [title]="'Switch to ' + (currentTheme === 'light' ? 'dark' : 'light') + ' mode'">
-          <i class="fas" [class.fa-sun]="currentTheme === 'dark'" [class.fa-moon]="currentTheme === 'light'"></i>
-        </button> -->
+        <button class="icon-btn" title="Notifications">
+          <i class="far fa-bell"></i>
+          <span class="dot"></span>
+        </button>
+        <button class="icon-btn" title="Help">
+          <i class="far fa-question-circle"></i>
+        </button>
         <div class="topbar-profile">
-          <div class="profile-avatar">S</div>
-          <span class="profile-name">Super Admin</span>
+          <div class="profile-initials">{{ userInitials }}</div>
         </div>
       </div>
     </header>

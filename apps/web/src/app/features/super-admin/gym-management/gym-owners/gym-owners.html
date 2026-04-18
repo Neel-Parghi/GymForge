@@ -1,13 +1,18 @@
 <div class="page-header">
   <h2>Gym Owners</h2>
   @if (selectedOwners.length === 0) {
-  <button class="primary-btn" (click)="openAddOwnerModal()">Add Owner</button>
+  <button class="btn-add" (click)="openAddOwnerModal()">Add Owner</button>
   } @else {
   <button class="primary-btn edit-mode">Edit ({{ selectedOwners.length }} selected)</button>
   }
 </div>
-<app-data-grid [config]="gridConfig" [data]="data" (selectionChange)="onSelectionChange($event)"
-  (actionEvent)="handleAction($event)">
+<!-- <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search by name, email or gym..."
+  (filterChanged)="onFilterChanged($event)">
+</app-filter-bar> -->
+
+<app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
+  [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
+  (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
 </app-data-grid>
 
 @if (isAddOwnerModalOpen) {

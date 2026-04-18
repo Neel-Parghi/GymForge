@@ -1,0 +1,24 @@
+<div class="filter-bar">
+  <!-- Search -->
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" [placeholder]="placeholder" [formControl]="searchControl" (input)="onSearch()">
+  </div>
+
+  <!-- Dynamic Filters -->
+  <div class="filter-group" *ngIf="filterConfigs && filterConfigs.length > 0">
+    <div class="filter-label">Filter by:</div>
+    <div class="filter-select-wrapper" *ngFor="let filter of filterConfigs">
+      <select [formControl]="filterControls[filter.key]" (change)="onFilterChange()">
+        <option [value]="''">{{ filter.label }} (All)</option>
+        <option *ngFor="let opt of filter.options" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Clear Button (visible if something is filtered) -->
+  <button class="btn-clear" (click)="clearFilters()" *ngIf="isFiltering">
+    <i class="fa-solid fa-filter-circle-xmark"></i>
+    Clear Filters
+  </button>
+</div>
