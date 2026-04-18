@@ -38,12 +38,13 @@ function handle401Error(authService: AuthApiService, request: HttpRequest<any>, 
 
     return authService.refreshToken().pipe(
       switchMap((res: any) => {
+        const accessToken = res?.Data?.accessToken || res?.data?.accessToken || res?.accessToken;
         isRefreshing = false;
-        refreshTokenSubject.next(res.accessToken);
+        refreshTokenSubject.next(accessToken);
         
         return next(request.clone({
           setHeaders: {
-            Authorization: `Bearer ${res.accessToken}`
+            Authorization: `Bearer ${accessToken}`
           }
         }));
       }),

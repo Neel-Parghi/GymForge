@@ -28,10 +28,25 @@
     top: 50%;
     left: 50%;
 
-    &.c1 { width: 400px; height: 400px; }
-    &.c2 { width: 600px; height: 600px; }
-    &.c3 { width: 800px; height: 800px; }
-    &.c4 { width: 1000px; height: 1000px; }
+    &.c1 {
+      width: 400px;
+      height: 400px;
+    }
+
+    &.c2 {
+      width: 600px;
+      height: 600px;
+    }
+
+    &.c3 {
+      width: 800px;
+      height: 800px;
+    }
+
+    &.c4 {
+      width: 1000px;
+      height: 1000px;
+    }
   }
 }
 
@@ -198,7 +213,8 @@
   color: #9ca3af;
   font-size: 0.875rem;
 
-  &::before, &::after {
+  &::before,
+  &::after {
     content: '';
     flex: 1;
     height: 1px;

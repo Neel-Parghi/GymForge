@@ -18,6 +18,7 @@ export const API_CONSTANTS = {
     ONBOARD: '/gym/onboard',
     GYM_OWNER: '/gym/gym-owner',
     GYM_LIST: '/gym/gym-list',
+    GYM_OWNER_DELETE: '/gym/gym-owner/delete',
   },
   PRICING: {
     GET_LIST: '/SaaSPlan/list',

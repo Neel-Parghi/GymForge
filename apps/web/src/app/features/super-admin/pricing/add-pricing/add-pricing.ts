@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PricingService } from '../../../../core/services/pricing.service';
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message';
+import { ConfirmationPopupComponent } from "../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
 
 @Component({
   selector: 'app-add-pricing',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ValidationMessage],
+  imports: [CommonModule, ReactiveFormsModule, ValidationMessage, ConfirmationPopupComponent],
   templateUrl: './add-pricing.html',
   styleUrl: './add-pricing.scss',
 })
@@ -17,6 +18,7 @@ export class AddPricing {
 
   pricingForm: FormGroup;
   isSubmitting = false;
+  isConfirmCancelOpen = false;
 
   private fb = inject(FormBuilder);
   private pricingService = inject(PricingService);
@@ -58,5 +60,13 @@ export class AddPricing {
 
   closeModal() {
     this.close.emit();
+  }
+
+  onTopClose() {
+    if (this.pricingForm.dirty) {
+      this.isConfirmCancelOpen = true;
+    } else {
+      this.closeModal();
+    }
   }
 }

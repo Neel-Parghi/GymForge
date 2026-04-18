@@ -1,0 +1,60 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="isEditing ? 'Edit Gym Owner' : 'Gym Owner Details'"
+  [subtitle]="isEditing ? 'Update details for ' + ownerContext?.name : 'Viewing details for ' + ownerContext?.name"
+  width="550px" (closeDrawer)="onClose()">
+
+  <div drawer-body>
+    <form [formGroup]="editForm" class="form-grid">
+      <div class="form-group lg">
+        <label>Full Name</label>
+        <input type="text" formControlName="name" placeholder="Name" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('name')"
+          fieldName="Name"></app-validation-message>
+      </div>
+
+      <div class="form-group lg">
+        <label>Email Address</label>
+        <input type="email" formControlName="email" placeholder="Email" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('email')"
+          fieldName="Email"></app-validation-message>
+      </div>
+
+      <div class="form-group lg">
+        <label>Contact Phone</label>
+        <input type="text" formControlName="phone" placeholder="Phone Number" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('phone')"
+          fieldName="Phone"></app-validation-message>
+      </div>
+
+      <div class="form-group lg">
+        <label>Total Gyms Owned</label>
+        <input type="text" [value]="ownerContext?.gymsOwned || 0" placeholder="0" disabled />
+      </div>
+
+      <div class="form-group lg">
+        <label>Joined Date</label>
+        <input type="text" [value]="ownerContext?.joinedDate | date:'mediumDate'" placeholder="N/A" disabled />
+      </div>
+
+      <div class="form-group lg" style="display: flex; flex-direction: row; gap: 16px; align-items: flex-end;">
+        <div style="flex: 1; display: flex; flex-direction: column;">
+          <label>Invite Status</label>
+          <input type="text" [value]="ownerContext?.invitationStatus || 'N/A'" placeholder="Status" disabled />
+        </div>
+        <button *ngIf="ownerContext?.invitationStatus === 'Pending'" class="secondary-btn" style="height: 44px; white-space: nowrap; padding: 0 16px;" (click)="onResendInvite()">Resend Invite Email</button>
+      </div>
+    </form>
+  </div>
+
+  <div drawer-footer class="drawer-footer">
+    <ng-container *ngIf="!isEditing">
+      <button class="btn-cancel" (click)="onClose()">Close</button>
+      <button class="primary-btn" (click)="toggleEdit()">Edit Details</button>
+    </ng-container>
+
+    <ng-container *ngIf="isEditing">
+      <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+      <button class="btn-success" [disabled]="editForm.invalid" (click)="save()">Save Changes</button>
+    </ng-container>
+  </div>
+
+</app-slide-drawer>

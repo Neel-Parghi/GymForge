@@ -3,7 +3,10 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="sidebar-header">
-      <h2 *ngIf="!isSidebarCollapsed">GymForge</h2>
+      <!-- <h2 *ngIf="!isSidebarCollapsed">GymForge</h2> -->
+      @if (!isSidebarCollapsed) {
+      <img src="/images/logo.png" alt="Logo" class="sidebar-logo">
+      }
       <!-- <div class="logo-mini" *ngIf="isSidebarCollapsed">GF</div> -->
       <button class="toggle-icon-btn" (click)="toggleSidebar()">
         <!-- Hamburger Icon -->

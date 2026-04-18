@@ -7,20 +7,26 @@ import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { GymService } from '../../../../core/services/gym.service';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
+import { GymOwnerResponse } from '../../../../shared/models/gym.model';
+import { OwnerDetailsDrawerComponent } from '../components/owner-details-drawer/owner-details-drawer.component';
+import { CONSTANTS } from '../../../../core/constants/constants';
 
 @Component({
   selector: 'app-gym-owners',
   standalone: true,
-  imports: [CommonModule, DataGrid, AddOwnerModalComponent],
+  imports: [CommonModule, DataGrid, AddOwnerModalComponent, OwnerDetailsDrawerComponent],
   templateUrl: './gym-owners.html',
   styleUrl: './gym-owners.scss',
 })
 export class GymOwners implements OnInit {
   gridConfig = AppGridConfig['GymOwners'];
   isAddOwnerModalOpen = false;
+  isViewDrawerOpen = false;
+  isEditMode: boolean = false;
 
-  data: any[] = [];
-  selectedOwners: any[] = [];
+  data: GymOwnerResponse[] = [];
+  selectedOwners: GymOwnerResponse[] = [];
+  selectedContext: GymOwnerResponse | null = null;
 
   private userService = inject(UserService);
   private gymService = inject(GymService);
@@ -32,35 +38,62 @@ export class GymOwners implements OnInit {
 
   getGymOwners() {
     this.gymService.getGymOwners().subscribe({
-      next: (res: ApiResponse) => {
+      next: (res: ApiResponse<GymOwnerResponse[]>) => {
         this.data = res.Data;
-        console.log(this.data)
       },
       error: (err: any) => {
-        this.notification.error(err.error?.message || 'Failed to load owners');
+        this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_LOAD_ERROR_MESSAGE);
       }
     });
   }
 
-  handleAction(event: { action: string, row: any }) {
-    if (event.action === 're-invite') {
+  openDrawer(rowInfo: GymOwnerResponse, action: string) {
+    this.selectedContext = rowInfo;
+    this.isViewDrawerOpen = true;
+    this.isEditMode = action === CONSTANTS.EDIT;
+  }
+
+  handleAction(event: { action: string, row: GymOwnerResponse }) {
+    if (event.action === CONSTANTS.EDIT || event.action === CONSTANTS.VIEW || event.action === CONSTANTS.ROW_CLICK) {
+      this.openDrawer(event.row, event.action);
+      return;
+    }
+    if (event.action === CONSTANTS.RE_INVITE) {
       this.reInvite(event.row.id);
     }
-    console.log('Action triggered:', event.action, 'on row:', event.row);
+    if (event.action === CONSTANTS.DELETE) {
+      if (event.row.gymsOwned > 0) {
+        this.notification.error(CONSTANTS.GYM_OWNER_DELETE_VALIDATION_MESSAGE);
+        return;
+      }
+      this.deleteGymOwner(event.row.id);
+    }
+  }
+
+  deleteGymOwner(ownerId: string) {
+    this.gymService.deleteGymOwner(ownerId).subscribe({
+      next: () => {
+        this.notification.success(CONSTANTS.GYM_OWNER_DELETE_SUCCESS_MESSAGE);
+        this.getGymOwners();
+      },
+      error: (err) => {
+        this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_DELETE_ERROR_MESSAGE);
+      }
+    })
   }
 
   reInvite(ownerId: string) {
     this.userService.reInviteOwner(ownerId).subscribe({
       next: () => {
-        this.notification.success('Re-invitation sent successfully!');
+        this.notification.success(CONSTANTS.GYM_OWNER_RE_INVITE_SUCCESS_MESSAGE);
       },
       error: (err) => {
-        this.notification.error(err.error?.message || 'Failed to re-invite owner');
+        this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_RE_INVITE_ERROR_MESSAGE);
       }
     });
   }
 
-  onSelectionChange(selected: any[]) {
+  onSelectionChange(selected: GymOwnerResponse[]) {
     this.selectedOwners = selected;
   }
 

@@ -5,6 +5,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
 import { UserService } from '../../../../../core/services/user.service';
 import { ConfirmationPopupComponent } from "../../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
 import { ValidationMessage } from '../../../../../shared/components/validation-message/validation-message';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-add-owner-modal',
@@ -51,13 +52,13 @@ export class AddOwnerModalComponent implements OnInit {
       this.isSubmitting = true;
       this.userService.inviteOwner(this.inviteForm.value).subscribe({
         next: () => {
-          this.notification.success('Invitation sent successfully!');
+          this.notification.success(CONSTANTS.GYM_INVITE_SUCCESS_MESSAGE);
           this.ownerInvited.emit();
           this.closeModal();
           this.isSubmitting = false;
         },
         error: (err) => {
-          this.notification.error(err.error?.message || 'Failed to send invitation');
+          this.notification.error(err.error?.message || CONSTANTS.GYM_INVITE_ERROR_MESSAGE);
           this.isSubmitting = false;
         }
       });

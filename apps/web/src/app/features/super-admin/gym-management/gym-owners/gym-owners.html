@@ -11,8 +11,10 @@
 </app-data-grid>
 
 @if (isAddOwnerModalOpen) {
-  <app-add-owner-modal 
-    (close)="closeAddOwnerModal()" 
-    (ownerInvited)="onOwnerInvited()">
-  </app-add-owner-modal>
+<app-add-owner-modal (close)="closeAddOwnerModal()" (ownerInvited)="onOwnerInvited()">
+</app-add-owner-modal>
 }
+
+<app-owner-details-drawer [isOpen]="isViewDrawerOpen" [isEditing]="isEditMode" [ownerContext]="selectedContext"
+  (closeDrawer)="isViewDrawerOpen = false" (resendInvite)="reInvite($event)">
+</app-owner-details-drawer>

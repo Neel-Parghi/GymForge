@@ -1,0 +1,138 @@
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  &.lg {
+    grid-column: span 2;
+  }
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+
+  input {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: #ffffff;
+
+    &:disabled {
+      background: #f9fafb;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #111827;
+      box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05);
+    }
+  }
+}
+
+.info-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 16px;
+  border-radius: 8px;
+  color: #1e40af;
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+}
+
+.drawer-footer {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.primary-btn {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #374151;
+  }
+}
+
+.secondary-btn {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #609edd8a;
+  }
+}
+
+.btn-success {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #059669;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-cancel {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fef2f2;
+    color: #ef4444;
+    border-color: #fca5a5;
+  }
+}
