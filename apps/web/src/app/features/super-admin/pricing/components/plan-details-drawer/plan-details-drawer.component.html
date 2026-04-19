@@ -1,0 +1,84 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="isEditing ? 'Edit Subscription Plan' : 'Plan Details'"
+  [subtitle]="isEditing ? 'Update details for ' + planContext?.name : 'Viewing details for ' + planContext?.name"
+  width="550px" (closeDrawer)="onClose()">
+
+  <div drawer-body>
+    <form [formGroup]="editForm" class="form-grid">
+      <div class="form-group lg">
+        <label>Plan Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Pro Tier" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('name')"
+          fieldName="Plan name"></app-validation-message>
+      </div>
+
+      <div class="form-group lg">
+        <label>Description</label>
+        <textarea formControlName="description" placeholder="Short description of benefits..." rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Price ($)</label>
+        <input type="number" formControlName="price" placeholder="49.99" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('price')"
+          fieldName="Price"></app-validation-message>
+      </div>
+
+      <div class="form-group">
+        <label>Duration (Days)</label>
+        <input type="number" formControlName="durationInDays" placeholder="30" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('durationInDays')"
+          fieldName="Duration"></app-validation-message>
+      </div>
+
+      <div class="form-group">
+        <label>Max Branches</label>
+        <input type="number" formControlName="maxBranches" placeholder="e.g. 5" />
+      </div>
+
+      <div class="form-group">
+        <label>Max Members</label>
+        <input type="number" formControlName="maxMembers" placeholder="e.g. 2000" />
+      </div>
+
+      <div class="form-group flex-row" style="margin-top: 10px;">
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="isTrial" />
+          <span class="slider round"></span>
+        </label>
+        <div class="toggle-label">
+          <strong>Is Trial Plan</strong>
+          <span>Enable free trialing mode</span>
+        </div>
+      </div>
+
+      <div class="form-group flex-row">
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="isActive" />
+          <span class="slider round"></span>
+        </label>
+        <div class="toggle-label">
+          <strong>Active Status</strong>
+          <span>Plan is available for purchase</span>
+        </div>
+      </div>
+      
+      <div class="form-group lg" *ngIf="planContext?.createdAt">
+        <label>Created On</label>
+        <input type="text" [value]="planContext?.createdAt | date:'mediumDate'" disabled />
+      </div>
+    </form>
+  </div>
+
+  <div drawer-footer class="drawer-footer">
+    <ng-container *ngIf="!isEditing">
+      <button class="btn-cancel" (click)="onClose()">Close</button>
+      <button class="primary-btn" (click)="toggleEdit()">Edit Plan</button>
+    </ng-container>
+
+    <ng-container *ngIf="isEditing">
+      <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+      <button class="btn-success" [disabled]="editForm.invalid" (click)="save()">Save Changes</button>
+    </ng-container>
+  </div>
+
+</app-slide-drawer>

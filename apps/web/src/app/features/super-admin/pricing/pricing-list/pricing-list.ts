@@ -5,20 +5,30 @@ import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { PricingService } from '../../../../core/services/pricing.service';
 import { AddPricing } from '../add-pricing/add-pricing';
 import { FilterBarComponent, FilterConfig } from '../../../../shared/components/filter-bar/filter-bar.component';
+import { PricingPlan } from '../../../../shared/models/pricing.model';
+import { ApiResponse } from '../../../../shared/models/api-response.model';
+import { PlanDetailsDrawerComponent } from '../components/plan-details-drawer/plan-details-drawer.component';
+import { CONSTANTS } from '../../../../core/constants/constants';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-pricing-list',
   standalone: true,
-  imports: [CommonModule, DataGrid, AddPricing, FilterBarComponent],
+  imports: [CommonModule, DataGrid, AddPricing, FilterBarComponent, PlanDetailsDrawerComponent],
   templateUrl: './pricing-list.html',
   styleUrl: './pricing-list.scss',
 })
 export class PricingList implements OnInit {
 
   // Data state
-  originalData: any[] = [];
-  filteredData: any[] = [];
-  displayData: any[] = [];
+  originalData: PricingPlan[] = [];
+  filteredData: PricingPlan[] = [];
+  displayData: PricingPlan[] = [];
+
+  // Drawer state
+  isViewDrawerOpen = false;
+  isEditMode = false;
+  selectedPlan: PricingPlan | null = null;
 
   // Pagination state
   totalItems = 0;
@@ -28,19 +38,20 @@ export class PricingList implements OnInit {
   // Filter configuration
   filterConfigs: FilterConfig[] = []; // Search only for now
 
-  selectedPlans: any[] = [];
+  selectedPlans: PricingPlan[] = [];
   gridConfig = AppGridConfig['PricingList'];
   isAddPlanModalOpen: boolean = false;
 
   pricingService = inject(PricingService);
+  notification = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadPlans();
   }
 
   loadPlans() {
-    this.pricingService.getAllPlans().subscribe((res: any) => {
-      this.originalData = res?.data || res?.Data || [];
+    this.pricingService.getAllPlans().subscribe((res: ApiResponse<PricingPlan[]>) => {
+      this.originalData = res?.Data || [];
       this.applyFilters({ search: '' });
     });
   }
@@ -51,8 +62,8 @@ export class PricingList implements OnInit {
 
     if (filters.search) {
       const s = filters.search.toLowerCase();
-      results = results.filter(item => 
-        item.name.toLowerCase().includes(s) || 
+      results = results.filter(item =>
+        item.name.toLowerCase().includes(s) ||
         (item.description && item.description.toLowerCase().includes(s))
       );
     }
@@ -83,12 +94,48 @@ export class PricingList implements OnInit {
     this.updateDisplayData();
   }
 
-  onSelectionChange(selected: any[]) {
+  onSelectionChange(selected: PricingPlan[]) {
     this.selectedPlans = selected;
   }
 
-  handleAction($event: { action: string, row: any }) {
-    console.log('Action triggered:', $event.action, 'on row:', $event.row);
+  handleAction(event: { action: string, row: PricingPlan }) {
+    if (event.action === CONSTANTS.VIEW || event.action === CONSTANTS.EDIT || event.action === CONSTANTS.ROW_CLICK) {
+      this.selectedPlan = event.row;
+      this.isViewDrawerOpen = true;
+      this.isEditMode = event.action === CONSTANTS.EDIT;
+      return;
+    }
+
+    if (event.action === CONSTANTS.DELETE) {
+      this.deletePlan(event.row.id);
+    }
+  }
+
+  deletePlan(id: string) {
+    if (confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
+      this.pricingService.deletePlan(id).subscribe({
+        next: () => {
+          this.notification.success(CONSTANTS.COMMON_DELETE_SUCCESS_MESSAGE);
+          this.loadPlans();
+        },
+        error: (err) => {
+          this.notification.error(err.error?.message || CONSTANTS.COMMON_DELETE_ERROR_MESSAGE);
+        }
+      });
+    }
+  }
+
+  onSavePlan(updatedPlan: PricingPlan) {
+    this.pricingService.updatePlan(updatedPlan).subscribe({
+      next: () => {
+        this.notification.success(CONSTANTS.COMMON_UPDATE_SUCCESS_MESSAGE);
+        this.loadPlans();
+        this.isViewDrawerOpen = false;
+      },
+      error: (err) => {
+        this.notification.error(err.error?.message || CONSTANTS.COMMON_UPDATE_ERROR_MESSAGE);
+      }
+    });
   }
 
   openAddPlanModal() {
@@ -99,7 +146,8 @@ export class PricingList implements OnInit {
     this.isAddPlanModalOpen = false;
   }
 
-  onPlanAdded(newPlan: any) {
+  onPlanAdded(res: ApiResponse<PricingPlan>) {
+    this.notification.success('Plan created successfully');
     this.loadPlans();
   }
 }

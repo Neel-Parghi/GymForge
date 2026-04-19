@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { PricingService } from '../../../../core/services/pricing.service';
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message';
 import { ConfirmationPopupComponent } from "../../../../shared/components/confirmation-popup-component/confirmation-popup-component";
+import { ApiResponse } from '../../../../shared/models/api-response.model';
+import { PricingPlan } from '../../../../shared/models/pricing.model';
 
 @Component({
   selector: 'app-add-pricing',
@@ -46,7 +48,7 @@ export class AddPricing {
     const payload = this.pricingForm.value;
 
     this.pricingService.addPlan(payload).subscribe({
-      next: (res) => {
+      next: (res: ApiResponse<PricingPlan>) => {
         this.isSubmitting = false;
         this.planAdded.emit(res);
         this.closeModal();

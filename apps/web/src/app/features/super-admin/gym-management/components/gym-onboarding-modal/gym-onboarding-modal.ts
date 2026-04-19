@@ -9,6 +9,7 @@ import { ConfirmationPopupComponent } from "../../../../../shared/components/con
 import { PricingService } from '../../../../../core/services/pricing.service';
 import { ValidationMessage } from "../../../../../shared/components/validation-message/validation-message";
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { PricingPlan } from '../../../../../shared/models/pricing.model';
 
 @Component({
   selector: 'app-gym-onboarding-modal',
@@ -92,8 +93,8 @@ export class GymOnboardingModalComponent implements OnInit {
   }
 
   loadPlans() {
-    this.pricingService.getAllPlans().subscribe((res: any) => {
-      this.plans = res?.data || res?.Data || [];
+    this.pricingService.getAllPlans().subscribe((res: ApiResponse<PricingPlan[]>) => {
+      this.plans = res?.Data || [];
     });
   }
 

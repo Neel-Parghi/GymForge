@@ -15,6 +15,11 @@
     (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
 </app-data-grid>
 
+<!-- Plan Details Drawer -->
+<app-plan-details-drawer [isOpen]="isViewDrawerOpen" [isEditing]="isEditMode" [planContext]="selectedPlan"
+    (closeDrawer)="isViewDrawerOpen = false" (savePlan)="onSavePlan($event)" (isEditingChange)="isEditMode = $event">
+</app-plan-details-drawer>
+
 <!-- Add Pricing Modal -->
 @if (isAddPlanModalOpen)
 {
