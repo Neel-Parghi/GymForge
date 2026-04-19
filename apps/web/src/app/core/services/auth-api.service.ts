@@ -55,6 +55,22 @@ export class AuthApiService extends BaseApiService {
   }
 
   logout() {
+    const refreshToken = this.getRefreshToken();
+    const accessToken = this.getToken();
+
+    if (refreshToken) {
+      this.post(API_CONSTANTS.AUTH.LOGOUT, { accessToken, refreshToken }).subscribe({
+        next: () => this.clearSession(),
+        error: (err) => {
+          this.clearSession();
+        }
+      });
+    } else {
+      this.clearSession();
+    }
+  }
+
+  private clearSession() {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     this.router.navigate(['/login']);
