@@ -45,6 +45,13 @@ namespace GymForge.Api.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(RefreshTokenRequestDto dto)
+        {
+            await _authService.LogoutAsync(dto.RefreshToken);
+            return NoContent();
+        }
+
         [Authorize]
         [HttpGet("me")]
         public IActionResult Me()

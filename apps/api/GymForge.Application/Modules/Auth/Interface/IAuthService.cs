@@ -9,5 +9,6 @@ namespace GymForge.Application.Modules.Auth.Interface
         Task<TokenResponseDto> Login(LoginRequestDto dto);
 
         Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto);
+        Task LogoutAsync(string refreshToken);
     }
 }

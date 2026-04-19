@@ -4,7 +4,6 @@ using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using GymForge.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace GymForge.Infrastructure.Repositories
 {

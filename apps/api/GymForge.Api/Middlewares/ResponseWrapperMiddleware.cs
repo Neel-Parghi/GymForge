@@ -1,4 +1,4 @@
-﻿using GymForge.Shared.Models;
+using GymForge.Shared.Models;
 using System.Text.Json;
 
 namespace GymForge.Api.Middlewares
@@ -29,12 +29,17 @@ namespace GymForge.Api.Middlewares
 
             await _next(context);
 
-            newBodyStream.Seek(0, SeekOrigin.Begin);
+            if (context.Response.StatusCode == StatusCodes.Status204NoContent || 
+                context.Response.StatusCode == StatusCodes.Status304NotModified)
+            {
+                context.Response.Body = originalBodyStream;
+                return;
+            }
 
+            newBodyStream.Seek(0, SeekOrigin.Begin);
             var responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
 
             object? data = null;
-
             if (!string.IsNullOrWhiteSpace(responseBody))
             {
                 data = JsonSerializer.Deserialize<object>(responseBody);
@@ -53,11 +58,7 @@ namespace GymForge.Api.Middlewares
             string json = JsonSerializer.Serialize(wrappedResponse);
 
             context.Response.Body = originalBodyStream;
-
-            if (context.Response.StatusCode != StatusCodes.Status304NotModified)
-            {
-                await context.Response.WriteAsync(json);
-            }
+            await context.Response.WriteAsync(json);
         }
     }
 }

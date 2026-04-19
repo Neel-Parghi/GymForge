@@ -44,7 +44,11 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            RefreshToken? token = await _context.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+            
+            return token?.User;
         }
     }
 }

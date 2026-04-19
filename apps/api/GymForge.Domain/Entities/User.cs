@@ -30,8 +30,7 @@ namespace GymForge.Domain.Entities
 
         public bool IsInvitationAccepted { get; set; } = false;
 
-        public string? RefreshToken { get; set; }
-        public DateTime? RefreshTokenExpiry { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
         public Address? Address { get; set; }
 

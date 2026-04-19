@@ -58,19 +58,72 @@ namespace GymForge.Application.Modules.Auth.Service
         public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
         {
             User? user = await _authRepository.GetByRefreshTokenAsync(dto.RefreshToken);
+            RefreshToken? refreshToken = user?.RefreshTokens.FirstOrDefault(x => x.Token == dto.RefreshToken);
 
-            if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+            if (user == null || refreshToken == null || !refreshToken.IsActive)
                 throw new Exception("Invalid or expired refresh token");
 
-            return await GenerateAndSaveTokens(user);
+            if (refreshToken.Revoked != null && !string.IsNullOrEmpty(refreshToken.ReplacedByToken))
+            {
+                RefreshToken? replacement = user.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken.ReplacedByToken);
+                if (replacement != null && replacement.IsActive)
+                {
+                    return new TokenResponseDto
+                    {
+                        AccessToken = _jwtService.GenerateToken(user).AccessToken,
+                        RefreshToken = replacement.Token
+                    };
+                }
+            }
+
+            TokenResponseDto newTokens = _jwtService.GenerateToken(user);
+            
+            refreshToken.Revoked = DateTime.UtcNow;
+            refreshToken.GracePeriodExpires = DateTime.UtcNow.AddSeconds(60);
+            refreshToken.ReplacedByToken = newTokens.RefreshToken;
+
+            return await SaveTokens(user, newTokens);
+        }
+
+        public async Task LogoutAsync(string refreshToken)
+        {
+            User? user = await _authRepository.GetByRefreshTokenAsync(refreshToken);
+            RefreshToken? token = user?.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken);
+
+            if (token != null)
+            {
+                user!.RefreshTokens.Remove(token);
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
 
         private async Task<TokenResponseDto> GenerateAndSaveTokens(User user)
         {
-            TokenResponseDto tokenResponse = _jwtService.GenerateToken(user);
+            // Optional: Strict single-session policy - remove all other active tokens for this user
+            // List<RefreshToken> activeTokens = [.. user.RefreshTokens.Where(t => t.IsActive)];
+            // foreach (var t in activeTokens) user.RefreshTokens.Remove(t);
 
-            user.RefreshToken = tokenResponse.RefreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            TokenResponseDto tokenResponse = _jwtService.GenerateToken(user);
+            return await SaveTokens(user, tokenResponse);
+        }
+
+        private async Task<TokenResponseDto> SaveTokens(User user, TokenResponseDto tokenResponse)
+        {
+            RefreshToken refreshToken = new()
+            {
+                Token = tokenResponse.RefreshToken,
+                Expires = DateTime.UtcNow.AddDays(7),
+                UserId = user.Id
+            };
+
+            user.RefreshTokens.Add(refreshToken);
+            
+            List<RefreshToken> staleTokens = [.. user.RefreshTokens.Where(t => t.Id != Guid.Empty && !t.IsActive)];
+
+            foreach (RefreshToken stale in staleTokens)
+            {
+                user.RefreshTokens.Remove(stale);
+            }
 
             await _unitOfWork.SaveChangesAsync();
 
