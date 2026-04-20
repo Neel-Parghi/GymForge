@@ -1,4 +1,4 @@
-<div class="confirm-overlay" (click)="onCancel()">
+<div class="confirm-overlay" [class.active]="isOpen" (click)="onCancel()">
   <div class="confirm-card" (click)="$event.stopPropagation()" [class]="type">
     <div class="confirm-header">
       <div class="icon-wrapper">

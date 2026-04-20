@@ -14,6 +14,7 @@ export class ConfirmationPopupComponent {
   @Input() confirmText: string = 'Confirm';
   @Input() cancelText: string = 'Cancel';
   @Input() type: 'danger' | 'warning' | 'info' = 'info';
+  isOpen = false;
 
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
