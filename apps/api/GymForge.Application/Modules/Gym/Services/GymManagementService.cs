@@ -77,5 +77,45 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             return await _gymManagementRepository.GetGymOwnersList();
         }
+
+        public async Task<List<GymListResponseDto>> GetGymListAsync()
+        {
+            return await _gymManagementRepository.GetGymListAsync();
+        }
+
+        public async Task<GymOwnersDto> UpdateGymOwner(UpdateGymOwnerDto updateGymOwnerDto)
+        {
+            User? user = await _gymManagementRepository.GetGymOwnerByIdAsync(updateGymOwnerDto.Id);
+            if (user == null)
+            {
+                throw new Exception("Gym Owner not found.");
+            }
+
+            _mapper.Map(updateGymOwnerDto, user);
+
+            User updatedOwner = _gymManagementRepository.UpdateGymOwner(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<GymOwnersDto>(updatedOwner);
+        }
+
+        public async Task UpdateGymAsync(UpdateGymDto updateGymDto)
+        {
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(updateGymDto.Id);
+            if (gym == null)
+            {
+                throw new Exception("Gym not found.");
+            }
+
+            _mapper.Map(updateGymDto, gym);
+            _gymManagementRepository.UpdateGym(gym);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteGymAsync(Guid gymId)
+        {
+            await _gymManagementRepository.DeleteGymAsync(gymId);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

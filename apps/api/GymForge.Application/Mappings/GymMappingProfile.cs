@@ -13,6 +13,8 @@ namespace GymForge.Application.Mappings
             
             CreateMap<BranchDto, Branch>();
 
+            CreateMap<UpdateGymDto, Gym>();
+
             CreateMap<OwnerDto, User>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => 
                     src.FullName.Contains(" ") ? src.FullName.Substring(0, src.FullName.IndexOf(" ")) : src.FullName))

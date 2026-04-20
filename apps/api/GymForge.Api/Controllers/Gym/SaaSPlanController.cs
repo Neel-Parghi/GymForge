@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.Gym
 {
-    [Route("api/[controller]")]
+    [Route("api/saas-plans")]
     [ApiController]
     public class SaaSPlanController : ControllerBase
     {
@@ -14,13 +14,13 @@ namespace GymForge.Api.Controllers.Gym
             _saaSPlanService = saaSPlanService;
         }
 
-        [HttpGet("list")]
+        [HttpGet]
         public async Task<IActionResult> GetPricingListAsync() 
         {
             return Ok(await _saaSPlanService.GetAllPlansAsync());
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetPlanByIdAsync(Guid id)
         {
             SaaSPlanDto? plan = await _saaSPlanService.GetPlanByIdAsync(id);
@@ -28,20 +28,22 @@ namespace GymForge.Api.Controllers.Gym
             return Ok(plan);
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> AddPlanAsync([FromBody] CreateSaaSPlanDto createPlanDto)
         {
             return Ok(await _saaSPlanService.AddPlanAsync(createPlanDto));
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdatePlan([FromBody] UpdateSaaSPlanDto updateSaaSPlanDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePlan(Guid id, [FromBody] UpdateSaaSPlanDto updateSaaSPlanDto)
         {
+            if (id != updateSaaSPlanDto.Id) return BadRequest("ID mismatch.");
+
             SaaSPlanDto updatedPlan = await _saaSPlanService.UpdatePlanAsync(updateSaaSPlanDto);
             return Ok(updatedPlan);
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePlanAsync(Guid id)
         {
             bool deleted = await _saaSPlanService.DeletePlanAsync(id);

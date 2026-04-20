@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.Gym
 {
-    [Route("api/[controller]")]
+    [Route("api/gyms")]
     [Authorize(Roles = "SuperAdmin")]
     [ApiController]
     public class GymController : ControllerBase
@@ -30,11 +30,29 @@ namespace GymForge.Api.Controllers.Gym
             return Ok(new { message = "Gym onboarded successfully" });
         }
 
-        [HttpGet("gym-owner")]
-        public async Task<ActionResult> GetGymOwnersList()
+        [HttpGet]
+        public async Task<ActionResult> GetGymList()
         {
-            return Ok(await _gymManagementService.GetGymOwnersList());
+            return Ok(await _gymManagementService.GetGymListAsync());
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateGym(Guid id, [FromBody] UpdateGymDto updateGymDto)
+        {
+            if (id != updateGymDto.Id)
+            {
+                return BadRequest("ID mismatch.");
+            }
+
+            await _gymManagementService.UpdateGymAsync(updateGymDto);
+            return Ok(new { message = "Gym updated successfully" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteGym(Guid id)
+        {
+            await _gymManagementService.DeleteGymAsync(id);
+            return NoContent();
+        }
     }
 }
