@@ -15,7 +15,7 @@ export class PricingService extends BaseApiService {
   }
 
   getAllPlans(): Observable<ApiResponse<PricingPlan[]>> {
-    return this.get(API_CONSTANTS.PRICING.GET_LIST);
+    return this.get(API_CONSTANTS.PRICING.LIST);
   }
 
   addPlan(payload: PricingPlanCreateRequest): Observable<ApiResponse<PricingPlan>> {
@@ -23,7 +23,7 @@ export class PricingService extends BaseApiService {
   }
 
   updatePlan(payload: PricingPlan): Observable<ApiResponse<PricingPlan>> {
-    return this.put(API_CONSTANTS.PRICING.UPDATE, payload);
+    return this.put(`${API_CONSTANTS.PRICING.UPDATE}/${payload.id}`, payload);
   }
 
   deletePlan(id: string): Observable<any> {
