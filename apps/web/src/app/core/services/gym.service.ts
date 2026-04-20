@@ -37,4 +37,8 @@ export class GymService extends BaseApiService {
     updateGym(gymId: string, payload: any): Observable<ApiResponse<any>> {
         return this.put(`${API_CONSTANTS.GYM.UPDATE}/${gymId}`, payload);
     }
+
+    deleteGym(gymId: string): Observable<ApiResponse<any>> {
+        return this.delete(`${API_CONSTANTS.GYM.DELETE}/${gymId}`);
+    }
 }

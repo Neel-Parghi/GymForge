@@ -45,6 +45,12 @@ export const CONSTANTS = {
     GYM_INVITE_ERROR_MESSAGE: 'Failed to invite!',
     GYM_RE_INVITE_SUCCESS_MESSAGE: 'Re-invited successfully!',
     GYM_RE_INVITE_ERROR_MESSAGE: 'Failed to re-invite!',
+    GYM_UPDATE_SUCCESS_MESSAGE: 'Gym updated successfully!',
+    GYM_UPDATE_ERROR_MESSAGE: 'Failed to update gym!',
+    GYM_DELETE_SUCCESS_MESSAGE: 'Gym deleted successfully!',
+    GYM_DELETE_VALIDATION_MESSAGE: 'Gym cannot be deleted as they own branches!',
+    GYM_DELETE_ERROR_MESSAGE: 'Failed to delete gym!',
+    GYM_LOAD_ERROR_MESSAGE: 'Failed to load gyms!',
 
     //#endregion
 }

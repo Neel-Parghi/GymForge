@@ -1,39 +1,43 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataGrid } from '../../../../shared/components/data-grid/data-grid';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { GymOnboardingModalComponent } from '../components/gym-onboarding-modal/gym-onboarding-modal';
 import { FilterBarComponent, FilterConfig } from '../../../../shared/components/filter-bar/filter-bar.component';
+import { GymService } from '../../../../core/services/gym.service';
+import { GymListResponse } from '../../../../shared/models/gym.model';
+import { finalize } from 'rxjs';
+
+import { GymDetailsDrawerComponent } from '../components/gym-details-drawer/gym-details-drawer.component';
+import { CONSTANTS } from '../../../../core/constants/constants';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-gym-list',
   standalone: true,
-  imports: [CommonModule, DataGrid, GymOnboardingModalComponent, FilterBarComponent],
+  imports: [CommonModule, DataGrid, GymOnboardingModalComponent, FilterBarComponent, GymDetailsDrawerComponent],
   templateUrl: './gym-list.html',
   styleUrl: './gym-list.scss',
 })
 export class GymList implements OnInit {
+  private gymService = inject(GymService);
+  private notification = inject(NotificationService);
+  private confirmation = inject(ConfirmationService);
+
   gridConfig = AppGridConfig['GymList'];
   isAddGymModalOpen = false;
 
-  // Data state
-  originalData = [
-    { id: 'G-101', name: 'Iron Forged Fitness', location: 'New York, NY', members: 450, status: true },
-    { id: 'G-102', name: 'Peak Performance', location: 'Austin, TX', members: 320, status: true },
-    { id: 'G-103', name: 'Velocity Gym', location: 'Miami, FL', members: 180, status: false },
-    { id: 'G-104', name: 'Brooklyn Barbell', location: 'Brooklyn, NY', members: 210, status: true },
-    { id: 'G-105', name: 'Zen Yoga & Weights', location: 'Chicago, IL', members: 150, status: true },
-    { id: 'G-106', name: 'Powerhouse Express', location: 'Houston, TX', members: 400, status: true },
-    { id: 'G-107', name: 'Midwest Muscle', location: 'Denver, CO', members: 275, status: false },
-    { id: 'G-108', name: 'Oceanic Crossfit', location: 'Santa Monica, CA', members: 330, status: true },
-    { id: 'G-109', name: 'Lone Star Fitness', location: 'Dallas, TX', members: 220, status: true },
-    { id: 'G-110', name: 'High Altitude Gym', location: 'Aspen, CO', members: 95, status: true },
-    { id: 'G-111', name: 'Capital City Fitness', location: 'Washington, DC', members: 500, status: true },
-    { id: 'G-112', name: 'Sunshine Studio', location: 'Orlando, FL', members: 120, status: true },
-  ];
+  // Drawer state
+  isDetailsDrawerOpen = false;
+  isEditMode: boolean = false;
+  selectedGymDetail?: GymListResponse;
 
-  filteredData: any[] = [];
-  displayData: any[] = [];
+  // Data state
+  originalData: GymListResponse[] = [];
+  filteredData: GymListResponse[] = [];
+  displayData: GymListResponse[] = [];
+  isLoading = false;
 
   // Pagination state
   totalItems = 0;
@@ -43,7 +47,7 @@ export class GymList implements OnInit {
   // Filter configuration
   filterConfigs: FilterConfig[] = [
     {
-      key: 'status',
+      key: 'isActive',
       label: 'Status',
       options: [
         { label: 'Active', value: 'true' },
@@ -55,7 +59,32 @@ export class GymList implements OnInit {
   selectedGyms: any[] = [];
 
   ngOnInit(): void {
-    this.applyFilters({ search: '' });
+    this.loadGyms();
+  }
+
+  loadGyms() {
+    this.isLoading = true;
+    this.gymService.getGymList()
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: (res) => {
+          this.originalData = res.Data || [];
+          this.applyFilters({ search: '' });
+        },
+        error: (err) => this.notification.error(err.error?.message || CONSTANTS.GYM_LOAD_ERROR_MESSAGE)
+      });
+  }
+
+  updateGym(gym: GymListResponse) {
+    this.gymService.updateGym(gym.id, gym).subscribe({
+      next: () => {
+        this.notification.success(CONSTANTS.GYM_UPDATE_SUCCESS_MESSAGE);
+        this.loadGyms();
+      },
+      error: (err) => {
+        this.notification.error(err.error?.message || CONSTANTS.GYM_UPDATE_ERROR_MESSAGE);
+      }
+    });
   }
 
   applyFilters(filters: any) {
@@ -64,15 +93,15 @@ export class GymList implements OnInit {
 
     if (filters.search) {
       const s = filters.search.toLowerCase();
-      results = results.filter(item => 
-        item.name.toLowerCase().includes(s) || 
-        item.location.toLowerCase().includes(s)
+      results = results.filter(item =>
+        item.gymName.toLowerCase().includes(s) ||
+        item.brandName.toLowerCase().includes(s)
       );
     }
 
     if (filters.status) {
       const isStatusActive = filters.status === 'true';
-      results = results.filter(item => item.status === isStatusActive);
+      results = results.filter(item => item.isActive === isStatusActive);
     }
 
     this.filteredData = results;
@@ -102,7 +131,45 @@ export class GymList implements OnInit {
   }
 
   handleAction(event: { action: string, row: any }) {
-    console.log('Action triggered:', event.action, 'on row:', event.row);
+    this.selectedGymDetail = event.row;
+
+    if (event.action === CONSTANTS.VIEW || event.action === CONSTANTS.EDIT || event.action === CONSTANTS.ROW_CLICK) {
+      this.openDrawer(event.row, event.action);
+    }
+    if (event.action == CONSTANTS.DELETE) {
+      if (event.row.branchesCount > 0) {
+        this.notification.error(CONSTANTS.GYM_DELETE_VALIDATION_MESSAGE);
+        return;
+      }
+      this.handleDelete(event.row);
+    }
+  }
+
+  async handleDelete(gym: GymListResponse) {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Delete Gym',
+      message: `Are you sure you want to delete "${gym.gymName}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+
+    if (confirmed) {
+      this.gymService.deleteGym(gym.id).subscribe({
+        next: () => {
+          this.notification.success(CONSTANTS.GYM_DELETE_SUCCESS_MESSAGE);
+          this.loadGyms();
+        },
+        error: (err) => {
+          this.notification.error(err.error?.message || CONSTANTS.GYM_DELETE_ERROR_MESSAGE);
+        }
+      });
+    }
+  }
+
+  openDrawer(rowInfo: GymListResponse, action: string) {
+    this.selectedGymDetail = rowInfo;
+    this.isDetailsDrawerOpen = true;
+    this.isEditMode = action === CONSTANTS.EDIT;
   }
 
   onSelectionChange(selected: any[]) {
@@ -115,5 +182,11 @@ export class GymList implements OnInit {
 
   closeAddGymModal() {
     this.isAddGymModalOpen = false;
+  }
+
+  closeDetailDrawer() {
+    this.isDetailsDrawerOpen = false;
+    this.isEditMode = false;
+    this.selectedGymDetail = undefined;
   }
 }
