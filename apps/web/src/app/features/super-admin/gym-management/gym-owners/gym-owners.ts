@@ -60,7 +60,7 @@ export class GymOwners implements OnInit {
   }
 
   getGymOwners() {
-    this.gymService.getGymOwners().subscribe({
+    this.gymService.getGymOwnersList().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
         this.originalData = res.Data;
         this.applyFilters({ search: '' }); // Initial apply
@@ -124,7 +124,6 @@ export class GymOwners implements OnInit {
   }
 
   handleAction(event: { action: string, row: GymOwnerResponse }) {
-    console.log(event);
     if (event.action === CONSTANTS.EDIT || event.action === CONSTANTS.VIEW || event.action === CONSTANTS.ROW_CLICK) {
       this.openDrawer(event.row, event.action);
       return;
@@ -151,6 +150,21 @@ export class GymOwners implements OnInit {
         this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_DELETE_ERROR_MESSAGE);
       }
     })
+  }
+
+  updateGymOwner(owner: any) {
+
+    this.gymService.updateGymOwner(owner.id, owner).subscribe({
+      next: (res: ApiResponse<GymOwnerResponse>) => {
+        this.notification.success(CONSTANTS.GYM_OWNER_UPDATE_SUCCESS_MESSAGE);
+        this.isViewDrawerOpen = false;
+        this.getGymOwners();
+      },
+      error: (err) => {
+        this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_UPDATE_ERROR_MESSAGE);
+      }
+    })
+
   }
 
   reInvite(ownerId: string) {

@@ -202,7 +202,7 @@ export class GymOnboardingModalComponent implements OnInit {
   }
 
   getGymOwners() {
-    this.gymService.getGymOwners().subscribe({
+    this.gymService.getGymOwnersList().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
         this.gymOwners = res.Data;
       },

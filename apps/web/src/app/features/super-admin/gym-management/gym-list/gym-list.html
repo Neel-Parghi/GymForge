@@ -6,14 +6,19 @@
   <button class="primary-btn edit-mode">Edit ({{ selectedGyms.length }} selected)</button>
   }
 </div>
-<!-- <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search gyms by name or location..."
+<app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search gyms by name..."
   (filterChanged)="onFilterChanged($event)">
-</app-filter-bar> -->
+</app-filter-bar>
 
 <app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
   [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
   (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
 </app-data-grid>
+
+<!-- Gym Details Drawer -->
+<app-gym-details-drawer [isOpen]="isDetailsDrawerOpen" [gym]="selectedGymDetail" [isEditing]="isEditMode"
+  (closeDrawer)="closeDetailDrawer()" (gymUpdated)="updateGym($event)">
+</app-gym-details-drawer>
 
 <!-- Gym Onboarding Modal -->
 @if (isAddGymModalOpen)

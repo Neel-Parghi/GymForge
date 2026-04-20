@@ -38,7 +38,7 @@ export const MenuConfig: NavItem[] = [
         roles: ['SuperAdmin']
     },
     {
-        label: 'Pricing',
+        label: 'Plans',
         icon: 'fa-solid fa-tags',
         route: '/super-admin/pricing',
         roles: ['SuperAdmin'],

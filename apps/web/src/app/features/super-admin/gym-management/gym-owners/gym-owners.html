@@ -6,9 +6,9 @@
   <button class="primary-btn edit-mode">Edit ({{ selectedOwners.length }} selected)</button>
   }
 </div>
-<!-- <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search by name, email or gym..."
+<app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search by name, email or gym..."
   (filterChanged)="onFilterChanged($event)">
-</app-filter-bar> -->
+</app-filter-bar>
 
 <app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
   [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
@@ -21,5 +21,5 @@
 }
 
 <app-owner-details-drawer [isOpen]="isViewDrawerOpen" [isEditing]="isEditMode" [ownerContext]="selectedContext"
-  (closeDrawer)="isViewDrawerOpen = false" (resendInvite)="reInvite($event)">
+  (closeDrawer)="isViewDrawerOpen = false" (resendInvite)="reInvite($event)" (saveOwner)="updateGymOwner($event)">
 </app-owner-details-drawer>

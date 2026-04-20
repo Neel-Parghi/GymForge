@@ -1,6 +1,6 @@
 .data-grid-container {
   width: 100%;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 250px);
   min-height: 400px;
   background-color: var(--bg-color);
   border: 1px solid var(--border-color);
@@ -95,7 +95,7 @@
       color: var(--text-main);
       cursor: pointer;
       font-weight: 600;
-      text-decoration: underline;
+      // text-decoration: underline;
       text-underline-offset: 4px;
       text-decoration-color: var(--border-color);
 

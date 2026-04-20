@@ -29,7 +29,8 @@ export class OwnerDetailsDrawerComponent implements OnChanges {
 
   constructor() {
     this.editForm = this.fb.group({
-      name: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required]
     });
@@ -39,7 +40,8 @@ export class OwnerDetailsDrawerComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ownerContext'] && this.ownerContext) {
       this.editForm.patchValue({
-        name: this.ownerContext?.name || '',
+        firstName: this.ownerContext?.name.split(' ')[0] || '',
+        lastName: this.ownerContext?.name.split(' ')[1] || '',
         email: this.ownerContext?.email || '',
         phone: this.ownerContext?.phone || ''
       });
@@ -64,7 +66,8 @@ export class OwnerDetailsDrawerComponent implements OnChanges {
     this.isEditing = false;
     this.isEditingChange.emit(false);
     this.editForm.patchValue({
-      name: this.ownerContext?.name || '',
+      firstName: this.ownerContext?.firstName || '',
+      lastName: this.ownerContext?.lastName || '',
       email: this.ownerContext?.email || '',
       phone: this.ownerContext?.phone || ''
     });
@@ -73,7 +76,11 @@ export class OwnerDetailsDrawerComponent implements OnChanges {
 
   save() {
     if (this.editForm.valid && this.isEditing) {
-      this.saveOwner.emit({ id: this.ownerContext?.id, ...this.editForm.value });
+      this.saveOwner.emit({
+        id: this.ownerContext?.id,
+        status: this.ownerContext?.status,
+        ...this.editForm.value
+      });
       this.isEditing = false;
       this.isEditingChange.emit(false);
       this.editForm.disable();

@@ -39,19 +39,47 @@ export interface GymListResponse {
   gymName: string;
   brandName: string;
   ownerName: string;
-  contact: string;
+  email: string;
+  phone: string;
   branchesCount: number;
-  verification: string; 
-  status: boolean;
+  isActive: boolean;
+  isVerified: boolean;
+
+  // Detail fields
+  description?: string;
+  websiteUrl?: string;
+  gstNumber?: string;
+  registrationNumber?: string;
+  establishedDate?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+
+  // Subscription info
+  planName?: string;
+  subscriptionExpiry?: string;
+  isTrialPlan: boolean;
+  hasActiveSubscription: boolean;
 }
 
 export interface GymOwnerResponse {
   id: string;
+  firstName: string;
+  lastName: string;
   name: string;
   email: string;
   phone: string;
-  joinedDate: string; 
+  joinedDate: string;
   gymsOwned: number;
   invitationStatus: string;
   status: boolean;
 }
+
+export interface UpdateGymOwnerRequest {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  status: boolean;
+}
+

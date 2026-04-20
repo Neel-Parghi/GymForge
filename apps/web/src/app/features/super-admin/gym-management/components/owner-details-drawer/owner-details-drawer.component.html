@@ -4,11 +4,17 @@
 
   <div drawer-body>
     <form [formGroup]="editForm" class="form-grid">
-      <div class="form-group lg">
-        <label>Full Name</label>
-        <input type="text" formControlName="name" placeholder="Name" />
-        <app-validation-message *ngIf="isEditing" [control]="editForm.get('name')"
-          fieldName="Name"></app-validation-message>
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" formControlName="firstName" placeholder="First Name" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('firstName')"
+          fieldName="First Name"></app-validation-message>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" formControlName="lastName" placeholder="Last Name" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('lastName')"
+          fieldName="Last Name"></app-validation-message>
       </div>
 
       <div class="form-group lg">

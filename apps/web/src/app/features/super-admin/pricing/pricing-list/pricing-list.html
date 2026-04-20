@@ -6,9 +6,9 @@
     <button class="primary-btn edit-mode">Edit ({{ selectedPlans.length }} selected)</button>
     }
 </div>
-<!-- <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search plans by name or description..."
+<app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search plans by name or description..."
     (filterChanged)="onFilterChanged($event)">
-</app-filter-bar> -->
+</app-filter-bar>
 
 <app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
     [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"

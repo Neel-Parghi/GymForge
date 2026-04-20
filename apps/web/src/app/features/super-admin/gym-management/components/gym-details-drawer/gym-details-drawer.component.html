@@ -1,0 +1,106 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="isEditing ? 'Edit Gym Details' : 'Gym Details'"
+  [subtitle]="isEditing ? 'Update details for ' + gym?.gymName : 'Viewing details for ' + gym?.gymName"
+  width="600px" (closeDrawer)="onClose()">
+
+  <div drawer-body>
+    <div class="subscription-banner" [class.no-plan]="!gym?.hasActiveSubscription">
+      <div class="banner-icon">
+        <i class="fas" [class.fa-check-circle]="gym?.hasActiveSubscription" [class.fa-exclamation-triangle]="!gym?.hasActiveSubscription"></i>
+      </div>
+      <div class="banner-content">
+        <h4 *ngIf="gym?.hasActiveSubscription">Active Plan: {{ gym?.planName }}</h4>
+        <h4 *ngIf="!gym?.hasActiveSubscription">No Active Plan</h4>
+        <p *ngIf="gym?.hasActiveSubscription">Expires on {{ gym?.subscriptionExpiry | date:'mediumDate' }}</p>
+        <p *ngIf="!gym?.hasActiveSubscription">This gym does not currently have a subscription.</p>
+      </div>
+      <div class="banner-action" *ngIf="gym?.hasActiveSubscription && gym?.isTrialPlan">
+        <span class="trial-badge">Trial Mode</span>
+      </div>
+    </div>
+
+    <form [formGroup]="editForm" class="form-grid">
+      <div class="form-group lg">
+        <label>Gym Name</label>
+        <input type="text" formControlName="gymName" placeholder="Name" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('gymName')" fieldName="Gym Name"></app-validation-message>
+      </div>
+
+      <div class="form-group">
+        <label>Brand / Franchise</label>
+        <input type="text" formControlName="brandName" placeholder="Brand" />
+      </div>
+
+      <div class="form-group">
+        <label>Established Date</label>
+        <input type="text" [value]="gym?.establishedDate | date:'mediumDate'" disabled />
+      </div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" formControlName="email" placeholder="Email" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('email')" fieldName="Email"></app-validation-message>
+      </div>
+
+      <div class="form-group">
+        <label>Contact Phone</label>
+        <input type="text" formControlName="phone" placeholder="Phone" />
+        <app-validation-message *ngIf="isEditing" [control]="editForm.get('phone')" fieldName="Phone"></app-validation-message>
+      </div>
+
+      <div class="form-group lg">
+        <label>Website URL</label>
+        <input type="text" formControlName="websiteUrl" placeholder="https://..." />
+      </div>
+
+      <div class="form-group lg">
+        <label>Description</label>
+        <textarea formControlName="description" rows="3" placeholder="Brief about the gym..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>GST Number</label>
+        <input type="text" formControlName="gstNumber" placeholder="GST" />
+      </div>
+
+      <div class="form-group">
+        <label>Registration #</label>
+        <input type="text" formControlName="registrationNumber" placeholder="Reg #" />
+      </div>
+
+      <div class="form-group flex-row">
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="isActive" />
+          <span class="slider round"></span>
+        </label>
+        <div class="toggle-label">
+          <strong>Active Status</strong>
+          <span>Enable/Disable visibility</span>
+        </div>
+      </div>
+
+      <div class="form-group flex-row">
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="isVerified" />
+          <span class="slider round"></span>
+        </label>
+        <div class="toggle-label">
+          <strong>Verified Gym</strong>
+          <span>Verification Badge status</span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div drawer-footer class="drawer-footer">
+    <ng-container *ngIf="!isEditing">
+      <button class="btn-cancel" (click)="onClose()">Close</button>
+      <button class="primary-btn" (click)="toggleEdit()">Edit Details</button>
+    </ng-container>
+
+    <ng-container *ngIf="isEditing">
+      <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+      <button class="btn-success" [disabled]="editForm.invalid" (click)="save()">Save Changes</button>
+    </ng-container>
+  </div>
+
+</app-slide-drawer>
