@@ -43,6 +43,8 @@ namespace GymForge.Infrastructure.Repositories
                 .Select(u => new GymOwnersDto
                 {
                     Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
                     Name = u.FirstName + " " + u.LastName,
                     Email = u.Email,
                     Phone = u.Phone,
@@ -53,6 +55,81 @@ namespace GymForge.Infrastructure.Repositories
                                        (u.InvitationExpiry > DateTime.UtcNow ? "Pending" : "Expired")
                 })
                 .ToListAsync();
+        }
+
+        public async Task<User?> GetGymOwnerByIdAsync(Guid id)
+        {
+            User? user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+            return user;
+        }
+
+        public async Task<List<GymListResponseDto>> GetGymListAsync()
+        {
+            return await _dbContext.Gyms
+                .Include(x => x.Owner)
+                .Include(x => x.Branches)
+                .Select(g => new GymListResponseDto
+                {
+                    Id = g.Id,
+                    GymName = g.GymName,
+                    BrandName = g.BrandName,
+                    OwnerName = g.Owner.FirstName + " " + g.Owner.LastName,
+                    Email = g.Email,
+                    Phone = g.Phone,
+                    IsActive = g.IsActive,
+                    IsVerified = g.IsVerified,
+                    BranchesCount = g.Branches != null ? g.Branches.Count : 0,
+                    Description = g.Description,
+                    WebsiteUrl = g.WebsiteUrl,
+                    GstNumber = g.GstNumber,
+                    RegistrationNumber = g.RegistrationNumber,
+                    EstablishedDate = g.EstablishedDate,
+                    LogoUrl = g.LogoUrl,
+                    BannerUrl = g.BannerUrl,
+                    // Get latest active subscription
+                    PlanName = _dbContext.GymSubscriptions
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.Plan.Name)
+                        .FirstOrDefault(),
+                    SubscriptionExpiry = _dbContext.GymSubscriptions
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => (DateTime?)s.EndDate)
+                        .FirstOrDefault(),
+                    IsTrialPlan = _dbContext.GymSubscriptions
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.IsTrial)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+        }
+
+        public User UpdateGymOwner(User gymOwner)
+        {
+            _dbContext.Users.Update(gymOwner);
+            return gymOwner;
+        }
+
+        public async Task<Gym?> GetGymByIdAsync(Guid id)
+        {
+            return await _dbContext.Gyms.FindAsync(id);
+        }
+
+        public Gym UpdateGym(Gym gym)
+        {
+            _dbContext.Gyms.Update(gym);
+            return gym;
+        }
+
+        public async Task DeleteGymAsync(Guid gymId)
+        {
+            Gym? gym = await _dbContext.Gyms.FindAsync(gymId);
+            if (gym != null)
+            {
+                gym.IsActive = false;
+            }
         }
     }
 }

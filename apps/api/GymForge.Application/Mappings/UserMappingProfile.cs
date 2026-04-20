@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using GymForge.Contracts.Auth;
+using GymForge.Contracts.Gym;
 using GymForge.Domain.Entities;
 
 namespace GymForge.Application.Mappings
@@ -11,6 +12,11 @@ namespace GymForge.Application.Mappings
             CreateMap<RegisterRequestDto, User>();
 
             CreateMap<User, AuthResponseDto>();
+
+            CreateMap<UpdateGymOwnerDto, User>();
+
+            CreateMap<User, GymOwnersDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
         }
     }
 }
