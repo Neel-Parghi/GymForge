@@ -17,8 +17,8 @@
       </div>
 
       <div class="form-group">
-        <label>Price ($)</label>
-        <input type="number" formControlName="price" placeholder="49.99" />
+        <label>Price (₹)</label>
+        <input type="number" formControlName="price" placeholder="499" />
         <app-validation-message *ngIf="isEditing" [control]="editForm.get('price')"
           fieldName="Price"></app-validation-message>
       </div>
@@ -61,7 +61,7 @@
           <span>Plan is available for purchase</span>
         </div>
       </div>
-      
+
       <div class="form-group lg" *ngIf="planContext?.createdAt">
         <label>Created On</label>
         <input type="text" [value]="planContext?.createdAt | date:'mediumDate'" disabled />
