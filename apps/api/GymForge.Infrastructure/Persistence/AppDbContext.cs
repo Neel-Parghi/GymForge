@@ -22,7 +22,10 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<Branch> Branches { get; set; }
         
         public DbSet<GymSubscription> GymSubscriptions { get; set; }
+        
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        public DbSet<SaaSPaymentTransaction> SaaSPaymentTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

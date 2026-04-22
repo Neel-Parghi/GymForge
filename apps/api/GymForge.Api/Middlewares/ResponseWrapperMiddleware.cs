@@ -42,7 +42,21 @@ namespace GymForge.Api.Middlewares
             object? data = null;
             if (!string.IsNullOrWhiteSpace(responseBody))
             {
-                data = JsonSerializer.Deserialize<object>(responseBody);
+                try
+                {
+                    if (responseBody.TrimStart().StartsWith("{") || responseBody.TrimStart().StartsWith("["))
+                    {
+                        data = JsonSerializer.Deserialize<object>(responseBody);
+                    }
+                    else
+                    {
+                        data = responseBody;
+                    }
+                }
+                catch
+                {
+                    data = responseBody;
+                }
             }
             
             ApiResponse<object> wrappedResponse = new()

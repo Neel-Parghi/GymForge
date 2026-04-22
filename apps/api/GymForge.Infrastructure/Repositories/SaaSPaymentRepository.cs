@@ -1,0 +1,49 @@
+﻿using GymForge.Domain.Entities;
+using GymForge.Domain.Interface;
+using GymForge.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace GymForge.Infrastructure.Repositories
+{
+    public class SaaSPaymentRepository : ISaaSPaymentRepository
+    {
+        public readonly AppDbContext _dbContext;
+
+        public SaaSPaymentRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task AddAsync(SaaSPaymentTransaction transaction)
+        {
+            await _dbContext.SaaSPaymentTransactions.AddAsync(transaction);
+        }
+
+        public async Task<SaaSPaymentTransaction?> GetByGatewayIdAsync(string gatewayId)
+        {
+            return await _dbContext.SaaSPaymentTransactions.FirstOrDefaultAsync(x => x.GatewayTransactionId == gatewayId);
+        }
+
+        public async Task<List<SaaSPaymentTransaction>> GetTransactionsAsync()
+        {
+            return await _dbContext.SaaSPaymentTransactions
+                .Include(x => x.Gym)
+                .Include(x => x.Subscription)
+                .ThenInclude(x => x.Plan)
+                .OrderByDescending(x => x.CreatedOn)
+                .ToListAsync();
+        }
+
+        public async Task UpdateStatusAsync(Guid id, string status, string? gatewayResponse = null)
+        {
+            SaaSPaymentTransaction? paymentTransaction = await _dbContext.SaaSPaymentTransactions.FindAsync(id);
+
+            if (paymentTransaction != null)
+            {
+                paymentTransaction.Status = status;
+                if (gatewayResponse != null)
+                    paymentTransaction.GatewayResponse = gatewayResponse;
+            }
+        }
+    }
+}
