@@ -41,5 +41,17 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: true
+  },
+  PaymentList: {
+    columns: [
+      { key: 'gymName', label: 'Gym Name' },
+      { key: 'planName', label: 'Plan' },
+      { key: 'amount', label: 'Amount', type: 'currency' },
+      { key: 'paymentDate', label: 'Payment Date', type: 'date' },
+      { key: 'createdOn', label: 'Date', type: 'date' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'gatewayTransactionId', label: 'Transaction ID' },
+    ],
+    selectable: false
   }
 };

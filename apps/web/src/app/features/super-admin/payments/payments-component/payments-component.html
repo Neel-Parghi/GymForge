@@ -1,0 +1,65 @@
+<div class="payments-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Financial Overview</h1>
+            <p>Monitor your SaaS revenue and transactions</p>
+        </div>
+    </div>
+
+    <div class="tabs-header">
+        <button [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">
+            <i class="fa-solid fa-chart-line"></i> Overview
+        </button>
+        <button [class.active]="activeTab === 'transactions'" (click)="setActiveTab('transactions')">
+            <i class="fa-solid fa-list-ul"></i> Transaction Ledger
+        </button>
+        <button [class.active]="activeTab === 'settings'" (click)="setActiveTab('settings')">
+            <i class="fa-solid fa-gear"></i> Payment Settings
+        </button>
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'overview'">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon revenue"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                <div class="stat-info">
+                    <span class="label">Total Revenue</span>
+                    <h3 class="value">{{ stats?.totalRevenue | currency:'INR':'symbol' }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon mrr"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div class="stat-info">
+                    <span class="label">MRR (Monthly)</span>
+                    <h3 class="value">{{ stats?.monthlyRecurringRevenue | currency:'INR':'symbol' }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active-subs"><i class="fa-solid fa-gym"></i></div>
+                <div class="stat-info">
+                    <span class="label">Active Subscriptions</span>
+                    <h3 class="value">{{ stats?.activeSubscriptions }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="revenue-chart-placeholder">
+            <i class="fa-solid fa-chart-area"></i>
+            <p>Monthly Revenue Chart coming soon...</p>
+        </div>
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'transactions'">
+        <app-data-grid [config]="gridConfig" [data]="transactions" [pageSize]="pageSize" [currentPage]="currentPage"
+            (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
+            (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
+        </app-data-grid>
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'settings'">
+        <div class="settings-placeholder">
+            <h3>Payment Configuration</h3>
+            <p>This will host your Razorpay/Stripe API keys and tax settings.</p>
+        </div>
+    </div>
+</div>

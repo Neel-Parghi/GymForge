@@ -1,5 +1,6 @@
 export const API_CONSTANTS = {
-  BASE_URL: 'https://localhost:7184/api', // Replace with actual base URL
+  BASE_URL: 'https://localhost:7184/api',
+
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
@@ -31,5 +32,11 @@ export const API_CONSTANTS = {
     ADD: '/saas-plans',
     UPDATE: '/saas-plans',
     DELETE: '/saas-plans',
+  },
+  PAYMENTS: {
+    STATS: '/payments/stats',
+    TRANSACTIONS: '/payments/transactions',
+    INITIATE: '/payments/initiate',
+    VERIFY: '/payments/verify'
   }
 };

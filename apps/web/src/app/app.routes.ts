@@ -23,7 +23,11 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'gym-owners', component: GymOwners },
       { path: 'gym-list', component: GymList },
-      { path: 'pricing', component: PricingList }
+      { path: 'pricing', component: PricingList },
+      {
+        path: 'payments',
+        loadComponent: () => import('./features/super-admin/payments/payments-component/payments-component').then(m => m.PaymentsComponent)
+      }
     ]
   }
 ];
