@@ -1,4 +1,4 @@
-﻿using GymForge.Application.Modules.Payments.Interfaces;
+using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.SaaSPayments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +45,22 @@ namespace GymForge.Api.Controllers.Payment
         {
             bool success = await _paymentService.ProcessSuccessfulPaymentAsync(payload.OrderId, payload.PaymentId, payload.Signature);
             return success ? Ok() : BadRequest("Invalid Transaction");
+        }
+
+        [HttpGet("settings")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetSettings()
+        {
+            var settings = await _paymentService.GetSettingsAsync();
+            return Ok(settings);
+        }
+
+        [HttpPut("settings/update")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> UpdateSettings([FromBody] SaaSConfigurationDto settings)
+        {
+            await _paymentService.UpdateSettingsAsync(settings);
+            return Ok();
         }
     }
 }

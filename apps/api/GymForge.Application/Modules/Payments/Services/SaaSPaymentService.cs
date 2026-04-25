@@ -1,3 +1,4 @@
+using AutoMapper;
 using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.SaaSPayments;
 using GymForge.Domain.Entities;
@@ -10,19 +11,37 @@ namespace GymForge.Application.Modules.Payments.Services
     public class SaaSPaymentService : ISaaSPaymentService
     {
         private readonly ISaaSPaymentRepository _paymentRepository;
+        private readonly ISaaSConfigurationRepository _configRepository;
         private readonly IGymManagementRepository _gymManagementRepository;
         private readonly ISaaSPlanRepository _saaSPlanRepository;
         private readonly IUnitOfWork _uow;
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
 
-
-        public SaaSPaymentService(IUnitOfWork uow, ISaaSPaymentRepository saaSPaymentRepository, IGymManagementRepository gymManagementRepository, ISaaSPlanRepository saaSPlanRepository, IConfiguration config)
+        public SaaSPaymentService(IUnitOfWork uow, ISaaSPaymentRepository saaSPaymentRepository, IGymManagementRepository gymManagementRepository, ISaaSPlanRepository saaSPlanRepository, IConfiguration config, ISaaSConfigurationRepository configRepository, IMapper mapper)
         {
             _uow = uow;
             _paymentRepository = saaSPaymentRepository;
             _gymManagementRepository = gymManagementRepository;
             _saaSPlanRepository = saaSPlanRepository;
             _config = config;
+            _configRepository = configRepository;
+            _mapper = mapper;
+        }
+
+        public async Task<SaaSConfigurationDto> GetSettingsAsync()
+        {
+            var settings = await _configRepository.GetConfigurationAsync();
+            return _mapper.Map<SaaSConfigurationDto>(settings);
+        }
+
+        public async Task UpdateSettingsAsync(SaaSConfigurationDto settingsDto)
+        {
+            var settings = await _configRepository.GetConfigurationAsync();
+            _mapper.Map(settingsDto, settings);
+            
+            await _configRepository.UpdateConfigurationAsync(settings);
+            await _uow.SaveChangesAsync();
         }
 
         public async Task<InitiatePaymentResponseDto> InitiateSaaSPaymentAsync(CreatePaymentDto paymentDto)

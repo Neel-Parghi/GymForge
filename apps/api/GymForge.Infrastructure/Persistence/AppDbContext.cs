@@ -26,6 +26,8 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         public DbSet<SaaSPaymentTransaction> SaaSPaymentTransactions { get; set; }
+        
+        public DbSet<SaaSConfiguration> SaaSConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +54,23 @@ namespace GymForge.Infrastructure.Persistence
             modelBuilder.Entity<SaaSPaymentTransaction>()
                 .Property(x => x.Amount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<SaaSConfiguration>()
+                .Property(x => x.TaxPercentage)
+                .HasPrecision(5, 2);
+
+            // Seed default settings
+            modelBuilder.Entity<SaaSConfiguration>().HasData(new SaaSConfiguration
+            {
+                Id = Guid.Parse("A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D"),
+                PlatformName = "GymForge",
+                BillingEmail = "admin@gymforge.com",
+                TaxPercentage = 18.0m,
+                GracePeriodDays = 7,
+                Currency = "INR",
+                CreatedOn = new DateTime(2026, 4, 25, 0, 0, 0, DateTimeKind.Utc),
+                CreatedBy = Guid.Empty
+            });
         }
     }
 }

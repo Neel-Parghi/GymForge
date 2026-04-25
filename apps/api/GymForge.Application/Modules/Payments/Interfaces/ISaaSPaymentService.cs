@@ -1,4 +1,5 @@
-﻿using GymForge.Contracts.SaaSPayments;
+using GymForge.Contracts.SaaSPayments;
+using GymForge.Domain.Entities;
 
 namespace GymForge.Application.Modules.Payments.Interfaces
 {
@@ -11,5 +12,9 @@ namespace GymForge.Application.Modules.Payments.Interfaces
         Task<List<PaymentTransactionDto>> GetAllTransactionsAsync();
 
         Task<PaymentStatsDto> GetPaymentStatsAsync();
+
+        Task<SaaSConfigurationDto> GetSettingsAsync();
+
+        Task UpdateSettingsAsync(SaaSConfigurationDto settings);
     }
 }
