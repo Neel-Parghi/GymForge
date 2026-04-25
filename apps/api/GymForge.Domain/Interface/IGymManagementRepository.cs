@@ -8,7 +8,7 @@ namespace GymForge.Domain.Interface
         Task AddAddressAsync(Address address);
         Task AddGymAsync(Gym gym);
         Task AddBranchAsync(Branch branch);
-        Task AddGymSubscriptionAsync(GymSubscription subscription);
+        Task AddGymSubscriptionAsync(SubscriptionRecord subscription);
        
         Task<List<GymOwnersDto>> GetGymOwnersList();
         Task<User?> GetGymOwnerByIdAsync(Guid id);

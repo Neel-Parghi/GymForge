@@ -43,7 +43,7 @@ namespace GymForge.Api.Controllers.Payment
         [Authorize]
         public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentDto payload)
         {
-            bool success = await _paymentService.ProcessSuccessfulPaymentAsync(payload.OrderId, payload.PaymentId);
+            bool success = await _paymentService.ProcessSuccessfulPaymentAsync(payload.OrderId, payload.PaymentId, payload.Signature);
             return success ? Ok() : BadRequest("Invalid Transaction");
         }
     }

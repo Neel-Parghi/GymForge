@@ -48,6 +48,8 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
+builder.Services.AddAuthorization();
+
 builder.Services.AddAutoMapper(cfg => {}, typeof(Program).Assembly, typeof(GymForge.Application.DIConfig).Assembly);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);

@@ -1,4 +1,4 @@
-﻿using GymForge.Application.Modules.Payments.Interfaces;
+using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.SaaSPayments;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
@@ -31,6 +31,9 @@ namespace GymForge.Application.Modules.Payments.Services
 
             if (plan == null) throw new Exception("Plan not found");
 
+            GymForge.Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(paymentDto.GymId);
+            if (gym == null) throw new Exception($"Gym with ID {paymentDto.GymId} not found. Please verify the GymId.");
+
             string razorPayAPIKeyId = _config["RazorPay:ApiKeyId"]!;
             string razorPayAPIKeySecret = _config["RazorPay:ApiKeySecret"]!;
 
@@ -43,22 +46,29 @@ namespace GymForge.Application.Modules.Payments.Services
             Order order = client.Order.Create(options);
             string razorpayOrderId = order["id"].ToString();
 
+            var transactionId = Guid.NewGuid();
+            var subscriptionId = Guid.NewGuid();
+
             SaaSPaymentTransaction transaction = new()
             {
+                Id = transactionId,
                 GymId = paymentDto.GymId,
+                Gym = gym,
+                SubscriptionId = subscriptionId, 
                 Amount = plan.Price,
                 Currency = "INR",
                 Status = "Pending",
                 GatewayTransactionId = razorpayOrderId
             };
 
-            GymSubscription gymSubscription = new()
+            SubscriptionRecord gymSubscription = new()
             {
+                Id = subscriptionId,
                 GymId = paymentDto.GymId,
                 PlanId = paymentDto.PlanId,
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddMonths(1),
-                IsActive = plan.IsActive,
+                IsActive = false,
                 IsTrial = plan.IsTrial,
                 PriceAtPurchase = plan.Price
             };
@@ -66,30 +76,54 @@ namespace GymForge.Application.Modules.Payments.Services
             transaction.Subscription = gymSubscription;
 
             await _paymentRepository.AddAsync(transaction);
+            
             await _uow.SaveChangesAsync();
 
             return new InitiatePaymentResponseDto
             {
                 TransactionId = transaction.Id,
-                RazorpayOrderId = razorpayOrderId
+                RazorpayOrderId = razorpayOrderId,
+                Amount = (int)(plan.Price * 100)
             };
         }
 
-        public async Task<bool> ProcessSuccessfulPaymentAsync(string gatewayId, string gatewayResponse)
+        public async Task<bool> ProcessSuccessfulPaymentAsync(string orderId, string paymentId, string signature)
         {
-            SaaSPaymentTransaction? transaction = await _paymentRepository.GetByGatewayIdAsync(gatewayId);
+            string keyId = _config["RazorPay:ApiKeyId"]!;
+            string secret = _config["RazorPay:ApiKeySecret"]!;
 
+            // Initialize client and set global credentials for the static Utils class
+            RazorpayClient client = new RazorpayClient(keyId, secret);
+            //RazorpayClient.Key = keyId;
+            //RazorpayClient.Secret = secret;
+
+            try 
+            {
+                Dictionary<string, string> attributes = [];
+                attributes.Add("razorpay_order_id", orderId);
+                attributes.Add("razorpay_payment_id", paymentId);
+                attributes.Add("razorpay_signature", signature);
+
+                Utils.verifyPaymentSignature(attributes);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SIGNATURE VERIFICATION FAILED: {ex.Message}");
+                return false;
+            }
+
+            SaaSPaymentTransaction? transaction = await _paymentRepository.GetByGatewayIdAsync(orderId);
             if (transaction == null) return false;
 
             transaction.Status = "Success";
-            transaction.GatewayResponse = gatewayResponse; // Payment ID
+            transaction.GatewayResponse = paymentId;
 
-            GymSubscription subscription = transaction.Subscription;
-
-            subscription?.IsActive = true;
+            if (transaction.Subscription != null)
+            {
+                transaction.Subscription.IsActive = true;
+            }
 
             await _uow.SaveChangesAsync();
-         
             return true;
         }
 
@@ -113,7 +147,9 @@ namespace GymForge.Application.Modules.Payments.Services
         {
             List<SaaSPaymentTransaction>? transactions = await _paymentRepository.GetTransactionsAsync();
 
-            List<SaaSPaymentTransaction>? successTxs = [..transactions.Where(t => t.Status == "success")];
+            List<SaaSPaymentTransaction> successTxs = transactions
+                .Where(t => t.Status.Equals("Success", StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
             return new PaymentStatsDto
             {

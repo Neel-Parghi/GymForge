@@ -31,9 +31,9 @@ namespace GymForge.Infrastructure.Repositories
             await _dbContext.Branches.AddAsync(branch);
         }
 
-        public async Task AddGymSubscriptionAsync(GymSubscription subscription)
+        public async Task AddGymSubscriptionAsync(SubscriptionRecord subscription)
         {
-            await _dbContext.GymSubscriptions.AddAsync(subscription);
+            await _dbContext.SubscriptionRecords.AddAsync(subscription);
         }
 
         public async Task<List<GymOwnersDto>> GetGymOwnersList()
@@ -87,17 +87,17 @@ namespace GymForge.Infrastructure.Repositories
                     LogoUrl = g.LogoUrl,
                     BannerUrl = g.BannerUrl,
                     // Get latest active subscription
-                    PlanName = _dbContext.GymSubscriptions
+                    PlanName = _dbContext.SubscriptionRecords
                         .Where(s => s.GymId == g.Id && s.IsActive)
                         .OrderByDescending(s => s.CreatedOn)
                         .Select(s => s.Plan.Name)
                         .FirstOrDefault(),
-                    SubscriptionExpiry = _dbContext.GymSubscriptions
+                    SubscriptionExpiry = _dbContext.SubscriptionRecords
                         .Where(s => s.GymId == g.Id && s.IsActive)
                         .OrderByDescending(s => s.CreatedOn)
                         .Select(s => (DateTime?)s.EndDate)
                         .FirstOrDefault(),
-                    IsTrialPlan = _dbContext.GymSubscriptions
+                    IsTrialPlan = _dbContext.SubscriptionRecords
                         .Where(s => s.GymId == g.Id && s.IsActive)
                         .OrderByDescending(s => s.CreatedOn)
                         .Select(s => s.IsTrial)

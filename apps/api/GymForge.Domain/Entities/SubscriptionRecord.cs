@@ -1,6 +1,6 @@
-﻿namespace GymForge.Domain.Entities
+namespace GymForge.Domain.Entities
 {
-    public class GymSubscription : BaseEntity
+    public class SubscriptionRecord : BaseEntity
     {
         public Guid GymId { get; set; }
 

@@ -21,7 +21,7 @@ namespace GymForge.Infrastructure.Persistence
         
         public DbSet<Branch> Branches { get; set; }
         
-        public DbSet<GymSubscription> GymSubscriptions { get; set; }
+        public DbSet<SubscriptionRecord> SubscriptionRecords { get; set; }
         
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -45,8 +45,12 @@ namespace GymForge.Infrastructure.Persistence
                 .Property(x => x.Price)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<GymSubscription>()
+            modelBuilder.Entity<SubscriptionRecord>()
                 .Property(x => x.PriceAtPurchase)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<SaaSPaymentTransaction>()
+                .Property(x => x.Amount)
                 .HasPrecision(18, 2);
         }
     }

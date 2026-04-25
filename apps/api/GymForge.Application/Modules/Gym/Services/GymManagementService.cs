@@ -55,7 +55,7 @@ namespace GymForge.Application.Modules.Gym.Services
             }
 
             // 4. Setup and Add Gym Subscription Plan
-            GymSubscription subscription = new() 
+            SubscriptionRecord subscription = new() 
             {
                 Id = Guid.NewGuid(),
                 GymId = gym.Id,

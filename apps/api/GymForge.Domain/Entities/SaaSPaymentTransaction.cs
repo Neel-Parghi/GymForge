@@ -1,4 +1,4 @@
-﻿namespace GymForge.Domain.Entities
+namespace GymForge.Domain.Entities
 {
     public class SaaSPaymentTransaction : BaseEntity
     {
@@ -18,6 +18,6 @@
         public string? FailureReason { get; set; }
 
         public Gym Gym { get; set; } = null!;
-        public GymSubscription Subscription { get; set; } = null!;
+        public SubscriptionRecord Subscription { get; set; } = null!;
     }
 }

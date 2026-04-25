@@ -1,4 +1,4 @@
-﻿using GymForge.Domain.Entities;
+using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +16,15 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task AddAsync(SaaSPaymentTransaction transaction)
         {
-            await _dbContext.SaaSPaymentTransactions.AddAsync(transaction);
+            _dbContext.SaaSPaymentTransactions.Add(transaction);
+            await Task.CompletedTask;
         }
 
         public async Task<SaaSPaymentTransaction?> GetByGatewayIdAsync(string gatewayId)
         {
-            return await _dbContext.SaaSPaymentTransactions.FirstOrDefaultAsync(x => x.GatewayTransactionId == gatewayId);
+            return await _dbContext.SaaSPaymentTransactions
+                .Include(x => x.Subscription)
+                .FirstOrDefaultAsync(x => x.GatewayTransactionId == gatewayId);
         }
 
         public async Task<List<SaaSPaymentTransaction>> GetTransactionsAsync()
@@ -30,6 +33,7 @@ namespace GymForge.Infrastructure.Repositories
                 .Include(x => x.Gym)
                 .Include(x => x.Subscription)
                 .ThenInclude(x => x.Plan)
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedOn)
                 .ToListAsync();
         }

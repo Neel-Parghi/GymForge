@@ -1,4 +1,4 @@
-﻿namespace GymForge.Domain.Entities
+namespace GymForge.Domain.Entities
 {
     public class Plan : BaseEntity
     {
@@ -18,6 +18,6 @@
         public bool IsTrial { get; set; }
 
         // Navigation
-        public ICollection<GymSubscription>? GymSubscriptions { get; set; }
+        public ICollection<SubscriptionRecord>? SubscriptionRecords { get; set; }
     }
 }
