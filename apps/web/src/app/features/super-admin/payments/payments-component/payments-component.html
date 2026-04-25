@@ -19,6 +19,29 @@
     </div>
 
     <div class="tab-content" *ngIf="activeTab === 'overview'">
+        <!--    FOR TESTING PURPOSE ONLY -->
+        <div class="test-utility-bar">
+            <div class="utility-label">
+                <i class="fa-solid fa-vial"></i> Test Flow:
+            </div>
+
+            <div class="utility-controls">
+                <select [(ngModel)]="selectedGymId" class="compact-select">
+                    <option value="">Select Gym...</option>
+                    <option *ngFor="let gym of gyms" [value]="gym.id">{{ gym.gymName }}</option>
+                </select>
+
+                <select [(ngModel)]="selectedPlanId" class="compact-select">
+                    <option value="">Select Plan...</option>
+                    <option *ngFor="let plan of plans" [value]="plan.id">{{ plan.name }} (₹{{ plan.price }})</option>
+                </select>
+
+                <button class="btn-test-pay" (click)="payWithRazorpay()" [disabled]="!selectedGymId || !selectedPlanId">
+                    <i class="fa-solid fa-credit-card"></i> Pay
+                </button>
+            </div>
+        </div>
+
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon revenue"><i class="fa-solid fa-indian-rupee-sign"></i></div>
@@ -35,7 +58,7 @@
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon active-subs"><i class="fa-solid fa-gym"></i></div>
+                <div class="stat-icon active-subs"><i class="fa-solid fa-user-check"></i></div>
                 <div class="stat-info">
                     <span class="label">Active Subscriptions</span>
                     <h3 class="value">{{ stats?.activeSubscriptions }}</h3>
@@ -51,15 +74,123 @@
 
     <div class="tab-content" *ngIf="activeTab === 'transactions'">
         <app-data-grid [config]="gridConfig" [data]="transactions" [pageSize]="pageSize" [currentPage]="currentPage"
-            (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
             (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
         </app-data-grid>
     </div>
 
     <div class="tab-content" *ngIf="activeTab === 'settings'">
-        <div class="settings-placeholder">
-            <h3>Payment Configuration</h3>
-            <p>This will host your Razorpay/Stripe API keys and tax settings.</p>
+        <div class="settings-layout" *ngIf="settings">
+            <!-- Sidebar for Settings Navigation -->
+            <div class="settings-sidebar">
+                <button class="side-tab" [class.active]="activeSettingsTab === 'general'"
+                    (click)="activeSettingsTab = 'general'">
+                    <i class="fa-solid fa-sliders"></i> General Rules
+                </button>
+                <button class="side-tab" [class.active]="activeSettingsTab === 'gateway'"
+                    (click)="activeSettingsTab = 'gateway'">
+                    <i class="fa-solid fa-credit-card"></i> Payment Gateway
+                </button>
+                <button class="side-tab" [class.active]="activeSettingsTab === 'emails'"
+                    (click)="activeSettingsTab = 'emails'">
+                    <i class="fa-solid fa-envelope-open-text"></i> Email Templates
+                </button>
+            </div>
+
+            <!-- Main Settings Form -->
+            <div class="settings-main">
+                <div class="settings-card" *ngIf="activeSettingsTab === 'general'">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fa-solid fa-building"></i> Platform Identity</h3>
+                            <p>Configure how your brand appears on invoices and emails.</p>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Platform Name</label>
+                                <input type="text" [(ngModel)]="settings.platformName" placeholder="e.g. GymForge Pro">
+                            </div>
+                            <div class="form-group">
+                                <label>Support Email</label>
+                                <input type="email" [(ngModel)]="settings.billingEmail"
+                                    placeholder="admin@gymforge.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Default Currency</label>
+                                <select [(ngModel)]="settings.currency">
+                                    <option value="INR">Indian Rupee (₹)</option>
+                                    <option value="USD">US Dollar ($)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fa-solid fa-scale-balanced"></i> Compliance & Taxes</h3>
+                            <p>Manage tax rates and legal billing information.</p>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Tax Rate (%)</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" [(ngModel)]="settings.taxPercentage">
+                                    <span>%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Grace Period</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" [(ngModel)]="settings.gracePeriodDays">
+                                    <span>Days</span>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Registered Billing Address</label>
+                                <textarea [(ngModel)]="settings.billingAddress" rows="3"
+                                    placeholder="Enter your official business address"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-footer">
+                        <button class="btn-secondary" (click)="loadSettings()">Discard Changes</button>
+                        <button class="btn-premium" (click)="saveSettings()" [disabled]="isSaving">
+                            <i class="fa-solid" [class.fa-floppy-disk]="!isSaving" [class.fa-spinner]="isSaving"
+                                [class.fa-spin]="isSaving"></i>
+                            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Payment Gateway Tab Content -->
+                <div class="settings-card" *ngIf="activeSettingsTab === 'gateway'">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fa-brands fa-razorpay"></i> Razorpay Integration</h3>
+                            <p>Currently configured via secure environment secrets.</p>
+                        </div>
+                        <div class="info-alert">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <div class="alert-content">
+                                <strong>Secure Mode Active</strong>
+                                <p>Your Razorpay API Keys are currently managed via <code>UserSecrets</code>. We
+                                    recommend keeping sensitive keys out of the database for production.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Templates Tab Content -->
+                <div class="settings-card" *ngIf="activeSettingsTab === 'emails'">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fa-solid fa-envelope"></i> Notification Settings</h3>
+                            <p>Configure platform emails and alerts.</p>
+                        </div>
+                        <p class="placeholder-text">Email template editor coming soon...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

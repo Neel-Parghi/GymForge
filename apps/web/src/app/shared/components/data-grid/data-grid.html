@@ -42,7 +42,12 @@
 
             <!-- Date -->
             @case ('date') {
-            {{ row[col.key] | date:'mediumDate' }}
+            {{ row[col.key] | date:'shortDate' }}
+            }
+
+            <!-- Currency -->
+            @case ('currency') {
+            {{ row[col.key] | currency:'INR':'symbol' }}
             }
 
             <!-- Boolean -->

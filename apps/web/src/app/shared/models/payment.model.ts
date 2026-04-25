@@ -19,3 +19,14 @@ export interface CreatePaymentRequest {
     gymId: string;
     planId: string;
 }
+
+export interface SaaSConfiguration {
+    id: string;
+    platformName: string;
+    billingEmail: string;
+    taxPercentage: number;
+    gracePeriodDays: number;
+    currency: string;
+    billingAddress?: string;
+    supportPhone?: string;
+}

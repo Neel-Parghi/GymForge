@@ -90,9 +90,11 @@ export class DataGrid {
     switch (s) {
       case 'active':
       case 'accepted':
+      case 'success':
         return 'badge-active';
       case 'inactive':
       case 'expired':
+      case 'failed':
         return 'badge-inactive';
       case 'pending':
         return 'badge-pending';

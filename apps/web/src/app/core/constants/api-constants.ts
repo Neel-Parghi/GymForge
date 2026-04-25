@@ -37,6 +37,8 @@ export const API_CONSTANTS = {
     STATS: '/payments/stats',
     TRANSACTIONS: '/payments/transactions',
     INITIATE: '/payments/initiate',
-    VERIFY: '/payments/verify'
+    VERIFY: '/payments/verify',
+    SETTINGS: '/payments/settings',
+    UPDATE_SAAS_CONFIG: '/payments/settings/update'
   }
 };
