@@ -14,6 +14,7 @@ namespace GymForge.Application.Modules.Users.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordService _passwordService;
         private readonly IEmailService _emailService;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IConfiguration _config;
 
         public UserService(
@@ -21,12 +22,14 @@ namespace GymForge.Application.Modules.Users.Services
             IUnitOfWork unitOfWork, 
             IPasswordService passwordService,
             IEmailService emailService,
+            ICurrentUserService currentUserService,
             IConfiguration config)
         {
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _emailService = emailService;
+            _currentUserService = currentUserService;
             _config = config;
         }
 
@@ -99,7 +102,6 @@ namespace GymForge.Application.Modules.Users.Services
 
         public async Task<UserProfileDto> GetUserProfileAsync(Guid userId)
         {
-            // Assuming the repository gets the user with Address included or we fetch it
             User? user = await _authRepository.GetUserByIdAsync(userId);
             
             if (user == null)
@@ -152,10 +154,15 @@ namespace GymForge.Application.Modules.Users.Services
             user.ProfilePictureUrl = dto.ProfilePictureUrl;
             user.ModifiedOn = DateTime.UtcNow;
 
-            // Handle Address
             if (user.Address == null)
             {
-                user.Address = new Address();
+                var newAddress = new Address 
+                { 
+                    Id = Guid.NewGuid(),
+                    CreatedOn = DateTime.UtcNow 
+                };
+                user.Address = newAddress;
+                user.AddressId = newAddress.Id;
             }
 
             user.Address.Address1 = dto.AddressLine1 ?? string.Empty;
@@ -164,8 +171,27 @@ namespace GymForge.Application.Modules.Users.Services
             user.Address.State = dto.State ?? string.Empty;
             user.Address.PostalCode = dto.ZipCode ?? string.Empty;
             user.Address.ModifiedOn = DateTime.UtcNow;
+            user.Address.ModifiedBy = userId;
 
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<UserProfileDto> GetMyProfileAsync()
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            return await GetUserProfileAsync(userId);
+        }
+
+        public async Task UpdateMyProfileAsync(UpdateUserProfileDto dto)
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            await UpdateUserProfileAsync(userId, dto);
+        }
+
+        public async Task ChangeMyPasswordAsync(ChangePasswordRequestDto dto)
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            await ChangePasswordAsync(userId, dto);
         }
     }
 }

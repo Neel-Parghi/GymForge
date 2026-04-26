@@ -39,7 +39,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> GetUserByIdAsync(Guid userId)
         {
-            return await _context.Users.FindAsync(userId);
+            return await _context.Users
+                .Include(u => u.Address)
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken)

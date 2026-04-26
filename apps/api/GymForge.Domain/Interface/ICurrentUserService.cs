@@ -1,6 +1,6 @@
 using System;
 
-namespace GymForge.Application.Common.Interfaces
+namespace GymForge.Domain.Interface
 {
     public interface ICurrentUserService
     {

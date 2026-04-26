@@ -1,6 +1,5 @@
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
-using GymForge.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;

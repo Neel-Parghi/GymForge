@@ -1,4 +1,4 @@
-using GymForge.Application.Common.Interfaces;
+using GymForge.Domain.Interface;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 

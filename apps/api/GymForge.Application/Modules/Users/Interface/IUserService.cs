@@ -19,5 +19,11 @@ namespace GymForge.Application.Modules.Users.Interface
         Task<UserProfileDto> GetUserProfileAsync(Guid userId);
 
         Task UpdateUserProfileAsync(Guid userId, UpdateUserProfileDto updateUserProfileDto);
+
+        Task<UserProfileDto> GetMyProfileAsync();
+
+        Task UpdateMyProfileAsync(UpdateUserProfileDto dto);
+
+        Task ChangeMyPasswordAsync(ChangePasswordRequestDto dto);
     }
 }
