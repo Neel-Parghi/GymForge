@@ -135,5 +135,13 @@ namespace GymForge.Infrastructure.Repositories
                 gym.IsActive = false;
             }
         }
+
+        public async Task<List<Branch>> GetBranchesByGymIdAsync(Guid gymId)
+        {
+            return await _dbContext.Branches
+                .Include(b => b.Address)
+                .Where(b => b.GymId == gymId)
+                .ToListAsync();
+        }
     }
 }

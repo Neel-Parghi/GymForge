@@ -19,5 +19,6 @@ namespace GymForge.Domain.Interface
         Task<Gym?> GetGymByIdAsync(Guid id);
         Gym UpdateGym(Gym gym);
         Task DeleteGymAsync(Guid gymId);
+        Task<List<Branch>> GetBranchesByGymIdAsync(Guid gymId);
     }
 }

@@ -1,6 +1,7 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Onboarding;
+using GymForge.Contracts.Gym.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,6 +55,19 @@ namespace GymForge.Api.Controllers.Gym
         {
             await _gymManagementService.DeleteGymAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("{id}/branches")]
+        public async Task<ActionResult> GetBranches(Guid id)
+        {
+            return Ok(await _gymManagementService.GetBranchesByGymIdAsync(id));
+        }
+
+        [HttpPost("{id}/branches")]
+        public async Task<IActionResult> AddBranch(Guid id, [FromBody] BranchDto branchDto)
+        {
+            await _gymManagementService.AddBranchAsync(id, branchDto);
+            return Ok(new { message = "Branch added successfully" });
         }
     }
 }

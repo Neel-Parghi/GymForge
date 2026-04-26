@@ -12,9 +12,9 @@ namespace GymForge.Application.Mappings
     {
         public GymMappingProfile()
         {
-            CreateMap<AddressDto, Address>();
+            CreateMap<AddressDto, Address>().ReverseMap();
             
-            CreateMap<BranchDto, Branch>();
+            CreateMap<BranchDto, Branch>().ReverseMap();
 
             CreateMap<UpdateGymDto, Gym>();
 

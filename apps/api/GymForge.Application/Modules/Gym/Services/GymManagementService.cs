@@ -120,5 +120,28 @@ namespace GymForge.Application.Modules.Gym.Services
             await _gymManagementRepository.DeleteGymAsync(gymId);
             await _unitOfWork.SaveChangesAsync();
         }
+        
+        public async Task AddBranchAsync(Guid gymId, BranchDto branchDto)
+        {
+            Address branchAddress = _mapper.Map<Address>(branchDto.Address);
+            branchAddress.Id = Guid.NewGuid();
+            await _gymManagementRepository.AddAddressAsync(branchAddress);
+
+            Branch branch = _mapper.Map<Branch>(branchDto);
+            branch.Id = Guid.NewGuid();
+            branch.GymId = gymId;
+            branch.AddressId = branchAddress.Id;
+            branch.IsMainBranch = false;
+            branch.IsActive = true;
+            
+            await _gymManagementRepository.AddBranchAsync(branch);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<BranchDto>> GetBranchesByGymIdAsync(Guid gymId)
+        {
+            List<Branch> branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
+            return _mapper.Map<List<BranchDto>>(branches);
+        }
     }
 }
