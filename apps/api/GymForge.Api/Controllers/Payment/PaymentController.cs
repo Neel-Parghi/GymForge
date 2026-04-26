@@ -1,5 +1,6 @@
 using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.SaaSPayments;
+using GymForge.Contracts.SuperAdmin.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

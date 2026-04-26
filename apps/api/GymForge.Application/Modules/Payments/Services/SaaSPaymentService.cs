@@ -1,6 +1,7 @@
 using AutoMapper;
 using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.SaaSPayments;
+using GymForge.Contracts.SuperAdmin.Configuration;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using Microsoft.Extensions.Configuration;

@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using GymForge.Contracts.SuperAdmin.Dashboard;
+using GymForge.Domain.Interface;
+using GymForge.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace GymForge.Infrastructure.Repositories
+{
+    public class DashboardRepository : IDashboardRepository
+    {
+        private readonly AppDbContext _dbContext;
+
+        public DashboardRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<decimal> GetTotalRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var query = _dbContext.SaaSPaymentTransactions.Where(s => s.Status == "Success");
+            
+            if (startDate.HasValue)
+                query = query.Where(s => s.CreatedOn >= startDate.Value);
+            
+            if (endDate.HasValue)
+                query = query.Where(s => s.CreatedOn <= endDate.Value);
+
+            return await query.SumAsync(s => s.Amount);
+        }
+
+        public async Task<int> GetActiveSubscriptionsCountAsync(DateTime? asOfDate = null)
+        {
+            var referenceDate = asOfDate ?? DateTime.UtcNow;
+            return await _dbContext.SubscriptionRecords
+                .CountAsync(s => s.IsActive && s.EndDate > referenceDate);
+        }
+
+        public async Task<int> GetTotalGymsCountAsync()
+        {
+            return await _dbContext.Gyms.CountAsync();
+        }
+
+        public async Task<List<RecentGymRegistrationDto>> GetRecentGymRegistrationsAsync(int count)
+        {
+            return await _dbContext.Gyms
+                .Include(g => g.Owner)
+                .OrderByDescending(g => g.CreatedOn)
+                .Take(count)
+                .Select(g => new RecentGymRegistrationDto
+                {
+                    Id = g.Id,
+                    GymName = g.GymName,
+                    OwnerName = g.Owner.FirstName + " " + g.Owner.LastName,
+                    DateJoined = g.CreatedOn,
+                    Tier = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.Plan.Name)
+                        .FirstOrDefault() ?? "No Plan",
+                    Status = g.IsActive ? "Active" : "Inactive",
+                    Initials = g.GymName.Length >= 2 ? g.GymName.Substring(0, 2).ToUpper() : g.GymName.ToUpper()
+                })
+                .ToListAsync();
+        }
+    }
+}

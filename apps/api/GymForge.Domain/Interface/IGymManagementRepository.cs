@@ -1,4 +1,5 @@
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Management;
+using GymForge.Contracts.Gym.Owners;
 using GymForge.Domain.Entities;
 
 namespace GymForge.Domain.Interface

@@ -1,5 +1,8 @@
 using AutoMapper;
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Management;
+using GymForge.Contracts.Gym.Onboarding;
+using GymForge.Contracts.Gym.Owners;
+using GymForge.Contracts.Gym.Shared;
 using GymForge.Domain.Entities;
 using GymForge.Shared.Enums;
 

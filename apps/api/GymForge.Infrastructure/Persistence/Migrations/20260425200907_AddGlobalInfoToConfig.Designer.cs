@@ -4,16 +4,19 @@ using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GymForge.Infrastructure.Migrations
+namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425200907_AddGlobalInfoToConfig")]
+    partial class AddGlobalInfoToConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -316,12 +319,6 @@ namespace GymForge.Infrastructure.Migrations
 
                     b.Property<bool>("IsMaintenanceMode")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime?>("MaintenanceEndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("MaintenanceStartTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");

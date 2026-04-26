@@ -1,4 +1,6 @@
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Management;
+using GymForge.Contracts.Gym.Owners;
+using GymForge.Contracts.Gym.Onboarding;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;

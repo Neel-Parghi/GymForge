@@ -1,5 +1,5 @@
 using GymForge.Application.Modules.Gym.Interfaces;
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Owners;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

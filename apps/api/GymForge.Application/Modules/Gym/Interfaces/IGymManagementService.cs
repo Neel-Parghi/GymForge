@@ -1,4 +1,6 @@
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Management;
+using GymForge.Contracts.Gym.Owners;
+using GymForge.Contracts.Gym.Onboarding;
 
 namespace GymForge.Application.Modules.Gym.Interfaces
 {

@@ -4,16 +4,19 @@ using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GymForge.Infrastructure.Migrations
+namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425200233_AddStrategicTargetsToConfig")]
+    partial class AddStrategicTargetsToConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -314,15 +317,6 @@ namespace GymForge.Infrastructure.Migrations
                     b.Property<int>("GracePeriodDays")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsMaintenanceMode")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("MaintenanceEndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("MaintenanceStartTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -337,14 +331,8 @@ namespace GymForge.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("PrivacyUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("SubscriptionTarget")
                         .HasColumnType("int");
-
-                    b.Property<string>("SupportEmail")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SupportPhone")
                         .HasColumnType("nvarchar(max)");
@@ -352,9 +340,6 @@ namespace GymForge.Infrastructure.Migrations
                     b.Property<decimal>("TaxPercentage")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
-
-                    b.Property<string>("TermsUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("UptimeThreshold")
                         .HasColumnType("decimal(18,2)");
@@ -372,7 +357,6 @@ namespace GymForge.Infrastructure.Migrations
                             CreatedOn = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             Currency = "INR",
                             GracePeriodDays = 7,
-                            IsMaintenanceMode = false,
                             MonthlyRevenueTarget = 100000.0m,
                             PlatformName = "GymForge",
                             SubscriptionTarget = 100,

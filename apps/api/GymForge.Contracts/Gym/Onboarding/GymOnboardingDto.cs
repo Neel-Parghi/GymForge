@@ -1,6 +1,8 @@
-﻿namespace GymForge.Contracts.Gym
+using GymForge.Contracts.Gym.Shared;
+
+namespace GymForge.Contracts.Gym.Onboarding
 {
-    public class GymDto
+    public class GymOnboardingDto
     {
         public string Name { get; set; } = null!;
         public string? BrandName { get; set; }
@@ -16,6 +18,13 @@
 
         public string? LogoUrl { get; set; }
         public string? CoverImageUrl { get; set; }
+
+        public AddressDto Address { get; set; } = null!;
+
+
+        public Guid? AssignedOwnerId { get; set; }
+
+        public List<BranchDto> Branches { get; set; } = new();
 
         public Guid PlanId { get; set; }
         public bool IsTrial { get; set; }

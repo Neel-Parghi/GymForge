@@ -1,9 +1,11 @@
-﻿using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Application.Modules.Auth.Service;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Application.Modules.Gym.Services;
 using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Application.Modules.Payments.Services;
+using GymForge.Application.Modules.SuperAdmin.Interfaces;
+using GymForge.Application.Modules.SuperAdmin.Services;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Application.Modules.Users.Services;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,8 @@ namespace GymForge.Application
 
             services.AddScoped<ISaaSPaymentService, SaaSPaymentService>();
 
+            services.AddScoped<ISaaSConfigurationService, SaaSConfigurationService>();
+            services.AddScoped<IDashboardService, DashboardService>();
 
             return services;
         }

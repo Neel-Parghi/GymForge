@@ -1,5 +1,6 @@
 using GymForge.Application.Modules.Gym.Interfaces;
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Management;
+using GymForge.Contracts.Gym.Onboarding;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

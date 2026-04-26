@@ -21,5 +21,16 @@ namespace GymForge.Domain.Entities
         public string? BillingAddress { get; set; }
         
         public string? SupportPhone { get; set; }
+        public string? SupportEmail { get; set; }
+        public bool IsMaintenanceMode { get; set; } = false;
+        public string? TermsUrl { get; set; }
+        public string? PrivacyUrl { get; set; }
+        public DateTime? MaintenanceStartTime { get; set; }
+        public DateTime? MaintenanceEndTime { get; set; }
+
+        // Strategic Targets
+        public decimal MonthlyRevenueTarget { get; set; } = 100000.0m;
+        public int SubscriptionTarget { get; set; } = 100;
+        public decimal UptimeThreshold { get; set; } = 99.9m;
     }
 }

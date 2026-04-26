@@ -1,6 +1,6 @@
 using AutoMapper;
 using GymForge.Contracts.Auth;
-using GymForge.Contracts.Gym;
+using GymForge.Contracts.Gym.Owners;
 using GymForge.Domain.Entities;
 
 namespace GymForge.Application.Mappings

@@ -1,4 +1,4 @@
-namespace GymForge.Contracts.Gym
+namespace GymForge.Contracts.Gym.Owners
 {
     public class GymOwnersDto
     {
