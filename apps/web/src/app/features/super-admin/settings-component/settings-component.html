@@ -1,0 +1,148 @@
+<div class="settings-container">
+  <!-- Fixed Header -->
+  <div class="settings-header">
+    <div class="header-content">
+      <h1>Platform Settings</h1>
+      <p>Configure platform identity, strategic targets, and global status</p>
+    </div>
+    <button class="save-btn" [disabled]="settingsForm.invalid || saving" (click)="saveSettings()">
+      <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
+      {{ saving ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
+
+  <!-- Fixed Tabs -->
+  <div class="settings-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'general'" (click)="activeTab = 'general'">
+      <i class="fas fa-info-circle"></i> Identity
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'strategy'" (click)="activeTab = 'strategy'">
+      <i class="fas fa-bullseye"></i> Strategy
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'legal'" (click)="activeTab = 'legal'">
+      <i class="fas fa-file-contract"></i> Legal & Status
+    </button>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="scroll-area">
+    @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading configuration...</p>
+    </div>
+    } @else {
+    <form [formGroup]="settingsForm" class="tab-content">
+
+      <!-- Tab 1: General Identity -->
+      @if (activeTab === 'general') {
+      <div class="settings-pane">
+        <div class="pane-header">
+          <h3>Platform Identity</h3>
+          <p>Manage how your platform is identified and contacted.</p>
+        </div>
+        <div class="pane-body">
+          <div class="form-group">
+            <label>Platform Name</label>
+            <input type="text" formControlName="platformName" placeholder="e.g. GymForge">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Support Email</label>
+              <input type="email" formControlName="supportEmail" placeholder="support@gymforge.com">
+            </div>
+            <div class="form-group">
+              <label>Support Phone</label>
+              <input type="text" formControlName="supportPhone" placeholder="+91 98765 43210">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Billing Email</label>
+            <input type="email" formControlName="billingEmail" placeholder="billing@gymforge.com">
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Tab 2: Strategy -->
+      @if (activeTab === 'strategy') {
+      <div class="settings-pane">
+        <div class="pane-header">
+          <h3>Strategic Dashboard Targets</h3>
+          <p>Set the benchmarks that drive your dashboard analytics.</p>
+        </div>
+        <div class="pane-body">
+          <div class="form-group">
+            <label>Monthly Revenue Target ({{ settingsForm.value.currency }})</label>
+            <div class="input-with-icon">
+              <span class="icon">₹</span>
+              <input type="number" formControlName="monthlyRevenueTarget">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Active Subscription Goal</label>
+              <input type="number" formControlName="subscriptionTarget">
+            </div>
+            <div class="form-group">
+              <label>Uptime Threshold (%)</label>
+              <input type="number" formControlName="uptimeThreshold">
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Tab 3: Legal & Status -->
+      @if (activeTab === 'legal') {
+      <div class="settings-pane">
+        <div class="pane-header">
+          <h3>Platform Status & Legal Docs</h3>
+          <p>Manage maintenance mode and official documentation links.</p>
+        </div>
+        <div class="pane-body">
+          <div class="maintenance-box">
+            <div class="box-main">
+              <div class="box-info">
+                <label>Maintenance Mode</label>
+                <p>Putting the site in maintenance mode will disable public access.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" formControlName="isMaintenanceMode">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            @if (settingsForm.get('isMaintenanceMode')?.value) {
+            <div class="maintenance-schedule">
+              <div class="schedule-group">
+                <label>Start Time</label>
+                <input type="datetime-local" formControlName="maintenanceStartTime">
+              </div>
+              <div class="schedule-group">
+                <label>End Time</label>
+                <input type="datetime-local" formControlName="maintenanceEndTime">
+              </div>
+            </div>
+            }
+          </div>
+          <div class="form-group">
+            <label>Terms of Service URL</label>
+            <input type="text" formControlName="termsUrl" placeholder="https://gymforge.com/terms">
+          </div>
+          <div class="form-group">
+            <label>Privacy Policy URL</label>
+            <input type="text" formControlName="privacyUrl" placeholder="https://gymforge.com/privacy">
+          </div>
+          <!-- <div class="form-group">
+                <label>Billing Address</label>
+                <textarea formControlName="billingAddress" rows="3" placeholder="Enter company billing address..."></textarea>
+              </div> -->
+        </div>
+      </div>
+      }
+
+    </form>
+    }
+  </div>
+</div>

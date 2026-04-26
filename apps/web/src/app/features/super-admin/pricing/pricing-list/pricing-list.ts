@@ -112,7 +112,7 @@ export class PricingList implements OnInit {
   }
 
   deletePlan(id: string) {
-    if (confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
+    if (confirm(CONSTANTS.CONFIRMATIONS.DELETE_PLAN_MESSAGE)) {
       this.pricingService.deletePlan(id).subscribe({
         next: () => {
           this.notification.success(CONSTANTS.COMMON_DELETE_SUCCESS_MESSAGE);
@@ -147,7 +147,7 @@ export class PricingList implements OnInit {
   }
 
   onPlanAdded(res: ApiResponse<PricingPlan>) {
-    this.notification.success('Plan created successfully');
+    this.notification.success(CONSTANTS.PLAN_CREATE_SUCCESS_MESSAGE);
     this.loadPlans();
   }
 }

@@ -8,6 +8,7 @@ import { DataGrid } from '../../../../shared/components/data-grid/data-grid';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
+import { CONSTANTS } from '../../../../core/constants/constants';
 
 declare var Razorpay: any;
 
@@ -100,11 +101,11 @@ export class PaymentsComponent implements OnInit {
     this.isSaving = true;
     this.paymemtService.updateSettings(this.settings).subscribe({
       next: () => {
-        this.toastr.success('Configuration updated successfully', 'Success');
+        this.toastr.success(CONSTANTS.PAYMENT.MESSAGES.CONFIG_UPDATE_SUCCESS, 'Success');
         this.isSaving = false;
       },
       error: () => {
-        this.toastr.error('Failed to update configuration', 'Error');
+        this.toastr.error(CONSTANTS.PAYMENT.MESSAGES.CONFIG_UPDATE_ERROR, 'Error');
         this.isSaving = false;
       }
     });
@@ -119,7 +120,7 @@ export class PaymentsComponent implements OnInit {
 
   payWithRazorpay() {
     if (!this.selectedGymId || !this.selectedPlanId) {
-      this.toastr.warning('Please select a Gym and a Plan to test the flow.', 'Selection Required');
+      this.toastr.warning(CONSTANTS.PAYMENT.MESSAGES.SELECTION_REQUIRED, 'Selection Required');
       return;
     }
 
@@ -131,12 +132,12 @@ export class PaymentsComponent implements OnInit {
     this.paymemtService.initiatePayment(request).subscribe({
       next: (res: any) => {
         const options = {
-          key: 'rzp_test_SgEiEY7pGSwfkM',
+          key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
           amount: res.Data.transactionResponse.amount,
-          currency: 'INR',
+          currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
           order_id: res.Data.transactionResponse.razorpayOrderId,
-          name: 'GymForge SaaS',
-          description: 'Testing 0 to 100 Payment Flow',
+          name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
+          description: CONSTANTS.PAYMENT.RAZORPAY.FLOW_DESCRIPTION,
           handler: (response: any) => {
             console.log('Razorpay Success Response:', response);
             this.verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
@@ -145,7 +146,7 @@ export class PaymentsComponent implements OnInit {
             name: 'Neel Parghi',
             email: 'test@example.com'
           },
-          theme: { color: '#0f172a' }
+          theme: { color: CONSTANTS.PAYMENT.RAZORPAY.THEME_COLOR }
         };
 
         const rzp = new (window as any).Razorpay(options);
@@ -162,12 +163,12 @@ export class PaymentsComponent implements OnInit {
       signature: signature
     }).subscribe({
       next: () => {
-        this.toastr.success('Payment verified and Subscription activated.', 'Success!');
+        this.toastr.success(CONSTANTS.PAYMENT.MESSAGES.VERIFICATION_SUCCESS, 'Success!');
         this.loadStats();
         this.loadTransactions();
       },
       error: (err: any) => {
-        const errorMsg = err.error?.message || 'Payment verification failed!';
+        const errorMsg = err.error?.message || CONSTANTS.PAYMENT.MESSAGES.VERIFICATION_ERROR;
         this.toastr.error(errorMsg, 'Error');
         this.loadStats();
         this.loadTransactions();

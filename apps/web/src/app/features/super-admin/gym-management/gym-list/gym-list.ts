@@ -50,8 +50,8 @@ export class GymList implements OnInit {
       key: 'isActive',
       label: 'Status',
       options: [
-        { label: 'Active', value: 'true' },
-        { label: 'Inactive', value: 'false' }
+        { label: CONSTANTS.UI_LABELS.ACTIVE, value: 'true' },
+        { label: CONSTANTS.UI_LABELS.INACTIVE, value: 'false' }
       ]
     }
   ];
@@ -147,9 +147,9 @@ export class GymList implements OnInit {
 
   async handleDelete(gym: GymListResponse) {
     const confirmed = await this.confirmation.confirm({
-      title: 'Delete Gym',
-      message: `Are you sure you want to delete "${gym.gymName}"? This action cannot be undone.`,
-      confirmText: 'Delete',
+      title: CONSTANTS.CONFIRMATIONS.DELETE_GYM_TITLE,
+      message: CONSTANTS.CONFIRMATIONS.DELETE_GYM_MESSAGE.replace('{name}', gym.gymName),
+      confirmText: CONSTANTS.DELETE,
       type: 'danger'
     });
 

@@ -44,9 +44,21 @@ export const MenuConfig: NavItem[] = [
         roles: ['SuperAdmin'],
     },
     {
+        label: 'ACCOUNT',
+        icon: '',
+        roles: ['SuperAdmin'],
+        isHeading: true
+    },
+    {
+        label: 'My Profile',
+        icon: 'fa-solid fa-user-circle',
+        route: '/super-admin/profile',
+        roles: ['SuperAdmin']
+    },
+    {
         label: 'Settings',
         icon: 'fa-solid fa-gear',
         route: '/super-admin/settings',
         roles: ['SuperAdmin'],
-    }
+    },
 ]
