@@ -19,24 +19,25 @@
     </div>
 
     <div class="tab-content" *ngIf="activeTab === 'overview'">
-        <!--    FOR TESTING PURPOSE ONLY -->
-        <div class="test-utility-bar">
+        <!--FOR TESTING PURPOSE-->
+        <div class="test-utility-bar" [formGroup]="testPaymentForm">
             <div class="utility-label">
-                <i class="fa-solid fa-vial"></i> Test Flow:
+                <i class="fa-solid fa-flask"></i>
+                <span>Onboarding Flow Test</span>
             </div>
 
             <div class="utility-controls">
-                <select [(ngModel)]="selectedGymId" class="compact-select">
-                    <option value="">Select Gym...</option>
+                <select class="compact-select" formControlName="selectedGymId">
+                    <option value="" disabled selected>Select Gym to Test</option>
                     <option *ngFor="let gym of gyms" [value]="gym.id">{{ gym.gymName }}</option>
                 </select>
 
-                <select [(ngModel)]="selectedPlanId" class="compact-select">
-                    <option value="">Select Plan...</option>
-                    <option *ngFor="let plan of plans" [value]="plan.id">{{ plan.name }} (₹{{ plan.price }})</option>
+                <select class="compact-select" formControlName="selectedPlanId">
+                    <option value="" disabled selected>Select Plan</option>
+                    <option *ngFor="let plan of plans" [value]="plan.id">{{ plan.name }}</option>
                 </select>
 
-                <button class="btn-test-pay" (click)="payWithRazorpay()" [disabled]="!selectedGymId || !selectedPlanId">
+                <button class="btn-test-pay" (click)="payWithRazorpay()" [disabled]="testPaymentForm.invalid">
                     <i class="fa-solid fa-credit-card"></i> Pay
                 </button>
             </div>
@@ -98,28 +99,27 @@
 
             <!-- Main Settings Form -->
             <div class="settings-main">
-                <div class="settings-card" *ngIf="activeSettingsTab === 'general'">
+                <!-- General Strategy Tab Content -->
+                <div class="settings-card" *ngIf="activeSettingsTab === 'general'" [formGroup]="settingsForm">
                     <div class="settings-section">
                         <div class="section-header">
-                            <h3><i class="fa-solid fa-building"></i> Platform Identity</h3>
-                            <p>Configure how your brand appears on invoices and emails.</p>
+                            <h3><i class="fa-solid fa-bullseye"></i> Growth Targets</h3>
+                            <p>Set platform-wide revenue and subscription goals.</p>
                         </div>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Platform Name</label>
-                                <input type="text" [(ngModel)]="settings.platformName" placeholder="e.g. GymForge Pro">
+                                <label>Monthly Revenue Target</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" formControlName="monthlyRevenueTarget">
+                                    <span>INR</span>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label>Support Email</label>
-                                <input type="email" [(ngModel)]="settings.billingEmail"
-                                    placeholder="admin@gymforge.com">
-                            </div>
-                            <div class="form-group">
-                                <label>Default Currency</label>
-                                <select [(ngModel)]="settings.currency">
-                                    <option value="INR">Indian Rupee (₹)</option>
-                                    <option value="USD">US Dollar ($)</option>
-                                </select>
+                                <label>Subscription Target</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" formControlName="subscriptionTarget">
+                                    <span>Units</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -133,28 +133,24 @@
                             <div class="form-group">
                                 <label>Tax Rate (%)</label>
                                 <div class="input-with-suffix">
-                                    <input type="number" [(ngModel)]="settings.taxPercentage">
+                                    <input type="number" formControlName="taxPercentage">
                                     <span>%</span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Grace Period</label>
                                 <div class="input-with-suffix">
-                                    <input type="number" [(ngModel)]="settings.gracePeriodDays">
+                                    <input type="number" formControlName="gracePeriodDays">
                                     <span>Days</span>
                                 </div>
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Registered Billing Address</label>
-                                <textarea [(ngModel)]="settings.billingAddress" rows="3"
-                                    placeholder="Enter your official business address"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="settings-footer">
                         <button class="btn-secondary" (click)="loadSettings()">Discard Changes</button>
-                        <button class="btn-premium" (click)="saveSettings()" [disabled]="isSaving">
+                        <button class="btn-premium" (click)="saveSettings()"
+                            [disabled]="isSaving || settingsForm.invalid">
                             <i class="fa-solid" [class.fa-floppy-disk]="!isSaving" [class.fa-spinner]="isSaving"
                                 [class.fa-spin]="isSaving"></i>
                             {{ isSaving ? 'Saving...' : 'Save Changes' }}
@@ -163,18 +159,27 @@
                 </div>
 
                 <!-- Payment Gateway Tab Content -->
-                <div class="settings-card" *ngIf="activeSettingsTab === 'gateway'">
+                <div class="settings-card" *ngIf="activeSettingsTab === 'gateway'" [formGroup]="settingsForm">
                     <div class="settings-section">
                         <div class="section-header">
-                            <h3><i class="fa-brands fa-razorpay"></i> Razorpay Integration</h3>
-                            <p>Currently configured via secure environment secrets.</p>
+                            <h3><i class="fa-solid fa-key"></i> Razorpay Integration</h3>
+                            <p>Configure your production and test gateway credentials.</p>
                         </div>
-                        <div class="info-alert">
-                            <i class="fa-solid fa-shield-halved"></i>
-                            <div class="alert-content">
-                                <strong>Secure Mode Active</strong>
-                                <p>Your Razorpay API Keys are currently managed via <code>UserSecrets</code>. We
-                                    recommend keeping sensitive keys out of the database for production.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Razorpay Key ID</label>
+                                <input type="text" formControlName="razorpayKeyId" placeholder="rzp_live_...">
+                            </div>
+                            <div class="form-group">
+                                <label>Razorpay Secret</label>
+                                <input type="password" formControlName="razorpayKeySecret" placeholder="••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label>Currency Code</label>
+                                <select formControlName="currency">
+                                    <option value="INR">Indian Rupee (INR)</option>
+                                    <option value="USD">US Dollar (USD)</option>
+                                </select>
                             </div>
                         </div>
                     </div>

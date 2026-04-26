@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { DataGrid } from '../../../../shared/components/data-grid/data-grid';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { ToastrService } from 'ngx-toastr';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CONSTANTS } from '../../../../core/constants/constants';
 
 declare var Razorpay: any;
@@ -15,22 +15,25 @@ declare var Razorpay: any;
 @Component({
   selector: 'app-payments-component',
   standalone: true,
-  imports: [CommonModule, DataGrid, FormsModule],
+  imports: [CommonModule, DataGrid, ReactiveFormsModule],
   templateUrl: './payments-component.html',
   styleUrl: './payments-component.scss',
 })
 export class PaymentsComponent implements OnInit {
 
-  private paymemtService = inject(PaymentService);
+  private paymentService = inject(PaymentService);
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
   private toastr = inject(ToastrService);
+  private fb = inject(FormBuilder);
+
+  // Forms
+  settingsForm!: FormGroup;
+  testPaymentForm!: FormGroup;
 
   // Selections for Payment Testing
   gyms: any[] = [];
   plans: any[] = [];
-  selectedGymId: string = '';
-  selectedPlanId: string = '';
 
   activeTab: 'overview' | 'transactions' | 'settings' = 'overview';
   activeSettingsTab: 'general' | 'gateway' | 'emails' = 'general';
@@ -41,6 +44,7 @@ export class PaymentsComponent implements OnInit {
   isSaving = false;
 
   gridConfig = AppGridConfig["PaymentList"];
+  isAddPlanModalOpen: boolean = false;
 
   // Pagination state
   totalItems = 0;
@@ -48,10 +52,32 @@ export class PaymentsComponent implements OnInit {
   currentPage = 1;
 
   ngOnInit() {
+    this.initForms();
     this.loadStats();
     this.loadTransactions();
     this.loadGyms();
     this.loadPlans();
+  }
+
+  private initForms() {
+    this.testPaymentForm = this.fb.group({
+      selectedGymId: ['', Validators.required],
+      selectedPlanId: ['', Validators.required]
+    });
+
+    this.settingsForm = this.fb.group({
+      id: [''],
+      taxPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      gracePeriodDays: [0, [Validators.required, Validators.min(0)]],
+      monthlyRevenueTarget: [0],
+      subscriptionTarget: [0],
+      isMaintenanceMode: [false],
+      currency: ['INR'],
+      razorpayKeyId: [''],
+      razorpayKeySecret: [''],
+      billingEmail: [''],
+      supportPhone: ['']
+    });
   }
 
   loadGyms() {
@@ -72,7 +98,7 @@ export class PaymentsComponent implements OnInit {
   }
 
   loadStats() {
-    this.paymemtService.getStats().subscribe({
+    this.paymentService.getStats().subscribe({
       next: (res) => {
         this.stats = res.Data;
       }
@@ -80,7 +106,7 @@ export class PaymentsComponent implements OnInit {
   }
 
   loadTransactions() {
-    this.paymemtService.getTransactions().subscribe({
+    this.paymentService.getTransactions().subscribe({
       next: (res) => {
         this.transactions = res.Data;
       }
@@ -88,18 +114,21 @@ export class PaymentsComponent implements OnInit {
   }
 
   loadSettings() {
-    this.paymemtService.getSettings().subscribe({
+    this.paymentService.getSettings().subscribe({
       next: (res) => {
         this.settings = res.Data;
+        if (this.settings) {
+          this.settingsForm.patchValue(this.settings);
+        }
       }
     });
   }
 
   saveSettings() {
-    if (!this.settings) return;
+    if (this.settingsForm.invalid) return;
 
     this.isSaving = true;
-    this.paymemtService.updateSettings(this.settings).subscribe({
+    this.paymentService.updateSettings(this.settingsForm.value).subscribe({
       next: () => {
         this.toastr.success(CONSTANTS.PAYMENT.MESSAGES.CONFIG_UPDATE_SUCCESS, 'Success');
         this.isSaving = false;
@@ -119,17 +148,18 @@ export class PaymentsComponent implements OnInit {
   }
 
   payWithRazorpay() {
-    if (!this.selectedGymId || !this.selectedPlanId) {
+    if (this.testPaymentForm.invalid) {
       this.toastr.warning(CONSTANTS.PAYMENT.MESSAGES.SELECTION_REQUIRED, 'Selection Required');
       return;
     }
 
+    const { selectedGymId, selectedPlanId } = this.testPaymentForm.value;
     const request = {
-      gymId: this.selectedGymId,
-      planId: this.selectedPlanId
+      gymId: selectedGymId,
+      planId: selectedPlanId
     };
 
-    this.paymemtService.initiatePayment(request).subscribe({
+    this.paymentService.initiatePayment(request).subscribe({
       next: (res: any) => {
         const options = {
           key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
@@ -157,7 +187,7 @@ export class PaymentsComponent implements OnInit {
   }
 
   verifyPayment(orderId: string, paymentId: string, signature: string) {
-    this.paymemtService.verifyPayment({
+    this.paymentService.verifyPayment({
       orderId: orderId,
       paymentId: paymentId,
       signature: signature
