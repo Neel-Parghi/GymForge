@@ -96,5 +96,76 @@ namespace GymForge.Application.Modules.Users.Services
 
             await _emailService.SendInvitationEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", token);
         }
+
+        public async Task<UserProfileDto> GetUserProfileAsync(Guid userId)
+        {
+            // Assuming the repository gets the user with Address included or we fetch it
+            User? user = await _authRepository.GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new Exception("User not found.");
+
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Role = user.Role.ToString(),
+                AddressLine1 = user.Address?.Address1,
+                AddressLine2 = user.Address?.Address2,
+                City = user.Address?.City,
+                State = user.Address?.State,
+                ZipCode = user.Address?.PostalCode
+            };
+        }
+
+        public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequestDto dto)
+        {
+            User? user = await _authRepository.GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new Exception("User not found.");
+
+            bool isValid = _passwordService.VerifyPasword(dto.CurrentPassword, user.PasswordHash!);
+            if (!isValid)
+                throw new Exception("Invalid current password.");
+
+            user.PasswordHash = _passwordService.HashPassword(dto.NewPassword);
+            user.ModifiedOn = DateTime.UtcNow;
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task UpdateUserProfileAsync(Guid userId, UpdateUserProfileDto dto)
+        {
+            User? user = await _authRepository.GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new Exception("User not found.");
+
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.Phone = dto.Phone;
+            user.ProfilePictureUrl = dto.ProfilePictureUrl;
+            user.ModifiedOn = DateTime.UtcNow;
+
+            // Handle Address
+            if (user.Address == null)
+            {
+                user.Address = new Address();
+            }
+
+            user.Address.Address1 = dto.AddressLine1 ?? string.Empty;
+            user.Address.Address2 = dto.AddressLine2;
+            user.Address.City = dto.City ?? string.Empty;
+            user.Address.State = dto.State ?? string.Empty;
+            user.Address.PostalCode = dto.ZipCode ?? string.Empty;
+            user.Address.ModifiedOn = DateTime.UtcNow;
+
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

@@ -15,8 +15,14 @@ namespace GymForge.Api.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // Skip swagger endpoints
             if (context.Request.Path.StartsWithSegments("/swagger"))
+            {
+                await _next(context);
+                return;
+            }
+
+            var endpoint = context.GetEndpoint();
+            if (endpoint?.Metadata.GetMetadata<SkipResponseWrapperAttribute>() != null)
             {
                 await _next(context);
                 return;

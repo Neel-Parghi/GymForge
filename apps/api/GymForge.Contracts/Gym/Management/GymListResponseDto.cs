@@ -30,5 +30,8 @@ namespace GymForge.Contracts.Gym.Management
         public DateTime? SubscriptionExpiry { get; set; }
         public bool IsTrialPlan { get; set; }
         public bool HasActiveSubscription => !string.IsNullOrEmpty(PlanName);
+
+        public DateTime CreatedOn { get; set; }
+        public DateTime ModifiedOn { get; set; }
     }
 }

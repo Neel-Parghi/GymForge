@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.Users.Interface;
+using GymForge.Application.Common.Interfaces;
 using GymForge.Contracts.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace GymForge.Api.Controllers.User
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ICurrentUserService currentUserService)
         {
             _userService = userService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("invite-owner")]
@@ -46,6 +49,30 @@ namespace GymForge.Api.Controllers.User
         {
             await _userService.ReInviteOwnerAsync(userId);
             return Ok(new { message = "Invitation re-sent successfully." });
+        }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            UserProfileDto profile = await _userService.GetUserProfileAsync(_currentUserService.UserId.Value);
+            return Ok(profile);
+        }
+
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        {
+            await _userService.UpdateUserProfileAsync(_currentUserService.UserId.Value, dto);
+            return Ok(new { Message = "Profile updated successfully" });
+        }
+
+        [HttpPut("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
+        {
+            await _userService.ChangePasswordAsync(_currentUserService.UserId.Value, dto);
+            return Ok(new { Message = "Password changed successfully" });
         }
     }
 }

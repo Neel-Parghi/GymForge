@@ -88,6 +88,8 @@ namespace GymForge.Infrastructure.Repositories
                     EstablishedDate = g.EstablishedDate,
                     LogoUrl = g.LogoUrl,
                     BannerUrl = g.BannerUrl,
+                    CreatedOn = g.CreatedOn,
+                    ModifiedOn = (DateTime)g.ModifiedOn!,
                     // Get latest active subscription
                     PlanName = _dbContext.SubscriptionRecords
                         .Where(s => s.GymId == g.Id && s.IsActive)
