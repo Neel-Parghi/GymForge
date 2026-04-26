@@ -5,9 +5,58 @@
       <h2 class="title">Platform Overview</h2>
       <p class="subtitle">Architecture-level metrics and system performance health.</p>
     </div>
-    <div class="action-group">
-      <button class="secondary-btn">Download Report</button>
-      <button class="primary-btn">Global Config</button>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="openReportModal()">
+        <i class="fas fa-download"></i> Download Report
+      </button>
+      <button class="btn-primary" [routerLink]="'/super-admin/settings'">
+        <i class="fas fa-cog"></i> Global Config
+      </button>
+    </div>
+  </div>
+
+  <!-- Report Selection Modal -->
+  <div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+    <div class="report-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Export Platform Data</h3>
+        <button class="close-btn" (click)="closeReportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Select the type of report you wish to generate and download.</p>
+        
+        <div class="report-options">
+          <div class="report-card" (click)="downloadReport('financial')">
+            <div class="report-icon financial"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="report-info">
+              <h4>Financial Summary</h4>
+              <p>Full audit of all SaaS subscription transactions (CSV)</p>
+            </div>
+            <i class="fas fa-chevron-right arrow"></i>
+          </div>
+
+          <div class="report-card" (click)="downloadReport('gyms')">
+            <div class="report-icon gyms"><i class="fas fa-hospital"></i></div>
+            <div class="report-info">
+              <h4>Gym Directory</h4>
+              <p>Complete list of registered gyms and status (CSV)</p>
+            </div>
+            <i class="fas fa-chevron-right arrow"></i>
+          </div>
+
+          <div class="report-card" (click)="downloadReport('snapshot')">
+            <div class="report-icon snapshot"><i class="fas fa-chart-line"></i></div>
+            <div class="report-info">
+              <h4>Performance Snapshot</h4>
+              <p>Executive summary of current growth targets (PDF)</p>
+            </div>
+            <i class="fas fa-chevron-right arrow"></i>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeReportModal()">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -21,34 +70,41 @@
       </div>
       <div class="card-body">
         <span class="label">PLATFORM HEALTH</span>
-        <h3 class="value">{{ stats.platformHealth.value }}</h3>
-        <p class="subtext"><i class="far fa-clock"></i> {{ stats.platformHealth.subtext }}</p>
+        <h3 class="value">{{ stats.platformHealth.status }}</h3>
+        <p class="subtext"><i class="far fa-clock"></i> Updated: {{ stats.platformHealth.lastCheck }}</p>
       </div>
     </div>
 
     <!-- Total Revenue -->
+    <!-- Total Revenue -->
     <div class="card">
       <span class="label">TOTAL REVENUE</span>
       <h3 class="value">{{ stats.totalRevenue.value }}</h3>
-      <div class="sparkline-container">
-        <svg viewBox="0 0 100 30" class="sparkline">
-          <polyline fill="none" stroke="#10b981" stroke-width="2" [attr.points]="getSparklinePoints(stats.totalRevenue.sparkline)" />
-        </svg>
-        <span class="trend positive">{{ stats.totalRevenue.trend }}</span>
+      <div class="progress-container">
+        <div class="progress-bar" [style.width.%]="stats.totalRevenue.progress"></div>
       </div>
-      <p class="subtext">{{ stats.totalRevenue.subtext }}</p>
+      <div class="subtext-row">
+        <span class="trend" [class.positive]="stats.totalRevenue.isPositive"
+          [class.negative]="!stats.totalRevenue.isPositive">
+          {{ stats.totalRevenue.trend }}
+        </span>
+        <span>Goal: {{ stats.totalRevenue.progress }}%</span>
+      </div>
     </div>
 
     <!-- Subscriptions -->
     <div class="card">
-      <span class="label">SUBSCRIPTIONS</span>
+      <span class="label">ACTIVE SUBSCRIPTIONS</span>
       <h3 class="value">{{ stats.subscriptions.value }}</h3>
       <div class="progress-container">
         <div class="progress-bar" [style.width.%]="stats.subscriptions.progress"></div>
       </div>
       <div class="subtext-row">
-        <span>{{ stats.subscriptions.renewalRate }} Renewal Rate</span>
-        <span>Target: {{ stats.subscriptions.target }}</span>
+        <span class="trend" [class.positive]="stats.subscriptions.isPositive"
+          [class.negative]="!stats.subscriptions.isPositive">
+          {{ stats.subscriptions.trend }}
+        </span>
+        <span>Target: {{ stats.subscriptions.progress }}%</span>
       </div>
     </div>
 
@@ -56,24 +112,24 @@
     <div class="card">
       <span class="label">TOTAL GYMS</span>
       <h3 class="value">{{ stats.totalGyms.value }}</h3>
-      <div class="avatar-row">
-        @for (owner of stats.totalGyms.owners; track owner.name) {
-          <img [src]="owner.avatar" [alt]="owner.name" class="avatar">
-        }
-        <div class="avatar-extra">+{{ stats.totalGyms.extraCount }}</div>
+      <div class="sparkline-container">
+        <span class="trend" [class.positive]="stats.totalGyms.isPositive"
+          [class.negative]="!stats.totalGyms.isPositive">
+          {{ stats.totalGyms.trend }}
+        </span>
       </div>
-      <p class="subtext">{{ stats.totalGyms.trend }}</p>
+      <p class="subtext">{{ stats.totalGyms.subtext }}</p>
     </div>
   </div>
 
   <!-- Main Content Area -->
   <div class="dashboard-grid">
     <!-- Recently Registered Gyms -->
-    <div class="main-column">
+    <div class="main-column full-width">
       <div class="content-card">
         <div class="card-header">
           <h3>Recently Registered Gyms</h3>
-          <a href="#" class="view-all">View All Registeries</a>
+          <a href="#" [routerLink]="'/super-admin/gym-list'" class="view-all">View All Registeries</a>
         </div>
         <div class="table-container">
           <table class="data-table">
@@ -88,66 +144,28 @@
             </thead>
             <tbody>
               @for (reg of recentRegistrations; track reg.id) {
-                <tr>
-                  <td>
-                    <div class="gym-cell">
-                      <div class="gym-initials" [style.background-color]="reg.color">{{ reg.initials }}</div>
-                      <span class="gym-name">{{ reg.name }}</span>
-                    </div>
-                  </td>
-                  <td>{{ reg.owner }}</td>
-                  <td>{{ reg.date }}</td>
-                  <td><span class="tier-badge">{{ reg.tier }}</span></td>
-                  <td>
-                    <div class="status-cell">
-                      <span class="status-dot" [class.active]="reg.status === 'Active'"></span>
-                      {{ reg.status }}
-                    </div>
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <div class="gym-cell">
+                    <div class="gym-initials" [style.background-color]="reg.color">{{ reg.initials }}</div>
+                    <span class="gym-name">{{ reg.gymName }}</span>
+                  </div>
+                </td>
+                <td>{{ reg.ownerName }}</td>
+                <td>{{ reg.dateJoined | date:'MMM d, y' }}</td>
+                <td><span class="tier-badge">{{ reg.tier }}</span></td>
+                <td>
+                  <div class="status-cell">
+                    <span class="status-dot" [class.active]="reg.status === 'Active'"></span>
+                    {{ reg.status }}
+                  </div>
+                </td>
+              </tr>
               }
             </tbody>
           </table>
         </div>
       </div>
     </div>
-
-    <!-- Right Column: Top Performing & Status -->
-    <div class="side-column">
-      <div class="content-card">
-        <div class="card-header">
-          <h3>Top Performing Branches</h3>
-        </div>
-        <div class="list-container">
-          @for (branch of topBranches; track branch.name) {
-            <div class="list-item">
-              <div class="item-icon">
-                <img [src]="branch.icon" [alt]="branch.name">
-              </div>
-              <div class="item-info">
-                <div class="item-name">{{ branch.name }}</div>
-                <div class="item-sub">{{ branch.members }} Members • {{ branch.mrr }} MRR</div>
-              </div>
-              <i class="fas trend-icon" [class.fa-arrow-trend-up]="branch.trend === 'up'" [class.fa-arrow-right]="branch.trend === 'neutral'"></i>
-            </div>
-          }
-        </div>
-        <div class="card-footer">
-          <button class="footer-btn">Detailed Analytics</button>
-        </div>
-      </div>
-
-      <div class="alert-card info">
-        <div class="alert-icon">
-          <i class="fas fa-info-circle"></i>
-        </div>
-        <div class="alert-content">
-          <h4>Platform Status</h4>
-          <p>Scheduled maintenance for Database Node 4 is set for Sunday 2 AM UTC. This may cause 1-2 minutes of latency.</p>
-          <a href="#" class="alert-link">Read Announcement</a>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
-

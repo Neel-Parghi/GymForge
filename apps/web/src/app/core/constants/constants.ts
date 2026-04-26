@@ -1,6 +1,5 @@
 export const CONSTANTS = {
 
-
     //#region Common
 
     COMMON_ERROR_MESSAGE: 'Something went wrong!',
@@ -37,8 +36,28 @@ export const CONSTANTS = {
 
     //#endregion
 
-    //#region Gym
+    //#region UI Labels
+    UI_LABELS: {
+        STATUS: 'Status',
+        ACTIVE: 'Active',
+        INACTIVE: 'Inactive',
+        SEARCH: 'Search',
+    },
+    //#endregion
 
+    //#region Confirmations
+    CONFIRMATIONS: {
+        DELETE_GYM_TITLE: 'Delete Gym',
+        DELETE_GYM_MESSAGE: 'Are you sure you want to delete "{name}"? This action cannot be undone.',
+        DELETE_PLAN_MESSAGE: 'Are you sure you want to delete this plan? This action cannot be undone.',
+    },
+    //#endregion
+
+    //#region Pricing
+    PLAN_CREATE_SUCCESS_MESSAGE: 'Plan created successfully',
+    //#endregion
+
+    //#region Gym
     GYM_ONBOARD_SUCCESS_MESSAGE: 'Gym onboarded successfully!',
     GYM_ONBOARD_ERROR_MESSAGE: 'Failed to onboard gym!',
     GYM_INVITE_SUCCESS_MESSAGE: 'Invited successfully!',
@@ -51,6 +70,49 @@ export const CONSTANTS = {
     GYM_DELETE_VALIDATION_MESSAGE: 'Gym cannot be deleted as they own branches!',
     GYM_DELETE_ERROR_MESSAGE: 'Failed to delete gym!',
     GYM_LOAD_ERROR_MESSAGE: 'Failed to load gyms!',
+    //#endregion
 
+    //#region Dashboard
+    DASHBOARD: {
+        METRIC_SUBTEXTS: {
+            TOTAL_REVENUE: 'Total platform-wide earnings',
+            SUBSCRIPTIONS: 'Currently active paid plans',
+            TOTAL_GYMS: 'Total gyms onboarded'
+        },
+        LOCALE: 'en-IN',
+        CURRENCY: 'INR',
+        REPORT_FILENAME_PREFIX: 'report',
+        SPARKLINE: {
+            DEFAULT_POINTS: "0,30 100,30",
+            HEIGHT: 30,
+            RANGE_OFFSET: 25
+        }
+    },
+    //#endregion
+
+    //#region Payment
+    PAYMENT: {
+        RAZORPAY: {
+            KEY_ID: 'rzp_test_SgEiEY7pGSwfkM',
+            CURRENCY: 'INR',
+            COMPANY_NAME: 'GymForge SaaS',
+            FLOW_DESCRIPTION: 'Testing 0 to 100 Payment Flow',
+            THEME_COLOR: '#0f172a'
+        },
+        MESSAGES: {
+            CONFIG_UPDATE_SUCCESS: 'Configuration updated successfully',
+            CONFIG_UPDATE_ERROR: 'Failed to update configuration',
+            SELECTION_REQUIRED: 'Please select a Gym and a Plan to test the flow.',
+            VERIFICATION_SUCCESS: 'Payment verified and Subscription activated.',
+            VERIFICATION_ERROR: 'Payment verification failed!'
+        }
+    },
+    //#endregion
+
+    //#region Settings
+    SETTINGS: {
+        UPDATE_SUCCESS: 'Platform strategy updated successfully!',
+        UPDATE_ERROR: 'Failed to update platform strategy.'
+    }
     //#endregion
 }

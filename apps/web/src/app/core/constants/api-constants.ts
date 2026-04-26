@@ -9,10 +9,11 @@ export const API_CONSTANTS = {
   },
   USER: {
     PROFILE: '/users/profile',
-    UPDATE_PROFILE: '/users/update',
+    UPDATE_PROFILE: '/users/profile',
     INVITE_OWNER: '/users/invite-owner',
     RE_INVITE: '/users/re-invite',
     SET_PASSWORD: '/users/set-password',
+    CHANGE_PASSWORD: '/users/change-password',
     VALIDATE_INVITATION: '/users/validate-invitation'
   },
   GYM: {
@@ -32,6 +33,14 @@ export const API_CONSTANTS = {
     ADD: '/saas-plans',
     UPDATE: '/saas-plans',
     DELETE: '/saas-plans',
+  },
+  SUPER_ADMIN: {
+    DASHBOARD: '/superadmin/dashboard/stats',
+    REVENUE: '/superadmin/payments/stats',
+    CONFIG: '/superadmin/config',
+    REPORTS: {
+      EXPORT: '/superadmin/reports/export'
+    }
   },
   PAYMENTS: {
     STATS: '/payments/stats',

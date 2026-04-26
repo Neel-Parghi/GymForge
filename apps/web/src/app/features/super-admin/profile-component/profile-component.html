@@ -1,0 +1,185 @@
+<div class="profile-container">
+  <!-- Sticky Top Section -->
+  <div class="sticky-top-section">
+    <!-- Profile Header -->
+    <header class="profile-header">
+      <div class="header-main">
+        <div class="avatar-box">
+          <img *ngIf="profile?.profilePictureUrl" [src]="profile?.profilePictureUrl" alt="Profile Picture"
+            class="profile-img">
+          <div class="default-avatar" *ngIf="!profile?.profilePictureUrl">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <button class="avatar-upload" *ngIf="isEditMode" (click)="triggerAvatarUpload()">
+            <i class="fas fa-camera"></i>
+          </button>
+        </div>
+        <div class="header-info">
+          <h1 class="user-name">{{ profile?.fullName }}</h1>
+          <p class="user-role">{{ profile?.role }}</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-primary" *ngIf="!isEditMode" (click)="toggleEdit()">
+          <i class="fas fa-edit"></i> Edit Profile
+        </button>
+        <div class="edit-actions" *ngIf="isEditMode">
+          <button class="btn-save" (click)="saveProfile()" [disabled]="profileForm.invalid || isSaving">
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          </button>
+          <button class="btn-cancel" (click)="toggleEdit()">Cancel</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="profile-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'personal'" (click)="activeTab = 'personal'">
+        <i class="fas fa-user"></i> Personal Information
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
+        <i class="fas fa-lock"></i> Account Security
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <main class="tab-content">
+    <!-- Personal Information Tab -->
+    <div class="personal-section" *ngIf="activeTab === 'personal'">
+      <form [formGroup]="profileForm" class="profile-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" formControlName="firstName" [readonly]="!isEditMode">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" formControlName="lastName" [readonly]="!isEditMode">
+          </div>
+
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" [value]="profile?.email" readonly class="readonly-field">
+            <small class="field-hint">Registered email cannot be changed.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" formControlName="phone" [readonly]="!isEditMode">
+          </div>
+
+          <!-- Address Section -->
+          <div class="address-sub-header full-row">
+            <h3>Resident Address</h3>
+          </div>
+
+          <div class="form-group">
+            <label>Address Line 1</label>
+            <input type="text" formControlName="addressLine1" [readonly]="!isEditMode">
+          </div>
+
+          <div class="form-group">
+            <label>Address Line 2 (Optional)</label>
+            <input type="text" formControlName="addressLine2" [readonly]="!isEditMode">
+          </div>
+
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" formControlName="city" [readonly]="!isEditMode">
+          </div>
+
+          <div class="form-group">
+            <label>State / Province</label>
+            <input type="text" formControlName="state" [readonly]="!isEditMode">
+          </div>
+
+          <div class="form-group">
+            <label>Zip / Postal Code</label>
+            <input type="text" formControlName="zipCode" [readonly]="!isEditMode">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Account Security Tab -->
+    <div class="security-section" *ngIf="activeTab === 'security'">
+      <div class="security-hub-wrapper">
+        <!-- Vertical Sub-Sidebar -->
+        <aside class="security-sidebar">
+          <button class="side-tab-btn" [class.active]="activeSecuritySubTab === 'change'"
+            (click)="activeSecuritySubTab = 'change'">
+            <i class="fas fa-key"></i> Change Password
+          </button>
+          <button class="side-tab-btn" [class.active]="activeSecuritySubTab === 'reset'"
+            (click)="activeSecuritySubTab = 'reset'">
+            <i class="fas fa-undo"></i> Reset Password
+          </button>
+          <div class="side-tab-spacer"></div>
+          <span class="side-tab-hint">More security features coming soon...</span>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="security-main-content">
+          <!-- Change Password View -->
+          <div class="security-pane" *ngIf="activeSecuritySubTab === 'change'">
+            <div class="pane-header">
+              <h3>Change Password</h3>
+              <p>Update your authentication credentials to keep your account secure.</p>
+            </div>
+
+            <div class="alert success-alert" *ngIf="passwordChangeSuccess">
+              <i class="fas fa-check-circle"></i> Password updated successfully.
+            </div>
+
+            <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" class="password-form">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" formControlName="currentPassword" placeholder="Enter your current password">
+              </div>
+
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" formControlName="newPassword" placeholder="Minimum 8 characters">
+              </div>
+
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" formControlName="confirmPassword" placeholder="Re-enter new password">
+                <small class="error-text"
+                  *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched">
+                  Passwords do not match.
+                </small>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-update-password"
+                  [disabled]="passwordForm.invalid || isChangingPassword">
+                  <i class="fas" [class.fa-key]="!isChangingPassword" [class.fa-spinner]="isChangingPassword"
+                    [class.fa-spin]="isChangingPassword"></i>
+                  {{ isChangingPassword ? 'Updating...' : 'Update Password' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Reset Password View (Placeholder/Initial UI) -->
+          <div class="security-pane" *ngIf="activeSecuritySubTab === 'reset'">
+            <div class="pane-header">
+              <h3>Reset Password</h3>
+              <p>Request a password reset link via your registered email.</p>
+            </div>
+
+            <div class="reset-preview-card">
+              <div class="icon-wrap"><i class="fas fa-paper-plane"></i></div>
+              <h4>Send Reset Link</h4>
+              <p>We will send a secure link to <strong>{{ profile?.email }}</strong></p>
+              <button class="btn-primary" (click)="requestReset()">Send Reset Email</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </main>
+</div>

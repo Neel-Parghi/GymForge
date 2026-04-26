@@ -15,6 +15,14 @@ export abstract class BaseApiService {
     return this.http.get<T>(`${this.baseUrl}${url}`, { params: httpParams });
   }
 
+  protected getBlob(url: string, params?: any): Observable<Blob> {
+    const httpParams = this.createHttpParams(params);
+    return this.http.get(`${this.baseUrl}${url}`, { 
+      params: httpParams, 
+      responseType: 'blob' 
+    });
+  }
+
   protected post<T>(url: string, body: any): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${url}`, body);
   }

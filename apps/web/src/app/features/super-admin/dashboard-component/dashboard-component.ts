@@ -1,70 +1,121 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DashboardService } from '../../../core/services/dashboard.service';
+import { RouterLink } from "@angular/router";
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-dashboard-component',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.scss',
 })
-export class DashboardComponent {
-  // Enhanced stats for the new header row
-  stats = {
-    platformHealth: {
-      value: '99.98%',
-      status: 'OPTIMAL',
-      subtext: 'Uptime last 30 days',
-      icon: 'fa-check-circle'
-    },
-    totalRevenue: {
-      value: '$4.2M',
-      trend: '+12.4%',
-      subtext: 'Platform-wide aggregate',
-      sparkline: [30, 45, 35, 50, 40, 60, 55] // Mock data for SVG sparkline
-    },
-    subscriptions: {
-      value: '12,402',
-      renewalRate: '82%',
-      target: '90%',
-      progress: 82
-    },
-    totalGyms: {
-      value: '842',
-      trend: '+24 this week',
-      owners: [
-        { name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1' },
-        { name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=2' },
-        { name: 'User 3', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=3' }
-      ],
-      extraCount: 839
-    }
+export class DashboardComponent implements OnInit {
+  private dashboardService = inject(DashboardService);
+
+  stats: any = {
+    platformHealth: { status: 'Loading...', lastCheck: '...' },
+    totalRevenue: { value: '₹0', trend: '0%', isPositive: true, subtext: CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_REVENUE },
+    subscriptions: { value: '0', trend: '0%', isPositive: true, subtext: CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.SUBSCRIPTIONS, progress: 0 },
+    totalGyms: { value: '0', trend: 'Growth', isPositive: true, subtext: CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_GYMS }
   };
 
-  recentRegistrations = [
-    { id: '1', name: 'Velocity Arena', owner: 'Sarah Jenkins', date: 'Oct 24, 2023', tier: 'Enterprise', status: 'Active', initials: 'V', color: '#e0f2fe' },
-    { id: '2', name: 'Zenith Studio', owner: 'Mark Thompson', date: 'Oct 23, 2023', tier: 'Standard', status: 'Active', initials: 'Z', color: '#f0fdf4' },
-    { id: '3', name: 'Iron Forge Elite', owner: 'Derrick Wu', date: 'Oct 22, 2023', tier: 'Enterprise', status: 'Pending', initials: 'I', color: '#fff7ed' },
-  ];
+  recentRegistrations: any[] = [];
+  showReportModal = false;
+  isDownloading = false;
 
-  topBranches = [
-    { name: 'Titan Fitness (NY)', members: '1,240', mrr: '$84k', trend: 'up', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=Titan' },
-    { name: 'Luxe Wellness (LDN)', members: '890', mrr: '$62k', trend: 'up', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=Luxe' },
-    { name: 'Summit Perf Lab', members: '760', mrr: '$51k', trend: 'neutral', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=Summit' },
-  ];
+  ngOnInit() {
+    this.loadStats();
+  }
 
-  getSparklinePoints(data: number[]): string {
-    const width = 100;
-    const height = 30;
+  loadStats() {
+    this.dashboardService.getStats().subscribe({
+      next: (res: any) => {
+        const data = res.Data;
+        if (data) {
+          this.stats = {
+            platformHealth: data.health,
+            totalRevenue: this.processMetric(data.totalRevenue, 'currency'),
+            subscriptions: this.processMetric(data.subscriptions, 'number'),
+            totalGyms: this.processMetric(data.totalGyms, 'number')
+          };
+
+          // Custom subtexts for the frontend
+          this.stats.totalRevenue.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_REVENUE;
+          this.stats.subscriptions.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.SUBSCRIPTIONS;
+          this.stats.totalGyms.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_GYMS;
+
+          this.recentRegistrations = data.recentRegistrations || [];
+        }
+      }
+    });
+  }
+
+  openReportModal() {
+    this.showReportModal = true;
+  }
+
+  closeReportModal() {
+    this.showReportModal = false;
+  }
+
+  downloadReport(type: string) {
+    this.isDownloading = true;
+    
+    this.dashboardService.downloadReport(type).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${type}_${CONSTANTS.DASHBOARD.REPORT_FILENAME_PREFIX}_${new Date().getTime()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        this.isDownloading = false;
+        this.closeReportModal();
+      },
+      error: (err) => {
+        console.error('Download failed', err);
+        this.isDownloading = false;
+      }
+    });
+  }
+
+  private processMetric(metric: any, type: 'currency' | 'number') {
+    const current = metric.currentValue || 0;
+    const previous = metric.previousValue || 0;
+
+    let trend = 0;
+    if (previous > 0) {
+      trend = ((current - previous) / previous) * 100;
+    }
+
+    return {
+      value: type === 'currency' ? this.formatCurrency(current) : current.toString(),
+      trend: (trend >= 0 ? '+' : '') + trend.toFixed(1) + '%',
+      isPositive: trend >= 0,
+      progress: metric.progress || 0
+    };
+  }
+
+  private formatCurrency(value: number): string {
+    return new Intl.NumberFormat(CONSTANTS.DASHBOARD.LOCALE, {
+      style: 'currency',
+      currency: CONSTANTS.DASHBOARD.CURRENCY,
+      maximumFractionDigits: 0
+    }).format(value);
+  }
+
+  getSparklinePoints(data: number[] | undefined): string {
+    if (!data || data.length === 0) return CONSTANTS.DASHBOARD.SPARKLINE.DEFAULT_POINTS;
     const max = Math.max(...data);
     const min = Math.min(...data);
-    const range = max - min;
-    
-    return data.map((d, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = height - ((d - min) / range) * height;
-      return `${x},${y}`;
-    }).join(' ');
+    const range = max - min || 1;
+    return data.map((d, i) =>
+      `${(i / (data.length - 1)) * 100},${CONSTANTS.DASHBOARD.SPARKLINE.HEIGHT} - ((d - min) / range) * ${CONSTANTS.DASHBOARD.SPARKLINE.RANGE_OFFSET}`
+    ).join(' ');
   }
 }
-

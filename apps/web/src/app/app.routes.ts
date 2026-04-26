@@ -27,6 +27,14 @@ export const routes: Routes = [
       {
         path: 'payments',
         loadComponent: () => import('./features/super-admin/payments/payments-component/payments-component').then(m => m.PaymentsComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/super-admin/settings-component/settings-component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/super-admin/profile-component/profile-component').then(m => m.ProfileComponent)
       }
     ]
   }
