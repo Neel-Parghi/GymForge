@@ -21,6 +21,7 @@ export const API_CONSTANTS = {
     UPDATE: '/gyms',
     LIST: '/gyms',
     DELETE: '/gyms',
+    BRANCHES: '/gyms/{id}/branches'
   },
   GYM_OWNER: {
     LIST: '/gym-owners',

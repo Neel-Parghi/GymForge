@@ -1,0 +1,73 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="title-wrap">
+        <h2>Add New Branch</h2>
+        <p>Enter the location and contact details for the new gym branch.</p>
+      </div>
+      <button class="close-btn" (click)="close.emit()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="branchForm" (ngSubmit)="submit()" class="modal-body">
+      <div class="form-section">
+        <div class="form-group full-width">
+          <label>Branch Name</label>
+          <input type="text" formControlName="name" placeholder="e.g. Downtown Branch" />
+          <app-validation-message [control]="branchForm.get('name')" fieldName="Branch Name"></app-validation-message>
+        </div>
+
+        <div formGroupName="address" class="address-grid">
+          <div class="form-group full-width">
+            <label>Address Line 1</label>
+            <input type="text" formControlName="line1" placeholder="Street address" />
+          </div>
+          <div class="form-group full-width">
+            <label>Address Line 2 (Optional)</label>
+            <input type="text" formControlName="line2" placeholder="Suite, unit, etc." />
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" formControlName="city" placeholder="City" />
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" formControlName="state" placeholder="State" />
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" formControlName="country" placeholder="Country" />
+          </div>
+          <div class="form-group">
+            <label>Postal Code</label>
+            <input type="text" formControlName="postalCode" placeholder="Postal Code" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" formControlName="contactNumber" placeholder="Phone" />
+          </div>
+          <div class="form-group time-group">
+            <label>Operating Hours</label>
+            <div class="time-inputs">
+              <input type="time" formControlName="openTime" />
+              <span>to</span>
+              <input type="time" formControlName="closeTime" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="close.emit()" [disabled]="isSubmitting">Cancel</button>
+      <button class="btn-primary" (click)="submit()" [disabled]="branchForm.invalid || isSubmitting">
+        <i class="fas" [class.fa-plus]="!isSubmitting" [class.fa-spinner]="isSubmitting" [class.fa-spin]="isSubmitting"></i>
+        {{ isSubmitting ? 'Adding Branch...' : 'Add Branch' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -5,13 +5,13 @@ import { NotificationService } from '../../../../../core/services/notification.s
 import { GymListResponse } from '../../../../../shared/models/gym.model';
 import { SlideDrawerComponent } from "../../../../../shared/components/slide-drawer/slide-drawer";
 import { ValidationMessage } from "../../../../../shared/components/validation-message/validation-message";
-
+import { AddBranchModalComponent } from '../add-branch-modal/add-branch-modal.component';
 import { GymService } from '../../../../../core/services/gym.service';
 
 @Component({
   selector: 'app-gym-details-drawer',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, ValidationMessage],
+  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, ValidationMessage, AddBranchModalComponent],
   templateUrl: './gym-details-drawer.component.html',
   styleUrl: './gym-details-drawer.component.scss'
 })
@@ -35,12 +35,23 @@ export class GymDetailsDrawerComponent implements OnChanges {
   @Output() closeDrawer = new EventEmitter<void>();
   @Output() gymUpdated = new EventEmitter<any>();
 
+  activeTab: 'overview' | 'branches' = 'overview';
+  branches: any[] = [];
+  isLoadingBranches = false;
+  isAddBranchModalOpen = false;
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isEditing'] || changes['gym']) {
       if (this.isEditing) {
         this.editForm.enable();
       } else {
         this.editForm.disable();
+      }
+    }
+    if (changes['isOpen'] && this.isOpen) {
+      this.activeTab = 'overview';
+      if (this.gym?.id) {
+        this.loadBranches();
       }
     }
   }
@@ -99,6 +110,25 @@ export class GymDetailsDrawerComponent implements OnChanges {
       this.isEditing = false;
       this.editForm.disable();
       this.onClose();
+    }
+  }
+
+  loadBranches() {
+    if (!this.gym?.id) return;
+    this.isLoadingBranches = true;
+    this.gymService.getGymBranches(this.gym.id).subscribe({
+      next: (res) => {
+        this.branches = res.Data || [];
+        this.isLoadingBranches = false;
+      },
+      error: () => this.isLoadingBranches = false
+    });
+  }
+
+  switchTab(tab: 'overview' | 'branches') {
+    this.activeTab = tab;
+    if (tab === 'branches') {
+      this.loadBranches();
     }
   }
 }

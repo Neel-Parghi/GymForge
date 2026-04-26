@@ -41,4 +41,14 @@ export class GymService extends BaseApiService {
     deleteGym(gymId: string): Observable<ApiResponse<any>> {
         return this.delete(`${API_CONSTANTS.GYM.DELETE}/${gymId}`);
     }
+
+    getGymBranches(gymId: string): Observable<ApiResponse<any[]>> {
+        const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
+        return this.get(url);
+    }
+
+    addGymBranch(gymId: string, payload: any): Observable<ApiResponse<any>> {
+        const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
+        return this.post(url, payload);
+    }
 }
