@@ -18,11 +18,36 @@ namespace GymForge.Infrastructure
 
             services.AddDbContext<AppDbContext>((sp, options) =>
             {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
                 AuditableEntityInterceptor auditableInterceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
-                options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection"),
-                    sqlOptions => sqlOptions.EnableRetryOnFailure()
-                ).AddInterceptors(auditableInterceptor);
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+                }
+
+                if (connectionString.Contains("Host=") || connectionString.Contains("Server=") && !connectionString.Contains("SQLEXPRESS"))
+                {
+                    if (connectionString.StartsWith("postgres://") || connectionString.Contains("Host="))
+                    {
+                         options.UseNpgsql(connectionString,
+                            sqlOptions => sqlOptions.EnableRetryOnFailure()
+                        ).AddInterceptors(auditableInterceptor);
+                    }
+                    else
+                    {
+                        options.UseSqlServer(connectionString,
+                            sqlOptions => sqlOptions.EnableRetryOnFailure()
+                        ).AddInterceptors(auditableInterceptor);
+                    }
+                }
+                else
+                {
+                    options.UseSqlServer(
+                        connectionString,
+                        sqlOptions => sqlOptions.EnableRetryOnFailure()
+                    ).AddInterceptors(auditableInterceptor);
+                }
             });
 
             services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -35,7 +60,15 @@ namespace GymForge.Infrastructure
             services.AddScoped<ISaaSConfigurationRepository, SaaSConfigurationRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<IEmailService, Services.BrevoEmailService>();
-            services.AddScoped<IFileStorageService, LocalFileStorageService>();
+            var cloudName = configuration["Cloudinary:CloudName"];
+            if (!string.IsNullOrEmpty(cloudName))
+            {
+                services.AddScoped<IFileStorageService, CloudinaryFileStorageService>();
+            }
+            else
+            {
+                services.AddScoped<IFileStorageService, LocalFileStorageService>();
+            }
 
             return services;
         }
