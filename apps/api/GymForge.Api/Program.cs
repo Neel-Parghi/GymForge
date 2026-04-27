@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("https://gymforge-web.onrender.com","http://localhost:4200")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .AllowAnyHeader();
+                  .AllowAnyHeader()
                   .AllowCredentials();
         });
 });
