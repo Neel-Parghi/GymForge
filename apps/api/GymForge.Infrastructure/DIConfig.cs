@@ -19,34 +19,27 @@ namespace GymForge.Infrastructure
             services.AddDbContext<AppDbContext>((sp, options) =>
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                AuditableEntityInterceptor auditableInterceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+                AuditableEntityInterceptor? auditableInterceptor = sp.GetService<AuditableEntityInterceptor>();
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+                    connectionString = "Host=localhost;Database=dummy;Username=postgres;Password=password";
                 }
 
-                if (connectionString.Contains("Host=") || connectionString.Contains("Server=") && !connectionString.Contains("SQLEXPRESS"))
+                if (connectionString.Contains("Host=") || connectionString.Contains("port=") || connectionString.Contains("postgres"))
                 {
-                    if (connectionString.StartsWith("postgres://") || connectionString.Contains("Host="))
-                    {
-                         options.UseNpgsql(connectionString,
-                            sqlOptions => sqlOptions.EnableRetryOnFailure()
-                        ).AddInterceptors(auditableInterceptor);
-                    }
-                    else
-                    {
-                        options.UseSqlServer(connectionString,
-                            sqlOptions => sqlOptions.EnableRetryOnFailure()
-                        ).AddInterceptors(auditableInterceptor);
-                    }
+                    options.UseNpgsql(connectionString,
+                        sqlOptions => sqlOptions.EnableRetryOnFailure());
                 }
                 else
                 {
-                    options.UseSqlServer(
-                        connectionString,
-                        sqlOptions => sqlOptions.EnableRetryOnFailure()
-                    ).AddInterceptors(auditableInterceptor);
+                    options.UseSqlServer(connectionString,
+                        sqlOptions => sqlOptions.EnableRetryOnFailure());
+                }
+
+                if (auditableInterceptor != null)
+                {
+                    options.AddInterceptors(auditableInterceptor);
                 }
             });
 
