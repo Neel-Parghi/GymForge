@@ -15,21 +15,13 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-    var frontendUrl = builder.Configuration["GymForge:BaseUrl"]?.TrimEnd('/');
-    options.AddPolicy("AllowAngular",
+    options.AddPolicy("AllowAll",
         policy =>
         {
-            var origins = new List<string> { "http://localhost:4200" };
-            if (!string.IsNullOrEmpty(frontendUrl))
-            {
-                origins.Add(frontendUrl);
-            }
-
-            policy.WithOrigins(origins.ToArray())
+            policy.WithOrigins("http://localhost:4200", "https://gymforge-web.onrender.com")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .AllowCredentials()
-                  .SetIsOriginAllowedToAllowWildcardSubdomains();
+                  .AllowCredentials();
         });
 });
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -65,7 +57,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseCors("AllowAngular");
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
