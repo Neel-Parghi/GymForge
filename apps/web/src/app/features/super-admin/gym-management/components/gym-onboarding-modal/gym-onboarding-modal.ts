@@ -211,6 +211,7 @@ export class GymOnboardingModalComponent implements OnInit {
     const plan = this.plans.find(p => p.id === planId);
     return plan ? (plan.name || plan.Name) : 'No Plan Selected (Trial)';
   }
+
   getGymOwners() {
     this.gymService.getGymOwnersList().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
