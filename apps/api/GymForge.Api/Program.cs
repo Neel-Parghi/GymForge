@@ -2,6 +2,7 @@ using GymForge.Api.Middlewares;
 using GymForge.Application;
 using GymForge.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using GymForge.Infrastructure.Persistence;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -18,9 +19,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll",
         policy =>
         {
-            policy.WithOrigins("https://gymforge-web.onrender.com","http://localhost:4200")
+            policy.WithOrigins("https://gymforge-web.onrender.com", "http://localhost:4200")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .SetIsOriginAllowedToAllowWildcardSubdomains();
         });
 });
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -51,7 +53,26 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
-// app.UseMiddleware<ExceptionMiddleware>();
+// Automatically migrate database on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        if (context.Database.GetPendingMigrations().Any())
+        {
+            context.Database.Migrate();
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -61,7 +82,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// app.UseMiddleware<ResponseWrapperMiddleware>();
+app.UseMiddleware<ResponseWrapperMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
