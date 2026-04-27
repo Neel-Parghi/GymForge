@@ -16,7 +16,7 @@ namespace GymForge.Contracts.SuperAdmin.Configuration
         public string? PrivacyUrl { get; set; }
         public DateTime? MaintenanceStartTime { get; set; }
         public DateTime? MaintenanceEndTime { get; set; }
-        public decimal MonthlyRevenueTarget { get; set; }
+        public decimal YearlyRevenueTarget { get; set; }
         public int SubscriptionTarget { get; set; }
         public decimal UptimeThreshold { get; set; }
     }

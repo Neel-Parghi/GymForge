@@ -35,4 +35,10 @@ namespace GymForge.Contracts.Users
         public string? State { get; set; }
         public string? ZipCode { get; set; }
     }
+
+    public class UploadAvatarResponseDto
+    {
+        public string Url { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+    }
 }

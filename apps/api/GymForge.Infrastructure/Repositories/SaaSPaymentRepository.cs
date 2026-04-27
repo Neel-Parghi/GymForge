@@ -38,6 +38,15 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<SubscriptionRecord>> GetActiveSubscriptionsAsync()
+        {
+            return await _dbContext.SubscriptionRecords
+                .Include(x => x.Plan)
+                .Where(x => x.IsActive)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task UpdateStatusAsync(Guid id, string status, string? gatewayResponse = null)
         {
             SaaSPaymentTransaction? paymentTransaction = await _dbContext.SaaSPaymentTransactions.FindAsync(id);

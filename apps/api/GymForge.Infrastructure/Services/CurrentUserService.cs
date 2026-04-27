@@ -17,16 +17,16 @@ namespace GymForge.Infrastructure.Services
         {
             get
             {
-                var httpContext = _httpContextAccessor.HttpContext;
+                HttpContext httpContext = _httpContextAccessor.HttpContext;
                 if (httpContext == null) return null;
 
-                var user = httpContext.User;
+                ClaimsPrincipal user = httpContext.User;
                 
-                var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                string? userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                                   ?? user.FindFirst("userId")?.Value 
                                   ?? user.FindFirst("uid")?.Value;
 
-                if (Guid.TryParse(userIdClaim, out var userId))
+                if (Guid.TryParse(userIdClaim, out Guid userId))
                 {
                     return userId;
                 }

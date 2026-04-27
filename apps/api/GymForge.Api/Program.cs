@@ -5,9 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-//using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
@@ -32,7 +31,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        var key = builder.Configuration["Jwt:Key"];
+        string? key = builder.Configuration["Jwt:Key"];
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -57,6 +56,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 var app = builder.Build();
 
 app.UseCors("AllowAngular");
+app.UseStaticFiles();
 
 //app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<ResponseWrapperMiddleware>();

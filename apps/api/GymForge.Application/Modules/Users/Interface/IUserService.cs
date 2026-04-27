@@ -1,4 +1,5 @@
 using GymForge.Contracts.Users;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 
@@ -25,5 +26,7 @@ namespace GymForge.Application.Modules.Users.Interface
         Task UpdateMyProfileAsync(UpdateUserProfileDto dto);
 
         Task ChangeMyPasswordAsync(ChangePasswordRequestDto dto);
+
+        Task<string> UploadAvatarAsync(IFormFile file);
     }
 }

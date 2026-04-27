@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GymForge.Contracts.SuperAdmin.Dashboard;
+using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +17,7 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<decimal> GetTotalRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
         {
-            var query = _dbContext.SaaSPaymentTransactions.Where(s => s.Status == "Success");
+            IQueryable<SaaSPaymentTransaction> query = _dbContext.SaaSPaymentTransactions.Where(s => s.Status == "Success");
             
             if (startDate.HasValue)
                 query = query.Where(s => s.CreatedOn >= startDate.Value);
@@ -33,7 +30,7 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<int> GetActiveSubscriptionsCountAsync(DateTime? asOfDate = null)
         {
-            var referenceDate = asOfDate ?? DateTime.UtcNow;
+            DateTime referenceDate = asOfDate ?? DateTime.UtcNow;
             return await _dbContext.SubscriptionRecords
                 .CountAsync(s => s.IsActive && s.EndDate > referenceDate);
         }
@@ -41,6 +38,35 @@ namespace GymForge.Infrastructure.Repositories
         public async Task<int> GetTotalGymsCountAsync()
         {
             return await _dbContext.Gyms.CountAsync();
+        }
+
+        public async Task<int> GetPendingVerificationsCountAsync()
+        {
+            return await _dbContext.Gyms.CountAsync(g => !g.IsVerified);
+        }
+
+        public async Task<List<PlanDistributionDto>> GetPlanDistributionAsync()
+        {
+            List<SubscriptionRecord> activeSubscriptions = await _dbContext.SubscriptionRecords
+                .Where(s => s.IsActive)
+                .Include(s => s.Plan)
+                .ToListAsync();
+
+            int totalActive = activeSubscriptions.Count;
+            if (totalActive == 0) return new List<PlanDistributionDto>();
+
+            List<PlanDistributionDto> distribution = activeSubscriptions
+                .GroupBy(s => s.Plan.Name)
+                .Select(g => new PlanDistributionDto
+                {
+                    PlanName = g.Key,
+                    Count = g.Count(),
+                    Percentage = Math.Round((double)g.Count() / totalActive * 100, 1),
+                })
+                .OrderByDescending(d => d.Count)
+                .ToList();
+
+            return distribution;
         }
 
         public async Task<List<RecentGymRegistrationDto>> GetRecentGymRegistrationsAsync(int count)

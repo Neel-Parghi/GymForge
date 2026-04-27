@@ -29,7 +29,7 @@ namespace GymForge.Domain.Entities
         public DateTime? MaintenanceEndTime { get; set; }
 
         // Strategic Targets
-        public decimal MonthlyRevenueTarget { get; set; } = 100000.0m;
+        public decimal YearlyRevenueTarget { get; set; } = 1200000.0m;
         public int SubscriptionTarget { get; set; } = 100;
         public decimal UptimeThreshold { get; set; } = 99.9m;
     }

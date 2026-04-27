@@ -35,6 +35,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<ISaaSConfigurationRepository, SaaSConfigurationRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<IEmailService, Services.BrevoEmailService>();
+            services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
             return services;
         }

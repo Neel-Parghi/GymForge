@@ -4,6 +4,7 @@ using GymForge.Contracts.Users;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace GymForge.Application.Modules.Users.Services
@@ -16,6 +17,7 @@ namespace GymForge.Application.Modules.Users.Services
         private readonly IEmailService _emailService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IConfiguration _config;
+        private readonly IFileStorageService _fileStorageService;
 
         public UserService(
             IAuthRepository authRepository, 
@@ -23,7 +25,8 @@ namespace GymForge.Application.Modules.Users.Services
             IPasswordService passwordService,
             IEmailService emailService,
             ICurrentUserService currentUserService,
-            IConfiguration config)
+            IConfiguration config,
+            IFileStorageService fileStorageService)
         {
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
@@ -31,6 +34,7 @@ namespace GymForge.Application.Modules.Users.Services
             _emailService = emailService;
             _currentUserService = currentUserService;
             _config = config;
+            _fileStorageService = fileStorageService;
         }
 
         public async Task InviteOwnerAsync(InviteOwnerRequestDto inviteOwnerRequestDto)
@@ -148,15 +152,28 @@ namespace GymForge.Application.Modules.Users.Services
             if (user == null)
                 throw new Exception("User not found.");
 
+            // Delete old picture if changed
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl) && 
+                user.ProfilePictureUrl != dto.ProfilePictureUrl && 
+                !user.ProfilePictureUrl.Contains("placeholder"))
+            {
+                await _fileStorageService.DeleteFileAsync(user.ProfilePictureUrl);
+            }
+
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
             user.Phone = dto.Phone;
-            user.ProfilePictureUrl = dto.ProfilePictureUrl;
+            
+            if (!string.IsNullOrEmpty(dto.ProfilePictureUrl))
+            {
+                user.ProfilePictureUrl = dto.ProfilePictureUrl;
+            }
+
             user.ModifiedOn = DateTime.UtcNow;
 
             if (user.Address == null)
             {
-                var newAddress = new Address 
+                Address newAddress = new() 
                 { 
                     Id = Guid.NewGuid(),
                     CreatedOn = DateTime.UtcNow 
@@ -192,6 +209,18 @@ namespace GymForge.Application.Modules.Users.Services
         {
             Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
             await ChangePasswordAsync(userId, dto);
+        }
+
+        public async Task<string> UploadAvatarAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("File is empty");
+
+            using (var stream = file.OpenReadStream())
+            {
+                // Just save the file and return the path
+                return await _fileStorageService.SaveFileAsync(stream, file.FileName, "avatars");
+            }
         }
     }
 }

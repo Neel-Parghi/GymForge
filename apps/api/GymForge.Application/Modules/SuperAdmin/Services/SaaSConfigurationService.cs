@@ -17,7 +17,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
 
         public async Task<SaaSConfigurationDto> GetConfigurationAsync()
         {
-            var config = await _configRepository.GetConfigurationAsync();
+            SaaSConfiguration config = await _configRepository.GetConfigurationAsync();
             
             return new SaaSConfigurationDto
             {
@@ -34,7 +34,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
                 PrivacyUrl = config.PrivacyUrl,
                 MaintenanceStartTime = config.MaintenanceStartTime,
                 MaintenanceEndTime = config.MaintenanceEndTime,
-                MonthlyRevenueTarget = config.MonthlyRevenueTarget,
+                YearlyRevenueTarget = config.YearlyRevenueTarget,
                 SubscriptionTarget = config.SubscriptionTarget,
                 UptimeThreshold = config.UptimeThreshold
             };
@@ -42,7 +42,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
 
         public async Task UpdateConfigurationAsync(SaaSConfigurationDto configDto)
         {
-            var config = await _configRepository.GetConfigurationAsync();
+            SaaSConfiguration config = await _configRepository.GetConfigurationAsync();
 
             config.PlatformName = configDto.PlatformName;
             config.BillingEmail = configDto.BillingEmail;
@@ -57,7 +57,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
             config.PrivacyUrl = configDto.PrivacyUrl;
             config.MaintenanceStartTime = configDto.MaintenanceStartTime;
             config.MaintenanceEndTime = configDto.MaintenanceEndTime;
-            config.MonthlyRevenueTarget = configDto.MonthlyRevenueTarget;
+            config.YearlyRevenueTarget = configDto.YearlyRevenueTarget;
             config.SubscriptionTarget = configDto.SubscriptionTarget;
             config.UptimeThreshold = configDto.UptimeThreshold;
 

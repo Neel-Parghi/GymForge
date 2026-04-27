@@ -55,9 +55,15 @@ namespace GymForge.Infrastructure.Persistence
                 .Property(x => x.Amount)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<SaaSConfiguration>()
-                .Property(x => x.TaxPercentage)
-                .HasPrecision(5, 2);
+            modelBuilder.Entity<SaaSConfiguration>(entity =>
+            {
+                entity.Property(x => x.TaxPercentage).HasPrecision(5, 2);
+                entity.Property(x => x.YearlyRevenueTarget)
+                      .HasColumnName("MonthlyRevenueTarget") // Map to existing column until migration
+                      .HasPrecision(18, 2);
+                entity.Property(x => x.SubscriptionTarget);
+                entity.Property(x => x.UptimeThreshold).HasPrecision(5, 2);
+            });
 
             // Seed default settings
             modelBuilder.Entity<SaaSConfiguration>().HasData(new SaaSConfiguration

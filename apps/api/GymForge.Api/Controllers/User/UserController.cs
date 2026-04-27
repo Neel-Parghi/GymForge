@@ -71,5 +71,24 @@ namespace GymForge.Api.Controllers.User
             await _userService.ChangeMyPasswordAsync(dto);
             return Ok(new { Message = "Password changed successfully" });
         }
+
+        [HttpPost("profile/upload-avatar")]
+        [Authorize]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+                return BadRequest("Invalid file type. Only JPG, PNG and GIF are allowed.");
+
+            if (file.Length > 5 * 1024 * 1024)
+                return BadRequest("File size exceeds 5MB limit.");
+
+            string url = await _userService.UploadAvatarAsync(file);
+            return Ok(new UploadAvatarResponseDto { Url = url, Message = "Profile picture updated successfully" });
+        }
     }
 }

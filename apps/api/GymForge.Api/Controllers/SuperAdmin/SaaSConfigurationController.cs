@@ -21,7 +21,7 @@ namespace GymForge.Api.Controllers.SuperAdmin
         [HttpGet]
         public async Task<IActionResult> GetConfig()
         {
-            var config = await _configService.GetConfigurationAsync();
+            SaaSConfigurationDto config = await _configService.GetConfigurationAsync();
             return Ok(config);
         }
 

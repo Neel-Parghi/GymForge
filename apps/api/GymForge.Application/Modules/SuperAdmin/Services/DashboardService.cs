@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.SuperAdmin.Interfaces;
+using GymForge.Contracts.SaaSPayments;
 using GymForge.Contracts.SuperAdmin.Dashboard;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
@@ -9,38 +10,44 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
     {
         private readonly IDashboardRepository _dashboardRepository;
         private readonly ISaaSConfigurationRepository _configRepository;
+        private readonly Payments.Interfaces.ISaaSPaymentService _saasPaymentService;
 
-        public DashboardService(IDashboardRepository dashboardRepository, ISaaSConfigurationRepository configRepository)
+        public DashboardService(
+            IDashboardRepository dashboardRepository, 
+            ISaaSConfigurationRepository configRepository,
+            Payments.Interfaces.ISaaSPaymentService saasPaymentService)
         {
             _dashboardRepository = dashboardRepository;
             _configRepository = configRepository;
+            _saasPaymentService = saasPaymentService;
         }
 
         public async Task<SuperAdminDashboardDto> GetDashboardStatsAsync()
         {
             DateTime now = DateTime.UtcNow;
-            DateTime thisMonthStart = new DateTime(now.Year, now.Month, 1);
+            DateTime thisMonthStart = new(now.Year, now.Month, 1);
 
-            // Fetch Raw Data
-            decimal totalRevenue = await _dashboardRepository.GetTotalRevenueAsync();
+            PaymentStatsDto paymentStats = await _saasPaymentService.GetPaymentStatsAsync();
+            decimal totalRevenue = paymentStats.TotalRevenue;
+            decimal mrr = paymentStats.MonthlyRecurringRevenue;
+            decimal arr = mrr * 12;
+
             decimal prevMonthRevenue = await _dashboardRepository.GetTotalRevenueAsync(null, thisMonthStart);
             
-            int activeSubs = await _dashboardRepository.GetActiveSubscriptionsCountAsync();
+            int activeSubs = paymentStats.ActiveSubscriptions;
             int prevActiveSubs = await _dashboardRepository.GetActiveSubscriptionsCountAsync(thisMonthStart);
 
             int totalGyms = await _dashboardRepository.GetTotalGymsCountAsync();
+            int pendingVerifications = await _dashboardRepository.GetPendingVerificationsCountAsync();
+            List<PlanDistributionDto> planDistribution = await _dashboardRepository.GetPlanDistributionAsync();
             List<RecentGymRegistrationDto> recentRegistrations = await _dashboardRepository.GetRecentGymRegistrationsAsync(10);
 
-            // Fetch Global Config Targets
             SaaSConfiguration config = await _configRepository.GetConfigurationAsync();
             
-            // Calculate Progress Percentages
             int revenueProgress = 0;
-            if (config.MonthlyRevenueTarget > 0)
+            if (config.YearlyRevenueTarget > 0)
             {
-                // Calculating current month revenue specifically for the monthly target progress
-                decimal currentMonthRevenue = await _dashboardRepository.GetTotalRevenueAsync(thisMonthStart);
-                revenueProgress = (int)Math.Min(100, (currentMonthRevenue / config.MonthlyRevenueTarget) * 100);
+                revenueProgress = (int)Math.Min(100, (arr / config.YearlyRevenueTarget) * 100);
             }
 
             int subscriptionProgress = 0;
@@ -49,22 +56,30 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
                 subscriptionProgress = Math.Min(100, (activeSubs * 100) / config.SubscriptionTarget);
             }
 
-            // Health Status based on Threshold
-            // In a real scenario, this would come from a monitoring service
-            string healthStatus = "OPTIMAL"; 
-            // example: if (currentUptime < config.UptimeThreshold) healthStatus = "DEGRADED";
-
             return new SuperAdminDashboardDto
             {
                 Health = new PlatformHealthDto
                 {
-                    Status = healthStatus,
+                    PendingVerifications = pendingVerifications,
+                    Status = pendingVerifications > 0 ? "ACTION REQUIRED" : "ALL CLEAR",
                     LastCheck = DateTime.UtcNow.ToString("h:mm tt") + " UTC"
                 },
                 TotalRevenue = new MetricDto
                 {
                     CurrentValue = totalRevenue,
                     PreviousValue = prevMonthRevenue,
+                    Progress = revenueProgress
+                },
+                MonthlyRecurringRevenue = new MetricDto
+                {
+                    CurrentValue = mrr,
+                    PreviousValue = 0,
+                    Progress = revenueProgress
+                },
+                AnnualRecurringRevenue = new MetricDto
+                {
+                    CurrentValue = arr,
+                    PreviousValue = 0,
                     Progress = revenueProgress
                 },
                 Subscriptions = new MetricDto
@@ -78,6 +93,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
                     CurrentValue = totalGyms,
                     PreviousValue = totalGyms - recentRegistrations.Count
                 },
+                PlanDistribution = planDistribution,
                 RecentRegistrations = recentRegistrations
             };
         }

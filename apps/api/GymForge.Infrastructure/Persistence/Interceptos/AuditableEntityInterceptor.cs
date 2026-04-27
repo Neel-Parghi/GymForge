@@ -35,8 +35,8 @@ namespace GymForge.Infrastructure.Persistence.Interceptos
             {
                 foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
                 {
-                    var now = DateTime.UtcNow;
-                    var userId = _currentUserService.UserId;
+                    DateTime now = DateTime.UtcNow;
+                    Guid? userId = _currentUserService.UserId;
 
                     if (entry.State == EntityState.Added)
                     {

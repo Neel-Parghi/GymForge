@@ -20,7 +20,7 @@ namespace GymForge.Api.Controllers.Gym
         [HttpGet]
         public async Task<ActionResult> GetGymOwnersList()
         {
-            var owners = await _gymManagementService.GetGymOwnersList();
+            List<GymOwnersDto> owners = await _gymManagementService.GetGymOwnersList();
             return Ok(owners);
         }
 

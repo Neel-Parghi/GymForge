@@ -16,10 +16,12 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<SaaSConfiguration> GetConfigurationAsync()
         {
-            var config = await _dbContext.SaaSConfigurations.FirstOrDefaultAsync();
+            SaaSConfiguration? config = await _dbContext.SaaSConfigurations.FirstOrDefaultAsync();
             if (config == null)
             {
-                throw new Exception("SaaS Configuration not found.");
+                config = new SaaSConfiguration();
+                _dbContext.SaaSConfigurations.Add(config);
+                await _dbContext.SaveChangesAsync();
             }
             return config;
         }
@@ -27,7 +29,7 @@ namespace GymForge.Infrastructure.Repositories
         public async Task UpdateConfigurationAsync(SaaSConfiguration configuration)
         {
             _dbContext.SaaSConfigurations.Update(configuration);
-            await Task.CompletedTask;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

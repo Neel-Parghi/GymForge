@@ -105,7 +105,10 @@ namespace GymForge.Infrastructure.Repositories
                         .Where(s => s.GymId == g.Id && s.IsActive)
                         .OrderByDescending(s => s.CreatedOn)
                         .Select(s => s.IsTrial)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    PaymentStatus = _dbContext.SaaSPaymentTransactions
+                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .ToListAsync();
         }

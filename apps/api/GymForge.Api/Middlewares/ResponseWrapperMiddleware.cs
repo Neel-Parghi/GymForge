@@ -21,7 +21,7 @@ namespace GymForge.Api.Middlewares
                 return;
             }
 
-            var endpoint = context.GetEndpoint();
+            Endpoint? endpoint = context.GetEndpoint();
             if (endpoint?.Metadata.GetMetadata<SkipResponseWrapperAttribute>() != null)
             {
                 await _next(context);
@@ -30,7 +30,7 @@ namespace GymForge.Api.Middlewares
 
             Stream? originalBodyStream = context.Response.Body;
 
-            using var newBodyStream = new MemoryStream();
+            using MemoryStream newBodyStream = new();
             context.Response.Body = newBodyStream;
 
             await _next(context);
@@ -43,7 +43,7 @@ namespace GymForge.Api.Middlewares
             }
 
             newBodyStream.Seek(0, SeekOrigin.Begin);
-            var responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
+            string? responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
 
             object? data = null;
             if (!string.IsNullOrWhiteSpace(responseBody))

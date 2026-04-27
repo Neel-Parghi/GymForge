@@ -1,4 +1,4 @@
-﻿using GymForge.Domain.Entities;
+using GymForge.Domain.Entities;
 
 namespace GymForge.Domain.Interface
 {
@@ -7,6 +7,7 @@ namespace GymForge.Domain.Interface
         Task AddAsync(SaaSPaymentTransaction transaction);
 
         Task<List<SaaSPaymentTransaction>> GetTransactionsAsync();
+        Task<List<SubscriptionRecord>> GetActiveSubscriptionsAsync();
 
         Task<SaaSPaymentTransaction?> GetByGatewayIdAsync(string gatewayId);
 

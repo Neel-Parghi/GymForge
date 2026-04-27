@@ -26,7 +26,7 @@ namespace GymForge.Api.Controllers.SuperAdmin
 
             try
             {
-                var (content, fileName) = await _reportService.GenerateReportAsync(type);
+                (byte[] content, string fileName) = await _reportService.GenerateReportAsync(type);
                 return File(content, "text/csv", fileName);
             }
             catch (System.ArgumentException ex)

@@ -44,7 +44,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
             
             csv.AppendLine("TransactionId,GymName,Amount,Currency,Status,GatewayId,FailureReason,Date");
 
-            foreach (var t in transactions)
+            foreach (SaaSPaymentTransaction t in transactions)
             {
                 string gymName = t.Gym?.GymName?.Replace(",", " ") ?? "Unknown";
                 string status = t.Status;
@@ -63,7 +63,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
             
             csv.AppendLine("GymName,BrandName,Email,Phone,Website,GstNumber,RegNumber,EstablishedDate,Owner,IsVerified,JoinedDate");
 
-            foreach (var g in gyms)
+            foreach (GymListResponseDto g in gyms)
             {
                 string ownerName = g.OwnerName?.Replace(",", " ") ?? "Unknown";
                 string established = g.EstablishedDate?.ToString("yyyy-MM-dd") ?? "";
@@ -81,7 +81,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
             StringBuilder csv = new();
             
             csv.AppendLine("Metric,TargetValue,CurrentStatus,LastUpdated");
-            csv.AppendLine($"Monthly Revenue Target,{config.MonthlyRevenueTarget},Active,{DateTime.UtcNow:yyyy-MM-dd}");
+            csv.AppendLine($"Yearly Revenue Target,{config.YearlyRevenueTarget},Active,{DateTime.UtcNow:yyyy-MM-dd}");
             csv.AppendLine($"Subscription Target,{config.SubscriptionTarget},Active,{DateTime.UtcNow:yyyy-MM-dd}");
             csv.AppendLine($"Uptime Threshold,{config.UptimeThreshold}%,Nominal,{DateTime.UtcNow:yyyy-MM-dd}");
 

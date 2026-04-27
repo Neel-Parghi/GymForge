@@ -6,6 +6,7 @@ using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using Microsoft.Extensions.Configuration;
 using Razorpay.Api;
+using System.Collections.Generic;
 
 namespace GymForge.Application.Modules.Payments.Services
 {
@@ -32,13 +33,13 @@ namespace GymForge.Application.Modules.Payments.Services
 
         public async Task<SaaSConfigurationDto> GetSettingsAsync()
         {
-            var settings = await _configRepository.GetConfigurationAsync();
+            SaaSConfiguration settings = await _configRepository.GetConfigurationAsync();
             return _mapper.Map<SaaSConfigurationDto>(settings);
         }
 
         public async Task UpdateSettingsAsync(SaaSConfigurationDto settingsDto)
         {
-            var settings = await _configRepository.GetConfigurationAsync();
+            SaaSConfiguration settings = await _configRepository.GetConfigurationAsync();
             _mapper.Map(settingsDto, settings);
             
             await _configRepository.UpdateConfigurationAsync(settings);
@@ -66,8 +67,8 @@ namespace GymForge.Application.Modules.Payments.Services
             Order order = client.Order.Create(options);
             string razorpayOrderId = order["id"].ToString();
 
-            var transactionId = Guid.NewGuid();
-            var subscriptionId = Guid.NewGuid();
+            Guid transactionId = Guid.NewGuid();
+            Guid subscriptionId = Guid.NewGuid();
 
             SaaSPaymentTransaction transaction = new()
             {
@@ -112,10 +113,7 @@ namespace GymForge.Application.Modules.Payments.Services
             string keyId = _config["RazorPay:ApiKeyId"]!;
             string secret = _config["RazorPay:ApiKeySecret"]!;
 
-            // Initialize client and set global credentials for the static Utils class
             RazorpayClient client = new RazorpayClient(keyId, secret);
-            //RazorpayClient.Key = keyId;
-            //RazorpayClient.Secret = secret;
 
             try 
             {
@@ -166,16 +164,44 @@ namespace GymForge.Application.Modules.Payments.Services
         public async Task<PaymentStatsDto> GetPaymentStatsAsync()
         {
             List<SaaSPaymentTransaction>? transactions = await _paymentRepository.GetTransactionsAsync();
+            List<SubscriptionRecord> allSubscriptions = await _paymentRepository.GetActiveSubscriptionsAsync();
 
             List<SaaSPaymentTransaction> successTxs = transactions
                 .Where(t => t.Status.Equals("Success", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
+            decimal mrr = 0;
+            foreach (SubscriptionRecord sub in allSubscriptions)
+            {
+                if (sub.Plan == null) continue;
+
+                // Check if it's a paid subscription (either marked active or has successful payment)
+                bool isPaid = sub.IsActive || successTxs.Any(t => t.SubscriptionId == sub.Id);
+                decimal price = sub.PriceAtPurchase > 0 ? sub.PriceAtPurchase : sub.Plan.Price;
+
+                // If it's a trial with 0 price and no payment, we skip it
+                if (sub.IsTrial && price <= 0 && !isPaid) continue;
+                if (!isPaid) continue;
+
+                decimal contribution = 0;
+                if (sub.Plan.DurationInDays >= 360) {
+                    contribution = price / 12;
+                }
+                else if (sub.Plan.DurationInDays >= 28 && sub.Plan.DurationInDays <= 31) {
+                    contribution = price;
+                }
+                else if (sub.Plan.DurationInDays > 0) {
+                    contribution = (price / (decimal)sub.Plan.DurationInDays) * 30;
+                }
+
+                mrr += contribution;
+            }
+
             return new PaymentStatsDto
             {
                 TotalRevenue = successTxs.Sum(t => t.Amount),
-                MonthlyRecurringRevenue = successTxs.Where(t=> t.CreatedOn > DateTime.UtcNow.AddDays(-30)).Sum(t => t.Amount),
-                ActiveSubscriptions = successTxs.Count(t=>t.Subscription?.IsActive == true)
+                MonthlyRecurringRevenue = Math.Round(mrr, 2),
+                ActiveSubscriptions = allSubscriptions.Count(x => x.IsActive || successTxs.Any(t => t.SubscriptionId == x.Id))
             };
         }
     }

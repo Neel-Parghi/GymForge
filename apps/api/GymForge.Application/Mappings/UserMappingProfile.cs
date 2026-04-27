@@ -17,6 +17,10 @@ namespace GymForge.Application.Mappings
 
             CreateMap<User, GymOwnersDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+
+            CreateMap<User, GymForge.Contracts.Users.UserProfileDto>();
+
+            CreateMap<GymForge.Contracts.Users.UpdateUserProfileDto, User>();
         }
     }
 }
