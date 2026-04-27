@@ -12,27 +12,28 @@ export abstract class BaseApiService {
 
   protected get<T>(url: string, params?: any): Observable<T> {
     const httpParams = this.createHttpParams(params);
-    return this.http.get<T>(`${this.baseUrl}${url}`, { params: httpParams });
+    return this.http.get<T>(`${this.baseUrl}${url}`, { params: httpParams, withCredentials: true });
   }
 
   protected getBlob(url: string, params?: any): Observable<Blob> {
     const httpParams = this.createHttpParams(params);
     return this.http.get(`${this.baseUrl}${url}`, { 
       params: httpParams, 
-      responseType: 'blob' 
+      responseType: 'blob',
+      withCredentials: true
     });
   }
 
   protected post<T>(url: string, body: any): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${url}`, body);
+    return this.http.post<T>(`${this.baseUrl}${url}`, body, { withCredentials: true });
   }
 
   protected put<T>(url: string, body: any): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}${url}`, body);
+    return this.http.put<T>(`${this.baseUrl}${url}`, body, { withCredentials: true });
   }
 
   protected delete<T>(url: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}${url}`);
+    return this.http.delete<T>(`${this.baseUrl}${url}`, { withCredentials: true });
   }
 
   private createHttpParams(params?: any): HttpParams {

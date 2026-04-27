@@ -15,31 +15,21 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-    var frontendUrl = builder.Configuration["GymForge:BaseUrl"];
+    var frontendUrl = builder.Configuration["GymForge:BaseUrl"]?.TrimEnd('/');
     options.AddPolicy("AllowAngular",
         policy =>
         {
+            var origins = new List<string> { "http://localhost:4200" };
             if (!string.IsNullOrEmpty(frontendUrl))
             {
-                var origins = new List<string> { frontendUrl, "http://localhost:4200" };
-                
-                if (frontendUrl.EndsWith("/"))
-                    origins.Add(frontendUrl.TrimEnd('/'));
-                else
-                    origins.Add(frontendUrl + "/");
+                origins.Add(frontendUrl);
+            }
 
-                policy.WithOrigins(origins.ToArray())
-                      .AllowAnyHeader()
-                      .AllowAnyMethod()
-                      .AllowCredentials()
-                      .SetIsOriginAllowedToAllowWildcardSubdomains();
-            }
-            else
-            {
-                policy.AllowAnyOrigin()
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
-            }
+            policy.WithOrigins(origins.ToArray())
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials()
+                  .SetIsOriginAllowedToAllowWildcardSubdomains();
         });
 });
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -70,21 +60,21 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseCors("AllowAngular");
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors("AllowAngular");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseMiddleware<ResponseWrapperMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 
