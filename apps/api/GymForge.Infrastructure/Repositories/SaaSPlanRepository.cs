@@ -33,7 +33,7 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<List<Plan>> GetAllPlansAsync()
         {
-             return await _dbContext.Plans.ToListAsync();
+             return await _dbContext.Plans.OrderByDescending(p => p.CreatedOn).ToListAsync();
         }
 
         public async Task<Plan?> GetPlanByIdAsync(Guid id)

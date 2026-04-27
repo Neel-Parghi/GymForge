@@ -53,9 +53,10 @@ namespace GymForge.Infrastructure.Repositories
                     GymsOwned = u.Gyms != null ? u.Gyms.Count : 0,
                     JoinedDate = u.CreatedOn,
                     Status = u.IsActive ? "Active" : "Inactive",
-                    InvitationStatus = u.IsInvitationAccepted ? "Accepted" : 
-                                       (u.InvitationExpiry > DateTime.UtcNow ? "Pending" : "Expired")
+                    InvitationStatus = u.IsInvitationAccepted ? "Accepted" :
+                                     (u.InvitationExpiry > DateTime.UtcNow ? "Pending" : "Expired")
                 })
+                .OrderByDescending(u => u.JoinedDate)
                 .ToListAsync();
         }
 
@@ -110,6 +111,7 @@ namespace GymForge.Infrastructure.Repositories
                         .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
+                .OrderByDescending(g => g.CreatedOn)
                 .ToListAsync();
         }
 
@@ -144,6 +146,7 @@ namespace GymForge.Infrastructure.Repositories
             return await _dbContext.Branches
                 .Include(b => b.Address)
                 .Where(b => b.GymId == gymId)
+                .OrderByDescending(b => b.CreatedOn)
                 .ToListAsync();
         }
     }
