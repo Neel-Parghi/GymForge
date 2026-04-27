@@ -11,10 +11,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-   // c.SwaggerDoc("v1", new OpenApiInfo { Title = "GymForge API", Version = "v1" });
-});
+builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
@@ -79,11 +76,10 @@ app.UseStaticFiles();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<ResponseWrapperMiddleware>();
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "GymForge API v1");
-});
+    app.MapOpenApi();
+}
 
 app.UseHttpsRedirection();
 
