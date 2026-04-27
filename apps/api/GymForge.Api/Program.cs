@@ -18,13 +18,23 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
+    var frontendUrl = builder.Configuration["GymForge:BaseUrl"];
     options.AddPolicy("AllowAngular",
         policy =>
         {
-            policy
-                .WithOrigins("*","http://localhost:4200")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+            if (!string.IsNullOrEmpty(frontendUrl))
+            {
+                policy.WithOrigins(frontendUrl, "http://localhost:4200")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            }
+            else
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            }
         });
 });
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
