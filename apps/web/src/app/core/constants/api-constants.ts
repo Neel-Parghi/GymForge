@@ -1,55 +1,55 @@
 export const API_CONSTANTS = {
-  BASE_URL: 'https://gymforge-lx4w.onrender.com/api',
+  BASE_URL: 'https://gymforge-lx4w.onrender.com',
 
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
   },
   USER: {
-    PROFILE: '/users/profile',
-    UPDATE_PROFILE: '/users/profile',
-    INVITE_OWNER: '/users/invite-owner',
-    RE_INVITE: '/users/re-invite',
-    SET_PASSWORD: '/users/set-password',
-    CHANGE_PASSWORD: '/users/change-password',
-    VALIDATE_INVITATION: '/users/validate-invitation',
-    UPLOAD_AVATAR: '/users/profile/upload-avatar'
+    PROFILE: '/api/users/profile',
+    UPDATE_PROFILE: '/api/users/profile',
+    INVITE_OWNER: '/api/users/invite-owner',
+    RE_INVITE: '/api/users/re-invite',
+    SET_PASSWORD: '/api/users/set-password',
+    CHANGE_PASSWORD: '/api/users/change-password',
+    VALIDATE_INVITATION: '/api/users/validate-invitation',
+    UPLOAD_AVATAR: '/api/users/profile/upload-avatar'
   },
   GYM: {
-    ONBOARD: '/gyms/onboard',
-    UPDATE: '/gyms',
-    LIST: '/gyms',
-    DELETE: '/gyms',
-    BRANCHES: '/gyms/{id}/branches'
+    ONBOARD: '/api/gyms/onboard',
+    UPDATE: '/api/gyms',
+    LIST: '/api/gyms',
+    DELETE: '/api/gyms',
+    BRANCHES: '/api/gyms/{id}/branches'
   },
   GYM_OWNER: {
-    LIST: '/gym-owners',
-    UPDATE: '/gym-owners',
-    DELETE: '/gym-owners',
+    LIST: '/api/gym-owners',
+    UPDATE: '/api/gym-owners',
+    DELETE: '/api/gym-owners',
   },
   PRICING: {
-    LIST: '/saas-plans',
-    GET: '/saas-plans',
-    ADD: '/saas-plans',
-    UPDATE: '/saas-plans',
-    DELETE: '/saas-plans',
+    LIST: '/api/saas-plans',
+    GET: '/api/saas-plans',
+    ADD: '/api/saas-plans',
+    UPDATE: '/api/saas-plans',
+    DELETE: '/api/saas-plans',
   },
   SUPER_ADMIN: {
-    DASHBOARD: '/superadmin/dashboard/stats',
-    REVENUE: '/superadmin/payments/stats',
-    CONFIG: '/superadmin/config',
+    DASHBOARD: '/api/superadmin/dashboard/stats',
+    REVENUE: '/api/superadmin/payments/stats',
+    CONFIG: '/api/superadmin/config',
     REPORTS: {
-      EXPORT: '/superadmin/reports/export'
+      EXPORT: '/api/superadmin/reports/export'
     }
   },
   PAYMENTS: {
-    STATS: '/payments/stats',
-    TRANSACTIONS: '/payments/transactions',
-    INITIATE: '/payments/initiate',
-    VERIFY: '/payments/verify',
-    SETTINGS: '/payments/settings',
-    UPDATE_SAAS_CONFIG: '/payments/settings/update'
+    STATS: '/api/payments/stats',
+    TRANSACTIONS: '/api/payments/transactions',
+    INITIATE: '/api/payments/initiate',
+    VERIFY: '/api/payments/verify',
+    SETTINGS: '/api/payments/settings',
+    UPDATE_SAAS_CONFIG: '/api/payments/settings/update'
   }
 };

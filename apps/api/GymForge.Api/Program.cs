@@ -64,6 +64,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseRouting();
 app.UseCors("AllowAngular");
 
 app.UseAuthentication();
