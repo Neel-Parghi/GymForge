@@ -51,7 +51,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionMiddleware>();
+// app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -61,7 +61,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<ResponseWrapperMiddleware>();
+// app.UseMiddleware<ResponseWrapperMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
