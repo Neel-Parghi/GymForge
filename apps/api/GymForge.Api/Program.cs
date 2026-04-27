@@ -58,7 +58,7 @@ var app = builder.Build();
 app.UseCors("AllowAngular");
 app.UseStaticFiles();
 
-//app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<ResponseWrapperMiddleware>();
 
 app.UseSwagger();

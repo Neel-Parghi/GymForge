@@ -53,8 +53,12 @@ namespace GymForge.Api.Controllers.Gym
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteGym(Guid id)
         {
-            await _gymManagementService.DeleteGymAsync(id);
-            return NoContent();
+            bool deleted = await _gymManagementService.DeleteGymAsync(id);
+            if (!deleted)
+            {
+                return Ok(new { Success = false, Message = "GYM_HAS_BRANCHES" });
+            }
+            return Ok(new { Success = true, Message = "Gym deleted successfully" });
         }
 
         [HttpGet("{id}/branches")]

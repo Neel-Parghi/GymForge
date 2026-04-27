@@ -1,4 +1,4 @@
-﻿namespace GymForge.Api.Middlewares
+namespace GymForge.Api.Middlewares
 {
     public class ExceptionMiddleware
     {
@@ -17,11 +17,12 @@
             }
             catch (Exception ex)
             {
+                context.Response.StatusCode = 400;
                 var response = new
                 {
-                    statusCode = 500,
-                    message = ex.Message,
-                    success = false
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Success = false
                 };
 
                 await context.Response.WriteAsJsonAsync(response);

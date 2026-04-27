@@ -47,8 +47,11 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<IActionResult> DeletePlanAsync(Guid id)
         {
             bool deleted = await _saaSPlanService.DeletePlanAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            if (!deleted)
+            {
+                return Ok(new { Success = false, Message = "PLAN_IN_USE" });
+            }
+            return Ok(new { Success = true, Message = "Plan deleted successfully" });
         }
     }
 }

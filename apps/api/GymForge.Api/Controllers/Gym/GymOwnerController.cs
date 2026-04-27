@@ -35,5 +35,16 @@ namespace GymForge.Api.Controllers.Gym
             GymOwnersDto user = await _gymManagementService.UpdateGymOwner(updateGymOwnerDto);
             return Ok(user);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGymOwner(Guid id)
+        {
+            bool deleted = await _gymManagementService.DeleteGymOwnerAsync(id);
+            if (!deleted)
+            {
+                return Ok(new { Success = false, Message = "OWNER_HAS_GYMS" });
+            }
+            return Ok(new { Success = true, Message = "Gym Owner deleted successfully" });
+        }
     }
 }

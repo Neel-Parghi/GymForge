@@ -14,7 +14,8 @@ namespace GymForge.Application.Modules.Gym.Interfaces
 
         Task<List<GymListResponseDto>> GetGymListAsync();
         Task UpdateGymAsync(UpdateGymDto updateGymDto);
-        Task DeleteGymAsync(Guid gymId);
+        Task<bool> DeleteGymAsync(Guid gymId);
+        Task<bool> DeleteGymOwnerAsync(Guid ownerId);
         Task AddBranchAsync(Guid gymId, BranchDto branchDto);
         Task<List<BranchDto>> GetBranchesByGymIdAsync(Guid gymId);
     }

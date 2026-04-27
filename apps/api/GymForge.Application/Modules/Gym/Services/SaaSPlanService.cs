@@ -27,9 +27,19 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<SaaSPlanDto>(createdPlan); 
         }
 
-        public Task<bool> DeletePlanAsync(Guid id)
+        public async Task<bool> DeletePlanAsync(Guid id)
         {
-            return _saasPlanRepository.DeletePlanAsync(id);
+            if (await _saasPlanRepository.IsPlanInUseAsync(id))
+            {
+                return false;
+            }
+
+            bool result = await _saasPlanRepository.DeletePlanAsync(id);
+            if (result)
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            return result;
         }
 
         public async Task<List<SaaSPlanDto>> GetAllPlansAsync()
@@ -56,7 +66,6 @@ namespace GymForge.Application.Modules.Gym.Services
                 throw new Exception("Plan not found.");
             }
 
-            // Maps onto the existing entity, preserving Id and unmapped fields
             _mapper.Map(updateSaaSPlanDto, existingPlan);
 
             Plan updatedPlan = _saasPlanRepository.UpdatePlanAsync(existingPlan);

@@ -46,5 +46,10 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext.Plans.Update(updateSaaSPlan);
             return updateSaaSPlan;
         }
+
+        public async Task<bool> IsPlanInUseAsync(Guid planId)
+        {
+            return await _dbContext.SubscriptionRecords.AnyAsync(s => s.PlanId == planId);
+        }
     }
 }

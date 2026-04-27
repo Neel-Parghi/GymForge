@@ -1,4 +1,4 @@
-﻿using GymForge.Contracts.SaaSPlan;
+using GymForge.Contracts.SaaSPlan;
 using GymForge.Domain.Entities;
 
 namespace GymForge.Domain.Interface
@@ -14,5 +14,7 @@ namespace GymForge.Domain.Interface
         Plan UpdatePlanAsync(Plan updateSaaSPlan);
     
         Task<bool> DeletePlanAsync(Guid id);
+
+        Task<bool> IsPlanInUseAsync(Guid planId);
     }
 }

@@ -115,10 +115,28 @@ namespace GymForge.Application.Modules.Gym.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteGymAsync(Guid gymId)
+        public async Task<bool> DeleteGymAsync(Guid gymId)
         {
+            List<Branch>? branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
+            if (branches != null && branches.Any())
+            {
+                return false;
+            }
+
             await _gymManagementRepository.DeleteGymAsync(gymId);
             await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteGymOwnerAsync(Guid ownerId)
+        {
+            User? owner = await _gymManagementRepository.GetGymOwnerByIdAsync(ownerId);
+            if (owner == null) return false;
+
+            owner.IsActive = false;
+            _gymManagementRepository.UpdateGymOwner(owner);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
         }
         
         public async Task AddBranchAsync(Guid gymId, BranchDto branchDto)
