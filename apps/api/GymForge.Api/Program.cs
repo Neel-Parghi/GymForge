@@ -24,10 +24,18 @@ builder.Services.AddCors(options =>
         {
             if (!string.IsNullOrEmpty(frontendUrl))
             {
-                policy.WithOrigins(frontendUrl, "http://localhost:4200")
+                var origins = new List<string> { frontendUrl, "http://localhost:4200" };
+                
+                if (frontendUrl.EndsWith("/"))
+                    origins.Add(frontendUrl.TrimEnd('/'));
+                else
+                    origins.Add(frontendUrl + "/");
+
+                policy.WithOrigins(origins.ToArray())
                       .AllowAnyHeader()
                       .AllowAnyMethod()
-                      .AllowCredentials();
+                      .AllowCredentials()
+                      .SetIsOriginAllowedToAllowWildcardSubdomains();
             }
             else
             {
