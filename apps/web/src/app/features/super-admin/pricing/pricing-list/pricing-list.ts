@@ -10,6 +10,7 @@ import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { PlanDetailsDrawerComponent } from '../components/plan-details-drawer/plan-details-drawer.component';
 import { CONSTANTS } from '../../../../core/constants/constants';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-pricing-list',
@@ -44,6 +45,7 @@ export class PricingList implements OnInit {
 
   pricingService = inject(PricingService);
   notification = inject(NotificationService);
+  confirmation = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.loadPlans();
@@ -112,17 +114,34 @@ export class PricingList implements OnInit {
   }
 
   deletePlan(id: string) {
-    if (confirm(CONSTANTS.CONFIRMATIONS.DELETE_PLAN_MESSAGE)) {
-      this.pricingService.deletePlan(id).subscribe({
-        next: () => {
-          this.notification.success(CONSTANTS.COMMON_DELETE_SUCCESS_MESSAGE);
-          this.loadPlans();
-        },
-        error: (err) => {
-          this.notification.error(err.error?.message || CONSTANTS.COMMON_DELETE_ERROR_MESSAGE);
-        }
-      });
-    }
+    this.confirmation.confirm({
+      title: CONSTANTS.CONFIRMATIONS.DELETE_PLAN_TITLE,
+      message: CONSTANTS.CONFIRMATIONS.DELETE_PLAN_MESSAGE,
+      type: 'danger'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.pricingService.deletePlan(id).subscribe({
+          next: (res: any) => {
+            const data = res?.Data || res?.data || res;
+            
+            if (data?.Success === false || data?.success === false) {
+              const message = (data?.Message || data?.message) === 'PLAN_IN_USE'
+                ? CONSTANTS.PLAN_DELETE_VALIDATION_MESSAGE
+                : (data?.Message || data?.message || CONSTANTS.PLAN_DELETE_ERROR_MESSAGE);
+              
+              this.notification.error(message);
+              return;
+            }
+
+            this.notification.success(CONSTANTS.PLAN_DELETE_SUCCESS_MESSAGE);
+            this.loadPlans();
+          },
+          error: (err) => {
+            this.notification.error(err.error?.message || CONSTANTS.PLAN_DELETE_ERROR_MESSAGE);
+          }
+        });
+      }
+    });
   }
 
   onSavePlan(updatedPlan: PricingPlan) {

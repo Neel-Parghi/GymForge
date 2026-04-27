@@ -49,12 +49,18 @@ export const CONSTANTS = {
     CONFIRMATIONS: {
         DELETE_GYM_TITLE: 'Delete Gym',
         DELETE_GYM_MESSAGE: 'Are you sure you want to delete "{name}"? This action cannot be undone.',
+        DELETE_PLAN_TITLE: 'Delete Plan',
         DELETE_PLAN_MESSAGE: 'Are you sure you want to delete this plan? This action cannot be undone.',
+        DELETE_OWNER_TITLE: 'Delete Gym Owner',
+        DELETE_OWNER_MESSAGE: 'Are you sure you want to delete this gym owner? This action cannot be undone.',
     },
     //#endregion
 
     //#region Pricing
     PLAN_CREATE_SUCCESS_MESSAGE: 'Plan created successfully',
+    PLAN_DELETE_SUCCESS_MESSAGE: 'Plan deleted successfully!',
+    PLAN_DELETE_ERROR_MESSAGE: 'Failed to delete plan!',
+    PLAN_DELETE_VALIDATION_MESSAGE: 'Plan cannot be deleted as it is associated with gyms!',
     //#endregion
 
     //#region Gym
@@ -70,6 +76,13 @@ export const CONSTANTS = {
     GYM_DELETE_VALIDATION_MESSAGE: 'Gym cannot be deleted as they own branches!',
     GYM_DELETE_ERROR_MESSAGE: 'Failed to delete gym!',
     GYM_LOAD_ERROR_MESSAGE: 'Failed to load gyms!',
+    //#endregion
+
+    //#region Profile
+    PROFILE_UPDATE_SUCCESS_MESSAGE: 'Profile updated successfully!',
+    PROFILE_UPDATE_ERROR_MESSAGE: 'Failed to update profile!',
+    PROFILE_PICTURE_UPLOAD_SUCCESS: 'Profile picture updated successfully!',
+    PROFILE_PICTURE_UPLOAD_ERROR: 'Failed to upload profile picture!',
     //#endregion
 
     //#region Dashboard

@@ -155,7 +155,18 @@ export class GymList implements OnInit {
 
     if (confirmed) {
       this.gymService.deleteGym(gym.id).subscribe({
-        next: () => {
+        next: (res: any) => {
+          const data = res?.Data || res?.data || res;
+
+          if (data?.Success === false || data?.success === false) {
+            const message = (data?.Message || data?.message) === 'GYM_HAS_BRANCHES'
+              ? CONSTANTS.GYM_DELETE_VALIDATION_MESSAGE
+              : (data?.Message || data?.message || CONSTANTS.GYM_DELETE_ERROR_MESSAGE);
+
+            this.notification.error(message);
+            return;
+          }
+
           this.notification.success(CONSTANTS.GYM_DELETE_SUCCESS_MESSAGE);
           this.loadGyms();
         },

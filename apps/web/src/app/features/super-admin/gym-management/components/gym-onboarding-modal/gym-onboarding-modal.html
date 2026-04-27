@@ -273,7 +273,15 @@
           <div class="summary-section">
             <h4>3. Assigned Owner</h4>
             <div class="summary-grid">
-              <div><span>Owner ID:</span> {{ onboardingForm.get('assignedOwnerId')?.value }}</div>
+              <div><span>Owner:</span> {{ getSelectedOwnerName() }}</div>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h4>4. Subscription Plan</h4>
+            <div class="summary-grid">
+              <div><span>Plan:</span> {{ getSelectedPlanName() }}</div>
+              <div><span>Trial:</span> {{ onboardingForm.get('plan.isTrial')?.value ? 'Enabled' : 'Disabled' }}</div>
             </div>
           </div>
         </div>

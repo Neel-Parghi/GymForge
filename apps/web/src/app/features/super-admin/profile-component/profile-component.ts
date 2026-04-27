@@ -122,19 +122,19 @@ export class ProfileComponent implements OnInit {
           this.isEditMode = false;
           this.selectedFile = null;
           this.previewUrl = null;
-          this.notification.success(CONSTANTS.COMMON_UPDATE_SUCCESS_MESSAGE);
+          this.notification.success(CONSTANTS.PROFILE_UPDATE_SUCCESS_MESSAGE);
           
           // Single final refresh to sync everything (including Header) - FORCE REFRESH HERE
           this.loadProfile(true);
         },
         error: (err) => {
           this.isSaving = false;
-          this.notification.error(err.error?.message || CONSTANTS.COMMON_UPDATE_ERROR_MESSAGE);
+          this.notification.error(err.error?.message || CONSTANTS.PROFILE_UPDATE_ERROR_MESSAGE);
         }
       });
     } catch (error: any) {
       this.isSaving = false;
-      this.notification.error(error.error?.message || 'Failed to upload profile picture');
+      this.notification.error(error.error?.message || CONSTANTS.PROFILE_PICTURE_UPLOAD_ERROR);
     }
   }
 

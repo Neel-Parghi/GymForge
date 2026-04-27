@@ -11,6 +11,7 @@ import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { GymOwnerResponse } from '../../../../shared/models/gym.model';
 import { OwnerDetailsDrawerComponent } from '../components/owner-details-drawer/owner-details-drawer.component';
 import { CONSTANTS } from '../../../../core/constants/constants';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-gym-owners',
@@ -54,6 +55,7 @@ export class GymOwners implements OnInit {
   private userService = inject(UserService);
   private gymService = inject(GymService);
   private notification = inject(NotificationService);
+  private confirmation = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.getGymOwners();
@@ -141,15 +143,34 @@ export class GymOwners implements OnInit {
   }
 
   deleteGymOwner(ownerId: string) {
-    this.gymService.deleteGymOwner(ownerId).subscribe({
-      next: () => {
-        this.notification.success(CONSTANTS.GYM_OWNER_DELETE_SUCCESS_MESSAGE);
-        this.getGymOwners();
-      },
-      error: (err) => {
-        this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_DELETE_ERROR_MESSAGE);
+    this.confirmation.confirm({
+      title: CONSTANTS.CONFIRMATIONS.DELETE_OWNER_TITLE,
+      message: CONSTANTS.CONFIRMATIONS.DELETE_OWNER_MESSAGE,
+      type: 'danger'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.gymService.deleteGymOwner(ownerId).subscribe({
+          next: (res: any) => {
+            const data = res?.Data || res?.data || res;
+
+            if (data?.Success === false || data?.success === false) {
+              const message = (data?.Message || data?.message) === 'OWNER_HAS_GYMS'
+                ? CONSTANTS.GYM_OWNER_DELETE_VALIDATION_MESSAGE
+                : (data?.Message || data?.message || CONSTANTS.GYM_OWNER_DELETE_ERROR_MESSAGE);
+
+              this.notification.error(message);
+              return;
+            }
+
+            this.notification.success(CONSTANTS.GYM_OWNER_DELETE_SUCCESS_MESSAGE);
+            this.getGymOwners();
+          },
+          error: (err) => {
+            this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_DELETE_ERROR_MESSAGE);
+          }
+        });
       }
-    })
+    });
   }
 
   updateGymOwner(owner: any) {

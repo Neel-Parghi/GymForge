@@ -200,6 +200,17 @@ export class GymOnboardingModalComponent implements OnInit {
     return this.onboardingForm.value;
   }
 
+  getSelectedOwnerName(): string {
+    const ownerId = this.onboardingForm.get('assignedOwnerId')?.value;
+    const owner = this.gymOwners.find(o => o.id === ownerId);
+    return owner ? owner.name : 'Not Assigned';
+  }
+
+  getSelectedPlanName(): string {
+    const planId = this.onboardingForm.get('plan.subscriptionId')?.value;
+    const plan = this.plans.find(p => p.id === planId);
+    return plan ? (plan.name || plan.Name) : 'No Plan Selected (Trial)';
+  }
   getGymOwners() {
     this.gymService.getGymOwnersList().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
