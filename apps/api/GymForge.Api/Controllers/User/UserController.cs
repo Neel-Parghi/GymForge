@@ -84,8 +84,8 @@ namespace GymForge.Api.Controllers.User
             if (!allowedExtensions.Contains(extension))
                 return BadRequest("Invalid file type. Only JPG, PNG and GIF are allowed.");
 
-            if (file.Length > 10 * 1024 * 1024)
-                return BadRequest("File size exceeds 10MB limit.");
+            if (file.Length > 25 * 1024 * 1024)
+                return BadRequest("File size exceeds 25MB limit.");
 
             string url = await _userService.UploadAvatarAsync(file);
             return Ok(new UploadAvatarResponseDto { Url = url, Message = "Profile picture updated successfully" });

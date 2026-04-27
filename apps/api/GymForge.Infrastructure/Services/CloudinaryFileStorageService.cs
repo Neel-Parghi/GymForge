@@ -2,6 +2,8 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using GymForge.Domain.Interface;
 using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace GymForge.Infrastructure.Services
 {
@@ -29,21 +31,60 @@ namespace GymForge.Infrastructure.Services
             if (fileStream == null || fileStream.Length == 0)
                 throw new ArgumentException("File stream is empty");
 
-            ImageUploadParams uploadParams = new()
-            {
-                File = new FileDescription(fileName, fileStream),
-                Folder = $"gymforge/{folder}",
-                PublicId = $"{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}"
-            };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            
+            Stream uploadStream = fileStream;
+            MemoryStream? compressedStream = null;
 
-            ImageUploadResult uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-            if (uploadResult.Error != null)
+            if (allowedExtensions.Contains(extension))
             {
-                throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                compressedStream = new MemoryStream();
+                using var image = await SixLabors.ImageSharp.Image.LoadAsync(fileStream);
+                
+                
+                int maxDimension = 1200;
+                if (image.Width > maxDimension || image.Height > maxDimension)
+                {
+                    image.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
+                    {
+                        Size = new SixLabors.ImageSharp.Size(maxDimension, maxDimension),
+                        Mode = SixLabors.ImageSharp.Processing.ResizeMode.Max
+                    }));
+                }
+
+                var encoder = new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 75 };
+                await image.SaveAsync(compressedStream, encoder);
+                compressedStream.Position = 0;
+                uploadStream = compressedStream;
+                fileName = Path.ChangeExtension(fileName, ".jpg");
             }
 
-            return uploadResult.SecureUrl.ToString();
+            try
+            {
+                ImageUploadParams uploadParams = new()
+                {
+                    File = new FileDescription(fileName, uploadStream),
+                    Folder = $"gymforge/{folder}",
+                    PublicId = $"{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}"
+                };
+
+                ImageUploadResult uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                {
+                    throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                }
+
+                return uploadResult.SecureUrl.ToString();
+            }
+            finally
+            {
+                if (compressedStream != null)
+                {
+                    await compressedStream.DisposeAsync();
+                }
+            }
         }
 
         public async Task DeleteFileAsync(string fileUrl)
