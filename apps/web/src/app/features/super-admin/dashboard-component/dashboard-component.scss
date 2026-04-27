@@ -260,6 +260,12 @@
   }
 }
 
+@keyframes pulse-slow {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 // Metric Cards
 .metric-cards {
   display: grid;
@@ -286,6 +292,26 @@
         color: #10b981;
       }
 
+      .warning-icon {
+        font-size: 1.5rem;
+        color: #f59e0b;
+        animation: pulse-slow 2s infinite;
+      }
+
+      .config-link {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        padding: 4px;
+        border-radius: 6px;
+
+        &:hover {
+          color: var(--text-main);
+          background-color: #f3f4f6;
+          transform: scale(1.1);
+        }
+      }
+
       .badge {
         padding: 4px 8px;
         border-radius: 6px;
@@ -296,7 +322,18 @@
           background-color: #ecfdf5;
           color: #059669;
         }
+
+        &.warning {
+          background-color: #fef3c7;
+          color: #d97706;
+        }
       }
+    }
+
+    &.attention {
+        border-color: #fcd34d;
+        background-color: #fffbeb;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
     }
 
     .label {
@@ -313,6 +350,13 @@
       color: var(--text-main);
       margin: 0;
       letter-spacing: -1px;
+
+      .unit {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-left: 4px;
+      }
     }
 
     .subtext {
@@ -357,10 +401,16 @@
       overflow: hidden;
       margin-top: 8px;
 
+      &.mini {
+        height: 6px;
+        margin-top: 0;
+      }
+
       .progress-bar {
         height: 100%;
         background-color: var(--text-main);
         border-radius: 4px;
+        transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
     }
 
@@ -370,6 +420,57 @@
       font-size: 0.75rem;
       color: var(--text-muted);
       font-weight: 500;
+    }
+
+    // Distribution List Styling
+    &.distribution-card {
+        padding: 20px;
+        gap: 16px;
+
+        .distribution-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .dist-item {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+
+                .dist-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    .plan-name {
+                        font-size: 0.85rem;
+                        font-weight: 700;
+                        color: #374151;
+                    }
+
+                    .plan-count {
+                        font-size: 0.75rem;
+                        font-weight: 600;
+                        color: #6b7280;
+                    }
+                }
+
+                .dist-footer {
+                    font-size: 0.7rem;
+                    font-weight: 600;
+                    color: #9ca3af;
+                    text-align: right;
+                }
+            }
+
+            .placeholder-text {
+                font-size: 0.85rem;
+                color: #9ca3af;
+                text-align: center;
+                padding: 20px 0;
+                font-style: italic;
+            }
+        }
     }
 
     // Avatar Row

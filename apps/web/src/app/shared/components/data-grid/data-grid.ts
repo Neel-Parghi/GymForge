@@ -85,19 +85,22 @@ export class DataGrid {
   }
 
   getBadgeClass(status: string): string {
-    if (!status) return 'badge-inactive';
+    if (!status) return 'badge-neutral';
     const s = status.toLowerCase();
     switch (s) {
       case 'active':
       case 'accepted':
       case 'success':
+      case 'paid':
         return 'badge-active';
+      case 'pending':
+        return 'badge-pending';
+      case 'unpaid':
+        return 'badge-unpaid';
       case 'inactive':
       case 'expired':
       case 'failed':
         return 'badge-inactive';
-      case 'pending':
-        return 'badge-pending';
       default:
         return 'badge-neutral';
     }

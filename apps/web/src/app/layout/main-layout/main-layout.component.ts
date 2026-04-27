@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthApiService } from '../../core/services/auth-api.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { NavigationService } from '../../core/services/navigation.service';
 import { NavItem } from '../../core/models/nav-Item.model';
+import { ProfileService } from '../../core/services/profile.service';
+import { API_CONSTANTS } from '../../core/constants/api-constants';
 
 @Component({
   selector: 'app-main-layout',
@@ -13,17 +15,26 @@ import { NavItem } from '../../core/models/nav-Item.model';
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   private authApiService = inject(AuthApiService);
+  private profileService = inject(ProfileService);
   private themeService = inject(ThemeService);
   private router = inject(Router);
   private readonly navService = inject(NavigationService);
 
   isSidebarCollapsed = false;
   menuItems: NavItem[] = [];
+  userProfile$ = this.authApiService.userProfile$;
 
   constructor() {
     this.menuItems = this.navService.getMenuItems();
+  }
+
+  ngOnInit(): void {
+    const currentProfile = (this.authApiService as any).userProfileSubject?.value;
+    if (!currentProfile) {
+      this.profileService.getProfile().subscribe();
+    }
   }
 
   toggleSidebar() {
@@ -47,7 +58,16 @@ export class MainLayoutComponent {
     });
   }
 
+  getImageUrl(path: string | undefined): string | null {
+    return this.profileService.getFullUrl(path);
+  }
+
   get userInitials(): string {
+    const profile = (this.authApiService as any).userProfileSubject?.value;
+    if (profile) {
+      return `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
+    }
+
     const decoded = this.authApiService.decodeToken();
     if (!decoded) return 'SA';
     const name = decoded?.unique_name || decoded?.name || decoded?.email || 'Super Admin';

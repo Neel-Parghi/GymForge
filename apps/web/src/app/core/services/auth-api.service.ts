@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { API_CONSTANTS } from '../constants/api-constants';
+import { UserProfile } from '../../shared/models/user-profile.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,8 @@ import { API_CONSTANTS } from '../constants/api-constants';
 export class AuthApiService extends BaseApiService {
 
   private router = inject(Router);
+  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+  public userProfile$ = this.userProfileSubject.asObservable();
 
   constructor() {
     super();
@@ -118,5 +121,9 @@ export class AuthApiService extends BaseApiService {
       default:
         this.router.navigate(['/login']);
     }
+  }
+
+  setUserProfile(profile: UserProfile | null) {
+    this.userProfileSubject.next(profile);
   }
 }

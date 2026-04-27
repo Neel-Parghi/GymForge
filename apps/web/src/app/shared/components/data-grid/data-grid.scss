@@ -175,6 +175,30 @@
           color: #742a2a;
         }
       }
+
+      &.badge-pending {
+        background-color: #fff7ed;
+        color: #9a3412;
+        border: 1px solid #ffedd5;
+
+        [data-theme="dark"] & {
+          background-color: #7c2d12;
+          color: #ffedd5;
+          border-color: #9a3412;
+        }
+      }
+
+      &.badge-unpaid {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fee2e2;
+
+        [data-theme="dark"] & {
+          background-color: #7f1d1d;
+          color: #fee2e2;
+          border-color: #991b1b;
+        }
+      }
     }
 
     .icon-bool-true {

@@ -6,9 +6,10 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'gymName', label: 'Gym Name', isClickable: true },
       { key: 'brandName', label: 'Brand / Franchise' },
       { key: 'ownerName', label: 'Owner' },
-      { key: 'email', label: 'Contact Email' },
+      { key: 'planName', label: 'Current Plan' },
+      { key: 'paymentStatus', label: 'Payment', type: 'badge' },
       { key: 'branchesCount', label: 'Branches' },
-      { key: 'isVerified', label: 'Verification', type: 'badge' },
+      { key: 'isVerified', label: 'Verification', type: 'bool' },
       { key: 'isActive', label: 'Status', type: 'bool' },
       { key: 'actions', label: 'Manage', type: 'action' }
     ],

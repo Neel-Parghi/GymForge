@@ -83,13 +83,13 @@
         <div class="settings-layout" *ngIf="settings">
             <!-- Sidebar for Settings Navigation -->
             <div class="settings-sidebar">
-                <button class="side-tab" [class.active]="activeSettingsTab === 'general'"
-                    (click)="activeSettingsTab = 'general'">
-                    <i class="fa-solid fa-sliders"></i> General Rules
+                <button class="side-tab" [class.active]="activeSettingsTab === 'financials'"
+                    (click)="activeSettingsTab = 'financials'">
+                    <i class="fa-solid fa-scale-balanced"></i> Financials
                 </button>
                 <button class="side-tab" [class.active]="activeSettingsTab === 'gateway'"
                     (click)="activeSettingsTab = 'gateway'">
-                    <i class="fa-solid fa-credit-card"></i> Payment Gateway
+                    <i class="fa-solid fa-key"></i> Gateway Integration
                 </button>
                 <button class="side-tab" [class.active]="activeSettingsTab === 'emails'"
                     (click)="activeSettingsTab = 'emails'">
@@ -99,37 +99,23 @@
 
             <!-- Main Settings Form -->
             <div class="settings-main">
-                <!-- General Strategy Tab Content -->
-                <div class="settings-card" *ngIf="activeSettingsTab === 'general'" [formGroup]="settingsForm">
-                    <div class="settings-section">
-                        <div class="section-header">
-                            <h3><i class="fa-solid fa-bullseye"></i> Growth Targets</h3>
-                            <p>Set platform-wide revenue and subscription goals.</p>
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Monthly Revenue Target</label>
-                                <div class="input-with-suffix">
-                                    <input type="number" formControlName="monthlyRevenueTarget">
-                                    <span>INR</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Subscription Target</label>
-                                <div class="input-with-suffix">
-                                    <input type="number" formControlName="subscriptionTarget">
-                                    <span>Units</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <!-- Financials Tab Content -->
+                <div class="settings-card" *ngIf="activeSettingsTab === 'financials'" [formGroup]="settingsForm">
                     <div class="settings-section">
                         <div class="section-header">
                             <h3><i class="fa-solid fa-scale-balanced"></i> Compliance & Taxes</h3>
-                            <p>Manage tax rates and legal billing information.</p>
+                            <p>Manage tax rates, currency, and global billing rules.</p>
                         </div>
                         <div class="form-grid">
+                            <div class="form-group">
+                                <label>Gateway Currency</label>
+                                <select formControlName="currency">
+                                    <option value="INR">Indian Rupee (INR)</option>
+                                    <option value="USD">US Dollar (USD)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="GBP">British Pound (GBP)</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label>Tax Rate (%)</label>
                                 <div class="input-with-suffix">
@@ -158,11 +144,11 @@
                     </div>
                 </div>
 
-                <!-- Payment Gateway Tab Content -->
+                <!-- Gateway Integration Tab Content -->
                 <div class="settings-card" *ngIf="activeSettingsTab === 'gateway'" [formGroup]="settingsForm">
                     <div class="settings-section">
                         <div class="section-header">
-                            <h3><i class="fa-solid fa-key"></i> Razorpay Integration</h3>
+                            <h3><i class="fa-solid fa-key"></i> Gateway Integration</h3>
                             <p>Configure your production and test gateway credentials.</p>
                         </div>
                         <div class="form-grid">
@@ -174,14 +160,17 @@
                                 <label>Razorpay Secret</label>
                                 <input type="password" formControlName="razorpayKeySecret" placeholder="••••••••••••">
                             </div>
-                            <div class="form-group">
-                                <label>Currency Code</label>
-                                <select formControlName="currency">
-                                    <option value="INR">Indian Rupee (INR)</option>
-                                    <option value="USD">US Dollar (USD)</option>
-                                </select>
-                            </div>
                         </div>
+                    </div>
+
+                    <div class="settings-footer">
+                        <button class="btn-secondary" (click)="loadSettings()">Discard Changes</button>
+                        <button class="btn-premium" (click)="saveSettings()"
+                            [disabled]="isSaving || settingsForm.invalid">
+                            <i class="fa-solid" [class.fa-floppy-disk]="!isSaving" [class.fa-spinner]="isSaving"
+                                [class.fa-spin]="isSaving"></i>
+                            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                        </button>
                     </div>
                 </div>
 

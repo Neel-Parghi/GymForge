@@ -181,7 +181,6 @@ export class GymOnboardingModalComponent implements OnInit {
         isTrial: formValue.plan.isTrial
       };
 
-      console.log('Onboarding Payload:', payload);
 
       this.gymService.onboardGym(payload).subscribe({
         next: () => {

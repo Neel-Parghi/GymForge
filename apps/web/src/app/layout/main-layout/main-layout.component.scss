@@ -346,6 +346,21 @@
       .topbar-profile {
         margin-left: 8px;
 
+        .profile-avatar {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid var(--bg-surface);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s;
+
+          &:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          }
+        }
+
         .profile-initials {
           width: 38px;
           height: 38px;

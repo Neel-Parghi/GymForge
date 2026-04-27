@@ -14,7 +14,8 @@ export const API_CONSTANTS = {
     RE_INVITE: '/users/re-invite',
     SET_PASSWORD: '/users/set-password',
     CHANGE_PASSWORD: '/users/change-password',
-    VALIDATE_INVITATION: '/users/validate-invitation'
+    VALIDATE_INVITATION: '/users/validate-invitation',
+    UPLOAD_AVATAR: '/users/profile/upload-avatar'
   },
   GYM: {
     ONBOARD: '/gyms/onboard',

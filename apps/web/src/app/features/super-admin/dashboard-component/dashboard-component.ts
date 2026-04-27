@@ -17,9 +17,12 @@ export class DashboardComponent implements OnInit {
   stats: any = {
     platformHealth: { status: 'Loading...', lastCheck: '...' },
     totalRevenue: { value: '₹0', trend: '0%', isPositive: true, subtext: CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_REVENUE },
+    monthlyRecurringRevenue: { value: '₹0', trend: '0%', isPositive: true, subtext: 'Monthly Recurring Revenue' },
+    annualRecurringRevenue: { value: '₹0', trend: '0%', isPositive: true, subtext: 'Annual Recurring Revenue' },
     subscriptions: { value: '0', trend: '0%', isPositive: true, subtext: CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.SUBSCRIPTIONS, progress: 0 },
     totalGyms: { value: '0', trend: 'Growth', isPositive: true, subtext: CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_GYMS }
   };
+  planDistribution: any[] = [];
 
   recentRegistrations: any[] = [];
   showReportModal = false;
@@ -37,6 +40,8 @@ export class DashboardComponent implements OnInit {
           this.stats = {
             platformHealth: data.health,
             totalRevenue: this.processMetric(data.totalRevenue, 'currency'),
+            monthlyRecurringRevenue: this.processMetric(data.monthlyRecurringRevenue, 'currency'),
+            annualRecurringRevenue: this.processMetric(data.annualRecurringRevenue, 'currency'),
             subscriptions: this.processMetric(data.subscriptions, 'number'),
             totalGyms: this.processMetric(data.totalGyms, 'number')
           };
@@ -45,7 +50,8 @@ export class DashboardComponent implements OnInit {
           this.stats.totalRevenue.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_REVENUE;
           this.stats.subscriptions.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.SUBSCRIPTIONS;
           this.stats.totalGyms.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_GYMS;
-
+          
+          this.planDistribution = data.planDistribution || [];
           this.recentRegistrations = data.recentRegistrations || [];
         }
       }
@@ -85,6 +91,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private processMetric(metric: any, type: 'currency' | 'number') {
+    if (!metric) return { value: type === 'currency' ? '₹0' : '0', trend: '0%', isPositive: true, progress: 0 };
     const current = metric.currentValue || 0;
     const previous = metric.previousValue || 0;
 

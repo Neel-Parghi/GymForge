@@ -61,4 +61,59 @@ export const MenuConfig: NavItem[] = [
         route: '/super-admin/settings',
         roles: ['SuperAdmin'],
     },
-]
+    // --- GYM OWNER MENU ---
+    {
+        label: 'Dashboard',
+        icon: 'fa-solid fa-house',
+        route: '/owner/dashboard',
+        roles: ['GymOwner']
+    },
+    {
+        label: 'MANAGEMENT',
+        icon: '',
+        roles: ['GymOwner'],
+        isHeading: true
+    },
+    {
+        label: 'My Gyms',
+        icon: 'fa-solid fa-building',
+        route: '/owner/my-gyms',
+        roles: ['GymOwner']
+    },
+    {
+        label: 'Members',
+        icon: 'fa-solid fa-users',
+        route: '/owner/members',
+        roles: ['GymOwner']
+    },
+    {
+        label: 'Staff',
+        icon: 'fa-solid fa-user-tie',
+        route: '/owner/staff',
+        roles: ['GymOwner']
+    },
+    {
+        label: 'Internal Plans',
+        icon: 'fa-solid fa-receipt',
+        route: '/owner/plans',
+        roles: ['GymOwner']
+    },
+    {
+        label: 'ACCOUNT',
+        icon: '',
+        roles: ['GymOwner'],
+        isHeading: true
+    },
+    {
+        label: 'My Profile',
+        icon: 'fa-solid fa-user-circle',
+        route: '/owner/profile',
+        roles: ['GymOwner']
+    },
+    {
+        label: 'Settings',
+        icon: 'fa-solid fa-gear',
+        route: '/owner/settings',
+        roles: ['GymOwner']
+    }
+];

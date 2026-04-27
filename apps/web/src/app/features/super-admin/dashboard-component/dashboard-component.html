@@ -24,7 +24,7 @@
       </div>
       <div class="modal-body">
         <p>Select the type of report you wish to generate and download.</p>
-        
+
         <div class="report-options">
           <div class="report-card" (click)="downloadReport('financial')">
             <div class="report-icon financial"><i class="fas fa-file-invoice-dollar"></i></div>
@@ -62,23 +62,15 @@
 
   <!-- Metric Cards Row -->
   <div class="metric-cards">
-    <!-- Platform Health -->
-    <div class="card">
-      <div class="card-header-row">
-        <i class="fas fa-check-circle health-icon"></i>
-        <span class="badge success">OPTIMAL</span>
-      </div>
-      <div class="card-body">
-        <span class="label">PLATFORM HEALTH</span>
-        <h3 class="value">{{ stats.platformHealth.status }}</h3>
-        <p class="subtext"><i class="far fa-clock"></i> Updated: {{ stats.platformHealth.lastCheck }}</p>
-      </div>
-    </div>
 
     <!-- Total Revenue -->
-    <!-- Total Revenue -->
     <div class="card">
-      <span class="label">TOTAL REVENUE</span>
+      <div class="card-header-row">
+        <span class="label">TOTAL REVENUE</span>
+        <a [routerLink]="['/super-admin/settings']" [queryParams]="{tab: 'strategy'}" class="config-link">
+          <i class="fas fa-edit"></i>
+        </a>
+      </div>
       <h3 class="value">{{ stats.totalRevenue.value }}</h3>
       <div class="progress-container">
         <div class="progress-bar" [style.width.%]="stats.totalRevenue.progress"></div>
@@ -92,9 +84,14 @@
       </div>
     </div>
 
-    <!-- Subscriptions -->
+    <!-- Active Subscriptions -->
     <div class="card">
-      <span class="label">ACTIVE SUBSCRIPTIONS</span>
+      <div class="card-header-row">
+        <span class="label">ACTIVE SUBSCRIPTIONS</span>
+        <a [routerLink]="['/super-admin/settings']" [queryParams]="{tab: 'strategy'}" class="config-link">
+          <i class="fas fa-edit"></i>
+        </a>
+      </div>
       <h3 class="value">{{ stats.subscriptions.value }}</h3>
       <div class="progress-container">
         <div class="progress-bar" [style.width.%]="stats.subscriptions.progress"></div>
@@ -119,6 +116,31 @@
         </span>
       </div>
       <p class="subtext">{{ stats.totalGyms.subtext }}</p>
+    </div>
+
+    <!-- Revenue Mix (Strategic) -->
+    <div class="card distribution-card">
+      <div class="card-header-row">
+        <span class="label">REVENUE MIX</span>
+        <span class="badge info">STRATEGIC</span>
+      </div>
+      <div class="distribution-list">
+        <div class="dist-item" *ngFor="let plan of planDistribution">
+          <div class="dist-info">
+            <span class="plan-name">{{ plan.planName }}</span>
+            <span class="plan-count">{{ plan.count }} Gyms</span>
+          </div>
+          <div class="progress-container mini">
+            <div class="progress-bar" [style.width.%]="plan.percentage" [style.background-color]="plan.color"></div>
+          </div>
+          <div class="dist-footer">
+            <span>{{ plan.percentage }}% of total</span>
+          </div>
+        </div>
+        <div class="placeholder-text" *ngIf="planDistribution.length === 0">
+          No active subscriptions to analyze.
+        </div>
+      </div>
     </div>
   </div>
 

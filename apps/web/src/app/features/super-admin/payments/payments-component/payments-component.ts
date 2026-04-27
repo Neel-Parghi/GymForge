@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { GymService } from '../../../../core/services/gym.service';
 import { PricingService } from '../../../../core/services/pricing.service';
@@ -26,6 +27,7 @@ export class PaymentsComponent implements OnInit {
   private pricingService = inject(PricingService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
 
   // Forms
   settingsForm!: FormGroup;
@@ -36,7 +38,7 @@ export class PaymentsComponent implements OnInit {
   plans: any[] = [];
 
   activeTab: 'overview' | 'transactions' | 'settings' = 'overview';
-  activeSettingsTab: 'general' | 'gateway' | 'emails' = 'general';
+  activeSettingsTab: 'financials' | 'gateway' | 'emails' = 'financials';
 
   stats?: PaymentStats;
   transactions: PaymentTransaction[] = [];
@@ -57,6 +59,15 @@ export class PaymentsComponent implements OnInit {
     this.loadTransactions();
     this.loadGyms();
     this.loadPlans();
+    this.checkQueryParams();
+  }
+
+  private checkQueryParams() {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.setActiveTab(params['tab']);
+      }
+    });
   }
 
   private initForms() {
@@ -69,7 +80,7 @@ export class PaymentsComponent implements OnInit {
       id: [''],
       taxPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
       gracePeriodDays: [0, [Validators.required, Validators.min(0)]],
-      monthlyRevenueTarget: [0],
+      yearlyRevenueTarget: [0],
       subscriptionTarget: [0],
       isMaintenanceMode: [false],
       currency: ['INR'],
@@ -84,7 +95,6 @@ export class PaymentsComponent implements OnInit {
     this.gymService.getGymList().subscribe({
       next: (res) => {
         this.gyms = res.Data;
-        console.log(this.gyms)
       }
     });
   }
@@ -169,7 +179,6 @@ export class PaymentsComponent implements OnInit {
           name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
           description: CONSTANTS.PAYMENT.RAZORPAY.FLOW_DESCRIPTION,
           handler: (response: any) => {
-            console.log('Razorpay Success Response:', response);
             this.verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
           },
           prefill: {

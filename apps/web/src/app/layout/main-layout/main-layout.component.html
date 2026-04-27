@@ -96,8 +96,12 @@
         <button class="icon-btn" title="Help">
           <i class="far fa-question-circle"></i>
         </button>
-        <div class="topbar-profile" [routerLink]="'/super-admin/profile'" style="cursor: pointer;">
-          <div class="profile-initials">{{ userInitials }}</div>
+        <div class="topbar-profile" [routerLink]="'/super-admin/profile'" style="cursor: pointer;" *ngIf="userProfile$ | async as profile">
+          @if (profile.profilePictureUrl) {
+            <img [src]="getImageUrl(profile.profilePictureUrl)" alt="Profile" class="profile-avatar">
+          } @else {
+            <div class="profile-initials">{{ userInitials }}</div>
+          }
         </div>
       </div>
     </header>

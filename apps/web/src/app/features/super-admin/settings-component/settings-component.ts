@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
@@ -16,6 +17,7 @@ export class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private configService = inject(ConfigurationService);
   private notification = inject(NotificationService);
+  private route = inject(ActivatedRoute);
 
   settingsForm: FormGroup;
   activeTab: 'general' | 'strategy' | 'financial' | 'legal' = 'general';
@@ -26,11 +28,11 @@ export class SettingsComponent implements OnInit {
     this.settingsForm = this.fb.group({
       platformName: ['', Validators.required],
       billingEmail: ['', [Validators.required, Validators.email]],
-      taxPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-      gracePeriodDays: [0, [Validators.required, Validators.min(0)]],
-      monthlyRevenueTarget: [0, [Validators.required, Validators.min(0)]],
+      taxPercentage: [18, [Validators.required, Validators.min(0), Validators.max(100)]],
+      gracePeriodDays: [7, [Validators.required, Validators.min(0)]],
+      yearlyRevenueTarget: [0, [Validators.required, Validators.min(0)]],
       subscriptionTarget: [0, [Validators.required, Validators.min(0)]],
-      uptimeThreshold: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      uptimeThreshold: [99.9, [Validators.required, Validators.min(0), Validators.max(100)]],
       currency: [CONSTANTS.DASHBOARD.CURRENCY],
       supportPhone: [''],
       supportEmail: ['', [Validators.email]],
@@ -44,7 +46,19 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.checkQueryParams();
     this.loadSettings();
+  }
+
+  private checkQueryParams() {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        const tab = params['tab'];
+        if (tab === 'strategy' || tab === 'legal' || tab === 'general') {
+          this.activeTab = tab as any;
+        }
+      }
+    });
   }
 
   loadSettings() {

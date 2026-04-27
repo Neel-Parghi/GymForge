@@ -6,6 +6,7 @@ import { UserProfile } from '../../../shared/models/user-profile.model';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
+import { API_CONSTANTS } from '../../../core/constants/api-constants';
 
 @Component({
   selector: 'app-profile',
@@ -25,6 +26,8 @@ export class ProfileComponent implements OnInit {
   passwordChangeError = '';
   activeTab: 'personal' | 'security' = 'personal';
   activeSecuritySubTab: 'change' | 'reset' = 'change';
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -59,8 +62,8 @@ export class ProfileComponent implements OnInit {
     this.loadProfile();
   }
 
-  loadProfile() {
-    this.profileService.getProfile().subscribe({
+  loadProfile(forceRefresh = false) {
+    this.profileService.getProfile(forceRefresh).subscribe({
       next: (response: any) => {
         const data = response.data || response.Data || response;
 
@@ -76,6 +79,8 @@ export class ProfileComponent implements OnInit {
           state: data.state,
           zipCode: data.zipCode
         });
+        this.selectedFile = null;
+        this.previewUrl = null;
       },
       error: (err) => console.error('Failed to load profile', err)
     });
@@ -88,22 +93,49 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  saveProfile() {
+  async saveProfile() {
     if (this.profileForm.invalid) return;
 
     this.isSaving = true;
-    this.profileService.updateProfile(this.profileForm.value).subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.isEditMode = false;
-        this.notification.success(CONSTANTS.COMMON_UPDATE_SUCCESS_MESSAGE);
-        this.loadProfile();
-      },
-      error: (err) => {
-        this.isSaving = false;
-        this.notification.error(err.error?.message || CONSTANTS.COMMON_UPDATE_ERROR_MESSAGE);
+
+    try {
+      // 1. If there's a new file, upload it first
+      if (this.selectedFile) {
+        const uploadRes = await this.profileService.uploadAvatar(this.selectedFile).toPromise();
+        
+        // Exhaustive check for the URL in the response (handling wrapping and casing)
+        const newUrl = uploadRes?.Data?.url || uploadRes?.Data?.Url || 
+                       uploadRes?.data?.url || uploadRes?.data?.Url || 
+                       uploadRes?.url || uploadRes?.Url;
+        
+        if (newUrl) {
+          this.profileForm.patchValue({ profilePictureUrl: newUrl });
+          // Force update local profile object so preview stays stable if needed
+          if (this.profile) this.profile.profilePictureUrl = newUrl;
+        }
       }
-    });
+
+      // 2. Save the profile details
+      this.profileService.updateProfile(this.profileForm.value).subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.isEditMode = false;
+          this.selectedFile = null;
+          this.previewUrl = null;
+          this.notification.success(CONSTANTS.COMMON_UPDATE_SUCCESS_MESSAGE);
+          
+          // Single final refresh to sync everything (including Header) - FORCE REFRESH HERE
+          this.loadProfile(true);
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.notification.error(err.error?.message || CONSTANTS.COMMON_UPDATE_ERROR_MESSAGE);
+        }
+      });
+    } catch (error: any) {
+      this.isSaving = false;
+      this.notification.error(error.error?.message || 'Failed to upload profile picture');
+    }
   }
 
   submitPasswordChange() {
@@ -122,11 +154,33 @@ export class ProfileComponent implements OnInit {
     }, 1000);
   }
 
+  getImageUrl(path: string | undefined): string | null {
+    if (this.previewUrl) return this.previewUrl;
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const baseUrl = API_CONSTANTS.BASE_URL.replace('/api', '');
+    return `${baseUrl}${path}`;
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.previewUrl = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   requestReset() {
     this.notification.success('Password reset link has been sent to your email.');
   }
 
   triggerAvatarUpload() {
-    this.notification.info('Profile picture upload coming soon!');
+    const fileInput = document.getElementById('avatarInput') as HTMLInputElement;
+    fileInput?.click();
   }
 }

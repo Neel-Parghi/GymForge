@@ -58,6 +58,7 @@ export interface GymListResponse {
   planName?: string;
   subscriptionExpiry?: string;
   isTrialPlan: boolean;
+  paymentStatus: string;
   hasActiveSubscription: boolean;
 }
 
