@@ -36,12 +36,12 @@ namespace GymForge.Infrastructure
                         connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
                     {
                         var uri = new Uri(connectionString);
-                        var userInfo = uri.UserInfo.Split(':');
-                        var host = uri.Host;
-                        var port = uri.IsDefaultPort ? 5432 : uri.Port;
-                        var database = uri.LocalPath.TrimStart('/');
-                        var username = userInfo.Length > 0 ? userInfo[0] : "";
-                        var password = userInfo.Length > 1 ? userInfo[1] : "";
+                        string[] userInfo = uri.UserInfo.Split(':');
+                        string? host = uri.Host;
+                        int port = uri.IsDefaultPort ? 5432 : uri.Port;
+                        string? database = uri.LocalPath.TrimStart('/');
+                        string? username = userInfo.Length > 0 ? userInfo[0] : "";
+                        string? password = userInfo.Length > 1 ? userInfo[1] : "";
 
                         connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
                     }
