@@ -28,17 +28,23 @@ namespace GymForge.Infrastructure
                 }
 
                 // If the connection string is in URI format (like Render provides), parse it
-                if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres://"))
+                if (!string.IsNullOrEmpty(connectionString))
                 {
-                    var uri = new Uri(connectionString);
-                    var userInfo = uri.UserInfo.Split(':');
-                    var host = uri.Host;
-                    var port = uri.IsDefaultPort ? 5432 : uri.Port;
-                    var database = uri.LocalPath.TrimStart('/');
-                    var username = userInfo[0];
-                    var password = userInfo.Length > 1 ? userInfo[1] : "";
+                    connectionString = connectionString.Trim('"', '\'', ' ');
+                    
+                    if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) || 
+                        connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var uri = new Uri(connectionString);
+                        var userInfo = uri.UserInfo.Split(':');
+                        var host = uri.Host;
+                        var port = uri.IsDefaultPort ? 5432 : uri.Port;
+                        var database = uri.LocalPath.TrimStart('/');
+                        var username = userInfo.Length > 0 ? userInfo[0] : "";
+                        var password = userInfo.Length > 1 ? userInfo[1] : "";
 
-                    connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                        connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                    }
                 }
                 else if (string.IsNullOrEmpty(connectionString))
                 {
