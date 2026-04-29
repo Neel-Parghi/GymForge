@@ -19,12 +19,33 @@ namespace GymForge.Infrastructure
             services.AddDbContext<AppDbContext>((sp, options) =>
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                AuditableEntityInterceptor? auditableInterceptor = sp.GetService<AuditableEntityInterceptor>();
+                var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
+                // If connectionString is empty, fallback to DATABASE_URL if Render injected it
                 if (string.IsNullOrEmpty(connectionString))
+                {
+                    connectionString = databaseUrl;
+                }
+
+                // If the connection string is in URI format (like Render provides), parse it
+                if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres://"))
+                {
+                    var uri = new Uri(connectionString);
+                    var userInfo = uri.UserInfo.Split(':');
+                    var host = uri.Host;
+                    var port = uri.IsDefaultPort ? 5432 : uri.Port;
+                    var database = uri.LocalPath.TrimStart('/');
+                    var username = userInfo[0];
+                    var password = userInfo.Length > 1 ? userInfo[1] : "";
+
+                    connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                }
+                else if (string.IsNullOrEmpty(connectionString))
                 {
                     connectionString = "Host=localhost;Database=dummy;Username=postgres;Password=password";
                 }
+
+                AuditableEntityInterceptor? auditableInterceptor = sp.GetService<AuditableEntityInterceptor>();
 
                 if (connectionString.Contains("Host=") || connectionString.Contains("port=") || connectionString.Contains("postgres"))
                 {
