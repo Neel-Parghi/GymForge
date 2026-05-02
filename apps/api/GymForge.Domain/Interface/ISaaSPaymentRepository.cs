@@ -10,6 +10,7 @@ namespace GymForge.Domain.Interface
         Task<List<SubscriptionRecord>> GetActiveSubscriptionsAsync();
 
         Task<SaaSPaymentTransaction?> GetByGatewayIdAsync(string gatewayId);
+        Task<SubscriptionRecord?> GetLatestSubscriptionByGymIdAsync(Guid gymId);
 
         Task UpdateStatusAsync(Guid id, string status, string? gatewayResponse = null);
     }

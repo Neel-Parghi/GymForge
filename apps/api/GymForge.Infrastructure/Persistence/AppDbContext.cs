@@ -59,7 +59,7 @@ namespace GymForge.Infrastructure.Persistence
             {
                 entity.Property(x => x.TaxPercentage).HasPrecision(5, 2);
                 entity.Property(x => x.YearlyRevenueTarget)
-                      .HasColumnName("MonthlyRevenueTarget") // Map to existing column until migration
+                      .HasColumnName("MonthlyRevenueTarget")
                       .HasPrecision(18, 2);
                 entity.Property(x => x.SubscriptionTarget);
                 entity.Property(x => x.UptimeThreshold).HasPrecision(5, 2);

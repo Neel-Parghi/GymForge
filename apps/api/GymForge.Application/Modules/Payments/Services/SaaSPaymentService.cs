@@ -68,33 +68,48 @@ namespace GymForge.Application.Modules.Payments.Services
             string razorpayOrderId = order["id"].ToString();
 
             Guid transactionId = Guid.NewGuid();
-            Guid subscriptionId = Guid.NewGuid();
 
             SaaSPaymentTransaction transaction = new()
             {
                 Id = transactionId,
                 GymId = paymentDto.GymId,
                 Gym = gym,
-                SubscriptionId = subscriptionId, 
                 Amount = plan.Price,
                 Currency = "INR",
                 Status = "Pending",
                 GatewayTransactionId = razorpayOrderId
             };
 
-            SubscriptionRecord gymSubscription = new()
+            SubscriptionRecord? existingSubscription = await _paymentRepository.GetLatestSubscriptionByGymIdAsync(paymentDto.GymId);
+            
+            // If there's an existing unpaid subscription (like from onboarding), update it. Otherwise create new.
+            if (existingSubscription != null && (existingSubscription.Notes == "Initial Onboarding Subscription" || !existingSubscription.IsActive))
             {
-                Id = subscriptionId,
-                GymId = paymentDto.GymId,
-                PlanId = paymentDto.PlanId,
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(1),
-                IsActive = false,
-                IsTrial = plan.IsTrial,
-                PriceAtPurchase = plan.Price
-            };
-
-            transaction.Subscription = gymSubscription;
+                existingSubscription.PlanId = paymentDto.PlanId;
+                existingSubscription.EndDate = DateTime.UtcNow.AddMonths(1);
+                existingSubscription.PriceAtPurchase = plan.Price;
+                existingSubscription.IsTrial = plan.IsTrial;
+                existingSubscription.Notes = null;
+                transaction.SubscriptionId = existingSubscription.Id;
+                transaction.Subscription = existingSubscription;
+            }
+            else
+            {
+                Guid subscriptionId = Guid.NewGuid();
+                SubscriptionRecord gymSubscription = new()
+                {
+                    Id = subscriptionId,
+                    GymId = paymentDto.GymId,
+                    PlanId = paymentDto.PlanId,
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(1),
+                    IsActive = false,
+                    IsTrial = plan.IsTrial,
+                    PriceAtPurchase = plan.Price
+                };
+                transaction.SubscriptionId = subscriptionId;
+                transaction.Subscription = gymSubscription;
+            }
 
             await _paymentRepository.AddAsync(transaction);
             

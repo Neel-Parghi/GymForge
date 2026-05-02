@@ -27,6 +27,14 @@ namespace GymForge.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.GatewayTransactionId == gatewayId);
         }
 
+        public async Task<SubscriptionRecord?> GetLatestSubscriptionByGymIdAsync(Guid gymId)
+        {
+            return await _dbContext.SubscriptionRecords
+                .Where(x => x.GymId == gymId)
+                .OrderByDescending(x => x.CreatedOn)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<SaaSPaymentTransaction>> GetTransactionsAsync()
         {
             return await _dbContext.SaaSPaymentTransactions

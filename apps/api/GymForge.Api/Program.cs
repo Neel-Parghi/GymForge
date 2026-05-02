@@ -9,7 +9,6 @@ using System.Text;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Enable legacy timestamp behavior to allow mixing of DateTime kinds (SQL Server compatibility)
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddControllers();
