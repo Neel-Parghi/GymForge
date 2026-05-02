@@ -16,6 +16,10 @@ export class ProfileService extends BaseApiService {
     super();
   }
 
+  clearProfileCache(): void {
+    this.profileCache$ = undefined;
+  }
+
   getProfile(forceRefresh = false): Observable<UserProfile> {
     if (!this.profileCache$ || forceRefresh) {
       this.profileCache$ = this.get<UserProfile>(API_CONSTANTS.USER.PROFILE).pipe(
@@ -30,7 +34,9 @@ export class ProfileService extends BaseApiService {
   }
 
   updateProfile(profile: UpdateUserProfile): Observable<any> {
-    return this.put<any>(API_CONSTANTS.USER.UPDATE_PROFILE, profile);
+    return this.put<any>(API_CONSTANTS.USER.UPDATE_PROFILE, profile).pipe(
+      tap(() => this.clearProfileCache())
+    );
   }
 
   changePassword(data: any): Observable<any> {
@@ -40,7 +46,9 @@ export class ProfileService extends BaseApiService {
   uploadAvatar(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.post<any>(API_CONSTANTS.USER.UPLOAD_AVATAR, formData);
+    return this.post<any>(API_CONSTANTS.USER.UPLOAD_AVATAR, formData).pipe(
+      tap(() => this.clearProfileCache())
+    );
   }
 
   getFullUrl(path: string | undefined): string | null {
