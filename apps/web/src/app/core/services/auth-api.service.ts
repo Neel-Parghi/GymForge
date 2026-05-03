@@ -12,11 +12,24 @@ import { UserProfile } from '../../shared/models/user-profile.model';
 export class AuthApiService extends BaseApiService {
 
   private router = inject(Router);
-  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+  private userProfileSubject = new BehaviorSubject<UserProfile | null>(this.loadStoredProfile());
   public userProfile$ = this.userProfileSubject.asObservable();
 
   constructor() {
     super();
+  }
+
+  private loadStoredProfile(): UserProfile | null {
+    const stored = localStorage.getItem('userProfile');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error('Error parsing stored user profile', e);
+        return null;
+      }
+    }
+    return null;
   }
 
   login(credentials: any): Observable<any> {
@@ -76,6 +89,8 @@ export class AuthApiService extends BaseApiService {
   private clearSession() {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userProfile');
+    this.userProfileSubject.next(null);
     this.router.navigate(['/login']);
   }
 
@@ -109,6 +124,9 @@ export class AuthApiService extends BaseApiService {
       case 'SuperAdmin':
         this.router.navigate(['/super-admin/dashboard']);
         break;
+      case 'GymOwner':
+        this.router.navigate(['/gym-owner/dashboard']);
+        break;
       case 'Admin':
         this.router.navigate(['/admin/dashboard']);
         break;
@@ -124,6 +142,11 @@ export class AuthApiService extends BaseApiService {
   }
 
   setUserProfile(profile: UserProfile | null) {
+    if (profile) {
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+    } else {
+      localStorage.removeItem('userProfile');
+    }
     this.userProfileSubject.next(profile);
   }
 }

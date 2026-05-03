@@ -1,15 +1,30 @@
 import { inject, Injectable } from "@angular/core";
 import { AuthApiService } from "./auth-api.service";
 import { NavItem } from "../models/nav-Item.model";
-import { MenuConfig } from "../../shared/constants/menu-config";
+import { SuperAdminMenu } from "../configs/menus/super-admin.menu";
+import { GymOwnerMenu } from "../configs/menus/gym-owner.menu";
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
     private authService = inject(AuthApiService);
 
-    getMenuItems() {
+    getMenuItems(): NavItem[] {
         const userRole = this.authService.getUserRole();
-        return this.filterByRole(MenuConfig, userRole);
+        
+        let config: NavItem[] = [];
+        
+        switch (userRole) {
+            case 'SuperAdmin':
+                config = SuperAdminMenu;
+                break;
+            case 'GymOwner':
+                config = GymOwnerMenu;
+                break;
+            default:
+                config = [];
+        }
+
+        return this.filterByRole(config, userRole);
     }
 
     private filterByRole(menuItems: NavItem[], role: string | null): NavItem[] {

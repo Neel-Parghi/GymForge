@@ -37,5 +37,28 @@ export const routes: Routes = [
         loadComponent: () => import('./features/super-admin/profile-component/profile-component').then(m => m.ProfileComponent)
       }
     ]
+  },
+  {
+    path: 'gym-owner',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/gym-owner/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/super-admin/profile-component/profile-component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/super-admin/settings-component/settings-component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'plans',
+        loadComponent: () => import('./features/gym-owner/gym-plans/gym-plans.component').then(m => m.GymPlansComponent)
+      }
+    ]
   }
 ];

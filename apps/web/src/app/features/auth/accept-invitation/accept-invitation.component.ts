@@ -51,9 +51,10 @@ export class AcceptInvitationComponent implements OnInit {
   validateToken(): void {
     this.userService.validateInvitation(this.token!).subscribe({
       next: (res: any) => {
+        const data = res?.Data || res?.data || res;
         this.isValidating = false;
-        this.isTokenValid = res.isValid;
-        if (!res.isValid) {
+        this.isTokenValid = data.isValid;
+        if (!this.isTokenValid) {
           this.errorMessage = 'This invitation link has expired or is no longer valid.';
         }
       },

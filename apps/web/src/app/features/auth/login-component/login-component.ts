@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -17,7 +17,14 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private notification = inject(NotificationService);
+
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('setupSuccess') === 'true') {
+      this.notification.success('Password set successfully! You can now log in.');
+    }
+  }
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

@@ -1,67 +1,58 @@
-@import "../register-component/register-component.scss";
-
-/* Custom styles for Accept Invitation Feature */
-
-.auth-subtitle {
-  margin-bottom: 24px;
-}
+@import "../auth-shared.scss";
 
 .state-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 30px 0;
-  gap: 16px;
-  color: #4b5563;
-  font-weight: 500;
+  padding: 40px 0;
+  gap: 20px;
+  color: var(--secondary-precision, #5e5e5e);
+  font-weight: 600;
+  text-align: center;
 
   &.error {
     color: #ef4444;
   }
 
   .loader {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #1a1a1a;
+    width: 48px;
+    height: 48px;
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid var(--primary-precision, #005bbc);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
   .error-icon {
-    width: 64px;
-    height: 64px;
+    font-size: 48px;
     color: #ef4444;
-    svg {
-      width: 100%;
-      height: 100%;
-    }
   }
 }
 
 .error-banner {
   background: #fef2f2;
-  border: 1px solid #fee2e2;
+  border-left: 4px solid #ef4444;
   color: #b91c1c;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  font-size: 0.875rem;
-  text-align: left;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.password-requirements {
-  margin-top: -15px;
-  margin-bottom: 15px;
-  text-align: left;
-  padding-left: 4px;
+.validation-row {
+  margin-top: 4px;
+  padding-left: 2px;
 }
 
 .error-text {
   color: #ef4444;
   font-size: 0.75rem;
-  line-height: 1.2;
+  font-weight: 500;
 }
 
 @keyframes spin {
