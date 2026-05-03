@@ -32,8 +32,12 @@ namespace GymForge.Application
             services.AddScoped<ISaaSPaymentService, SaaSPaymentService>();
 
             services.AddScoped<ISaaSConfigurationService, SaaSConfigurationService>();
+            
             services.AddScoped<IDashboardService, DashboardService>();
+            
             services.AddScoped<IReportService, ReportService>();
+
+            services.AddScoped<IGymPlanService, GymPlanService>();
 
             return services;
         }

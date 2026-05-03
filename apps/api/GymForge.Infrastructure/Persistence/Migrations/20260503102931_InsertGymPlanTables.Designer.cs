@@ -3,6 +3,7 @@ using System;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503102931_InsertGymPlanTables")]
+    partial class InsertGymPlanTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,14 +211,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("DiscountedPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
                     b.Property<int>("DurationMonths")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ExtendedMonths")
                         .HasColumnType("integer");
 
                     b.PrimitiveCollection<string[]>("Features")
@@ -225,9 +221,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsOffer")
                         .HasColumnType("boolean");
 
                     b.Property<int?>("MaxBranches")

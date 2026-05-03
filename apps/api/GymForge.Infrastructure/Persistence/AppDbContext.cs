@@ -28,6 +28,8 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<SaaSPaymentTransaction> SaaSPaymentTransactions { get; set; }
         
         public DbSet<SaaSConfiguration> SaaSConfigurations { get; set; }
+        
+        public DbSet<GymPlan> GymPlans { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,6 +47,14 @@ namespace GymForge.Infrastructure.Persistence
 
             modelBuilder.Entity<Plan>()
                 .Property(x => x.Price)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<GymPlan>()
+                .Property(p => p.Price)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<GymPlan>()
+                .Property(p => p.DiscountedPrice)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<SubscriptionRecord>()
