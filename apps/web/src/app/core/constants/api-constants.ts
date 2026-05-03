@@ -54,5 +54,12 @@ export const API_CONSTANTS = {
     VERIFY: 'payments/verify',
     SETTINGS: 'payments/settings',
     UPDATE_SAAS_CONFIG: 'payments/settings/update'
+  },
+  GYM_PLAN: {
+    GET: 'GymPlan',
+    LIST_BY_OWNER: 'GymPlan/owner',
+    ADD: 'GymPlan/add',
+    UPDATE: 'GymPlan/update',
+    DELETE: 'GymPlan',
   }
 };

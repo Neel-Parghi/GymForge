@@ -69,21 +69,21 @@
     width: 0;
     height: 0;
 
-    &:checked + .slider {
+    &:checked+.slider {
       background-color: #10b981;
     }
 
-    &:focus + .slider {
+    &:focus+.slider {
       box-shadow: 0 0 1px #10b981;
     }
 
-    &:checked + .slider:before {
+    &:checked+.slider:before {
       transform: translateX(20px);
     }
-    
-    &:disabled + .slider {
-        opacity: 0.6;
-        cursor: not-allowed;
+
+    &:disabled+.slider {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   }
 
@@ -110,6 +110,7 @@
 
     &.round {
       border-radius: 24px;
+
       &:before {
         border-radius: 50%;
       }
@@ -156,7 +157,7 @@
 }
 
 .btn-success {
-  background: #10b981;
+  background: #1f2937;
   color: white;
   border: none;
   padding: 10px 20px;

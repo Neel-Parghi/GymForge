@@ -3,14 +3,14 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="sidebar-header">
-      <div class="brand-container" [routerLink]="['/super-admin/dashboard']">
+      <div class="brand-container" [routerLink]="dashboardRoute">
 
         @if (!isSidebarCollapsed) {
         <!-- <div class="brand-logo">GF</div> -->
         <img src="/images/logo5.png" alt="Logo" class="brand-logo">
         <div class="brand-text">
           <span class="brand-name">GYM FORGE</span>
-          <span class="brand-subtext">Super Admin Portal</span>
+          <span class="brand-subtext">{{roleName}} Portal</span>
         </div>
         }
       </div>
@@ -96,11 +96,12 @@
         <button class="icon-btn" title="Help">
           <i class="far fa-question-circle"></i>
         </button>
-        <div class="topbar-profile" [routerLink]="'/super-admin/profile'" style="cursor: pointer;" *ngIf="userProfile$ | async as profile">
+        <div class="topbar-profile" [routerLink]="profileRoute" style="cursor: pointer;"
+          *ngIf="userProfile$ | async as profile">
           @if (profile.profilePictureUrl) {
-            <img [src]="getImageUrl(profile.profilePictureUrl)" alt="Profile" class="profile-avatar">
+          <img [src]="getImageUrl(profile.profilePictureUrl)" alt="Profile" class="profile-avatar">
           } @else {
-            <div class="profile-initials">{{ userInitials }}</div>
+          <div class="profile-initials">{{ userInitials }}</div>
           }
         </div>
       </div>

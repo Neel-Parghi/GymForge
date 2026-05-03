@@ -1,0 +1,262 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div class="header-info">
+      <h1>Gym Membership Plans</h1>
+      <p>Create and manage subscription plans for your gym members.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-add" (click)="openAddModal()">
+        Add New Plan
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading your plans...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && plans.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="fa-solid fa-receipt"></i>
+    </div>
+    <h2>No plans created yet</h2>
+    <p>Get started by creating your first membership plan.</p>
+    <button class="btn-outline" (click)="openAddModal()">Create First Plan</button>
+  </div>
+
+  <!-- Plans Carousel Container -->
+  <div *ngIf="!loading && plans.length > 0" class="carousel-wrapper">
+    <button class="nav-btn prev" (click)="prevSlide()" *ngIf="plans.length > 1">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <div class="carousel-viewport">
+      <div class="plans-grid" [style.transform]="getCarouselTransform()" [class.no-transition]="isResetting">
+        <div *ngFor="let plan of displayPlans; let i = index" class="plan-card" [class.inactive]="!plan.isActive"
+          [class.featured]="plan.id === featuredPlanId">
+          <div class="card-badges">
+            <span *ngIf="plan.isOffer" class="badge offer-badge">SPECIAL OFFER</span>
+            <span *ngIf="!plan.isActive" class="badge inactive-badge">INACTIVE</span>
+          </div>
+
+          <div class="plan-header">
+            <h3 class="plan-name">{{ plan.name }}</h3>
+            <p class="plan-description">{{ plan.description || 'Professional fitness plan' }}</p>
+          </div>
+
+          <div class="plan-price">
+            <div class="price-container">
+              <span class="currency">₹</span>
+              <span class="amount">{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price }}</span>
+              <span class="period">/ {{ plan.durationMonths }} {{ plan.durationMonths === 1 ? 'mo' : 'mos' }}</span>
+            </div>
+            <div *ngIf="plan.isOffer && plan.discountedPrice" class="original-price">
+              <span class="strikethrough">₹{{ plan.price }}</span>
+              <span class="savings">Save {{ ((plan.price - plan.discountedPrice) / plan.price * 100) | number:'1.0-0'
+                }}%</span>
+            </div>
+            <div *ngIf="plan.isOffer && plan.extendedMonths" class="bonus-badge">
+              <i class="fa-solid fa-gift"></i> +{{ plan.extendedMonths }} Bonus Months
+            </div>
+          </div>
+
+          <div class="plan-meta">
+            <div class="meta-item">
+              <i class="fa-solid fa-building"></i>
+              <span>{{ plan.maxBranches ? plan.maxBranches + ' Branches' : 'All Branches' }}</span>
+            </div>
+          </div>
+
+          <div class="plan-features">
+            <div class="features-header">What's included:</div>
+            <ul class="features-list">
+              <li *ngFor="let feature of plan.features">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>{{ feature }}</span>
+              </li>
+              <li *ngIf="!plan.features || plan.features.length === 0" class="no-features">
+                No specific features listed
+              </li>
+            </ul>
+          </div>
+
+          <div class="plan-actions">
+            <button class="action-btn edit" (click)="openEditModal(plan)" title="Edit Plan">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="action-btn status" (click)="togglePlanStatus(plan)"
+              [title]="plan.isActive ? 'Deactivate' : 'Activate'">
+              <i class="fa-solid" [ngClass]="plan.isActive ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+            <button class="action-btn delete" (click)="deletePlan(plan)" title="Delete Plan">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="nav-btn next" (click)="nextSlide()" *ngIf="plans.length > 1">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <div class="modal-badge">{{ isEditing ? 'Edit Mode' : 'New Plan' }}</div>
+          <h2>{{ isEditing ? 'Update Membership' : 'Create Membership' }}</h2>
+          <p>Define the value and duration of your gym offering.</p>
+        </div>
+        <button class="close-icon-btn" (click)="closeModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="planForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+
+          <!-- Section: Basic Information -->
+          <div class="form-section">
+            <div class="section-header">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Basic Information</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Plan Name <span class="required">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-tag"></i>
+                  <input type="text" id="name" formControlName="name" placeholder="e.g. Platinum Yearly Membership"
+                    [class.error]="planForm.get('name')?.invalid && planForm.get('name')?.touched">
+                </div>
+                <span class="error-msg" *ngIf="planForm.get('name')?.invalid && planForm.get('name')?.touched">Name is
+                  required (min 3 chars)</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="description">Description (Optional)</label>
+                <textarea id="description" formControlName="description" rows="2"
+                  placeholder="Tell members what makes this plan special..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Pricing & Access -->
+          <div class="form-section">
+            <div class="section-header">
+              <i class="fa-solid fa-indian-rupee-sign"></i>
+              <span>Pricing & Access</span>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="price">Standard Price (₹) <span class="required">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-wallet"></i>
+                  <input type="number" id="price" formControlName="price" placeholder="0.00">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="duration">Duration (Months) <span class="required">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-calendar-days"></i>
+                  <input type="number" id="duration" formControlName="durationMonths" placeholder="1">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="branches">Max Branches Access</label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-building-circle-check"></i>
+                  <input type="number" id="branches" formControlName="maxBranches" placeholder="Unlimited">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Features -->
+          <div class="form-section">
+            <div class="section-header">
+              <i class="fa-solid fa-list-check"></i>
+              <span>Inclusions & Features</span>
+            </div>
+            <div class="features-input-container">
+              <div class="feature-input-group">
+                <input type="text" [(ngModel)]="newFeature" [ngModelOptions]="{standalone: true}"
+                  placeholder="e.g. Personal Trainer, Steam Room..." (keyup.enter)="addFeature()">
+                <button type="button" class="btn-add-feature" (click)="addFeature()">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <div class="features-chips">
+                <div *ngFor="let feature of featuresList; let i = index" class="feature-chip">
+                  <span>{{ feature }}</span>
+                  <button type="button" (click)="removeFeature(i)"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="empty-chips" *ngIf="featuresList.length === 0">
+                  No features added yet.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Promotional Offer -->
+          <div class="promotional-card" [class.active]="planForm.get('isOffer')?.value">
+            <div class="promo-header">
+              <div class="promo-title">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Promotional Offer</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" formControlName="isOffer">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="promo-body" *ngIf="planForm.get('isOffer')?.value">
+              <p class="promo-hint">These fields will override the standard plan details during the offer period.</p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="discountedPrice">Offer Price (₹)</label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-percent"></i>
+                    <input type="number" id="discountedPrice" formControlName="discountedPrice" placeholder="e.g. 999">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="extendedMonths">Bonus Months</label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    <input type="number" id="extendedMonths" formControlName="extendedMonths" placeholder="e.g. 1">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section last">
+            <div class="form-group checkbox-group">
+              <label class="switch-label">
+                <input type="checkbox" formControlName="isActive">
+                <span class="switch-slider"></span>
+                Plan Visibility (Active)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Discard Changes</button>
+          <button type="submit" class="btn-save" [disabled]="planForm.invalid">
+            {{ isEditing ? 'Save Membership' : 'Publish Plan' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

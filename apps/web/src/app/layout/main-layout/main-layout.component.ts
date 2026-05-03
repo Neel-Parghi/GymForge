@@ -22,6 +22,9 @@ export class MainLayoutComponent implements OnInit {
   private router = inject(Router);
   private readonly navService = inject(NavigationService);
 
+  roleName: string = '';
+  dashboardRoute: string = '/super-admin/dashboard';
+  profileRoute: string = '/super-admin/profile';
   isSidebarCollapsed = false;
   menuItems: NavItem[] = [];
   userProfile$ = this.authApiService.userProfile$;
@@ -31,9 +34,22 @@ export class MainLayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const currentProfile = (this.authApiService as any).userProfileSubject?.value;
-    if (!currentProfile) {
-      this.profileService.getProfile().subscribe();
+    this.setRoleName();
+    this.profileService.getProfile().subscribe();
+  }
+
+  private setRoleName(): void {
+    const decoded = this.authApiService.decodeToken();
+    const role = decoded?.role || '';
+    this.roleName = role.replace(/([A-Z])/g, ' $1').trim();
+
+    // Set routes based on role
+    if (role === 'GymOwner') {
+      this.dashboardRoute = '/gym-owner/dashboard';
+      this.profileRoute = '/gym-owner/profile';
+    } else {
+      this.dashboardRoute = '/super-admin/dashboard';
+      this.profileRoute = '/super-admin/profile';
     }
   }
 

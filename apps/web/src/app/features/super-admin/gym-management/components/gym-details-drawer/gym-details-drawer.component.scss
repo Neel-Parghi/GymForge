@@ -79,6 +79,7 @@
         color: #0f172a;
         margin-bottom: 4px;
       }
+
       p {
         font-size: 0.813rem;
         color: #64748b;
@@ -192,7 +193,8 @@
     }
   }
 
-  .loading-state, .empty-state {
+  .loading-state,
+  .empty-state {
     padding: 48px 24px;
     text-align: center;
     color: #94a3b8;
@@ -221,7 +223,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .subscription-banner {
@@ -343,21 +347,21 @@
     width: 0;
     height: 0;
 
-    &:checked + .slider {
+    &:checked+.slider {
       background-color: #10b981;
     }
 
-    &:focus + .slider {
+    &:focus+.slider {
       box-shadow: 0 0 1px #10b981;
     }
 
-    &:checked + .slider:before {
+    &:checked+.slider:before {
       transform: translateX(20px);
     }
-    
-    &:disabled + .slider {
-        opacity: 0.6;
-        cursor: not-allowed;
+
+    &:disabled+.slider {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   }
 
@@ -384,6 +388,7 @@
 
     &.round {
       border-radius: 24px;
+
       &:before {
         border-radius: 50%;
       }
@@ -430,7 +435,7 @@
 }
 
 .btn-success {
-  background: #10b981;
+  background: #1f2937;
   color: white;
   border: none;
   padding: 10px 20px;

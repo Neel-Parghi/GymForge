@@ -110,19 +110,17 @@
       background: #111827;
       color: white;
       height: 40px;
-
-      &:hover {
-        transform: translateY(-2px);
-      }
     }
 
     .btn-save {
       background: #10b981;
+      background-color: #111827;
+
       color: white;
       height: 40px;
 
       &:hover:not(:disabled) {
-        transform: translateY(-2px);
+        background: #059669;
       }
 
       &:disabled {

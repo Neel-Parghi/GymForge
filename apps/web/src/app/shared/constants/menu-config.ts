@@ -65,7 +65,7 @@ export const MenuConfig: NavItem[] = [
     {
         label: 'Dashboard',
         icon: 'fa-solid fa-house',
-        route: '/owner/dashboard',
+        route: '/gym-owner/dashboard',
         roles: ['GymOwner']
     },
     {
@@ -77,25 +77,25 @@ export const MenuConfig: NavItem[] = [
     {
         label: 'My Gyms',
         icon: 'fa-solid fa-building',
-        route: '/owner/my-gyms',
+        route: '/gym-owner/my-gyms',
         roles: ['GymOwner']
     },
     {
         label: 'Members',
         icon: 'fa-solid fa-users',
-        route: '/owner/members',
+        route: '/gym-owner/members',
         roles: ['GymOwner']
     },
     {
         label: 'Staff',
         icon: 'fa-solid fa-user-tie',
-        route: '/owner/staff',
+        route: '/gym-owner/staff',
         roles: ['GymOwner']
     },
     {
         label: 'Internal Plans',
         icon: 'fa-solid fa-receipt',
-        route: '/owner/plans',
+        route: '/gym-owner/plans',
         roles: ['GymOwner']
     },
     {
@@ -107,13 +107,13 @@ export const MenuConfig: NavItem[] = [
     {
         label: 'My Profile',
         icon: 'fa-solid fa-user-circle',
-        route: '/owner/profile',
+        route: '/gym-owner/profile',
         roles: ['GymOwner']
     },
     {
         label: 'Settings',
         icon: 'fa-solid fa-gear',
-        route: '/owner/settings',
+        route: '/gym-owner/settings',
         roles: ['GymOwner']
     }
 ];
