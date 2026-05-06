@@ -1,5 +1,5 @@
 export const API_CONSTANTS = {
-  //BASE_URL: 'https://localhost:7184/api/',
+  // BASE_URL: 'https://localhost:7184/api/',
   BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
 
 
@@ -46,6 +46,16 @@ export const API_CONSTANTS = {
     REPORTS: {
       EXPORT: 'superadmin/reports/export'
     }
+  },
+  MEMBERS: {
+    ONBOARD: 'members/onboard',
+    LIST: 'members/gym',
+    GET: 'members',
+    UPDATE: 'members',
+    TOGGLE_STATUS: 'members/{id}/toggle-status',
+    FREEZE: 'members/{id}/freeze',
+    UNFREEZE: 'members/{id}/unfreeze',
+    RENEW: 'members/{id}/renew',
   },
   PAYMENTS: {
     STATS: 'payments/stats',

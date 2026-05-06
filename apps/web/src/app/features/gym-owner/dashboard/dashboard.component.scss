@@ -115,6 +115,8 @@
     flex-shrink: 0;
 
     &.members { background: #eff6ff; color: #2563eb; }
+    &.active-members { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+    &.frozen-members { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
     &.attendance { background: #f0fdf4; color: #16a34a; }
     &.revenue { background: #fff7ed; color: #ea580c; }
     &.inventory { background: #fef2f2; color: #dc2626; }

@@ -94,7 +94,7 @@ export class GymOnboardingModalComponent implements OnInit {
 
   loadPlans() {
     this.pricingService.getAllPlans().subscribe((res: ApiResponse<PricingPlan[]>) => {
-      this.plans = res?.Data || [];
+      this.plans = res?.data || [];
     });
   }
 
@@ -215,7 +215,7 @@ export class GymOnboardingModalComponent implements OnInit {
   getGymOwners() {
     this.gymService.getGymOwnersList().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
-        this.gymOwners = res.Data;
+        this.gymOwners = res.data;
       },
       error: (err: any) => {
         this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_LOAD_ERROR_MESSAGE);

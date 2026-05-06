@@ -7,6 +7,7 @@ export interface UserProfile {
   phone: string;
   profilePictureUrl: string;
   role: string;
+  gymId?: string;
   
   // Address
   addressLine1?: string;

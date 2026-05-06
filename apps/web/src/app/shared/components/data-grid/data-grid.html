@@ -16,24 +16,48 @@
           </td>
           <td *ngFor="let col of columns">
             @switch (col.type) {
+            <!-- Profile Column (Avatar + Name + Subtext) -->
+            @case ('profile') {
+            <div class="profile-cell">
+              <div class="avatar-circle">
+                @if (row.profilePictureUrl) {
+                  <img [src]="row.profilePictureUrl" alt="avatar">
+                } @else {
+                  <span>{{ row.firstName ? row.firstName[0] : '' }}{{ row.lastName ? row.lastName[0] : '' }}</span>
+                }
+              </div>
+              <div class="profile-info">
+                <span class="primary-text">{{ row.firstName }} {{ row.lastName }}</span>
+                <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
+              </div>
+            </div>
+            }
+
+            <!-- Complex Column (Two lines of text) -->
+            @case ('complex') {
+            <div class="complex-cell">
+              <span class="primary-text">{{ getNestedValue(row, col.key) }}</span>
+              <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
+            </div>
+            }
+
             <!-- Action Buttons -->
             @case ('action') {
-            <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-            <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="action-btn delete-btn" (click)="onAction('delete', row)" title="Delete">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            <div class="actions-cell">
+              <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </div>
             }
 
             <!-- Badges -->
             @case ('badge') {
-            @if (row[col.key] !== null && row[col.key] !== undefined) {
-            <span class="badge" [ngClass]="getBadgeClass(row[col.key])">
-              {{ row[col.key] }}
+            @if (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== undefined) {
+            <span class="badge" [ngClass]="getBadgeClass(getNestedValue(row, col.key).toString())">
+              {{ getNestedValue(row, col.key) }}
             </span>
             } @else {
             <span>-</span>
@@ -42,37 +66,38 @@
 
             <!-- Date -->
             @case ('date') {
-            {{ row[col.key] | date:'shortDate' }}
+            <span class="date-text">{{ getNestedValue(row, col.key) | date:'mediumDate' }}</span>
             }
 
             <!-- Currency -->
             @case ('currency') {
-            {{ row[col.key] | currency:'INR':'symbol' }}
+            <span class="currency-text">{{ getNestedValue(row, col.key) | currency:'INR':'symbol' }}</span>
             }
 
             <!-- Boolean -->
             @case ('bool') {
-            <span [ngClass]="row[col.key] ? 'icon-bool-true' : 'icon-bool-false'" [title]="row[col.key] ? 'Yes' : 'No'">
-              <i class="fa-solid" [ngClass]="row[col.key] ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+            <span [ngClass]="getNestedValue(row, col.key) ? 'icon-bool-true' : 'icon-bool-false'">
+              <i class="fa-solid" [ngClass]="getNestedValue(row, col.key) ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
             </span>
             }
 
             <!-- Text / Clickable Links -->
             @default {
-            @if (col.isClickable) {
-            <span class="clickable-cell" (click)="onAction('row-click', row)">
-              {{ row[col.key] }}
+            <span [class.clickable-cell]="col.isClickable" (click)="col.isClickable ? onAction('row-click', row) : null">
+              {{ getNestedValue(row, col.key) }}
             </span>
-            } @else {
-            {{ row[col.key] }}
-            }
             }
             }
           </td>
         </tr>
         <tr *ngIf="!data || data.length === 0">
-          <td [attr.colspan]="selectable ? columns.length + 1 : columns.length" class="empty-state">
-            No data available
+          <td [attr.colspan]="selectable ? columns.length + 1 : columns.length" class="empty-state-cell">
+            <ng-container *ngIf="emptyStateTemplate; else defaultEmpty">
+              <ng-container *ngTemplateOutlet="emptyStateTemplate"></ng-container>
+            </ng-container>
+            <ng-template #defaultEmpty>
+              <div class="default-empty-state">No data available</div>
+            </ng-template>
           </td>
         </tr>
       </tbody>

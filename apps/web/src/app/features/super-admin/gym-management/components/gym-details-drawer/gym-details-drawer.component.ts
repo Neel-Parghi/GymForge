@@ -118,7 +118,7 @@ export class GymDetailsDrawerComponent implements OnChanges {
     this.isLoadingBranches = true;
     this.gymService.getGymBranches(this.gym.id).subscribe({
       next: (res) => {
-        this.branches = res.Data || [];
+        this.branches = res.data || [];
         this.isLoadingBranches = false;
       },
       error: () => this.isLoadingBranches = false

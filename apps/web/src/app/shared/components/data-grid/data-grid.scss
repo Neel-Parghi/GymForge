@@ -28,7 +28,6 @@
       padding: 16px 16px;
       color: var(--text-main);
       font-size: 0.875rem;
-      border-bottom: 1px solid var(--border-color);
     }
 
     th {
@@ -84,9 +83,12 @@
       }
     }
 
-    .empty-state {
+    .empty-state-cell {
       text-align: center;
       padding: 64px 24px;
+    }
+
+    .default-empty-state {
       color: var(--text-muted);
       font-style: italic;
     }
@@ -216,6 +218,67 @@
         font-size: 1.1rem;
       }
     }
+  }
+
+  // Profile Cell
+  .profile-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .avatar-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+  }
+
+  // Complex Cell (two lines)
+  .complex-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  // Shared text hierarchy
+  .primary-text {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-main);
+  }
+
+  .secondary-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  // Actions cell wrapper
+  .actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
   // Pagination Footer

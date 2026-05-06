@@ -24,7 +24,7 @@ export class ProfileService extends BaseApiService {
     if (!this.profileCache$ || forceRefresh) {
       this.profileCache$ = this.get<UserProfile>(API_CONSTANTS.USER.PROFILE).pipe(
         tap(profile => {
-          const data = (profile as any).Data || (profile as any).data || profile;
+          const data = (profile as any).data || profile;
           this.authService.setUserProfile(data);
         }),
         shareReplay(1)

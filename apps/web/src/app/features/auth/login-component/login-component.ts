@@ -43,7 +43,7 @@ export class LoginComponent {
       this.isLoading = true;
       this.authApiService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          const data = response?.Data || response?.data || response;
+          const data = response?.data || response;
           const token = data?.accessToken;
           if (token) {
             this.notification.success('Login successful!');

@@ -38,7 +38,7 @@ function handle401Error(authService: AuthApiService, request: HttpRequest<any>, 
 
     return authService.refreshToken().pipe(
       switchMap((res: any) => {
-        const accessToken = res?.Data?.accessToken || res?.data?.accessToken || res?.accessToken;
+        const accessToken = res?.data?.accessToken || res?.accessToken;
         isRefreshing = false;
         refreshTokenSubject.next(accessToken);
         

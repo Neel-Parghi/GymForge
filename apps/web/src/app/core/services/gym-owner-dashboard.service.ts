@@ -5,6 +5,7 @@ import { BaseApiService } from './base-api.service';
 export interface GymOwnerStats {
   totalMembers: number;
   activeMembers: number;
+  frozenMembers: number;
   newMembersThisMonth: number;
   todayAttendance: number;
   monthlyRevenue: number;

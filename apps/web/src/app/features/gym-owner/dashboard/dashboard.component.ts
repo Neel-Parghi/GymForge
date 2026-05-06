@@ -26,7 +26,7 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
     this.dashboardService.getStats().subscribe({
       next: (res: any) => {
-        const data = res?.Data || res?.data || res;
+        const data = res?.data || res;
         this.stats = data;
         this.isLoading = false;
       },
@@ -39,6 +39,7 @@ export class DashboardComponent implements OnInit {
         this.stats = {
           totalMembers: 1250,
           activeMembers: 1180,
+          frozenMembers: 45,
           newMembersThisMonth: 45,
           todayAttendance: 82,
           monthlyRevenue: 154000,

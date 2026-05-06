@@ -64,8 +64,8 @@ export class GymOwners implements OnInit {
   getGymOwners() {
     this.gymService.getGymOwnersList().subscribe({
       next: (res: ApiResponse<GymOwnerResponse[]>) => {
-        this.originalData = res.Data;
-        this.applyFilters({ search: '' }); // Initial apply
+        this.originalData = res.data;
+        this.applyFilters({ search: '' });
       },
       error: (err: any) => {
         this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_LOAD_ERROR_MESSAGE);
@@ -74,7 +74,7 @@ export class GymOwners implements OnInit {
   }
 
   applyFilters(filters: any) {
-    this.currentPage = 1; // Reset to first page on filter change
+    this.currentPage = 1;
 
     let results = [...this.originalData];
 
@@ -151,7 +151,7 @@ export class GymOwners implements OnInit {
       if (confirmed) {
         this.gymService.deleteGymOwner(ownerId).subscribe({
           next: (res: any) => {
-            const data = res?.Data || res?.data || res;
+            const data = res?.data || res;
 
             if (data?.Success === false || data?.success === false) {
               const message = (data?.Message || data?.message) === 'OWNER_HAS_GYMS'

@@ -1,0 +1,303 @@
+<div class="modal-overlay" *ngIf="isOpen">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2>{{ isEdit ? 'Manage Member Profile' : 'Onboard Member' }}</h2>
+        <p>{{ isEdit ? 'Update details, plans or manage account status' : 'Complete the steps to register a new member
+          and assign a plan.' }}</p>
+      </div>
+      <button class="close-btn" (click)="onTopClose()" title="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Stepper Navigation -->
+    <div class="stepper-container">
+      <div class="step" *ngFor="let step of steps" [class.active]="currentStep === step.id"
+        [class.completed]="currentStep > step.id">
+        <div class="step-circle">{{ step.id }}</div>
+        <span class="step-label">{{ step.label }}</span>
+        <div class="step-line" *ngIf="step.id < totalSteps"></div>
+      </div>
+    </div>
+
+    <!-- API Error Banner -->
+    <div class="api-error-banner" *ngIf="apiError">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      {{ apiError }}
+    </div>
+
+    <!-- Modal Body with Form -->
+    <div class="modal-body">
+      <form [formGroup]="form" class="onboarding-form">
+
+        <!-- Step 1: Personal & Contact Info -->
+        <div class="step-content" *ngIf="currentStep === 1">
+          <h3>Personal & Contact Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input type="text" formControlName="firstName" placeholder="First Name"
+                [class.error]="isInvalid('firstName')">
+              <span class="error-msg" *ngIf="isInvalid('firstName')">First name is required (min 2 chars)</span>
+            </div>
+
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input type="text" formControlName="lastName" placeholder="Last Name"
+                [class.error]="isInvalid('lastName')">
+              <span class="error-msg" *ngIf="isInvalid('lastName')">Last name is required (min 2 chars)</span>
+            </div>
+
+            <div class="form-group">
+              <label>Gender *</label>
+              <select formControlName="gender" [class.error]="isInvalid('gender')">
+                <option value="" disabled selected>Select...</option>
+                <option *ngFor="let opt of genderOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <span class="error-msg" *ngIf="isInvalid('gender')">Please select a gender</span>
+            </div>
+
+            <div class="form-group">
+              <label>Date of Birth *</label>
+              <input type="date" formControlName="dateOfBirth" [max]="today" [class.error]="isInvalid('dateOfBirth')">
+              <span class="error-msg" *ngIf="isInvalid('dateOfBirth')">Date of birth is required</span>
+            </div>
+
+            <div class="form-section-title">Contact Details</div>
+
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" formControlName="email" placeholder="member@email.com"
+                [class.error]="isInvalid('email')">
+              <span class="error-msg" *ngIf="isInvalid('email')">Valid email is required</span>
+            </div>
+
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <input type="tel" formControlName="phoneNumber" placeholder="+91 9898989898"
+                [class.error]="isInvalid('phoneNumber')">
+              <span class="error-msg" *ngIf="isInvalid('phoneNumber')">Valid phone number is required</span>
+            </div>
+
+            <div class="form-section-title">Emergency Contact (Optional)</div>
+
+            <div class="form-group">
+              <label>Emergency Contact Name</label>
+              <input type="text" formControlName="emergencyContactName" placeholder="Emergency Contact Name">
+            </div>
+
+            <div class="form-group">
+              <label>Emergency Contact Phone</label>
+              <input type="tel" formControlName="emergencyContactPhone" placeholder="Emergency Contact Phone">
+            </div>
+
+            <div class="form-section-title">Residential Address (Optional)</div>
+
+            <ng-container formGroupName="address">
+              <div class="form-group lg">
+                <label>Address Line 1</label>
+                <input type="text" formControlName="line1" placeholder="Street Address">
+              </div>
+
+              <div class="form-group lg">
+                <label>Address Line 2</label>
+                <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc. (optional)">
+              </div>
+
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" formControlName="city" placeholder="City">
+              </div>
+
+              <div class="form-group">
+                <label>State / Province</label>
+                <input type="text" formControlName="state" placeholder="State">
+              </div>
+
+              <div class="form-group">
+                <label>Country</label>
+                <input type="text" formControlName="country" placeholder="Country">
+              </div>
+
+              <div class="form-group">
+                <label>Postal Code</label>
+                <input type="text" formControlName="postalCode" placeholder="ZIP / Postal Code">
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Step 2: Medical & Fitness Details -->
+        <div class="step-content" *ngIf="currentStep === 2">
+          <h3>Medical & Fitness Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Blood Group <span class="optional">(Optional)</span></label>
+              <select formControlName="bloodGroup">
+                <option value="" selected>Select...</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+
+            <div class="form-group dropdown-checkbox-container" [class.open]="isFitnessGoalsOpen"
+              (click)="toggleFitnessGoals()">
+              <label>Fitness Goals <span class="optional">(Optional)</span></label>
+              <div class="dropdown-header">
+                {{ getSelectedGoalsText() }}
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-list" *ngIf="isFitnessGoalsOpen" (click)="$event.stopPropagation()">
+                <label *ngFor="let goal of fitnessGoalOptions" class="checkbox-label">
+                  <input type="checkbox" [checked]="isGoalSelected(goal)" (change)="toggleGoal(goal, $event)">
+                  {{ goal }}
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group lg">
+              <label>Medical Conditions / Notes <span class="optional">(Optional)</span></label>
+              <textarea formControlName="medicalConditions" rows="3"
+                placeholder="Pre-existing conditions or injuries?"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Membership Plan -->
+        <div class="step-content" *ngIf="currentStep === 3">
+          <h3>Membership Assignment</h3>
+          <div class="form-grid">
+            <div class="form-group lg">
+              <label>Choose a Membership Plan *</label>
+
+              <div class="plan-gallery">
+                <div class="plan-card" *ngFor="let plan of plans" [class.selected]="isPlanSelected(plan.id)"
+                  (click)="selectPlan(plan.id)">
+                  <div class="plan-header">
+                    <span class="plan-name">{{ plan.name }}</span>
+                    <span class="plan-badge" *ngIf="plan.isOffer">Special Offer</span>
+                  </div>
+                  <div class="plan-price">
+                    <span class="currency">₹</span>{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice :
+                    plan.price }}
+                    <span class="duration">/ {{ plan.durationMonths }} Mo</span>
+                  </div>
+                  <div class="plan-meta" *ngIf="plan.extendedMonths">
+                    <i class="fa-solid fa-gift"></i> +{{ plan.extendedMonths }} Months Bonus
+                  </div>
+                  <div class="selection-indicator">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+              </div>
+              <span class="error-msg" *ngIf="isInvalid('gymPlanId')">Please select a plan</span>
+            </div>
+
+            <div class="form-group lg">
+              <label>Start Date (Defaults to today)</label>
+              <input type="date" formControlName="startDate">
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Review -->
+        <div class="step-content review-step" *ngIf="currentStep === 4">
+          <h3>Review Summary</h3>
+
+          <div class="summary-section">
+            <h4>1. Personal & Contact</h4>
+            <div class="summary-grid">
+              <div><span>Name:</span> {{ form.get('firstName')?.value }} {{ form.get('lastName')?.value }}</div>
+              <div><span>DOB:</span> {{ form.get('dateOfBirth')?.value | date:'dd MMM yyyy' }}</div>
+              <div><span>Gender:</span> {{ form.get('gender')?.value == 1 ? 'Male' : form.get('gender')?.value == 2 ?
+                'Female' : 'Other' }}</div>
+              <div><span>Email:</span> {{ form.get('email')?.value }}</div>
+              <div><span>Phone:</span> {{ form.get('phoneNumber')?.value }}</div>
+              <div *ngIf="form.get('emergencyContactName')?.value" style="grid-column: span 2;">
+                <span>Emergency:</span> {{ form.get('emergencyContactName')?.value }} ({{
+                form.get('emergencyContactPhone')?.value }})
+              </div>
+              <div *ngIf="form.get('address.line1')?.value" style="grid-column: span 2;">
+                <span>Address:</span> {{ form.get('address.line1')?.value }},
+                {{ form.get('address.city')?.value }},
+                {{ form.get('address.state')?.value }} {{ form.get('address.postalCode')?.value }},
+                {{ form.get('address.country')?.value }}
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h4>2. Medical & Fitness</h4>
+            <div class="summary-grid">
+              <div *ngIf="form.get('bloodGroup')?.value"><span>Blood Group:</span> {{ form.get('bloodGroup')?.value }}
+              </div>
+              <div *ngIf="form.get('fitnessGoals')?.value?.length"><span>Fitness Goals:</span> {{
+                form.get('fitnessGoals')?.value?.join(', ') }}</div>
+              <div *ngIf="form.get('medicalConditions')?.value" style="grid-column: span 2;">
+                <span>Medical Notes:</span> {{ form.get('medicalConditions')?.value }}
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h4>3. Membership Assignment</h4>
+            <div class="summary-grid">
+              <div><span>Plan:</span> {{ getSelectedPlanName() }}</div>
+              <div><span>Start Date:</span> {{ form.get('startDate')?.value ? (form.get('startDate')?.value | date:'dd
+                MMM yyyy') : 'Immediate (Today)' }}</div>
+            </div>
+          </div>
+
+          <div class="summary-section" *ngIf="isEdit && member">
+            <h4>4. Quick Actions</h4>
+            <div class="summary-grid">
+              <div style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
+                <button class="secondary-btn" (click)="freeze.emit(member!.id)" *ngIf="member!.status !== 4">
+                  <i class="fa-solid fa-snowflake"></i> Freeze Member
+                </button>
+                <button class="secondary-btn" (click)="unfreeze.emit(member!.id)" *ngIf="member!.status === 4">
+                  <i class="fa-solid fa-fire"></i> Unfreeze Member
+                </button>
+                <button class="secondary-btn" (click)="toggle.emit(member!.id)">
+                  <i class="fa-solid" [ngClass]="member!.status === 1 ? 'fa-eye-slash' : 'fa-eye'"></i>
+                  {{ member!.status === 1 ? 'Deactivate' : 'Activate' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="modal-footer">
+      <div class="footer-left">
+        <button class="secondary-btn" (click)="onTopClose()">Cancel</button>
+      </div>
+      <div class="footer-right">
+        <button class="secondary-btn" *ngIf="currentStep > 1" (click)="prevStep()" [disabled]="submitting">Back</button>
+        <button class="primary-btn" *ngIf="currentStep < totalSteps" (click)="nextStep()">Next</button>
+        <button class="success-btn" *ngIf="currentStep === totalSteps" (click)="onSubmit()" [disabled]="submitting">
+          {{ submitting ? (isEdit ? 'Saving...' : 'Onboarding...') : (isEdit ? 'Save Changes' : 'Submit & Onboard') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (isConfirmCancelOpen) {
+<app-confirmation-popup title="Discard Changes?" message="You have unsaved changes. Are you sure you want to cancel?"
+  confirmText="Discard" cancelText="Keep Editing" type="danger" (confirm)="closeModal()"
+  (cancel)="isConfirmCancelOpen = false">
+</app-confirmation-popup>
+}

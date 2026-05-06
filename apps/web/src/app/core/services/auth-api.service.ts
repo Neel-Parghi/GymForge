@@ -14,6 +14,10 @@ export class AuthApiService extends BaseApiService {
   private router = inject(Router);
   private userProfileSubject = new BehaviorSubject<UserProfile | null>(this.loadStoredProfile());
   public userProfile$ = this.userProfileSubject.asObservable();
+  
+  getUserProfile(): UserProfile | null {
+    return this.userProfileSubject.value;
+  }
 
   constructor() {
     super();
@@ -49,7 +53,7 @@ export class AuthApiService extends BaseApiService {
   }
 
   saveTokens(res: any) {
-    const data = res?.Data || res?.data || res;
+    const data = res?.data || res;
     if (data?.accessToken) localStorage.setItem('token', data.accessToken);
     if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
   }
@@ -102,6 +106,12 @@ export class AuthApiService extends BaseApiService {
     const decoded: any = this.decodeToken();
     if (!decoded) return null;
     return decoded['role'] || null;
+  }
+
+  getGymId(): string | null {
+    const decoded: any = this.decodeToken();
+    if (!decoded) return null;
+    return decoded['gymId'] || null;
   }
 
   decodeToken(): any {

@@ -51,7 +51,7 @@ export class AcceptInvitationComponent implements OnInit {
   validateToken(): void {
     this.userService.validateInvitation(this.token!).subscribe({
       next: (res: any) => {
-        const data = res?.Data || res?.data || res;
+        const data = res?.data || res;
         this.isValidating = false;
         this.isTokenValid = data.isValid;
         if (!this.isTokenValid) {

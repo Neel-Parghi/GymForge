@@ -94,7 +94,7 @@ export class PaymentsComponent implements OnInit {
   loadGyms() {
     this.gymService.getGymList().subscribe({
       next: (res) => {
-        this.gyms = res.Data;
+        this.gyms = res.data;
       }
     });
   }
@@ -102,7 +102,7 @@ export class PaymentsComponent implements OnInit {
   loadPlans() {
     this.pricingService.getAllPlans().subscribe({
       next: (res) => {
-        this.plans = res.Data;
+        this.plans = res.data;
       }
     });
   }
@@ -110,7 +110,7 @@ export class PaymentsComponent implements OnInit {
   loadStats() {
     this.paymentService.getStats().subscribe({
       next: (res) => {
-        this.stats = res.Data;
+        this.stats = res.data;
       }
     })
   }
@@ -118,7 +118,7 @@ export class PaymentsComponent implements OnInit {
   loadTransactions() {
     this.paymentService.getTransactions().subscribe({
       next: (res) => {
-        this.transactions = res.Data;
+        this.transactions = res.data;
       }
     });
   }
@@ -126,7 +126,7 @@ export class PaymentsComponent implements OnInit {
   loadSettings() {
     this.paymentService.getSettings().subscribe({
       next: (res) => {
-        this.settings = res.Data;
+        this.settings = res.data;
         if (this.settings) {
           this.settingsForm.patchValue(this.settings);
         }
@@ -173,9 +173,9 @@ export class PaymentsComponent implements OnInit {
       next: (res: any) => {
         const options = {
           key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
-          amount: res.Data.transactionResponse.amount,
+          amount: res.data.transactionResponse.amount,
           currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
-          order_id: res.Data.transactionResponse.razorpayOrderId,
+          order_id: res.data.transactionResponse.razorpayOrderId,
           name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
           description: CONSTANTS.PAYMENT.RAZORPAY.FLOW_DESCRIPTION,
           handler: (response: any) => {

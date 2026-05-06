@@ -53,5 +53,16 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'gatewayTransactionId', label: 'Transaction ID' },
     ],
     selectable: false
+  },
+  GymMembers: {
+    columns: [
+      { key: 'firstName', label: 'Member', type: 'profile', subKey: 'email' },
+      { key: 'membershipNumber', label: 'Membership ID', type: 'text' },
+      { key: 'currentSubscription.planNameSnapshot', label: 'Plan', type: 'complex', subKey: 'currentSubscription.pricePaid' },
+      { key: 'statusLabel', label: 'Status', type: 'badge' },
+      { key: 'currentSubscription.endDate', label: 'Expiry', type: 'date' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false
   }
 };

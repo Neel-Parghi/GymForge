@@ -65,7 +65,7 @@ export class ProfileComponent implements OnInit {
   loadProfile(forceRefresh = false) {
     this.profileService.getProfile(forceRefresh).subscribe({
       next: (response: any) => {
-        const data = response.data || response.Data || response;
+        const data = response.data || response;
 
         this.profile = data;
         this.profileForm.patchValue({
@@ -104,8 +104,7 @@ export class ProfileComponent implements OnInit {
         const uploadRes = await this.profileService.uploadAvatar(this.selectedFile).toPromise();
         
         // Exhaustive check for the URL in the response (handling wrapping and casing)
-        const newUrl = uploadRes?.Data?.url || uploadRes?.Data?.Url || 
-                       uploadRes?.data?.url || uploadRes?.data?.Url || 
+        const newUrl = uploadRes?.data?.url || uploadRes?.data?.Url || 
                        uploadRes?.url || uploadRes?.Url;
         
         if (newUrl) {

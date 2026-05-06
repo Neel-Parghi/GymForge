@@ -77,7 +77,7 @@ export class GymPlansComponent implements OnInit {
     this.loading = true;
     this.gymPlanService.getPlansByOwnerId(this.ownerId).subscribe({
       next: (res) => {
-        const plans = (res as any).Data || (res as any).data || (Array.isArray(res) ? res : []);
+        const plans = (res as any).data || (Array.isArray(res) ? res : []);
         this.plans = plans;
         this.setupCarousel();
         this.loading = false;

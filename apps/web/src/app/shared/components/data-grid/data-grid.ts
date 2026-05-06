@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/column-def.model';
 
@@ -10,6 +10,7 @@ import { ColumnDef } from '../../models/column-def.model';
   styleUrl: './data-grid.scss',
 })
 export class DataGrid {
+  @ContentChild('emptyState') emptyStateTemplate?: TemplateRef<any>;
   @Input() config!: { columns: ColumnDef[], selectable?: boolean };
   @Input() data: any[] = [];
   @Input() totalItems: number = 0;
@@ -104,5 +105,10 @@ export class DataGrid {
       default:
         return 'badge-neutral';
     }
+  }
+
+  getNestedValue(row: any, key: string): any {
+    if (!key.includes('.')) return row[key];
+    return key.split('.').reduce((acc, part) => acc && acc[part], row);
   }
 }

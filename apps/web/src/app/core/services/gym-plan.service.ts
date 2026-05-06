@@ -1,8 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable } from 'rxjs';
 import { GymPlan, CreateGymPlanRequest, UpdateGymPlanRequest } from '../../shared/models/gym-plan.model';
+import { ApiResponse } from '../../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,7 @@ export class GymPlanService extends BaseApiService {
     super();
   }
 
-  getPlansByOwnerId(ownerId: string): Observable<GymPlan[]> {
+  getPlansByOwnerId(ownerId: string): Observable<ApiResponse<GymPlan[]>> {
     return this.get(`${API_CONSTANTS.GYM_PLAN.LIST_BY_OWNER}/${ownerId}`);
   }
 

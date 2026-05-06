@@ -30,6 +30,32 @@
     </div>
 
     <div class="stat-card">
+      <div class="stat-icon active-members">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Active Members</span>
+        <h2 class="stat-value">{{ stats?.activeMembers || 0 }}</h2>
+        <span class="stat-status success">
+          Currently active
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon frozen-members">
+        <i class="fa-solid fa-snowflake"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Frozen Members</span>
+        <h2 class="stat-value">{{ stats?.frozenMembers || 0 }}</h2>
+        <span class="stat-status warning">
+          On hold
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-card">
       <div class="stat-icon attendance">
         <i class="fa-solid fa-calendar-check"></i>
       </div>

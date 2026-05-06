@@ -64,8 +64,8 @@ export class SettingsComponent implements OnInit {
   loadSettings() {
     this.configService.getConfig().subscribe({
       next: (res) => {
-        if (res.Data) {
-          this.settingsForm.patchValue(res.Data);
+        if (res.data) {
+          this.settingsForm.patchValue(res.data);
         }
         this.loading = false;
       }

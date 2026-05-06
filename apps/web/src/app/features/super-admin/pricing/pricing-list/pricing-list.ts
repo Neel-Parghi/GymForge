@@ -53,7 +53,7 @@ export class PricingList implements OnInit {
 
   loadPlans() {
     this.pricingService.getAllPlans().subscribe((res: ApiResponse<PricingPlan[]>) => {
-      this.originalData = res?.Data || [];
+      this.originalData = res?.data || [];
       this.applyFilters({ search: '' });
     });
   }
@@ -122,13 +122,13 @@ export class PricingList implements OnInit {
       if (confirmed) {
         this.pricingService.deletePlan(id).subscribe({
           next: (res: any) => {
-            const data = res?.Data || res?.data || res;
-            
+            const data = res?.data || res;
+
             if (data?.Success === false || data?.success === false) {
               const message = (data?.Message || data?.message) === 'PLAN_IN_USE'
                 ? CONSTANTS.PLAN_DELETE_VALIDATION_MESSAGE
                 : (data?.Message || data?.message || CONSTANTS.PLAN_DELETE_ERROR_MESSAGE);
-              
+
               this.notification.error(message);
               return;
             }

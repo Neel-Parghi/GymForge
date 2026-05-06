@@ -68,7 +68,7 @@ export class GymList implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (res) => {
-          this.originalData = res.Data || [];
+          this.originalData = res.data || [];
           this.applyFilters({ search: '' });
         },
         error: (err) => this.notification.error(err.error?.message || CONSTANTS.GYM_LOAD_ERROR_MESSAGE)
@@ -156,7 +156,7 @@ export class GymList implements OnInit {
     if (confirmed) {
       this.gymService.deleteGym(gym.id).subscribe({
         next: (res: any) => {
-          const data = res?.Data || res?.data || res;
+          const data = res?.data || res;
 
           if (data?.Success === false || data?.success === false) {
             const message = (data?.Message || data?.message) === 'GYM_HAS_BRANCHES'

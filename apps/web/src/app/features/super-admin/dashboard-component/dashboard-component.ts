@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit {
   loadStats() {
     this.dashboardService.getStats().subscribe({
       next: (res: any) => {
-        const data = res.Data;
+        const data = res.data;
         if (data) {
           this.stats = {
             platformHealth: data.health,
@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit {
           this.stats.totalRevenue.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_REVENUE;
           this.stats.subscriptions.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.SUBSCRIPTIONS;
           this.stats.totalGyms.subtext = CONSTANTS.DASHBOARD.METRIC_SUBTEXTS.TOTAL_GYMS;
-          
+
           this.planDistribution = data.planDistribution || [];
           this.recentRegistrations = data.recentRegistrations || [];
         }
@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
 
   downloadReport(type: string) {
     this.isDownloading = true;
-    
+
     this.dashboardService.downloadReport(type).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -79,7 +79,7 @@ export class DashboardComponent implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         this.isDownloading = false;
         this.closeReportModal();
       },
