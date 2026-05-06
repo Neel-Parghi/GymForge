@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { GymMember, MemberSubscription, OnboardMemberRequest, RenewSubscriptionRequest } from '../../shared/models/member.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 
@@ -18,8 +18,25 @@ export class MemberService extends BaseApiService {
     return this.post(`${API_CONSTANTS.MEMBERS.ONBOARD}/${gymId}/${createdBy}`, payload);
   }
 
+  private membersCache$: Observable<ApiResponse<GymMember[]>> | null = null;
+  private lastGymId: string | null = null;
+
   getGymMembers(gymId: string): Observable<ApiResponse<GymMember[]>> {
-    return this.get(`${API_CONSTANTS.MEMBERS.LIST}/${gymId}`);
+    if (this.membersCache$ && this.lastGymId === gymId) {
+      return this.membersCache$;
+    }
+    
+    this.lastGymId = gymId;
+    this.membersCache$ = this.get<ApiResponse<GymMember[]>>(`${API_CONSTANTS.MEMBERS.LIST}/${gymId}`)
+      .pipe(shareReplay(1));
+      
+    return this.membersCache$;
+  }
+
+  // Clear cache when data is modified
+  clearCache(): void {
+    this.membersCache$ = null;
+    this.lastGymId = null;
   }
 
   getMemberById(id: string): Observable<ApiResponse<GymMember>> {

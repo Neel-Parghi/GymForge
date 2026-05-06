@@ -170,6 +170,7 @@ export class MembersListComponent implements OnInit {
       next: () => {
         this.notificationService.success('Member onboarded successfully!');
         this.isOnboardOpen = false;
+        this.memberService.clearCache();
         this.loadMembers();
       },
       error: (err) => {
@@ -185,6 +186,7 @@ export class MembersListComponent implements OnInit {
       next: () => {
         this.notificationService.success('Member profile updated!');
         this.isOnboardOpen = false;
+        this.memberService.clearCache();
         this.loadMembers();
       },
       error: (err) => {
@@ -216,7 +218,11 @@ export class MembersListComponent implements OnInit {
   handleFreeze(memberId: string): void {
     if (!this.gymOwnerId) return;
     this.memberService.freezeMember(memberId, this.gymOwnerId).subscribe({
-      next: () => { this.notificationService.success('Member frozen'); this.refreshDrawer(memberId); },
+      next: () => { 
+        this.notificationService.success('Member frozen'); 
+        this.memberService.clearCache();
+        this.refreshDrawer(memberId); 
+      },
       error: () => this.notificationService.error('Failed to freeze member')
     });
   }
@@ -224,14 +230,22 @@ export class MembersListComponent implements OnInit {
   handleUnfreeze(memberId: string): void {
     if (!this.gymOwnerId) return;
     this.memberService.unfreezeMember(memberId, this.gymOwnerId).subscribe({
-      next: () => { this.notificationService.success('Member unfrozen'); this.refreshDrawer(memberId); },
+      next: () => { 
+        this.notificationService.success('Member unfrozen'); 
+        this.memberService.clearCache();
+        this.refreshDrawer(memberId); 
+      },
       error: () => this.notificationService.error('Failed to unfreeze member')
     });
   }
 
   handleToggle(memberId: string): void {
     this.memberService.toggleMemberStatus(memberId).subscribe({
-      next: () => { this.notificationService.success('Member status updated'); this.refreshDrawer(memberId); },
+      next: () => { 
+        this.notificationService.success('Member status updated'); 
+        this.memberService.clearCache();
+        this.refreshDrawer(memberId); 
+      },
       error: () => this.notificationService.error('Failed to update status')
     });
   }
@@ -239,7 +253,11 @@ export class MembersListComponent implements OnInit {
   handleRenew(event: { memberId: string; request: RenewSubscriptionRequest }): void {
     if (!this.gymOwnerId) return;
     this.memberService.renewSubscription(event.memberId, this.gymOwnerId, event.request).subscribe({
-      next: () => { this.notificationService.success('Subscription renewed!'); this.refreshDrawer(event.memberId); },
+      next: () => { 
+        this.notificationService.success('Subscription renewed!'); 
+        this.memberService.clearCache();
+        this.refreshDrawer(event.memberId); 
+      },
       error: () => this.notificationService.error('Failed to renew subscription')
     });
   }

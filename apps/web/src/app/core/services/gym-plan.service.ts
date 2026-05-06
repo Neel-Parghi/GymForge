@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { GymPlan, CreateGymPlanRequest, UpdateGymPlanRequest } from '../../shared/models/gym-plan.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 
@@ -14,8 +14,24 @@ export class GymPlanService extends BaseApiService {
     super();
   }
 
+  private plansCache$: Observable<ApiResponse<GymPlan[]>> | null = null;
+  private lastOwnerId: string | null = null;
+
   getPlansByOwnerId(ownerId: string): Observable<ApiResponse<GymPlan[]>> {
-    return this.get(`${API_CONSTANTS.GYM_PLAN.LIST_BY_OWNER}/${ownerId}`);
+    if (this.plansCache$ && this.lastOwnerId === ownerId) {
+      return this.plansCache$;
+    }
+
+    this.lastOwnerId = ownerId;
+    this.plansCache$ = this.get<ApiResponse<GymPlan[]>>(`${API_CONSTANTS.GYM_PLAN.LIST_BY_OWNER}/${ownerId}`)
+      .pipe(shareReplay(1));
+
+    return this.plansCache$;
+  }
+
+  clearCache(): void {
+    this.plansCache$ = null;
+    this.lastOwnerId = null;
   }
 
   getPlanById(planId: string): Observable<GymPlan> {

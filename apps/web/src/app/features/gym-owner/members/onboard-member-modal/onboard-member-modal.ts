@@ -137,7 +137,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
             lastName: this.member!.lastName,
             email: this.member!.email,
             phoneNumber: this.member!.phoneNumber,
-            dateOfBirth: this.member!.dateOfBirth?.split('T')[0],
+            dateOfBirth: this.member!.dateOfBirth?.split('T')?.[0],
             gender: this.member!.gender,
             bloodGroup: this.member!.bloodGroup || '',
             address: this.member!.address || {
@@ -148,7 +148,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
             emergencyContactName: this.member!.emergencyContactName || '',
             emergencyContactPhone: this.member!.emergencyContactPhone || '',
             gymPlanId: planId,
-            startDate: this.member!.currentSubscription?.startDate?.split('T')[0] || ''
+            startDate: this.member!.currentSubscription?.startDate?.split('T')?.[0] || ''
           });
 
           this.form.get('gymPlanId')?.updateValueAndValidity();

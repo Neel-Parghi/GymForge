@@ -108,7 +108,8 @@ export class DataGrid {
   }
 
   getNestedValue(row: any, key: string): any {
-    if (!key.includes('.')) return row[key];
-    return key.split('.').reduce((acc, part) => acc && acc[part], row);
+    if (!row || !key) return '';
+    if (!key.includes('.')) return row[key] ?? '';
+    return key.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : '', row) || '';
   }
 }
