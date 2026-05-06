@@ -39,6 +39,8 @@ namespace GymForge.Application
 
             services.AddScoped<IGymPlanService, GymPlanService>();
 
+            services.AddScoped<IGymMemberService, GymMemberService>();
+
             return services;
         }
     }

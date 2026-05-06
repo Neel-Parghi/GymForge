@@ -26,6 +26,7 @@ namespace GymForge.Application.Modules.Auth.Service
                 new Claim("userId", user.Id.ToString()),
                 new Claim("email", user.Email),
                 new Claim("role", user.Role.ToString()),
+                new Claim("gymId", user.GymId?.ToString() ?? string.Empty),
             ];
 
             SymmetricSecurityKey key = new (Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));

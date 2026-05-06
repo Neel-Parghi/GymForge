@@ -1,5 +1,6 @@
 using GymForge.Shared.Models;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GymForge.Api.Middlewares
 {
@@ -75,7 +76,14 @@ namespace GymForge.Api.Middlewares
                 Timestamp = DateTime.UtcNow
             };
 
-            string json = JsonSerializer.Serialize(wrappedResponse);
+            JsonSerializerOptions options = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            string json = JsonSerializer.Serialize(wrappedResponse, options);
 
             context.Response.Body = originalBodyStream;
             await context.Response.WriteAsync(json);

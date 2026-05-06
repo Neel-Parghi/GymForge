@@ -12,6 +12,7 @@ namespace GymForge.Contracts.Users
         public string Phone { get; set; } = string.Empty;
         public string ProfilePictureUrl { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+        public Guid? GymId { get; set; }
         
         // Address Fields
         public string? AddressLine1 { get; set; }

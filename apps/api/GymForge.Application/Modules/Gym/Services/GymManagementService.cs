@@ -24,12 +24,12 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto)
         {
-            // 1. Setup and Add Address
+            // 1 Setup and Add Address
             Address address = _mapper.Map<Address>(gymOnboardingDto.Address);
             address.Id = Guid.NewGuid();
             await _gymManagementRepository.AddAddressAsync(address);
 
-            // 2. Setup and Add Gym
+            // 2 Setup and Add Gym
             Domain.Entities.Gym gym = _mapper.Map<Domain.Entities.Gym>(gymOnboardingDto);
             gym.Id = Guid.NewGuid();
             gym.AddressId = address.Id;
@@ -38,7 +38,15 @@ namespace GymForge.Application.Modules.Gym.Services
             gym.IsVerified = false;
             await _gymManagementRepository.AddGymAsync(gym);
 
-            // 3. Setup and Add Branches
+            // 3 Link User to Gym
+            User? user = await _gymManagementRepository.GetGymOwnerByIdAsync(ownerId);
+            if (user != null)
+            {
+                user.GymId = gym.Id;
+                _gymManagementRepository.UpdateGymOwner(user);
+            }
+
+            // 4 Setup and Add Branches
             bool isFirstBranch = true;
             foreach(BranchDto branchDto in gymOnboardingDto.Branches)
             {
@@ -57,7 +65,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 isFirstBranch = false;
             }
 
-            // 4. Setup and Add Gym Subscription Plan
+            // 5 Setup and Add Gym Subscription Plan
             SubscriptionRecord subscription = new() 
             {
                 Id = Guid.NewGuid(),
@@ -72,7 +80,7 @@ namespace GymForge.Application.Modules.Gym.Services
             };
             await _gymManagementRepository.AddGymSubscriptionAsync(subscription);
 
-            // 5. Commit Transaction
+            // 6 Commit Transaction
             await _unitOfWork.SaveChangesAsync();
         }
     

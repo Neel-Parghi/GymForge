@@ -81,6 +81,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<IEmailService, Services.BrevoEmailService>();
             services.AddScoped<IGymPlanRepository, GymPlanRepository>();
+            services.AddScoped<IGymMemberRepository, GymMemberRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

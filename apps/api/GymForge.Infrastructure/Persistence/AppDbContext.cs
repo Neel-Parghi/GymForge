@@ -30,6 +30,10 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<SaaSConfiguration> SaaSConfigurations { get; set; }
         
         public DbSet<GymPlan> GymPlans { get; set; }
+        
+        public DbSet<GymMember> GymMembers { get; set; }
+        
+        public DbSet<MemberSubscription> MemberSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

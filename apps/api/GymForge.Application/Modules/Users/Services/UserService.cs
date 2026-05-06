@@ -120,6 +120,7 @@ namespace GymForge.Application.Modules.Users.Services
                 Phone = user.Phone,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Role = user.Role.ToString(),
+                GymId = user.GymId,
                 AddressLine1 = user.Address?.Address1,
                 AddressLine2 = user.Address?.Address2,
                 City = user.Address?.City,
