@@ -89,7 +89,7 @@ export class AcceptInvitationComponent implements OnInit {
       this.userService.setPassword(payload).subscribe({
         next: () => {
           this.isSubmitting = false;
-          // Redirect to login with a success message (could use a snackbar/toast here)
+
           this.router.navigate(['/login'], { queryParams: { setupSuccess: true } });
         },
         error: (err: any) => {

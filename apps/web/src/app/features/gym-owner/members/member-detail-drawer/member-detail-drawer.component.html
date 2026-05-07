@@ -1,0 +1,180 @@
+<app-slide-drawer [isOpen]="isOpen" title="Member Profile" width="520px" (closeDrawer)="drawerClose.emit()">
+
+  <div drawer-body>
+    <ng-container *ngIf="member">
+      <!-- Premium Hero Section -->
+      <div class="member-hero">
+        <div class="avatar-container">
+          <div class="status-ring" [ngClass]="statusClass"></div>
+          <div class="avatar">
+            {{ initials }}
+          </div>
+        </div>
+        <div class="hero-info">
+          <h2>{{ fullName }}</h2>
+          <div class="membership-id">
+            <i class="fa-solid fa-id-badge"></i>
+            {{ member.membershipNumber }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="quick-stats">
+        <div class="stat-item">
+          <span class="stat-label">Member Since</span>
+          <span class="stat-value">{{ member.joiningDate | date:'MMM yyyy' }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Gender</span>
+          <span class="stat-value">{{ member.gender === 1 ? 'Male' : member.gender === 2 ? 'Female' : 'Other' }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Status</span>
+          <span class="stat-value"
+            [style.color]="statusClass === 'active' ? '#22c55e' : statusClass === 'frozen' ? '#3b82f6' : '#ef4444'">
+            {{ statusLabel }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Ultra Premium Membership Card -->
+      <div class="membership-card-wrap">
+        <div class="membership-card" *ngIf="sub; else noSub">
+          <div class="card-top">
+            <div class="brand">GYMFORGE PREMIER</div>
+            <div class="chip"></div>
+          </div>
+
+          <div class="card-plan">
+            <div class="plan-name">{{ sub.planNameSnapshot }}</div>
+            <div class="plan-price">
+              ₹{{ sub.pricePaid | number:'1.0-0' }}
+              <small>/ {{ sub.durationMonths }} Months</small>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="expiry-info">
+              <span class="label">Valid Until</span>
+              <span class="date">{{ sub.endDate | date:'dd MMM yyyy' }}</span>
+            </div>
+            <div class="status-pill">
+              {{ daysRemaining > 0 ? daysRemaining + ' Days Remaining' : 'Expired' }}
+            </div>
+          </div>
+
+          <div class="health-bar">
+            <div class="fill" [ngClass]="progressClass" [style.width.%]="progressPercent"></div>
+          </div>
+        </div>
+
+        <ng-template #noSub>
+          <div class="no-data">
+            <i class="fa-solid fa-receipt"></i>
+            <span>No active subscription found</span>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Information Groups -->
+      <div class="details-sections">
+
+        <!-- Personal Group -->
+        <div class="info-group">
+          <div class="group-header">
+            <i class="fa-solid fa-user"></i>
+            <h3>Personal Details</h3>
+            <div class="line"></div>
+          </div>
+          <div class="info-grid">
+            <div class="info-tile">
+              <span class="label">Birthday</span>
+              <span class="value">{{ member.dateOfBirth | date:'dd MMM yyyy' }}</span>
+            </div>
+            <div class="info-tile">
+              <span class="label">Phone Number</span>
+              <span class="value">{{ member.phoneNumber }}</span>
+            </div>
+            <div class="info-tile" style="grid-column: span 2;">
+              <span class="label">Email Address</span>
+              <span class="value">{{ member.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Health & Goals Group -->
+        <div class="info-group" *ngIf="member.bloodGroup || member.medicalConditions || member.fitnessGoals?.length">
+          <div class="group-header">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <h3>Health & Fitness</h3>
+            <div class="line"></div>
+          </div>
+          <div class="info-grid">
+            <div class="info-tile" *ngIf="member.bloodGroup">
+              <span class="label">Blood Group</span>
+              <span class="value">{{ member.bloodGroup }}</span>
+            </div>
+            <div class="info-tile" *ngIf="member.fitnessGoals?.length">
+              <span class="label">Fitness Goals</span>
+              <span class="value">{{ member.fitnessGoals!.join(', ') }}</span>
+            </div>
+            <div class="info-tile" style="grid-column: span 2;" *ngIf="member.medicalConditions">
+              <span class="label">Medical Conditions</span>
+              <span class="value">{{ member.medicalConditions }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Contact Group -->
+        <div class="info-group" *ngIf="member.emergencyContactName">
+          <div class="group-header">
+            <i class="fa-solid fa-phone-volume"></i>
+            <h3>Emergency Contact</h3>
+            <div class="line"></div>
+          </div>
+          <div class="info-grid">
+            <div class="info-tile">
+              <span class="label">Contact Name</span>
+              <span class="value">{{ member.emergencyContactName }}</span>
+            </div>
+            <div class="info-tile">
+              <span class="label">Relation / Phone</span>
+              <span class="value">{{ member.emergencyContactPhone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Group -->
+        <div class="info-group" *ngIf="member.address">
+          <div class="group-header">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <h3>Primary Address</h3>
+            <div class="line"></div>
+          </div>
+          <div class="info-grid full-width">
+            <div class="info-tile">
+              <span class="label">Full Address</span>
+              <span class="value">
+                {{ member.address.line1 }}<span *ngIf="member.address.line2">, {{ member.address.line2 }}</span><br>
+                {{ member.address.city }}, {{ member.address.state }}, {{ member.address.postalCode }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+  </div>
+
+  <div drawer-footer>
+    <ng-container *ngIf="member">
+      <div class="footer-actions">
+        <button class="manage-btn" (click)="manage.emit(member.id)">
+          <i class="fa-solid fa-sliders"></i>
+          Manage Member Profile
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</app-slide-drawer>

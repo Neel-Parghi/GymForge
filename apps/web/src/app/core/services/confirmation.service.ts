@@ -1,5 +1,5 @@
 import { ApplicationRef, ComponentRef, EnvironmentInjector, Injectable, createComponent, inject } from '@angular/core';
-import { ConfirmationPopupComponent } from '../../shared/components/confirmation-popup-component/confirmation-popup-component';
+import { ConfirmationPopupComponent } from '../../shared/components/confirmation-popup/confirmation-popup.component';
 
 export interface ConfirmOptions {
   title?: string;

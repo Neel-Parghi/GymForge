@@ -1,6 +1,6 @@
 export const API_CONSTANTS = {
-  // BASE_URL: 'https://localhost:7184/api/',
-  BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
+  BASE_URL: 'https://localhost:7184/api/',
+  // BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
 
 
   AUTH: {
@@ -9,6 +9,7 @@ export const API_CONSTANTS = {
     REGISTER_SUPERADMIN: 'auth/register-superadmin',
     LOGOUT: 'auth/logout',
     REFRESH: 'auth/refresh',
+    ME: 'auth/me'
   },
   USER: {
     PROFILE: 'users/profile',

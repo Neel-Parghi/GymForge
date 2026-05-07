@@ -6,10 +6,10 @@ import { MemberService } from '../../../core/services/member.service';
 import { GymPlanService } from '../../../core/services/gym-plan.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { DataGrid } from '../../../shared/components/data-grid/data-grid';
+import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
-import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal';
-import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer';
+import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal.component';
+import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer.component';
 import { GymMember, MemberStatus, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../shared/models/member.model';
 import { GymPlan } from '../../../shared/models/gym-plan.model';
 
@@ -158,7 +158,6 @@ export class MembersListComponent implements OnInit {
     this.isEditMode = true;
     this.isDrawerOpen = false;
     this.isOnboardOpen = true;
-    // selectedMember is already set by viewDetails, but just in case:
     if (!this.selectedMember || this.selectedMember.id !== memberId) {
       this.memberService.getMemberById(memberId).subscribe(m => this.selectedMember = m.data);
     }
@@ -218,10 +217,10 @@ export class MembersListComponent implements OnInit {
   handleFreeze(memberId: string): void {
     if (!this.gymOwnerId) return;
     this.memberService.freezeMember(memberId, this.gymOwnerId).subscribe({
-      next: () => { 
-        this.notificationService.success('Member frozen'); 
+      next: () => {
+        this.notificationService.success('Member frozen');
         this.memberService.clearCache();
-        this.refreshDrawer(memberId); 
+        this.refreshDrawer(memberId);
       },
       error: () => this.notificationService.error('Failed to freeze member')
     });
@@ -230,10 +229,10 @@ export class MembersListComponent implements OnInit {
   handleUnfreeze(memberId: string): void {
     if (!this.gymOwnerId) return;
     this.memberService.unfreezeMember(memberId, this.gymOwnerId).subscribe({
-      next: () => { 
-        this.notificationService.success('Member unfrozen'); 
+      next: () => {
+        this.notificationService.success('Member unfrozen');
         this.memberService.clearCache();
-        this.refreshDrawer(memberId); 
+        this.refreshDrawer(memberId);
       },
       error: () => this.notificationService.error('Failed to unfreeze member')
     });
@@ -241,10 +240,10 @@ export class MembersListComponent implements OnInit {
 
   handleToggle(memberId: string): void {
     this.memberService.toggleMemberStatus(memberId).subscribe({
-      next: () => { 
-        this.notificationService.success('Member status updated'); 
+      next: () => {
+        this.notificationService.success('Member status updated');
         this.memberService.clearCache();
-        this.refreshDrawer(memberId); 
+        this.refreshDrawer(memberId);
       },
       error: () => this.notificationService.error('Failed to update status')
     });
@@ -253,10 +252,10 @@ export class MembersListComponent implements OnInit {
   handleRenew(event: { memberId: string; request: RenewSubscriptionRequest }): void {
     if (!this.gymOwnerId) return;
     this.memberService.renewSubscription(event.memberId, this.gymOwnerId, event.request).subscribe({
-      next: () => { 
-        this.notificationService.success('Subscription renewed!'); 
+      next: () => {
+        this.notificationService.success('Subscription renewed!');
         this.memberService.clearCache();
-        this.refreshDrawer(event.memberId); 
+        this.refreshDrawer(event.memberId);
       },
       error: () => this.notificationService.error('Failed to renew subscription')
     });

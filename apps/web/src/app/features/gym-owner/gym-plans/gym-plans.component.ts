@@ -216,6 +216,7 @@ export class GymPlansComponent implements OnInit {
       this.gymPlanService.updatePlan(request).subscribe({
         next: () => {
           this.notificationService.success('Plan updated successfully');
+          this.gymPlanService.clearCache();
           this.loadPlans();
           this.closeModal();
         },

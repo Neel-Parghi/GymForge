@@ -49,7 +49,7 @@ export class AuthApiService extends BaseApiService {
   }
 
   getMe() {
-    return this.get<any>('auth/me');
+    return this.get<any>(API_CONSTANTS.AUTH.ME);
   }
 
   saveTokens(res: any) {

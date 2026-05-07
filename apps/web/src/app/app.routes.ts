@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login-component/login-component';
-import { RegisterComponent } from './features/auth/register-component/register-component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent } from './features/auth/register/register.component';
 import { AcceptInvitationComponent } from './features/auth/accept-invitation/accept-invitation.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { DashboardComponent } from './features/super-admin/dashboard-component/dashboard-component';
-import { GymOwners } from './features/super-admin/gym-management/gym-owners/gym-owners';
-import { GymList } from './features/super-admin/gym-management/gym-list/gym-list';
-import { PricingList } from './features/super-admin/pricing/pricing-list/pricing-list';
+import { DashboardComponent } from './features/super-admin/dashboard/dashboard.component';
+import { GymOwners } from './features/super-admin/gym-management/gym-owners/gym-owners.component';
+import { GymList } from './features/super-admin/gym-management/gym-list/gym-list.component';
+import { PricingList } from './features/super-admin/pricing/pricing-list/pricing-list.component';
 import { authGuard } from './core/guards/auth-guard';
 import { loggedInGuard } from './core/guards/logged-in.guard';
 
@@ -26,15 +26,15 @@ export const routes: Routes = [
       { path: 'pricing', component: PricingList },
       {
         path: 'payments',
-        loadComponent: () => import('./features/super-admin/payments/payments-component/payments-component').then(m => m.PaymentsComponent)
+        loadComponent: () => import('./features/super-admin/payments/payments.component').then(m => m.PaymentsComponent)
       },
       {
         path: 'settings',
-        loadComponent: () => import('./features/super-admin/settings-component/settings-component').then(m => m.SettingsComponent)
+        loadComponent: () => import('./features/super-admin/settings/settings.component').then(m => m.SettingsComponent)
       },
       {
         path: 'profile',
-        loadComponent: () => import('./features/super-admin/profile-component/profile-component').then(m => m.ProfileComponent)
+        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
       }
     ]
   },
@@ -49,11 +49,11 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        loadComponent: () => import('./features/super-admin/profile-component/profile-component').then(m => m.ProfileComponent)
+        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
       },
       {
         path: 'settings',
-        loadComponent: () => import('./features/super-admin/settings-component/settings-component').then(m => m.SettingsComponent)
+        loadComponent: () => import('./features/super-admin/settings/settings.component').then(m => m.SettingsComponent)
       },
       {
         path: 'plans',

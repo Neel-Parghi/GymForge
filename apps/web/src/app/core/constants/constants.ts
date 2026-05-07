@@ -19,6 +19,23 @@ export const CONSTANTS = {
     LOAD: 'load',
     ROW_CLICK: 'row-click',
 
+    COMMON_SUCCESS_TITLE: 'Success',
+    COMMON_ERROR_TITLE: 'Error',
+    COMMON_WARNING_TITLE: 'Warning',
+    COMMON_INFO_TITLE: 'Info',
+
+    //#endregion
+
+    //#region Auth
+    AUTH: {
+        LOGIN_SUCCESS: 'Login successful!',
+        LOGIN_FAILED: 'Authentication failed.',
+        LOGIN_ERROR: 'Login failed. Please try again.',
+        REGISTER_SUCCESS: 'Registration successful! Please sign in.',
+        REGISTER_FAILED: 'Registration failed. Please try again.',
+        PASSWORD_SET_SUCCESS: 'Password set successfully! You can now log in.',
+        PASSWORD_RESET_LINK_SENT: 'Password reset link has been sent to your email.'
+    },
     //#endregion
 
     //#region Gym Owner
@@ -92,6 +109,9 @@ export const CONSTANTS = {
             SUBSCRIPTIONS: 'Currently active paid plans',
             TOTAL_GYMS: 'Total gyms onboarded'
         },
+        LOADING: 'Loading...',
+        MRR_SUBTEXT: 'Monthly Recurring Revenue',
+        ARR_SUBTEXT: 'Annual Recurring Revenue',
         LOCALE: 'en-IN',
         CURRENCY: 'INR',
         REPORT_FILENAME_PREFIX: 'report',
