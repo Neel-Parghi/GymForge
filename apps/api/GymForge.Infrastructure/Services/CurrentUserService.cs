@@ -17,7 +17,7 @@ namespace GymForge.Infrastructure.Services
         {
             get
             {
-                HttpContext httpContext = _httpContextAccessor.HttpContext;
+                HttpContext? httpContext = _httpContextAccessor.HttpContext;
                 if (httpContext == null) return null;
 
                 ClaimsPrincipal user = httpContext.User;
