@@ -27,15 +27,17 @@
             </div>
 
             <div class="utility-controls">
-                <select class="compact-select" formControlName="selectedGymId">
-                    <option value="" disabled selected>Select Gym to Test</option>
-                    <option *ngFor="let gym of gyms" [value]="gym.id">{{ gym.gymName }}</option>
-                </select>
+                <app-dropdown 
+                  [options]="gymOptions" 
+                  formControlName="selectedGymId" 
+                  placeholder="Select Gym to Test">
+                </app-dropdown>
 
-                <select class="compact-select" formControlName="selectedPlanId">
-                    <option value="" disabled selected>Select Plan</option>
-                    <option *ngFor="let plan of plans" [value]="plan.id">{{ plan.name }}</option>
-                </select>
+                <app-dropdown 
+                  [options]="planOptions" 
+                  formControlName="selectedPlanId" 
+                  placeholder="Select Plan">
+                </app-dropdown>
 
                 <button class="btn-test-pay" (click)="payWithRazorpay()" [disabled]="testPaymentForm.invalid">
                     <i class="fa-solid fa-credit-card"></i> Pay
@@ -109,12 +111,10 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Gateway Currency</label>
-                                <select formControlName="currency">
-                                    <option value="INR">Indian Rupee (INR)</option>
-                                    <option value="USD">US Dollar (USD)</option>
-                                    <option value="EUR">Euro (EUR)</option>
-                                    <option value="GBP">British Pound (GBP)</option>
-                                </select>
+                                <app-dropdown 
+                                  [options]="currencyOptions" 
+                                  formControlName="currency">
+                                </app-dropdown>
                             </div>
                             <div class="form-group">
                                 <label>Tax Rate (%)</label>

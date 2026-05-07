@@ -8,13 +8,15 @@ import { GymOwnerResponse, OnboardGymRequest } from '../../../../shared/models/g
 import { ConfirmationPopupComponent } from "../../../../shared/components/confirmation-popup/confirmation-popup.component";
 import { PricingService } from '../../../../core/services/pricing.service';
 import { ValidationMessage } from "../../../../shared/components/validation-message/validation-message.component";
-import { CONSTANTS } from '../../../../core/constants/constants';
 import { PricingPlan } from '../../../../shared/models/pricing.model';
+import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../../shared/models/dropdown.model';
+import { CONSTANTS } from '../../../../core/constants/constants';
 
 @Component({
   selector: 'app-gym-onboarding-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent],
   templateUrl: './gym-onboarding-modal.component.html',
   styleUrl: './gym-onboarding-modal.component.scss'
 })
@@ -44,6 +46,31 @@ export class GymOnboardingModalComponent implements OnInit {
   gymOwners: GymOwnerResponse[] = [];
   pricingService = inject(PricingService);
   plans: any[] = [];
+
+  get ownerOptions(): DropdownOption[] {
+    return this.gymOwners.map(owner => ({
+      label: `${owner.name} (${owner.email})`,
+      value: owner.id,
+      icon: 'fa-solid fa-user-tie'
+    }));
+  }
+
+  get planOptions(): DropdownOption[] {
+    const options: DropdownOption[] = [{ label: 'No Plan Selected (Trialing)', value: '' }];
+    this.plans.forEach(plan => {
+      options.push({
+        label: `${plan.name || plan.Name} - $${plan.price}`,
+        value: plan.id,
+        icon: 'fa-solid fa-gem'
+      });
+    });
+    return options;
+  }
+
+  readonly billingCycleOptions: DropdownOption[] = [
+    { label: 'Monthly', value: 'monthly', icon: 'fa-solid fa-calendar-day' },
+    { label: 'Yearly (-10%)', value: 'yearly', icon: 'fa-solid fa-calendar-check' }
+  ];
 
   constructor() { }
 

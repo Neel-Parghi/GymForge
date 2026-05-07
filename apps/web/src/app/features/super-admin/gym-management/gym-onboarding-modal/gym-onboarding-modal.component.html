@@ -202,12 +202,11 @@
           <div class="form-grid">
             <div class="form-group lg">
               <label>Select Owner *</label>
-              <select formControlName="assignedOwnerId">
-                <option value="">Select an owner...</option>
-                <option *ngFor="let owner of gymOwners" [value]="owner.id">
-                  {{ owner.name }} ({{ owner.email }})
-                </option>
-              </select>
+              <app-dropdown 
+                [options]="ownerOptions" 
+                formControlName="assignedOwnerId" 
+                placeholder="Select an owner...">
+              </app-dropdown>
             </div>
             <div class="info-card lg">
               <svg viewBox="0 0 24 24" width="20" height="20">
@@ -225,13 +224,11 @@
           <div class="form-grid">
             <div class="form-group lg">
               <label>Select Plan Tier</label>
-              <select formControlName="subscriptionId">
-                <option value="">No Plan Selected (Trialing)</option>
-                <option *ngFor="let plan of plans" [value]="plan.id">
-                  {{ plan.name }} - ${{ plan.price }}/{{ plan.durationInDays === 30 ? 'mo' : (plan.durationInDays + '
-                  days') }}
-                </option>
-              </select>
+              <app-dropdown 
+                [options]="planOptions" 
+                formControlName="subscriptionId" 
+                placeholder="No Plan Selected (Trialing)">
+              </app-dropdown>
             </div>
             <div class="form-group lg checkbox-group">
               <label>
@@ -240,10 +237,10 @@
             </div>
             <div class="form-group lg" *ngIf="!onboardingForm.get('plan.isTrial')?.value">
               <label>Billing Cycle</label>
-              <select formControlName="billingCycle">
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly (-10%)</option>
-              </select>
+              <app-dropdown 
+                [options]="billingCycleOptions" 
+                formControlName="billingCycle">
+              </app-dropdown>
             </div>
           </div>
         </div>

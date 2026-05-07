@@ -1,0 +1,22 @@
+<div class="custom-select" [class.open]="isOpen" [class.disabled]="disabled">
+  <div class="select-trigger" (click)="toggleDropdown()">
+    <div class="trigger-content">
+      <i *ngIf="getSelectedIcon()" [class]="getSelectedIcon()"></i>
+      <span>{{ getSelectedLabel() }}</span>
+    </div>
+    <i class="fa-solid fa-chevron-down arrow"></i>
+  </div>
+
+  <div class="select-options" [class.align-right]="align === 'right'" [class.align-left]="align === 'left'"
+    [class.drop-up]="direction === 'up'" [class.drop-down]="direction === 'down'" [style.minWidth]="minWidth"
+    style="max-width: 90vw;">
+    <div *ngFor="let option of options" class="option" [class.selected]="option.value === value"
+      (click)="selectOption(option)">
+      <i *ngIf="option.icon" [class]="option.icon"></i>
+      {{ option.label }}
+      <i *ngIf="option.value === value" class="fa-solid fa-check check-icon"></i>
+    </div>
+  </div>
+
+  <div class="dropdown-overlay" *ngIf="isOpen" (click)="isOpen = false"></div>
+</div>

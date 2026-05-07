@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/column-def.model';
+import { DropdownOption } from '../../models/dropdown.model';
 
 @Component({
   selector: 'app-data-grid',
@@ -42,9 +43,15 @@ export class DataGrid {
   ngOnInit() {
   }
 
-  onPageSizeChange(event: Event) {
-    const size = +(event.target as HTMLSelectElement).value;
-    this.pageSizeChange.emit(size);
+  readonly pageSizeOptions: DropdownOption[] = [
+    { label: '10', value: 10 },
+    { label: '20', value: 20 },
+    { label: '50', value: 50 }
+  ];
+
+  onPageSizeChange(size: any) {
+    const newSize = typeof size === 'object' ? +(size.target as HTMLSelectElement).value : size;
+    this.pageSizeChange.emit(newSize);
   }
 
   onPageChange(page: number) {

@@ -4,7 +4,8 @@ import { DataGrid } from "../../../../shared/components/data-grid/data-grid.comp
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { PricingService } from '../../../../core/services/pricing.service';
 import { AddPricing } from '../add-pricing/add-pricing.component';
-import { FilterBarComponent, FilterConfig } from '../../../../shared/components/filter-bar/filter-bar.component';
+import { FilterBarComponent } from '../../../../shared/components/filter-bar/filter-bar.component';
+import { FilterConfig } from '../../../../shared/models/filter.model';
 import { PricingPlan } from '../../../../shared/models/pricing.model';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { PlanDetailsDrawerComponent } from '../plan-details-drawer/plan-details-drawer.component';
@@ -36,8 +37,7 @@ export class PricingList implements OnInit {
   pageSize = 10;
   currentPage = 1;
 
-  // Filter configuration
-  filterConfigs: FilterConfig[] = []; // Search only for now
+  filterConfigs: FilterConfig[] = [];
 
   selectedPlans: PricingPlan[] = [];
   gridConfig = AppGridConfig['PricingList'];

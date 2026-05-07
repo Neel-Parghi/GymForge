@@ -2,22 +2,13 @@ import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-
-export interface FilterOption {
-  label: string;
-  value: any;
-}
-
-export interface FilterConfig {
-  key: string;
-  label: string;
-  options: FilterOption[];
-}
+import { FilterConfig, } from '../../models/filter.model';
+import { DropdownComponent } from '../dropdown/dropdown.component';
 
 @Component({
   selector: 'app-filter-bar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DropdownComponent],
   templateUrl: './filter-bar.component.html',
   styleUrl: './filter-bar.component.scss'
 })
@@ -28,7 +19,7 @@ export class FilterBarComponent implements OnInit, OnDestroy {
 
   searchControl = new FormControl('');
   filterControls: { [key: string]: FormControl } = {};
-  
+
   private destroy$ = new Subject<void>();
 
   get isFiltering(): boolean {
@@ -37,12 +28,10 @@ export class FilterBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Initialize filter controls based on configs
     this.filterConfigs.forEach(config => {
       this.filterControls[config.key] = new FormControl('');
     });
 
-    // Handle search debounce
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -53,8 +42,6 @@ export class FilterBarComponent implements OnInit, OnDestroy {
   }
 
   onSearch(): void {
-    // Immediate search trigger is handled by debounce in ngOnInit
-    // but we can add immediate logic here if needed for small datasets
   }
 
   onFilterChange(): void {

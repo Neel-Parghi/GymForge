@@ -9,7 +9,9 @@
     <div class="actions">
       <button class="btn-secondary" (click)="toggleViewMode()">
         <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
-        <!-- {{ viewMode === 'list' ? 'Dashboard View' : 'List View' }} -->
+      </button>
+      <button class="btn-secondary" (click)="exportToCsv()" [disabled]="members.length === 0">
+        <i class="fa-solid fa-file-csv"></i> Export CSV
       </button>
       <button class="btn-primary" id="btn-onboard-member" (click)="openOnboardModal()">
         <i class="fa-solid fa-user-plus"></i> Onboard New Member
@@ -57,10 +59,21 @@
         {{ tab.label }}
       </button>
     </div>
-    <div class="search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="filterMembers()"
-        placeholder="Search by name, email or membership ID...">
+    <div class="advanced-filters">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="filterMembers()" placeholder="Search members...">
+      </div>
+
+      <div class="dropdown-filters">
+        <app-dropdown [options]="planOptions" [(ngModel)]="selectedPlan" (selectionChange)="filterMembers()"
+          style="min-width: 160px;">
+        </app-dropdown>
+
+        <app-dropdown [options]="paymentOptions" [(ngModel)]="selectedPaymentStatus" (selectionChange)="filterMembers()"
+          style="min-width: 160px;">
+        </app-dropdown>
+      </div>
     </div>
   </div>
 </div>
@@ -88,37 +101,20 @@
       <h3>{{ members.length === 0 ? 'No members yet' : 'No matches found' }}</h3>
       <p *ngIf="members.length === 0">Get started by onboarding your first gym member.</p>
       <p *ngIf="members.length > 0">Try adjusting your search or filter.</p>
-      <button *ngIf="members.length === 0" class="btn-primary" (click)="openOnboardModal()">
-        <i class="fa-solid fa-user-plus"></i> Onboard First Member
-      </button>
     </div>
   </ng-template>
 </app-data-grid>
 
 
 <!-- Onboard / Manage Modal -->
-<app-onboard-member-modal 
-  [isOpen]="isOnboardOpen" 
-  [plans]="activePlans" 
-  [isEdit]="isEditMode"
-  [member]="selectedMember"
-  (close)="isOnboardOpen = false"
-  (submitted)="isEditMode ? handleUpdate($event) : handleOnboard($event)"
-  (freeze)="handleFreeze($event)"
-  (unfreeze)="handleUnfreeze($event)"
-  (toggle)="handleToggle($event)"
+<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="activePlans" [isEdit]="isEditMode" [member]="selectedMember"
+  (close)="isOnboardOpen = false" (submitted)="isEditMode ? handleUpdate($event) : handleOnboard($event)"
+  (freeze)="handleFreeze($event)" (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)"
   (renew)="handleRenew($event)">
 </app-onboard-member-modal>
 
 <!-- Member Detail Drawer -->
-<app-member-detail-drawer 
-  [isOpen]="isDrawerOpen" 
-  [member]="selectedMember" 
-  [plans]="activePlans"
-  (drawerClose)="isDrawerOpen = false" 
-  (manage)="openEditModal($event)"
-  (freeze)="handleFreeze($event)" 
-  (unfreeze)="handleUnfreeze($event)"
-  (toggle)="handleToggle($event)" 
-  (renew)="handleRenew($event)">
+<app-member-detail-drawer [isOpen]="isDrawerOpen" [member]="selectedMember" [plans]="activePlans"
+  (drawerClose)="isDrawerOpen = false" (manage)="openEditModal($event)" (freeze)="handleFreeze($event)"
+  (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)" (renew)="handleRenew($event)">
 </app-member-detail-drawer>

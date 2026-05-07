@@ -6,11 +6,13 @@ import { GymMember, OnboardMemberRequest, RenewSubscriptionRequest } from '../..
 import { Gender, PaymentStatus } from '../../../../shared/enums/member-enums';
 import { AuthApiService } from '../../../../core/services/auth-api.service';
 import { ConfirmationPopupComponent } from '../../../../shared/components/confirmation-popup/confirmation-popup.component';
+import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../../shared/models/dropdown.model';
 
 @Component({
   selector: 'app-onboard-member-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, DropdownComponent],
   templateUrl: './onboard-member-modal.component.html',
   styleUrl: './onboard-member-modal.component.scss'
 })
@@ -68,18 +70,29 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   submitting = false;
   apiError = '';
 
-  readonly genderOptions = [
-    { value: Gender.Male, label: 'Male' },
-    { value: Gender.Female, label: 'Female' },
-    { value: Gender.Other, label: 'Other' },
-    { value: Gender.PreferNotToSay, label: 'Prefer not to say' },
+  readonly genderOptions: DropdownOption[] = [
+    { value: Gender.Male, label: 'Male', icon: 'fa-solid fa-mars' },
+    { value: Gender.Female, label: 'Female', icon: 'fa-solid fa-venus' },
+    { value: Gender.Other, label: 'Other', icon: 'fa-solid fa-transgender' },
+    { value: Gender.PreferNotToSay, label: 'Prefer not to say', icon: 'fa-solid fa-user-slash' },
   ];
 
-  readonly paymentStatusOptions = [
-    { value: 1, label: 'Pending' },
-    { value: 2, label: 'Paid' },
-    { value: 3, label: 'Partial' },
-    { value: 4, label: 'Refunded' },
+  readonly bloodGroupOptions: DropdownOption[] = [
+    { label: 'A+', value: 'A+' },
+    { label: 'A-', value: 'A-' },
+    { label: 'B+', value: 'B+' },
+    { label: 'B-', value: 'B-' },
+    { label: 'AB+', value: 'AB+' },
+    { label: 'AB-', value: 'AB-' },
+    { label: 'O+', value: 'O+' },
+    { label: 'O-', value: 'O-' },
+  ];
+
+  readonly paymentStatusOptions: DropdownOption[] = [
+    { value: 1, label: 'Pending', icon: 'fa-solid fa-clock' },
+    { value: 2, label: 'Paid', icon: 'fa-solid fa-circle-check' },
+    { value: 3, label: 'Partial', icon: 'fa-solid fa-circle-half-stroke' },
+    { value: 4, label: 'Refunded', icon: 'fa-solid fa-rotate-left' },
   ];
 
   readonly fitnessGoalOptions = [

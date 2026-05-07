@@ -78,7 +78,13 @@ export class GymPlansComponent implements OnInit {
     this.gymPlanService.getPlansByOwnerId(this.ownerId).subscribe({
       next: (res) => {
         const plans = (res as any).data || (Array.isArray(res) ? res : []);
-        this.plans = plans;
+
+        this.plans = plans.sort((a: any, b: any) => {
+          const dateA = new Date(a.modifiedOn || a.createdOn).getTime();
+          const dateB = new Date(b.modifiedOn || b.createdOn).getTime();
+          return dateB - dateA;
+        });
+
         this.setupCarousel();
         this.loading = false;
       },
@@ -232,6 +238,7 @@ export class GymPlansComponent implements OnInit {
       this.gymPlanService.addPlan(request).subscribe({
         next: () => {
           this.notificationService.success('Plan created successfully');
+          this.gymPlanService.clearCache();
           this.loadPlans();
           this.closeModal();
         },
@@ -251,6 +258,7 @@ export class GymPlansComponent implements OnInit {
         this.gymPlanService.deletePlan(plan.id).subscribe({
           next: () => {
             this.notificationService.success('Plan deleted successfully');
+            this.gymPlanService.clearCache();
             this.loadPlans();
           },
           error: () => this.notificationService.error('Failed to delete plan')
@@ -268,6 +276,7 @@ export class GymPlansComponent implements OnInit {
     this.gymPlanService.updatePlan(request).subscribe({
       next: () => {
         this.notificationService.success(`Plan ${plan.isActive ? 'deactivated' : 'activated'} successfully`);
+        this.gymPlanService.clearCache();
         this.loadPlans();
       },
       error: () => this.notificationService.error('Failed to update plan status')

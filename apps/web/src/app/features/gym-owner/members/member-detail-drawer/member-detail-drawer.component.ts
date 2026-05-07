@@ -4,6 +4,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SlideDrawerComponent } from '../../../../shared/components/slide-drawer/slide-drawer.component';
+import { MemberService } from '../../../../core/services/member.service';
 import { GymMember, MemberSubscription, RenewSubscriptionRequest } from '../../../../shared/models/member.model';
 import { GymPlan } from '../../../../shared/models/gym-plan.model';
 import { MemberStatus } from '../../../../shared/enums/member-enums';
@@ -28,17 +29,38 @@ export class MemberDetailDrawer implements OnChanges {
 
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private memberService = inject(MemberService);
 
   MemberStatus = MemberStatus;
+  subscriptionHistory: MemberSubscription[] = [];
+  loadingHistory = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['member'] && this.member) {
+      this.loadHistory();
       this.cdr.detectChanges();
     }
 
     if (changes['isOpen'] && this.isOpen) {
+      if (this.member) this.loadHistory();
       this.cdr.detectChanges();
     }
+  }
+
+  loadHistory(): void {
+    if (!this.member) return;
+    this.loadingHistory = true;
+    this.memberService.getSubscriptionHistory(this.member.id).subscribe({
+      next: (response) => {
+        this.subscriptionHistory = response.data;
+        this.loadingHistory = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingHistory = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   get sub(): MemberSubscription | undefined {

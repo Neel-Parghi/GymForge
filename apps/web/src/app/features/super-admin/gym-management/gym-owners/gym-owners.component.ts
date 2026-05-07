@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { DataGrid } from '../../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { AddOwnerModalComponent } from '../add-owner-modal/add-owner-modal.component';
-import { FilterBarComponent, FilterConfig } from '../../../../shared/components/filter-bar/filter-bar.component';
+import { FilterBarComponent } from '../../../../shared/components/filter-bar/filter-bar.component';
+import { FilterConfig } from '../../../../shared/models/filter.model';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { GymService } from '../../../../core/services/gym.service';
@@ -78,7 +79,6 @@ export class GymOwners implements OnInit {
 
     let results = [...this.originalData];
 
-    // Search filter (Name, Email, or Gym Name)
     if (filters.search) {
       const s = filters.search.toLowerCase();
       results = results.filter(item =>
@@ -88,7 +88,6 @@ export class GymOwners implements OnInit {
       );
     }
 
-    // Status filter
     if (filters.status) {
       results = results.filter(item => item.status === filters.status);
     }

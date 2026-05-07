@@ -53,10 +53,12 @@
 
             <div class="form-group">
               <label>Gender *</label>
-              <select formControlName="gender" [class.error]="isInvalid('gender')">
-                <option value="" disabled selected>Select...</option>
-                <option *ngFor="let opt of genderOptions" [value]="opt.value">{{ opt.label }}</option>
-              </select>
+              <app-dropdown 
+                [options]="genderOptions" 
+                formControlName="gender" 
+                placeholder="Select Gender"
+                [class.error]="isInvalid('gender')">
+              </app-dropdown>
               <span class="error-msg" *ngIf="isInvalid('gender')">Please select a gender</span>
             </div>
 
@@ -136,17 +138,11 @@
           <div class="form-grid">
             <div class="form-group">
               <label>Blood Group <span class="optional">(Optional)</span></label>
-              <select formControlName="bloodGroup">
-                <option value="" selected>Select...</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
+              <app-dropdown 
+                [options]="bloodGroupOptions" 
+                formControlName="bloodGroup" 
+                placeholder="Select Blood Group">
+              </app-dropdown>
             </div>
 
             <div class="form-group dropdown-checkbox-container" [class.open]="isFitnessGoalsOpen"
@@ -209,9 +205,11 @@
 
             <div class="form-group lg">
               <label>Initial Payment Status *</label>
-              <select formControlName="paymentStatus">
-                <option *ngFor="let opt of paymentStatusOptions" [value]="opt.value">{{ opt.label }}</option>
-              </select>
+              <app-dropdown 
+                [options]="paymentStatusOptions" 
+                formControlName="paymentStatus"
+                placeholder="Select Status">
+              </app-dropdown>
             </div>
           </div>
         </div>

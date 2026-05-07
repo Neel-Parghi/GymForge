@@ -21,9 +21,9 @@
             <div class="profile-cell">
               <div class="avatar-circle">
                 @if (row.profilePictureUrl) {
-                  <img [src]="row.profilePictureUrl" alt="avatar">
+                <img [src]="row.profilePictureUrl" alt="avatar">
                 } @else {
-                  <span>{{ row.firstName ? row.firstName[0] : '' }}{{ row.lastName ? row.lastName[0] : '' }}</span>
+                <span>{{ row.firstName ? row.firstName[0] : '' }}{{ row.lastName ? row.lastName[0] : '' }}</span>
                 }
               </div>
               <div class="profile-info">
@@ -83,7 +83,8 @@
 
             <!-- Text / Clickable Links -->
             @default {
-            <span [class.clickable-cell]="col.isClickable" (click)="col.isClickable ? onAction('row-click', row) : null">
+            <span [class.clickable-cell]="col.isClickable"
+              (click)="col.isClickable ? onAction('row-click', row) : null">
               {{ getNestedValue(row, col.key) }}
             </span>
             }

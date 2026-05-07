@@ -9,10 +9,9 @@
   <div class="filter-group" *ngIf="filterConfigs && filterConfigs.length > 0">
     <div class="filter-label">Filter by:</div>
     <div class="filter-select-wrapper" *ngFor="let filter of filterConfigs">
-      <select [formControl]="filterControls[filter.key]" (change)="onFilterChange()">
-        <option [value]="''">{{ filter.label }} (All)</option>
-        <option *ngFor="let opt of filter.options" [value]="opt.value">{{ opt.label }}</option>
-      </select>
+      <app-dropdown [options]="filter.options" [formControl]="filterControls[filter.key]" [placeholder]="filter.label"
+        (selectionChange)="onFilterChange()" style="min-width: 160px;">
+      </app-dropdown>
     </div>
   </div>
 

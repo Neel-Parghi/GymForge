@@ -1,6 +1,6 @@
 .dashboard-container {
   // padding: 24px;
-  max-width: 1400px;
+  max-width: 80vw;
   margin: 0 auto;
   animation: fadeIn 0.4s ease-out;
 }
@@ -165,6 +165,7 @@
 
   .plan-header {
     margin-bottom: 24px;
+    text-align: center;
 
     .plan-name {
       font-size: 1.4rem;
@@ -197,6 +198,7 @@
     .price-container {
       display: flex;
       align-items: baseline;
+      justify-content: center;
       gap: 4px;
       color: var(--text-main);
 
@@ -222,6 +224,7 @@
       margin-top: 4px;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       font-size: 0.85rem;
 
@@ -240,6 +243,7 @@
       margin-top: 12px;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       padding: 4px 12px;
       background: #ecfdf5;
@@ -257,6 +261,7 @@
     .meta-item {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       font-size: 0.9rem;
       font-weight: 600;
@@ -315,8 +320,8 @@
 
   .plan-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+    justify-content: center;
+    gap: 12px;
     padding-top: 16px;
     border-top: 1px solid #f1f5f9;
 

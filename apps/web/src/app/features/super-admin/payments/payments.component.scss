@@ -102,22 +102,9 @@
             flex: 1;
             justify-content: flex-end;
 
-            .compact-select {
-                padding: 6px 12px;
-                border: 1px solid #cbd5e1;
-                border-radius: 8px;
-                font-size: 13px;
-                color: #1e293b;
-                background: white;
-                min-width: 180px;
-                cursor: pointer;
-                outline: none;
-                transition: all 0.2s;
-
-                &:focus {
-                    border-color: #6366f1;
-                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-                }
+            app-dropdown {
+              min-width: 200px;
+              max-width: 300px;
             }
 
             .btn-test-pay {

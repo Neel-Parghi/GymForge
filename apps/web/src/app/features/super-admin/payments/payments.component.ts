@@ -8,15 +8,17 @@ import { DataGrid } from '../../../shared/components/data-grid/data-grid.compone
 import { CONSTANTS } from '../../../core/constants/constants';
 import { GymService } from '../../../core/services/gym.service';
 import { PricingService } from '../../../core/services/pricing.service';
-import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { PaymentStats, PaymentTransaction, SaaSConfiguration } from '../../../shared/models/payment.model';
+import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../shared/models/dropdown.model';
+import { AppGridConfig } from '../../../shared/constants/grid-config';
 
 declare var Razorpay: any;
 
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [CommonModule, DataGrid, ReactiveFormsModule],
+  imports: [CommonModule, DataGrid, ReactiveFormsModule, DropdownComponent],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss',
 })
@@ -44,6 +46,29 @@ export class PaymentsComponent implements OnInit {
   transactions: PaymentTransaction[] = [];
   settings?: SaaSConfiguration;
   isSaving = false;
+
+  get gymOptions(): DropdownOption[] {
+    return this.gyms.map(gym => ({
+      label: gym.gymName,
+      value: gym.id,
+      icon: 'fa-solid fa-landmark'
+    }));
+  }
+
+  get planOptions(): DropdownOption[] {
+    return this.plans.map(plan => ({
+      label: `${plan.name} ($${plan.price})`,
+      value: plan.id,
+      icon: 'fa-solid fa-gem'
+    }));
+  }
+
+  readonly currencyOptions: DropdownOption[] = [
+    { label: 'Indian Rupee (₹)', value: 'INR', icon: 'fa-solid fa-indian-rupee-sign' },
+    { label: 'US Dollar ($)', value: 'USD', icon: 'fa-solid fa-dollar-sign' },
+    { label: 'Euro (€)', value: 'EUR', icon: 'fa-solid fa-euro-sign' },
+    { label: 'British Pound (£)', value: 'GBP', icon: 'fa-solid fa-sterling-sign' }
+  ];
 
   gridConfig = AppGridConfig["PaymentList"];
   isAddPlanModalOpen: boolean = false;

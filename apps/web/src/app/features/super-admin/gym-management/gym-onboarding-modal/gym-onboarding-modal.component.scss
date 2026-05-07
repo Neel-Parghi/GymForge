@@ -251,7 +251,6 @@
   }
 
   input,
-  select,
   textarea {
     padding: 12px 16px;
     border-radius: 8px;
@@ -272,6 +271,10 @@
       color: #6b7280;
       cursor: not-allowed;
     }
+  }
+
+  select {
+    display: none !important;
   }
 
   textarea {

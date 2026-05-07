@@ -34,19 +34,19 @@ export class GymPlanService extends BaseApiService {
     this.lastOwnerId = null;
   }
 
-  getPlanById(planId: string): Observable<GymPlan> {
-    return this.get(`${API_CONSTANTS.GYM_PLAN.GET}/${planId}`);
+  getPlanById(planId: string): Observable<ApiResponse<GymPlan>> {
+    return this.get<ApiResponse<GymPlan>>(`${API_CONSTANTS.GYM_PLAN.GET}/${planId}`);
   }
 
-  addPlan(payload: CreateGymPlanRequest): Observable<GymPlan> {
-    return this.post(API_CONSTANTS.GYM_PLAN.ADD, payload);
+  addPlan(payload: CreateGymPlanRequest): Observable<ApiResponse<GymPlan>> {
+    return this.post<ApiResponse<GymPlan>>(API_CONSTANTS.GYM_PLAN.ADD, payload);
   }
 
-  updatePlan(payload: UpdateGymPlanRequest): Observable<GymPlan> {
-    return this.put(`${API_CONSTANTS.GYM_PLAN.UPDATE}/${payload.id}`, payload);
+  updatePlan(payload: UpdateGymPlanRequest): Observable<ApiResponse<GymPlan>> {
+    return this.put<ApiResponse<GymPlan>>(`${API_CONSTANTS.GYM_PLAN.UPDATE}/${payload.id}`, payload);
   }
 
-  deletePlan(planId: string): Observable<boolean> {
-    return this.delete(`${API_CONSTANTS.GYM_PLAN.DELETE}/${planId}`);
+  deletePlan(planId: string): Observable<ApiResponse<{ success: boolean }>> {
+    return this.delete<ApiResponse<{ success: boolean }>>(`${API_CONSTANTS.GYM_PLAN.DELETE}/${planId}`);
   }
 }

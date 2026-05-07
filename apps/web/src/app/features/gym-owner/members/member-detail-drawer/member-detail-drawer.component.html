@@ -2,7 +2,7 @@
 
   <div drawer-body>
     <ng-container *ngIf="member">
-      <!-- Premium Hero Section -->
+      <!-- Hero Section -->
       <div class="member-hero">
         <div class="avatar-container">
           <div class="status-ring" [ngClass]="statusClass"></div>
@@ -141,6 +141,37 @@
             <div class="info-tile">
               <span class="label">Relation / Phone</span>
               <span class="value">{{ member.emergencyContactPhone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscription History Group -->
+        <div class="info-group">
+          <div class="group-header">
+            <i class="fa-solid fa-history"></i>
+            <h3>Subscription History</h3>
+            <div class="line"></div>
+          </div>
+          <div class="history-list">
+            <div *ngIf="loadingHistory" class="history-loading">
+              <i class="fa-solid fa-spinner fa-spin"></i> Loading history...
+            </div>
+            <div *ngIf="!loadingHistory && subscriptionHistory.length === 0" class="no-history">
+              No previous subscriptions found.
+            </div>
+            <div *ngFor="let history of subscriptionHistory" class="history-card"
+              [class.active-item]="history.isActive">
+              <div class="history-main">
+                <span class="plan-name">{{ history.planNameSnapshot }}</span>
+                <span class="price">₹{{ history.pricePaid }}</span>
+              </div>
+              <div class="history-meta">
+                <span class="date-range">{{ history.startDate | date:'dd MMM yyyy' }} - {{ history.endDate | date:'dd
+                  MMM yyyy' }}</span>
+                <span class="pay-status" [ngClass]="history.paymentStatus === 1 ? 'paid' : 'unpaid'">
+                  {{ history.paymentStatus === 1 ? 'Paid' : 'Unpaid' }}
+                </span>
+              </div>
             </div>
           </div>
         </div>

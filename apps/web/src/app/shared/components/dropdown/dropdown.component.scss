@@ -1,0 +1,214 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &.open {
+    .select-trigger {
+      border-color: var(--accent-color);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.08);
+
+      .arrow {
+        transform: rotate(180deg);
+      }
+    }
+
+    .select-options {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  .select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    min-height: 42px;
+
+    .trigger-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      span {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--text-main);
+      }
+
+      i {
+        font-size: 0.9rem;
+        color: var(--accent-color);
+      }
+    }
+
+    .arrow {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      border-color: var(--text-muted);
+      background: var(--bg-surface);
+    }
+  }
+
+  .select-options {
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    max-height: 280px;
+    padding: 8px;
+
+    &.align-left {
+      left: 0;
+    }
+
+    &.align-right {
+      right: 0;
+      left: auto;
+    }
+
+    &.drop-up {
+      bottom: calc(100% + 4px);
+      top: auto;
+      transform-origin: bottom;
+      animation: dropUpSlide 0.2s cubic-bezier(0, 0, 0.2, 1);
+      transform: translateY(0);
+    }
+
+    &.drop-down {
+      top: calc(100% + 4px);
+      bottom: auto;
+      transform-origin: top;
+      animation: dropDownSlide 0.2s cubic-bezier(0, 0, 0.2, 1);
+      transform: translateY(0);
+    }
+
+    /* Custom Scrollbar */
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+      margin: 8px 0;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+
+      i:not(.check-icon) {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        width: 16px;
+      }
+
+      .check-icon {
+        margin-left: auto;
+        font-size: 0.8rem;
+        color: white;
+      }
+
+      &:hover {
+        background: rgba(var(--accent-rgb), 0.05);
+        color: var(--accent-color);
+
+        i:not(.check-icon) {
+          color: var(--accent-color);
+        }
+      }
+
+      &.selected {
+        background: var(--accent-color);
+        color: white;
+
+        i:not(.check-icon) {
+          color: white;
+        }
+      }
+    }
+  }
+
+  .dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999;
+    background: transparent;
+  }
+}
+
+@keyframes dropDownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes dropUpSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scaleY(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}

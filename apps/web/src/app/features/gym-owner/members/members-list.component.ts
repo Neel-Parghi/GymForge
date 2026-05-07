@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -6,6 +6,7 @@ import { MemberService } from '../../../core/services/member.service';
 import { GymPlanService } from '../../../core/services/gym-plan.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal.component';
@@ -13,11 +14,13 @@ import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer.
 import { GymMember, MemberStatus, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../shared/models/member.model';
 import { GymPlan } from '../../../shared/models/gym-plan.model';
 import { PaymentStatus } from '../../../shared/enums/member-enums';
+import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../shared/models/dropdown.model';
 
 @Component({
   selector: 'app-members-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataGrid, OnboardMemberModal, MemberDetailDrawer],
+  imports: [CommonModule, FormsModule, DataGrid, OnboardMemberModal, MemberDetailDrawer, DropdownComponent],
   templateUrl: './members-list.component.html',
   styleUrl: './members-list.component.scss'
 })
@@ -26,6 +29,7 @@ export class MembersListComponent implements OnInit {
   private gymPlanService = inject(GymPlanService);
   private authService = inject(AuthApiService);
   private notificationService = inject(NotificationService);
+  private confirmationService = inject(ConfirmationService);
 
   @ViewChild(OnboardMemberModal) onboardModal!: OnboardMemberModal;
 
@@ -47,6 +51,23 @@ export class MembersListComponent implements OnInit {
 
   // Status filter
   activeFilter: MemberStatus | 'all' = 'all';
+  selectedPlan: string = 'all';
+  selectedPaymentStatus: string = 'all';
+  // Filter options
+  get planOptions(): DropdownOption[] {
+    const options: DropdownOption[] = [{ label: 'All Plans', value: 'all' }];
+    this.activePlans.forEach(p => options.push({ label: p.name, value: p.id }));
+    return options;
+  }
+
+  readonly paymentOptions: DropdownOption[] = [
+    { label: 'All Payments', value: 'all' },
+    { label: 'Paid', value: '2' },
+    { label: 'Unpaid', value: '0' },
+    { label: 'Pending', value: '1' },
+    { label: 'Partial', value: '3' },
+    { label: 'Refunded', value: '4' }
+  ];
 
   // View Mode
   viewMode: 'list' | 'dashboard' = 'list';
@@ -117,12 +138,34 @@ export class MembersListComponent implements OnInit {
     });
   }
 
+  exportToCsv(): void {
+    if (!this.gymId) return;
+    this.memberService.exportMembers(this.gymId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `GymForge_Members_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.notificationService.success('Export started');
+      },
+      error: () => this.notificationService.error('Failed to export members')
+    });
+  }
+
   // Filtering
   filterMembers(): void {
     let result = [...this.members];
 
     if (this.activeFilter !== 'all')
       result = result.filter(m => m.status === this.activeFilter);
+
+    if (this.selectedPlan !== 'all')
+      result = result.filter(m => m.currentSubscription?.gymPlanId === this.selectedPlan);
+
+    if (this.selectedPaymentStatus !== 'all')
+      result = result.filter(m => m.currentSubscription?.paymentStatus.toString() === this.selectedPaymentStatus);
 
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
@@ -149,13 +192,34 @@ export class MembersListComponent implements OnInit {
       this.viewDetails(event.row.id);
     } else if (event.action === 'edit') {
       this.openEditModal(event.row.id, event.row);
+    } else if (event.action === 'delete') {
+      this.handleDeleteMember(event.row);
     }
+  }
+
+  handleDeleteMember(member: GymMember): void {
+    this.confirmationService.confirm({
+      title: 'Remove Member',
+      message: `Are you sure you want to remove ${member.firstName} ${member.lastName}? This action cannot be undone.`,
+      confirmText: 'Remove Member',
+      type: 'danger'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.memberService.deleteMember(member.id).subscribe({
+          next: () => {
+            this.notificationService.success('Member removed successfully');
+            this.memberService.clearCache();
+            this.loadMembers();
+          },
+          error: () => this.notificationService.error('Failed to remove member')
+        });
+      }
+    });
   }
 
   onPageChange(page: number): void { this.currentPage = page; }
   onPageSizeChange(size: number): void { this.pageSize = size; this.currentPage = 1; }
 
-  // Onboard Modal
   openOnboardModal(): void {
     this.isEditMode = false;
     this.selectedMember = null;
@@ -166,7 +230,7 @@ export class MembersListComponent implements OnInit {
     this.isEditMode = true;
     this.isDrawerOpen = false;
     this.selectedMember = null;
-    
+
     if (memberData) {
       this.selectedMember = { ...memberData };
       this.isOnboardOpen = true;

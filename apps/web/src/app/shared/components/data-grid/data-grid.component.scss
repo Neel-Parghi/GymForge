@@ -85,7 +85,7 @@
 
     .empty-state-cell {
       text-align: center;
-      padding: 64px 24px;
+      padding: 38px 24px;
     }
 
     .default-empty-state {
@@ -310,19 +310,14 @@
         font-size: 0.8125rem;
         font-weight: 500;
         color: #64748b;
+        position: relative;
+
+        &::after, &::before {
+          display: none !important;
+        }
 
         select {
-          padding: 4px 8px;
-          border-radius: 6px;
-          border: 1px solid var(--border-color);
-          background-color: white;
-          font-weight: 600;
-          color: #1a1c1c;
-          outline: none;
-
-          &:focus {
-            border-color: var(--accent-color);
-          }
+          display: none;
         }
       }
     }
