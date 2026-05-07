@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/column-def.model';
+import { DropdownComponent } from '../dropdown/dropdown.component';
 import { DropdownOption } from '../../models/dropdown.model';
 
 @Component({
   selector: 'app-data-grid',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DropdownComponent],
   templateUrl: './data-grid.component.html',
   styleUrl: './data-grid.component.scss',
 })

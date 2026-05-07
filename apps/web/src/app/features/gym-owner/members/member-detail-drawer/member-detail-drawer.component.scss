@@ -419,6 +419,21 @@
             color: #22c55e;
           }
 
+          &.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+          }
+
+          &.partial {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+          }
+
+          &.refunded {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+          }
+
           &.unpaid {
             background: rgba(239, 68, 68, 0.1);
             color: #ef4444;

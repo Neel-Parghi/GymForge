@@ -7,11 +7,12 @@ import { NavigationService } from '../../core/services/navigation.service';
 import { NavItem } from '../../core/models/nav-Item.model';
 import { ProfileService } from '../../core/services/profile.service';
 import { API_CONSTANTS } from '../../core/constants/api-constants';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LoadingComponent],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })

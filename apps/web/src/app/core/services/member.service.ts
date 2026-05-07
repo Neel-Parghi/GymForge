@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { AuthApiService } from './auth-api.service';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable, shareReplay } from 'rxjs';
@@ -10,12 +11,21 @@ import { ApiResponse } from '../../shared/models/api-response.model';
 })
 export class MemberService extends BaseApiService {
 
+  private authService = inject(AuthApiService);
+
   constructor() {
     super();
+    this.authService.userProfile$.subscribe(user => {
+      if (!user) {
+        this.clearCache();
+      }
+    });
   }
 
   private membersCache$: Observable<ApiResponse<GymMember[]>> | null = null;
   private lastGymId: string | null = null;
+  private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
+  private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
 
   onboardMember(gymId: string, payload: OnboardMemberRequest): Observable<ApiResponse<GymMember>> {
     return this.post<ApiResponse<GymMember>>(API_CONSTANTS.MEMBERS.ONBOARD.replace('{gymId}', gymId), payload);
@@ -34,7 +44,14 @@ export class MemberService extends BaseApiService {
   }
 
   getMemberById(id: string): Observable<ApiResponse<GymMember>> {
-    return this.get(`${API_CONSTANTS.MEMBERS.GET}/${id}`);
+    if (this.memberCache.has(id)) {
+      return this.memberCache.get(id)!;
+    }
+
+    const obs = this.get<ApiResponse<GymMember>>(`${API_CONSTANTS.MEMBERS.GET}/${id}`)
+      .pipe(shareReplay(1));
+    this.memberCache.set(id, obs);
+    return obs;
   }
 
   toggleMemberStatus(id: string): Observable<ApiResponse<{ success: boolean }>> {
@@ -62,7 +79,14 @@ export class MemberService extends BaseApiService {
   }
 
   getSubscriptionHistory(id: string): Observable<ApiResponse<MemberSubscription[]>> {
-    return this.get<ApiResponse<MemberSubscription[]>>(API_CONSTANTS.MEMBERS.SUBSCRIPTION_HISTORY.replace('{id}', id));
+    if (this.historyCache.has(id)) {
+      return this.historyCache.get(id)!;
+    }
+
+    const obs = this.get<ApiResponse<MemberSubscription[]>>(API_CONSTANTS.MEMBERS.SUBSCRIPTION_HISTORY.replace('{id}', id))
+      .pipe(shareReplay(1));
+    this.historyCache.set(id, obs);
+    return obs;
   }
 
   exportMembers(gymId: string): Observable<Blob> {
@@ -72,6 +96,8 @@ export class MemberService extends BaseApiService {
   clearCache(): void {
     this.membersCache$ = null;
     this.lastGymId = null;
+    this.memberCache.clear();
+    this.historyCache.clear();
   }
 
 }

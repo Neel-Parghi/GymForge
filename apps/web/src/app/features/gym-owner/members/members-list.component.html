@@ -78,15 +78,6 @@
   </div>
 </div>
 
-<!-- Loading Skeleton -->
-<div *ngIf="loading && viewMode === 'list'" class="skeleton-wrapper">
-  <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
-    <div class="skeleton-cell wide"></div>
-    <div class="skeleton-cell"></div>
-    <div class="skeleton-cell"></div>
-    <div class="skeleton-cell narrow"></div>
-  </div>
-</div>
 
 <!-- Data Grid -->
 <app-data-grid *ngIf="viewMode === 'list' && !loading" [config]="gridConfig" [data]="filteredMembers"

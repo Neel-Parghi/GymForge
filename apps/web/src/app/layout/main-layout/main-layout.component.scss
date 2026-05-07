@@ -392,6 +392,7 @@
     padding: 10px;
     overflow-y: auto;
     background-color: var(--bg-color);
+    position: relative;
 
     &::-webkit-scrollbar {
       width: 6px;

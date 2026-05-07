@@ -7,7 +7,7 @@ import { SlideDrawerComponent } from '../../../../shared/components/slide-drawer
 import { MemberService } from '../../../../core/services/member.service';
 import { GymMember, MemberSubscription, RenewSubscriptionRequest } from '../../../../shared/models/member.model';
 import { GymPlan } from '../../../../shared/models/gym-plan.model';
-import { MemberStatus } from '../../../../shared/enums/member-enums';
+import { MemberStatus, PaymentStatus } from '../../../../shared/enums/member-enums';
 
 @Component({
   selector: 'app-member-detail-drawer',
@@ -121,6 +121,26 @@ export class MemberDetailDrawer implements OnChanges {
 
   get isFrozen(): boolean {
     return this.member?.status === MemberStatus.Freeze;
+  }
+
+  getPaymentStatusLabel(status: PaymentStatus): string {
+    switch (status) {
+      case PaymentStatus.Paid: return 'Paid';
+      case PaymentStatus.Pending: return 'Pending';
+      case PaymentStatus.Partial: return 'Partial';
+      case PaymentStatus.Refunded: return 'Refunded';
+      default: return 'Unpaid';
+    }
+  }
+
+  getPaymentStatusClass(status: PaymentStatus): string {
+    switch (status) {
+      case PaymentStatus.Paid: return 'paid';
+      case PaymentStatus.Pending: return 'pending';
+      case PaymentStatus.Partial: return 'partial';
+      case PaymentStatus.Refunded: return 'refunded';
+      default: return 'unpaid';
+    }
   }
 
   onFreezeToggle(): void {

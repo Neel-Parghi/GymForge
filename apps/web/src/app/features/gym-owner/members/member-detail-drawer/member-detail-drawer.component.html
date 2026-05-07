@@ -153,9 +153,6 @@
             <div class="line"></div>
           </div>
           <div class="history-list">
-            <div *ngIf="loadingHistory" class="history-loading">
-              <i class="fa-solid fa-spinner fa-spin"></i> Loading history...
-            </div>
             <div *ngIf="!loadingHistory && subscriptionHistory.length === 0" class="no-history">
               No previous subscriptions found.
             </div>
@@ -166,10 +163,10 @@
                 <span class="price">₹{{ history.pricePaid }}</span>
               </div>
               <div class="history-meta">
-                <span class="date-range">{{ history.startDate | date:'dd MMM yyyy' }} - {{ history.endDate | date:'dd
-                  MMM yyyy' }}</span>
-                <span class="pay-status" [ngClass]="history.paymentStatus === 1 ? 'paid' : 'unpaid'">
-                  {{ history.paymentStatus === 1 ? 'Paid' : 'Unpaid' }}
+                <span class="date-range">{{ history.startDate | date:'dd MMM yyyy' }} -
+                  {{ history.endDate | date:'dd MMM yyyy' }}</span>
+                <span class="pay-status" [ngClass]="getPaymentStatusClass(history.paymentStatus)">
+                  {{ getPaymentStatusLabel(history.paymentStatus) }}
                 </span>
               </div>
             </div>

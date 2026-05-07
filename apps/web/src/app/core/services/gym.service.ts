@@ -1,20 +1,31 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { BaseApiService } from "./base-api.service";
 import { API_CONSTANTS } from "../constants/api-constants";
 import { Observable, shareReplay, tap } from "rxjs";
 import { ApiResponse } from "../../shared/models/api-response.model";
 import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest } from "../../shared/models/gym.model";
 
+import { AuthApiService } from "./auth-api.service";
+
 @Injectable({
     providedIn: 'root',
 })
 export class GymService extends BaseApiService {
+    private authService = inject(AuthApiService);
 
     private gymOwnersCache$?: Observable<ApiResponse<GymOwnerResponse[]>>;
     private gymListCache$?: Observable<ApiResponse<GymListResponse[]>>;
+    private branchesCache = new Map<string, Observable<ApiResponse<any[]>>>();
 
     constructor() {
         super();
+        this.authService.userProfile$.subscribe(user => {
+            if (!user) {
+                this.clearGymOwnersCache();
+                this.clearGymListCache();
+                this.branchesCache.clear();
+            }
+        });
     }
 
     clearGymOwnersCache(): void {
@@ -23,6 +34,15 @@ export class GymService extends BaseApiService {
 
     clearGymListCache(): void {
         this.gymListCache$ = undefined;
+        this.branchesCache.clear();
+    }
+
+    clearBranchesCache(gymId?: string): void {
+        if (gymId) {
+            this.branchesCache.delete(gymId);
+        } else {
+            this.branchesCache.clear();
+        }
     }
 
     onboardGym(payload: OnboardGymRequest): Observable<ApiResponse<any>> {
@@ -80,12 +100,19 @@ export class GymService extends BaseApiService {
     }
 
     getGymBranches(gymId: string): Observable<ApiResponse<any[]>> {
+        if (this.branchesCache.has(gymId)) {
+            return this.branchesCache.get(gymId)!;
+        }
         const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
-        return this.get<ApiResponse<any[]>>(url);
+        const obs = this.get<ApiResponse<any[]>>(url).pipe(shareReplay(1));
+        this.branchesCache.set(gymId, obs);
+        return obs;
     }
 
     addGymBranch(gymId: string, payload: any): Observable<ApiResponse<any>> {
         const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
-        return this.post<ApiResponse<any>>(url, payload);
+        return this.post<ApiResponse<any>>(url, payload).pipe(
+            tap(() => this.clearBranchesCache(gymId))
+        );
     }
 }

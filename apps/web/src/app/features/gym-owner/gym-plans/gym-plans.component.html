@@ -11,14 +11,9 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-overlay">
-    <div class="spinner"></div>
-    <p>Loading your plans...</p>
-  </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && plans.length === 0" class="empty-state">
+  <div *ngIf="plans.length === 0" class="empty-state">
     <div class="empty-icon">
       <i class="fa-solid fa-receipt"></i>
     </div>
@@ -28,7 +23,7 @@
   </div>
 
   <!-- Plans Carousel Container -->
-  <div *ngIf="!loading && plans.length > 0" class="carousel-wrapper">
+  <div *ngIf="plans.length > 0" class="carousel-wrapper">
     <button class="nav-btn prev" (click)="prevSlide()" *ngIf="plans.length > 1">
       <i class="fa-solid fa-chevron-left"></i>
     </button>

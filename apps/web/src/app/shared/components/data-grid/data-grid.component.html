@@ -18,7 +18,7 @@
             @switch (col.type) {
             <!-- Profile Column (Avatar + Name + Subtext) -->
             @case ('profile') {
-            <div class="profile-cell">
+            <div class="profile-cell clickable" (click)="onAction('view', row)" title="View Details">
               <div class="avatar-circle">
                 @if (row.profilePictureUrl) {
                 <img [src]="row.profilePictureUrl" alt="avatar">
@@ -114,11 +114,9 @@
 
       <div class="page-size-selector">
         <span>Show</span>
-        <select [value]="pageSize" (change)="onPageSizeChange($event)">
-          <option [value]="10">10</option>
-          <option [value]="20">20</option>
-          <option [value]="50">50</option>
-        </select>
+        <app-dropdown [options]="pageSizeOptions" [value]="pageSize" (selectionChange)="onPageSizeChange($event)"
+          direction="up" minWidth="70px">
+        </app-dropdown>
         <span>per page</span>
       </div>
     </div>
