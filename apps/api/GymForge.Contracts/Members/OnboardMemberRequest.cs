@@ -17,6 +17,7 @@ namespace GymForge.Contracts.Members
         string? MedicalConditions,
         List<string>? FitnessGoals,
         Guid GymPlanId,
-        DateTime? StartDate = null
+        DateTime? StartDate = null,
+        PaymentStatus? PaymentStatus = null
     );
 }

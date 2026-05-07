@@ -36,6 +36,7 @@ export interface MemberSubscription {
   endDate: string;
   isActive: boolean;
   paymentStatus: PaymentStatus;
+  paymentStatusLabel?: string;
 }
 
 export interface OnboardMemberRequest {
@@ -53,11 +54,13 @@ export interface OnboardMemberRequest {
   fitnessGoals?: string[];
   gymPlanId: string;
   startDate?: string;
+  paymentStatus?: PaymentStatus;
 }
 
 export interface RenewSubscriptionRequest {
   gymPlanId: string;
   startDate?: string;
+  paymentStatus?: PaymentStatus;
 }
 
 export interface Address {

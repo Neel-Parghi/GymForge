@@ -354,36 +354,75 @@
 
 
 // Action Buttons
-.footer-actions {
+.status-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
 
-  .manage-btn {
+  .status-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 14px;
-    border-radius: 14px;
-    font-size: 1rem;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
-    border: none;
-    background: #313d50;
-    color: white;
-
-    i {
-      font-size: 1.1rem;
-    }
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-main);
+    transition: all 0.2s;
 
     &:hover {
-      background: #0d3278;
+      background: var(--bg-color);
+      border-color: var(--text-muted);
     }
 
-    &:active {
-      transform: translateY(0);
+    &.freeze {
+      i {
+        color: #3b82f6;
+      }
+    }
+
+    &.toggle {
+      i {
+        color: #ef4444;
+      }
     }
   }
 }
+
+.manage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: #313d50;
+  color: white;
+
+  i {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    // background: #0d3278;
+    background: #151826e0;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 
 // Helpers
 .no-data {

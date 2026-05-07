@@ -170,9 +170,19 @@
   <div drawer-footer>
     <ng-container *ngIf="member">
       <div class="footer-actions">
+        <div class="status-actions">
+          <button class="status-btn freeze" (click)="onFreezeToggle()">
+            <i class="fa-solid" [ngClass]="isFrozen ? 'fa-fire' : 'fa-snowflake'"></i>
+            {{ isFrozen ? 'Unfreeze' : 'Freeze' }} Member
+          </button>
+          <button class="status-btn toggle" (click)="toggle.emit(member.id)">
+            <i class="fa-solid" [ngClass]="member.status === 1 ? 'fa-eye-slash' : 'fa-eye'"></i>
+            {{ member.status === 1 ? 'Deactivate' : 'Activate' }}
+          </button>
+        </div>
         <button class="manage-btn" (click)="manage.emit(member.id)">
           <i class="fa-solid fa-sliders"></i>
-          Manage Member Profile
+          Full Profile Edit
         </button>
       </div>
     </ng-container>

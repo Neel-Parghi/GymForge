@@ -60,6 +60,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'membershipNumber', label: 'Membership ID', type: 'text' },
       { key: 'currentSubscription.planNameSnapshot', label: 'Plan', type: 'complex', subKey: 'currentSubscription.pricePaid' },
       { key: 'statusLabel', label: 'Status', type: 'badge' },
+      { key: 'currentSubscription.paymentStatusLabel', label: 'Payment', type: 'badge' },
       { key: 'currentSubscription.endDate', label: 'Expiry', type: 'date' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],

@@ -84,7 +84,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 StartDate = startDate,
                 EndDate = startDate.AddMonths(duration + bonus),
                 IsActive = true,
-                PaymentStatus = PaymentStatus.Paid,
+                PaymentStatus = request.PaymentStatus ?? PaymentStatus.Paid,
                 CreatedBy = createdBy,
                 CreatedOn = DateTime.UtcNow
             };
@@ -136,6 +136,17 @@ namespace GymForge.Application.Modules.Gym.Services
                 member.Address.State = request.Address.State;
                 member.Address.Country = request.Address.Country;
                 member.Address.PostalCode = request.Address.PostalCode;
+            }
+
+            if (request.PaymentStatus.HasValue)
+            {
+                var activeSub = member.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
+                if (activeSub != null)
+                {
+                    activeSub.PaymentStatus = request.PaymentStatus.Value;
+                    activeSub.ModifiedBy = updatedBy;
+                    activeSub.ModifiedOn = DateTime.UtcNow;
+                }
             }
 
             await _memberRepository.UpdateAsync(member);
@@ -205,7 +216,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 StartDate = startDate,
                 EndDate = startDate.AddMonths(duration + bonus),
                 IsActive = true,
-                PaymentStatus = PaymentStatus.Paid,
+                PaymentStatus = request.PaymentStatus ?? PaymentStatus.Paid,
                 CreatedBy = updatedBy,
                 CreatedOn = DateTime.UtcNow
             };

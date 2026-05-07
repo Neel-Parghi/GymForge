@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GymPlan } from '../../../../shared/models/gym-plan.model';
 import { GymMember, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../../shared/models/member.model';
-import { Gender } from '../../../../shared/enums/member-enums';
+import { Gender, PaymentStatus } from '../../../../shared/enums/member-enums';
 import { AuthApiService } from '../../../../core/services/auth-api.service';
 import { ConfirmationPopupComponent } from '../../../../shared/components/confirmation-popup/confirmation-popup.component';
 
@@ -62,6 +62,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     emergencyContactPhone: [''],
     gymPlanId: ['', Validators.required],
     startDate: [''],
+    paymentStatus: [PaymentStatus.Paid, Validators.required]
   });
 
   submitting = false;
@@ -72,6 +73,13 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     { value: Gender.Female, label: 'Female' },
     { value: Gender.Other, label: 'Other' },
     { value: Gender.PreferNotToSay, label: 'Prefer not to say' },
+  ];
+
+  readonly paymentStatusOptions = [
+    { value: 1, label: 'Pending' },
+    { value: 2, label: 'Paid' },
+    { value: 3, label: 'Partial' },
+    { value: 4, label: 'Refunded' },
   ];
 
   readonly fitnessGoalOptions = [
@@ -148,7 +156,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
             emergencyContactName: this.member!.emergencyContactName || '',
             emergencyContactPhone: this.member!.emergencyContactPhone || '',
             gymPlanId: planId,
-            startDate: this.member!.currentSubscription?.startDate?.split('T')?.[0] || ''
+            startDate: this.member!.currentSubscription?.startDate?.split('T')?.[0] || '',
+            paymentStatus: this.member!.currentSubscription?.paymentStatus ?? PaymentStatus.Paid
           });
 
           this.form.get('gymPlanId')?.updateValueAndValidity();
@@ -159,6 +168,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
           gender: '',
           bloodGroup: '',
           gymPlanId: '',
+          paymentStatus: PaymentStatus.Paid,
           fitnessGoals: [],
           address: {
             line1: '', line2: '', city: '', state: '', country: '', postalCode: ''
@@ -241,6 +251,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       emergencyContactPhone: v.emergencyContactPhone || undefined,
       gymPlanId: v.gymPlanId,
       startDate: v.startDate || undefined,
+      paymentStatus: Number(v.paymentStatus)
     };
     this.submitting = true;
     this.submitted.emit(payload);

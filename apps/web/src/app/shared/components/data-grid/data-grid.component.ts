@@ -95,9 +95,13 @@ export class DataGrid {
       case 'paid':
         return 'badge-active';
       case 'pending':
+      case 'partial':
         return 'badge-pending';
       case 'unpaid':
+      case 'refunded':
         return 'badge-unpaid';
+      case 'frozen':
+        return 'badge-neutral';
       case 'inactive':
       case 'expired':
       case 'failed':

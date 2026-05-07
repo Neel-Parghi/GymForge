@@ -12,6 +12,7 @@ import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal.
 import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer.component';
 import { GymMember, MemberStatus, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../shared/models/member.model';
 import { GymPlan } from '../../../shared/models/gym-plan.model';
+import { PaymentStatus } from '../../../shared/enums/member-enums';
 
 @Component({
   selector: 'app-members-list',
@@ -94,7 +95,14 @@ export class MembersListComponent implements OnInit {
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (data) => {
-          this.members = data.data.map(m => ({ ...m, statusLabel: this.getStatusLabel(m.status) }));
+          this.members = data.data.map(m => ({
+            ...m,
+            statusLabel: this.getStatusLabel(m.status),
+            currentSubscription: m.currentSubscription ? {
+              ...m.currentSubscription,
+              paymentStatusLabel: this.getPaymentStatusLabel(m.currentSubscription.paymentStatus)
+            } : undefined
+          }));
           this.filterMembers();
         },
         error: () => this.notificationService.error('Failed to load members')
@@ -277,6 +285,16 @@ export class MembersListComponent implements OnInit {
       case MemberStatus.Expired: return 'Expired';
       case MemberStatus.Freeze: return 'Frozen';
       default: return 'Unknown';
+    }
+  }
+
+  getPaymentStatusLabel(status: PaymentStatus): string {
+    switch (status) {
+      case PaymentStatus.Paid: return 'Paid';
+      case PaymentStatus.Pending: return 'Pending';
+      case PaymentStatus.Partial: return 'Partial';
+      case PaymentStatus.Refunded: return 'Refunded';
+      default: return 'Unpaid';
     }
   }
 }

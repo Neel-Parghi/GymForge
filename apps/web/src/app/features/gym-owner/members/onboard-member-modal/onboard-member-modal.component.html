@@ -206,6 +206,13 @@
               <label>Start Date (Defaults to today)</label>
               <input type="date" formControlName="startDate">
             </div>
+
+            <div class="form-group lg">
+              <label>Initial Payment Status *</label>
+              <select formControlName="paymentStatus">
+                <option *ngFor="let opt of paymentStatusOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -261,12 +268,15 @@
             <h4>4. Quick Actions</h4>
             <div class="summary-grid">
               <div style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
-                <button class="secondary-btn" (click)="freeze.emit(member!.id)" *ngIf="member!.status !== 4">
+                <!-- Freeze/Unfreeze: Status 3 is Freeze -->
+                <button class="secondary-btn" (click)="freeze.emit(member!.id)" *ngIf="member!.status !== 3">
                   <i class="fa-solid fa-snowflake"></i> Freeze Member
                 </button>
-                <button class="secondary-btn" (click)="unfreeze.emit(member!.id)" *ngIf="member!.status === 4">
+                <button class="secondary-btn" (click)="unfreeze.emit(member!.id)" *ngIf="member!.status === 3">
                   <i class="fa-solid fa-fire"></i> Unfreeze Member
                 </button>
+                
+                <!-- Activate/Deactivate: Status 1 is Active, 2 is Inactive -->
                 <button class="secondary-btn" (click)="toggle.emit(member!.id)">
                   <i class="fa-solid" [ngClass]="member!.status === 1 ? 'fa-eye-slash' : 'fa-eye'"></i>
                   {{ member!.status === 1 ? 'Deactivate' : 'Activate' }}
