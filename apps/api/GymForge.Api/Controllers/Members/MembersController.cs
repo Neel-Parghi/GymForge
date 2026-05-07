@@ -1,3 +1,4 @@
+using GymForge.Api.Middlewares;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Members;
 using Microsoft.AspNetCore.Authorization;
@@ -98,6 +99,28 @@ namespace GymForge.Api.Controllers.Members
             {
                 return NotFound(new { message = ex.Message });
             }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteMember(Guid id)
+        {
+            bool success = await _memberService.DeleteMemberAsync(id);
+            if (!success) return NotFound();
+            return Ok(new { success = true });
+        }
+
+        [HttpGet("{id}/subscriptions")]
+        public async Task<ActionResult> GetSubscriptionHistory(Guid id)
+        {
+            return Ok(await _memberService.GetSubscriptionHistoryAsync(id));
+        }
+
+        [HttpGet("~/api/gyms/{gymId}/members/export")]
+        [SkipResponseWrapper]
+        public async Task<IActionResult> ExportMembers(Guid gymId)
+        {
+            byte[] bytes = await _memberService.ExportMembersAsync(gymId);
+            return File(bytes, "text/csv", $"Members_Export_{DateTime.UtcNow:yyyyMMdd}.csv");
         }
     }
 }

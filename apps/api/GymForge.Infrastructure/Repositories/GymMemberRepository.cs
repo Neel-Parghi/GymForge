@@ -62,5 +62,14 @@ namespace GymForge.Infrastructure.Repositories
             foreach (var sub in active)
                 sub.IsActive = false;
         }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            GymMember? member = await _dbContext.GymMembers.FindAsync(id);
+            if (member != null)
+            {
+                _dbContext.GymMembers.Remove(member);
+            }
+        }
     }
 }

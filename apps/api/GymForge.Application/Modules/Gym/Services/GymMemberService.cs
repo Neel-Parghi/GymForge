@@ -140,7 +140,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             if (request.PaymentStatus.HasValue)
             {
-                var activeSub = member.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
+                MemberSubscription? activeSub = member.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
                 if (activeSub != null)
                 {
                     activeSub.PaymentStatus = request.PaymentStatus.Value;
@@ -234,6 +234,38 @@ namespace GymForge.Application.Modules.Gym.Services
 
             GymMember? refreshed = await _memberRepository.GetByIdAsync(memberId);
             return _mapper.Map<GymMemberResponse>(refreshed!);
+        }
+
+        public async Task<bool> DeleteMemberAsync(Guid id)
+        {
+            await _memberRepository.DeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<MemberSubscriptionResponse>> GetSubscriptionHistoryAsync(Guid memberId)
+        {
+            GymMember? member = await _memberRepository.GetByIdAsync(memberId);
+            if (member == null) return Enumerable.Empty<MemberSubscriptionResponse>();
+
+            IOrderedEnumerable<MemberSubscription> subscriptions = member.Subscriptions.OrderByDescending(s => s.StartDate);
+            return _mapper.Map<IEnumerable<MemberSubscriptionResponse>>(subscriptions);
+        }
+
+        public async Task<byte[]> ExportMembersAsync(Guid gymId)
+        {
+            IEnumerable<GymMember> members = await _memberRepository.GetAllByGymIdAsync(gymId);
+            
+            using var sw = new StringWriter();
+            sw.WriteLine("MembershipID,FirstName,LastName,Email,Phone,Gender,Status,JoiningDate,CurrentPlan,PlanExpiry");
+
+            foreach (var m in members)
+            {
+                MemberSubscription? sub = m.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
+                sw.WriteLine($"{m.MembershipNumber},{m.FirstName},{m.LastName},{m.Email},{m.PhoneNumber},{m.Gender},{m.Status},{m.JoiningDate:yyyy-MM-dd},{sub?.PlanNameSnapshot ?? "N/A"},{sub?.EndDate:yyyy-MM-dd}");
+            }
+
+            return System.Text.Encoding.UTF8.GetBytes(sw.ToString());
         }
     }
 }

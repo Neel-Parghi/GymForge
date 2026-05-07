@@ -11,5 +11,6 @@ namespace GymForge.Domain.Interface
         Task AddSubscriptionAsync(MemberSubscription subscription);
         Task UpdateAsync(GymMember member);
         Task DeactivateActiveSubscriptionsAsync(Guid memberId);
+        Task DeleteAsync(Guid id);
     }
 }

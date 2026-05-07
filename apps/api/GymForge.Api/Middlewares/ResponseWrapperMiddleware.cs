@@ -16,77 +16,86 @@ namespace GymForge.Api.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (context.Request.Path.StartsWithSegments("/swagger"))
+            // Skip for swagger and export routes
+            var path = context.Request.Path.Value ?? "";
+            if (path.Contains("/swagger") || path.Contains("/export") || path.Contains("/index.html"))
             {
                 await _next(context);
                 return;
             }
 
-            Endpoint? endpoint = context.GetEndpoint();
-            if (endpoint?.Metadata.GetMetadata<SkipResponseWrapperAttribute>() != null)
-            {
-                await _next(context);
-                return;
-            }
-
-            Stream? originalBodyStream = context.Response.Body;
-
-            using MemoryStream newBodyStream = new();
+            // Capture the original body stream
+            var originalBodyStream = context.Response.Body;
+            using var newBodyStream = new MemoryStream();
             context.Response.Body = newBodyStream;
 
-            await _next(context);
-
-            if (context.Response.StatusCode == StatusCodes.Status204NoContent || 
-                context.Response.StatusCode == StatusCodes.Status304NotModified)
+            try
             {
-                context.Response.Body = originalBodyStream;
-                return;
-            }
+                await _next(context);
 
-            newBodyStream.Seek(0, SeekOrigin.Begin);
-            string? responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
-
-            object? data = null;
-            if (!string.IsNullOrWhiteSpace(responseBody))
-            {
-                try
+                // If it's not a successful JSON response, just copy it back
+                if (context.Response.StatusCode >= 400 || 
+                    context.Response.ContentType?.Contains("application/json") == false)
                 {
-                    if (responseBody.TrimStart().StartsWith("{") || responseBody.TrimStart().StartsWith("["))
-                    {
-                        data = JsonSerializer.Deserialize<object>(responseBody);
-                    }
-                    else
-                    {
-                        data = responseBody;
-                    }
+                    newBodyStream.Seek(0, SeekOrigin.Begin);
+                    await newBodyStream.CopyToAsync(originalBodyStream);
+                    return;
                 }
-                catch
+
+                // Read the response body
+                newBodyStream.Seek(0, SeekOrigin.Begin);
+                var responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
+                
+                if (string.IsNullOrEmpty(responseBody))
                 {
+                    newBodyStream.Seek(0, SeekOrigin.Begin);
+                    await newBodyStream.CopyToAsync(originalBodyStream);
+                    return;
+                }
+
+                // Check if it's already wrapped to avoid double wrapping
+                if (responseBody.Contains("\"success\":") && responseBody.Contains("\"data\":"))
+                {
+                    newBodyStream.Seek(0, SeekOrigin.Begin);
+                    await newBodyStream.CopyToAsync(originalBodyStream);
+                    return;
+                }
+
+                // Parse the data
+                object? data;
+                try {
+                    data = JsonSerializer.Deserialize<JsonElement>(responseBody);
+                } catch {
                     data = responseBody;
                 }
+
+                var wrappedResponse = new ApiResponse<object>
+                {
+                    Success = true,
+                    StatusCode = context.Response.StatusCode,
+                    Data = data,
+                    Message = "Request successful",
+                    Timestamp = DateTime.UtcNow
+                };
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                };
+
+                var json = JsonSerializer.Serialize(wrappedResponse, options);
+
+                context.Response.Body = originalBodyStream;
+                context.Response.ContentLength = null;
+                context.Response.ContentType = "application/json; charset=utf-8";
+                await context.Response.WriteAsync(json);
             }
-            
-            ApiResponse<object> wrappedResponse = new()
+            finally
             {
-                Success = context.Response.StatusCode < 400,
-                StatusCode = context.Response.StatusCode,
-                Data = context.Response.StatusCode < 400 ? data : null,
-                Error = context.Response.StatusCode >= 400 ? data : null,
-                Message = context.Response.StatusCode < 400 ? "Request successful" : "Request failed",
-                Timestamp = DateTime.UtcNow
-            };
-
-            JsonSerializerOptions options = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
-
-            string json = JsonSerializer.Serialize(wrappedResponse, options);
-
-            context.Response.Body = originalBodyStream;
-            await context.Response.WriteAsync(json);
+                context.Response.Body = originalBodyStream;
+            }
         }
     }
 }
