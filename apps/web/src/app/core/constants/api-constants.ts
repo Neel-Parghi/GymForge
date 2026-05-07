@@ -57,6 +57,9 @@ export const API_CONSTANTS = {
     FREEZE: 'members/{id}/status/freeze',
     UNFREEZE: 'members/{id}/status/unfreeze',
     RENEW: 'members/{id}/subscriptions',
+    DELETE: 'members',
+    SUBSCRIPTION_HISTORY: 'members/{id}/subscriptions',
+    EXPORT: 'gyms/{gymId}/members/export',
   },
   PAYMENTS: {
     STATS: 'payments/stats',
