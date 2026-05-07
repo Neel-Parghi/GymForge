@@ -148,7 +148,7 @@ export class MembersListComponent implements OnInit {
     if (event.action === 'view') {
       this.viewDetails(event.row.id);
     } else if (event.action === 'edit') {
-      this.openEditModal(event.row.id);
+      this.openEditModal(event.row.id, event.row);
     }
   }
 
@@ -162,18 +162,25 @@ export class MembersListComponent implements OnInit {
     this.isOnboardOpen = true;
   }
 
-  openEditModal(memberId: string): void {
+  openEditModal(memberId: string, memberData?: GymMember): void {
     this.isEditMode = true;
     this.isDrawerOpen = false;
-    this.isOnboardOpen = true;
-    if (!this.selectedMember || this.selectedMember.id !== memberId) {
-      this.memberService.getMemberById(memberId).subscribe(m => this.selectedMember = m.data);
+    this.selectedMember = null;
+    
+    if (memberData) {
+      this.selectedMember = { ...memberData };
+      this.isOnboardOpen = true;
+    } else {
+      this.memberService.getMemberById(memberId).subscribe(m => {
+        this.selectedMember = m.data;
+        this.isOnboardOpen = true;
+      });
     }
   }
 
   handleOnboard(payload: OnboardMemberRequest): void {
-    if (!this.gymId || !this.gymOwnerId) return;
-    this.memberService.onboardMember(this.gymId, this.gymOwnerId, payload).subscribe({
+    if (!this.gymId) return;
+    this.memberService.onboardMember(this.gymId, payload).subscribe({
       next: () => {
         this.notificationService.success('Member onboarded successfully!');
         this.isOnboardOpen = false;
@@ -188,8 +195,8 @@ export class MembersListComponent implements OnInit {
   }
 
   handleUpdate(payload: OnboardMemberRequest): void {
-    if (!this.selectedMember || !this.gymOwnerId) return;
-    this.memberService.updateMember(this.selectedMember.id, this.gymOwnerId, payload).subscribe({
+    if (!this.selectedMember) return;
+    this.memberService.updateMember(this.selectedMember.id, payload).subscribe({
       next: () => {
         this.notificationService.success('Member profile updated!');
         this.isOnboardOpen = false;
@@ -223,8 +230,7 @@ export class MembersListComponent implements OnInit {
   }
 
   handleFreeze(memberId: string): void {
-    if (!this.gymOwnerId) return;
-    this.memberService.freezeMember(memberId, this.gymOwnerId).subscribe({
+    this.memberService.freezeMember(memberId).subscribe({
       next: () => {
         this.notificationService.success('Member frozen');
         this.memberService.clearCache();
@@ -235,8 +241,7 @@ export class MembersListComponent implements OnInit {
   }
 
   handleUnfreeze(memberId: string): void {
-    if (!this.gymOwnerId) return;
-    this.memberService.unfreezeMember(memberId, this.gymOwnerId).subscribe({
+    this.memberService.unfreezeMember(memberId).subscribe({
       next: () => {
         this.notificationService.success('Member unfrozen');
         this.memberService.clearCache();
@@ -258,8 +263,7 @@ export class MembersListComponent implements OnInit {
   }
 
   handleRenew(event: { memberId: string; request: RenewSubscriptionRequest }): void {
-    if (!this.gymOwnerId) return;
-    this.memberService.renewSubscription(event.memberId, this.gymOwnerId, event.request).subscribe({
+    this.memberService.renewSubscription(event.memberId, event.request).subscribe({
       next: () => {
         this.notificationService.success('Subscription renewed!');
         this.memberService.clearCache();

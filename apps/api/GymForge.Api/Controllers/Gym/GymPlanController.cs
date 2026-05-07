@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.Gym
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GymPlanController : ControllerBase
+    [Route("api/gym-plans")]
+    public class GymPlanController : BaseApiController
     {
         private readonly IGymPlanService _gymPlanService;
 
@@ -15,34 +14,34 @@ namespace GymForge.Api.Controllers.Gym
             _gymPlanService = gymPlanService;
         }
 
-        [HttpGet("{planId}")]
-        public async Task<ActionResult> GetGymPlanById(Guid planId)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetGymPlanById(Guid id)
         {
-            return Ok(await _gymPlanService.GetPlanByIdAsync(planId));
+            return Ok(await _gymPlanService.GetPlanByIdAsync(id));
         }
 
-        [HttpGet("owner/{ownerId}")]
+        [HttpGet("~/api/gym-owners/{ownerId}/plans")]
         public async Task<ActionResult> GetGymPlansByOwnerId(Guid ownerId)
         {
             return Ok(await _gymPlanService.GetPlansByOwnerIdAsync(ownerId));
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<ActionResult> AddGymPlanAsync([FromBody] CreateGymPlanRequest gymPlan)
         {
             return Ok(await _gymPlanService.AddGymPlanAsync(gymPlan));
         }
 
-        [HttpPut("update")]
-        public async Task<ActionResult> UpdateGymPlanAsync([FromBody] UpdateGymPlanRequest gymPlan)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateGymPlanAsync(Guid id, [FromBody] UpdateGymPlanRequest gymPlan)
         {
             return Ok(await _gymPlanService.UpdateGymPlanAsync(gymPlan));
         }
 
-        [HttpDelete("{planId}")]
-        public async Task<ActionResult> DeleteGymPlanAsync(Guid planId)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteGymPlanAsync(Guid id)
         {
-            return Ok(await _gymPlanService.DeleteGymPlanAsync(planId));
+            return Ok(await _gymPlanService.DeleteGymPlanAsync(id));
         }
     }
 }

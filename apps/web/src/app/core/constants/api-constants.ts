@@ -1,5 +1,5 @@
 export const API_CONSTANTS = {
-  // BASE_URL: 'https://localhost:7184/api/',
+  //BASE_URL: 'https://localhost:7184/api/',
   BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
 
 
@@ -49,14 +49,14 @@ export const API_CONSTANTS = {
     }
   },
   MEMBERS: {
-    ONBOARD: 'members/onboard',
-    LIST: 'members/gym',
+    ONBOARD: 'gyms/{gymId}/members',
+    LIST: 'gyms/{gymId}/members',
     GET: 'members',
     UPDATE: 'members',
-    TOGGLE_STATUS: 'members/{id}/toggle-status',
-    FREEZE: 'members/{id}/freeze',
-    UNFREEZE: 'members/{id}/unfreeze',
-    RENEW: 'members/{id}/renew',
+    TOGGLE_STATUS: 'members/{id}/status/toggle',
+    FREEZE: 'members/{id}/status/freeze',
+    UNFREEZE: 'members/{id}/status/unfreeze',
+    RENEW: 'members/{id}/subscriptions',
   },
   PAYMENTS: {
     STATS: 'payments/stats',
@@ -67,10 +67,10 @@ export const API_CONSTANTS = {
     UPDATE_SAAS_CONFIG: 'payments/settings/update'
   },
   GYM_PLAN: {
-    GET: 'GymPlan',
-    LIST_BY_OWNER: 'GymPlan/owner',
-    ADD: 'GymPlan/add',
-    UPDATE: 'GymPlan/update',
-    DELETE: 'GymPlan',
+    GET: 'gym-plans',
+    LIST_BY_OWNER: 'gym-owners/{ownerId}/plans',
+    ADD: 'gym-plans',
+    UPDATE: 'gym-plans',
+    DELETE: 'gym-plans',
   }
 };

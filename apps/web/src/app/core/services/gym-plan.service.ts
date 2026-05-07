@@ -23,7 +23,7 @@ export class GymPlanService extends BaseApiService {
     }
 
     this.lastOwnerId = ownerId;
-    this.plansCache$ = this.get<ApiResponse<GymPlan[]>>(`${API_CONSTANTS.GYM_PLAN.LIST_BY_OWNER}/${ownerId}`)
+    this.plansCache$ = this.get<ApiResponse<GymPlan[]>>(API_CONSTANTS.GYM_PLAN.LIST_BY_OWNER.replace('{ownerId}', ownerId))
       .pipe(shareReplay(1));
 
     return this.plansCache$;
@@ -43,7 +43,7 @@ export class GymPlanService extends BaseApiService {
   }
 
   updatePlan(payload: UpdateGymPlanRequest): Observable<GymPlan> {
-    return this.put(API_CONSTANTS.GYM_PLAN.UPDATE, payload);
+    return this.put(`${API_CONSTANTS.GYM_PLAN.UPDATE}/${payload.id}`, payload);
   }
 
   deletePlan(planId: string): Observable<boolean> {

@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.Members
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/members")]
     [Authorize(Roles = "GymOwner")]
-    public class MembersController : ControllerBase
+    public class MembersController : BaseApiController
     {
         private readonly IGymMemberService _memberService;
 
@@ -17,12 +16,12 @@ namespace GymForge.Api.Controllers.Members
             _memberService = memberService;
         }
 
-        [HttpPost("onboard/{gymId}/{createdBy}")]
-        public async Task<ActionResult> OnboardMember(Guid gymId, Guid createdBy, [FromBody] OnboardMemberRequest request)
+        [HttpPost("~/api/gyms/{gymId}/members")]
+        public async Task<ActionResult> OnboardMember(Guid gymId, [FromBody] OnboardMemberRequest request)
         {
             try
             {
-                GymMemberResponse response = await _memberService.OnboardMemberAsync(gymId, request, createdBy);
+                GymMemberResponse response = await _memberService.OnboardMemberAsync(gymId, request, UserId);
                 return Ok(response);
             }
             catch (InvalidOperationException ex)
@@ -35,7 +34,7 @@ namespace GymForge.Api.Controllers.Members
             }
         }
 
-        [HttpGet("gym/{gymId}")]
+        [HttpGet("~/api/gyms/{gymId}/members")]
         public async Task<ActionResult> GetGymMembers(Guid gymId)
         {
             return Ok(await _memberService.GetGymMembersAsync(gymId));
@@ -49,12 +48,12 @@ namespace GymForge.Api.Controllers.Members
             return Ok(member);
         }
         
-        [HttpPut("{id}/{updatedBy}")]
-        public async Task<ActionResult> UpdateMember(Guid id, Guid updatedBy, [FromBody] OnboardMemberRequest request)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateMember(Guid id, [FromBody] OnboardMemberRequest request)
         {
             try
             {
-                GymMemberResponse response = await _memberService.UpdateMemberAsync(id, request, updatedBy);
+                GymMemberResponse response = await _memberService.UpdateMemberAsync(id, request, UserId);
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)
@@ -63,7 +62,7 @@ namespace GymForge.Api.Controllers.Members
             }
         }
 
-        [HttpPut("{id}/toggle-status")]
+        [HttpPatch("{id}/status/toggle")]
         public async Task<ActionResult> ToggleMemberStatus(Guid id)
         {
             bool success = await _memberService.ToggleMemberStatusAsync(id);
@@ -71,28 +70,28 @@ namespace GymForge.Api.Controllers.Members
             return Ok(new { success = true });
         }
 
-        [HttpPut("{id}/freeze/{updatedBy}")]
-        public async Task<ActionResult> FreezeMember(Guid id, Guid updatedBy)
+        [HttpPatch("{id}/status/freeze")]
+        public async Task<ActionResult> FreezeMember(Guid id)
         {
-            bool success = await _memberService.FreezeMemberAsync(id, updatedBy);
+            bool success = await _memberService.FreezeMemberAsync(id, UserId);
             if (!success) return NotFound();
             return Ok(new { success = true });
         }
 
-        [HttpPut("{id}/unfreeze/{updatedBy}")]
-        public async Task<ActionResult> UnfreezeMember(Guid id, Guid updatedBy)
+        [HttpPatch("{id}/status/unfreeze")]
+        public async Task<ActionResult> UnfreezeMember(Guid id)
         {
-            bool success = await _memberService.UnfreezeMemberAsync(id, updatedBy);
+            bool success = await _memberService.UnfreezeMemberAsync(id, UserId);
             if (!success) return NotFound();
             return Ok(new { success = true });
         }
 
-        [HttpPost("{id}/renew/{updatedBy}")]
-        public async Task<ActionResult> RenewSubscription(Guid id, Guid updatedBy, [FromBody] RenewSubscriptionRequest request)
+        [HttpPost("{id}/subscriptions")]
+        public async Task<ActionResult> RenewSubscription(Guid id, [FromBody] RenewSubscriptionRequest request)
         {
             try
             {
-                GymMemberResponse response = await _memberService.RenewSubscriptionAsync(id, request, updatedBy);
+                GymMemberResponse response = await _memberService.RenewSubscriptionAsync(id, request, UserId);
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)

@@ -35,7 +35,7 @@ namespace GymForge.Infrastructure.Repositories
                                     .Include(x => x.Subscriptions)
                                     .Include(x => x.Address)
                                     .Where(x => x.GymId == gymId)
-                                    .OrderByDescending(x => x.JoiningDate)
+                                    .OrderByDescending(x => x.ModifiedOn)
                                     .ToListAsync();
         }
 

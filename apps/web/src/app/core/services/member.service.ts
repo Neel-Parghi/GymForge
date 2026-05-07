@@ -14,8 +14,8 @@ export class MemberService extends BaseApiService {
     super();
   }
 
-  onboardMember(gymId: string, createdBy: string, payload: OnboardMemberRequest): Observable<GymMember> {
-    return this.post(`${API_CONSTANTS.MEMBERS.ONBOARD}/${gymId}/${createdBy}`, payload);
+  onboardMember(gymId: string, payload: OnboardMemberRequest): Observable<GymMember> {
+    return this.post(API_CONSTANTS.MEMBERS.ONBOARD.replace('{gymId}', gymId), payload);
   }
 
   private membersCache$: Observable<ApiResponse<GymMember[]>> | null = null;
@@ -27,7 +27,7 @@ export class MemberService extends BaseApiService {
     }
     
     this.lastGymId = gymId;
-    this.membersCache$ = this.get<ApiResponse<GymMember[]>>(`${API_CONSTANTS.MEMBERS.LIST}/${gymId}`)
+    this.membersCache$ = this.get<ApiResponse<GymMember[]>>(API_CONSTANTS.MEMBERS.LIST.replace('{gymId}', gymId))
       .pipe(shareReplay(1));
       
     return this.membersCache$;
@@ -44,22 +44,22 @@ export class MemberService extends BaseApiService {
   }
 
   toggleMemberStatus(id: string): Observable<{ success: boolean }> {
-    return this.put(API_CONSTANTS.MEMBERS.TOGGLE_STATUS.replace('{id}', id), {});
+    return this.patch(API_CONSTANTS.MEMBERS.TOGGLE_STATUS.replace('{id}', id), {});
   }
 
-  freezeMember(id: string, updatedBy: string): Observable<{ success: boolean }> {
-    return this.put(API_CONSTANTS.MEMBERS.FREEZE.replace('{id}', id) + `/${updatedBy}`, {});
+  freezeMember(id: string): Observable<{ success: boolean }> {
+    return this.patch(API_CONSTANTS.MEMBERS.FREEZE.replace('{id}', id), {});
   }
 
-  unfreezeMember(id: string, updatedBy: string): Observable<{ success: boolean }> {
-    return this.put(API_CONSTANTS.MEMBERS.UNFREEZE.replace('{id}', id) + `/${updatedBy}`, {});
+  unfreezeMember(id: string): Observable<{ success: boolean }> {
+    return this.patch(API_CONSTANTS.MEMBERS.UNFREEZE.replace('{id}', id), {});
   }
 
-  renewSubscription(id: string, updatedBy: string, payload: RenewSubscriptionRequest): Observable<GymMember> {
-    return this.post(API_CONSTANTS.MEMBERS.RENEW.replace('{id}', id) + `/${updatedBy}`, payload);
+  renewSubscription(id: string, payload: RenewSubscriptionRequest): Observable<GymMember> {
+    return this.post(API_CONSTANTS.MEMBERS.RENEW.replace('{id}', id), payload);
   }
 
-  updateMember(id: string, updatedBy: string, payload: Partial<OnboardMemberRequest>): Observable<GymMember> {
-    return this.put(`${API_CONSTANTS.MEMBERS.UPDATE}/${id}/${updatedBy}`, payload);
+  updateMember(id: string, payload: Partial<OnboardMemberRequest>): Observable<GymMember> {
+    return this.put(`${API_CONSTANTS.MEMBERS.UPDATE}/${id}`, payload);
   }
 }
