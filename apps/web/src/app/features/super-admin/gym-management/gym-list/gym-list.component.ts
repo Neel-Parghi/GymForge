@@ -134,10 +134,10 @@ export class GymList implements OnInit {
   handleAction(event: { action: string, row: any }) {
     this.selectedGymDetail = event.row;
 
-    if (event.action === CONSTANTS.VIEW || event.action === CONSTANTS.EDIT || event.action === CONSTANTS.ROW_CLICK) {
+    if (event.action === CONSTANTS.ACTIONS.VIEW || event.action === CONSTANTS.ACTIONS.EDIT || event.action === CONSTANTS.ACTIONS.ROW_CLICK) {
       this.openDrawer(event.row, event.action);
     }
-    if (event.action == CONSTANTS.DELETE) {
+    if (event.action == CONSTANTS.ACTIONS.DELETE) {
       if (event.row.branchesCount > 0) {
         this.notification.error(CONSTANTS.GYM_DELETE_VALIDATION_MESSAGE);
         return;
@@ -150,7 +150,7 @@ export class GymList implements OnInit {
     const confirmed = await this.confirmation.confirm({
       title: CONSTANTS.CONFIRMATIONS.DELETE_GYM_TITLE,
       message: CONSTANTS.CONFIRMATIONS.DELETE_GYM_MESSAGE.replace('{name}', gym.gymName),
-      confirmText: CONSTANTS.DELETE,
+      confirmText: CONSTANTS.ACTIONS.DELETE,
       type: 'danger'
     });
 
@@ -181,7 +181,7 @@ export class GymList implements OnInit {
   openDrawer(rowInfo: GymListResponse, action: string) {
     this.selectedGymDetail = rowInfo;
     this.isDetailsDrawerOpen = true;
-    this.isEditMode = action === CONSTANTS.EDIT;
+    this.isEditMode = action === CONSTANTS.ACTIONS.EDIT;
   }
 
   onSelectionChange(selected: any[]) {

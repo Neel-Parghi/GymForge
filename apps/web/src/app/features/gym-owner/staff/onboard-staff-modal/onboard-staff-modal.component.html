@@ -1,0 +1,119 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2>{{ isEdit ? 'Edit Staff Profile' : 'Onboard New Staff' }}</h2>
+        <p>{{ isEdit ? 'Update staff information and professional details.' : 'Send an invitation to a new staff member or trainer.' }}</p>
+      </div>
+      <button class="close-btn" (click)="onTopClose()" title="Cancel">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor"
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="onboardForm" (ngSubmit)="submit()" class="onboard-form">
+        
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input type="text" formControlName="firstName" placeholder="Enter first name">
+              <app-validation-message [control]="onboardForm.get('firstName')" fieldName="First name"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input type="text" formControlName="lastName" placeholder="Enter last name">
+              <app-validation-message [control]="onboardForm.get('lastName')" fieldName="Last name"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" formControlName="email" placeholder="staff@example.com" [readonly]="isEdit">
+              <app-validation-message [control]="onboardForm.get('email')" fieldName="Email"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <input type="text" formControlName="phoneNumber" placeholder="+1 234 567 8900">
+              <app-validation-message [control]="onboardForm.get('phoneNumber')" fieldName="Phone number"></app-validation-message>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Details Section -->
+        <div class="form-section">
+          <h3>Professional Profile</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Role *</label>
+              <app-dropdown [options]="roles" formControlName="role" placeholder="Select Role" direction="auto" minWidth="100%"></app-dropdown>
+              <app-validation-message [control]="onboardForm.get('role')" fieldName="Role"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>Experience (Years)</label>
+              <input type="number" formControlName="experienceYears" placeholder="e.g. 5">
+            </div>
+            <div class="form-group">
+              <label>Specializations (Comma separated)</label>
+              <input type="text" formControlName="specializations" placeholder="e.g. HIIT, Yoga, Boxing">
+            </div>
+            <div class="form-group">
+              <label>Shift Timings</label>
+              <input type="text" formControlName="shiftTimings" placeholder="e.g. 6 AM - 2 PM">
+            </div>
+            <div class="form-group full-width">
+              <label>Short Bio / About</label>
+              <textarea formControlName="bio" placeholder="Tell us about the staff member's background..." rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social & Online Presence (Only for trainers/instructors) -->
+        <div class="form-section" *ngIf="onboardForm.get('role')?.value === 1 || onboardForm.get('role')?.value === 5 || onboardForm.get('role')?.value === 6">
+          <h3>Social & Online Presence</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label><i class="fa-brands fa-instagram"></i> Instagram Profile URL</label>
+              <input type="text" formControlName="instagramUrl" placeholder="https://instagram.com/username">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-solid fa-globe"></i> Portfolio / Website</label>
+              <input type="text" formControlName="portfolioUrl" placeholder="https://example.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card" *ngIf="!isEdit">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+          </svg>
+          <p>The staff member will receive an email with a link to set their account password and join your gym.</p>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <div class="footer-left">
+        <button class="secondary-btn" (click)="onTopClose()">Cancel</button>
+      </div>
+      <div class="footer-right">
+        <button class="primary-btn" (click)="submit()" [disabled]="onboardForm.invalid || isSubmitting">
+          {{ isSubmitting ? (isEdit ? 'Saving...' : 'Sending Invitation...') : (isEdit ? 'Save Changes' : 'Send Invitation') }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+@if (isConfirmCancelOpen) {
+<app-confirmation-popup title="Discard Changes?" message="You have unsaved changes. Are you sure you want to cancel?"
+  confirmText="Discard" cancelText="Keep Editing" type="danger" (confirm)="closeModal()"
+  (cancel)="isConfirmCancelOpen = false">
+</app-confirmation-popup>
+}

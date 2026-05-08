@@ -20,6 +20,7 @@ export class DataGrid {
   @Input() currentPage: number = 1;
 
   @Output() actionEvent = new EventEmitter<{ action: string, row: any }>();
+  @Output() rowClick = new EventEmitter<any>();
   @Output() selectionChange = new EventEmitter<any[]>();
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
@@ -63,6 +64,14 @@ export class DataGrid {
 
   onAction(action: string, row: any) {
     this.actionEvent.emit({ action, row });
+  }
+
+  onRowClick(row: any, event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (target.closest('.checkbox-col') || target.closest('.actions-cell') || target.closest('.action-btn')) {
+      return;
+    }
+    this.rowClick.emit(row);
   }
 
   toggleSelection(row: any, event: Event) {

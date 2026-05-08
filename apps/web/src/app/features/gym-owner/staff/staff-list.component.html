@@ -1,0 +1,106 @@
+<div class="staff-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-info">
+      <h1>Staff Directory</h1>
+      <p>Manage your gym trainers, receptionists, and administrative team.</p>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" (click)="toggleViewMode()"
+        [title]="viewMode === 'list' ? 'Dashboard View' : 'List View'">
+        <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
+      </button>
+      <button class="btn-secondary" (click)="exportToCsv()" [disabled]="staff.length === 0">
+        <i class="fa-solid fa-file-csv"></i> Export CSV
+      </button>
+      <button class="btn-primary" (click)="onAddStaff()">
+        <i class="fa-solid fa-user-plus"></i> Onboard Staff
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Bar (Dashboard View) -->
+  <div class="stats-bar" *ngIf="viewMode === 'dashboard'">
+    <div class="stat-card">
+      <div class="stat-icon total"><i class="fa-solid fa-users"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalCount }}</span>
+        <span class="stat-label">Total Staff</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon trainers"><i class="fa-solid fa-dumbbell"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ trainersCount }}</span>
+        <span class="stat-label">Active Trainers</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active"><i class="fa-solid fa-circle-check"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ activeCount }}</span>
+        <span class="stat-label">Active Staff</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon inactive"><i class="fa-solid fa-circle-xmark"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ inactiveCount }}</span>
+        <span class="stat-label">Inactive</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar (List View) -->
+  <div class="filter-bar" *ngIf="viewMode === 'list'">
+    <div class="filter-tabs">
+      <button *ngFor="let tab of filterTabs" class="filter-tab" [class.active]="activeFilter === tab.value"
+        (click)="setFilter(tab.value)">
+        {{ tab.label }}
+      </button>
+    </div>
+
+    <div class="advanced-filters">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Search staff...">
+      </div>
+
+      <div class="dropdown-filters">
+        <app-dropdown [options]="roles" placeholder="All Roles" (selectionChange)="onRoleFilter($event)"
+          style="min-width: 160px;">
+        </app-dropdown>
+
+        <button class="refresh-btn" (click)="loadStaff(true)" [disabled]="isLoading" title="Refresh Data">
+          <i class="fa-solid fa-rotate" [class.fa-spin]="isLoading"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Grid (Only in List View) -->
+  <app-data-grid *ngIf="viewMode === 'list'" 
+    [config]="gridConfig" 
+    [data]="filteredStaff" 
+    [totalItems]="filteredStaff.length"
+    [pageSize]="pageSize"
+    [currentPage]="currentPage"
+    (actionEvent)="onAction($event)"
+    (rowClick)="onViewStaff($event)">
+  </app-data-grid>
+</div>
+
+<!-- Modals & Drawers -->
+<app-onboard-staff-modal *ngIf="isAddStaffModalOpen" [isEdit]="isEditMode" [staff]="selectedStaff"
+  (close)="closeAddModal()" (staffOnboarded)="loadStaff(true)">
+</app-onboard-staff-modal>
+
+<app-staff-detail-drawer [isOpen]="isDrawerOpen" [staff]="selectedStaff" (close)="isDrawerOpen = false"
+  (edit)="onEditStaff($any($event))" (statusChanged)="loadStaff(true)">
+</app-staff-detail-drawer>
+
+<app-confirmation-popup *ngIf="isConfirmDeleteOpen" title="Remove Staff Member?"
+  [message]="'Are you sure you want to remove ' + staffToDelete?.firstName + ' ' + staffToDelete?.lastName + ' from your gym? This action cannot be undone.'"
+  confirmText="Remove" cancelText="Cancel" type="danger" (confirm)="confirmDelete()"
+  (cancel)="isConfirmDeleteOpen = false">
+</app-confirmation-popup>

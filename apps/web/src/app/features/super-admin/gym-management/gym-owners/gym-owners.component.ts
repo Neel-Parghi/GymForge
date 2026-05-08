@@ -121,18 +121,18 @@ export class GymOwners implements OnInit {
   openDrawer(rowInfo: GymOwnerResponse, action: string) {
     this.selectedContext = rowInfo;
     this.isViewDrawerOpen = true;
-    this.isEditMode = action === CONSTANTS.EDIT;
+    this.isEditMode = action === CONSTANTS.ACTIONS.EDIT;
   }
 
   handleAction(event: { action: string, row: GymOwnerResponse }) {
-    if (event.action === CONSTANTS.EDIT || event.action === CONSTANTS.VIEW || event.action === CONSTANTS.ROW_CLICK) {
+    if (event.action === CONSTANTS.ACTIONS.EDIT || event.action === CONSTANTS.ACTIONS.VIEW || event.action === CONSTANTS.ACTIONS.ROW_CLICK) {
       this.openDrawer(event.row, event.action);
       return;
     }
-    if (event.action === CONSTANTS.RE_INVITE) {
+    if (event.action === CONSTANTS.ACTIONS.RE_INVITE) {
       this.reInvite(event.row.id);
     }
-    if (event.action === CONSTANTS.DELETE) {
+    if (event.action === CONSTANTS.ACTIONS.DELETE) {
       if (event.row.gymsOwned > 0) {
         this.notification.error(CONSTANTS.GYM_OWNER_DELETE_VALIDATION_MESSAGE);
         return;

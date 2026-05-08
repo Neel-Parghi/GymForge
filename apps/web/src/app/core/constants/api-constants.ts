@@ -60,6 +60,11 @@ export const API_CONSTANTS = {
     DELETE: 'members',
     SUBSCRIPTION_HISTORY: 'members/{id}/subscriptions',
     EXPORT: 'gyms/{gymId}/members/export',
+    MEASUREMENTS: 'members/{memberId}/measurements',
+  },
+  STAFF: {
+    BASE: 'staff',
+    LIST: 'gyms/{gymId}/staff',
   },
   PAYMENTS: {
     STATS: 'payments/stats',

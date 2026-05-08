@@ -10,7 +10,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let row of data" [class.selected]="isSelected(row)">
+        <tr *ngFor="let row of data" 
+          [class.selected]="isSelected(row)"
+          [class.row-clickable]="rowClick.observed"
+          (click)="onRowClick(row, $event)">
           <td *ngIf="selectable" class="checkbox-col">
             <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
           </td>

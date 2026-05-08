@@ -101,14 +101,14 @@ export class PricingList implements OnInit {
   }
 
   handleAction(event: { action: string, row: PricingPlan }) {
-    if (event.action === CONSTANTS.VIEW || event.action === CONSTANTS.EDIT || event.action === CONSTANTS.ROW_CLICK) {
+    if (event.action === CONSTANTS.ACTIONS.VIEW || event.action === CONSTANTS.ACTIONS.EDIT || event.action === CONSTANTS.ACTIONS.ROW_CLICK) {
       this.selectedPlan = event.row;
       this.isViewDrawerOpen = true;
-      this.isEditMode = event.action === CONSTANTS.EDIT;
+      this.isEditMode = event.action === CONSTANTS.ACTIONS.EDIT;
       return;
     }
 
-    if (event.action === CONSTANTS.DELETE) {
+    if (event.action === CONSTANTS.ACTIONS.DELETE) {
       this.deletePlan(event.row.id);
     }
   }

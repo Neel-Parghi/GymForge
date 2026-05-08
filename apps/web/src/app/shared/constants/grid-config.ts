@@ -66,5 +66,18 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false
+  },
+  StaffList: {
+    columns: [
+      { key: 'fullName', label: 'Name', isClickable: true },
+      { key: 'staffNumber', label: 'Staff ID' },
+      { key: 'email', label: 'Email' },
+      { key: 'phoneNumber', label: 'Phone' },
+      { key: 'roleName', label: 'Role', type: 'badge' },
+      { key: 'joiningDate', label: 'Joined', type: 'date' },
+      { key: 'isActive', label: 'Status', type: 'bool' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: true
   }
 };

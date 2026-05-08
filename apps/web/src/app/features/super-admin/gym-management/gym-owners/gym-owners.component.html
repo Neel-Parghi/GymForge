@@ -6,6 +6,7 @@
   <button class="primary-btn edit-mode">Edit ({{ selectedOwners.length }} selected)</button>
   }
 </div>
+
 <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search by name, email or gym..."
   (filterChanged)="onFilterChanged($event)">
 </app-filter-bar>

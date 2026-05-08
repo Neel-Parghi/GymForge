@@ -8,8 +8,8 @@
   </div>
 
   <div class="select-options" [class.align-right]="align === 'right'" [class.align-left]="align === 'left'"
-    [class.drop-up]="direction === 'up'" [class.drop-down]="direction === 'down'" [style.minWidth]="minWidth"
-    style="max-width: 90vw;">
+    [class.drop-up]="actualDirection === 'up'" [class.drop-down]="actualDirection === 'down'"
+    [style.minWidth]="minWidth" style="max-width: 90vw;">
     <div *ngFor="let option of options" class="option" [class.selected]="option.value === value"
       (click)="selectOption(option)">
       <i *ngIf="option.icon" [class]="option.icon"></i>

@@ -1,0 +1,164 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="'Staff Profile'" width="520px" (closeDrawer)="onClose()">
+  <div drawer-body>
+    <ng-container *ngIf="staff">
+      <div class="member-hero">
+        <div class="avatar-container">
+          <div class="status-ring" [ngClass]="statusClass"></div>
+          <div class="avatar">
+            <img *ngIf="staff.profilePictureUrl" [src]="staff.profilePictureUrl" alt="profile">
+            <span *ngIf="!staff.profilePictureUrl">{{ initials }}</span>
+          </div>
+        </div>
+        <div class="hero-info">
+          <h2>{{ staff.firstName }} {{ staff.lastName }}</h2>
+          <div class="membership-id">
+            <i class="fa-solid fa-id-badge"></i>
+            {{ staff.staffNumber }}
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-nav" *ngIf="isTrainer">
+        <button [class.active]="activeTab === 'details'" (click)="setActiveTab('details')">
+          <i class="fa-solid fa-user-gear"></i> Details
+        </button>
+        <button [class.active]="activeTab === 'members'" (click)="setActiveTab('members')">
+          <i class="fa-solid fa-users"></i> Members
+          <span class="count-badge" *ngIf="assignedMembers.length > 0">{{ assignedMembers.length }}</span>
+        </button>
+      </div>
+
+      <div class="tab-content" *ngIf="activeTab === 'details'">
+        <div class="quick-stats">
+          <div class="stat-item">
+            <span class="stat-label">Role</span>
+            <span class="stat-value">{{ getRoleName(staff.role) }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Experience</span>
+            <span class="stat-value">{{ staff.experienceYears || 0 }} Yrs</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Status</span>
+            <span class="stat-value" [style.color]="staff.isActive ? '#22c55e' : '#ef4444'">
+              {{ staff.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="details-sections">
+          <!-- Personal Group -->
+          <div class="info-group">
+            <div class="group-header">
+              <i class="fa-solid fa-user"></i>
+              <h3>Contact Information</h3>
+              <div class="line"></div>
+            </div>
+            <div class="info-grid">
+              <div class="info-tile">
+                <span class="label">Phone Number</span>
+                <span class="value">{{ staff.phoneNumber }}</span>
+              </div>
+              <div class="info-tile">
+                <span class="label">Email Address</span>
+                <span class="value">{{ staff.email }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Professional Group -->
+          <div class="info-group">
+            <div class="group-header">
+              <i class="fa-solid fa-briefcase"></i>
+              <h3>Professional Profile</h3>
+              <div class="line"></div>
+            </div>
+            <div class="info-grid">
+              <div class="info-tile" *ngIf="staff.specializations?.length" style="grid-column: span 2;">
+                <span class="label">Specializations</span>
+                <div class="tags">
+                  <span class="tag" *ngFor="let spec of staff.specializations">{{ spec }}</span>
+                </div>
+              </div>
+              <div class="info-tile" style="grid-column: span 2;" *ngIf="staff.bio">
+                <span class="label">Biography</span>
+                <span class="value bio-text">{{ staff.bio }}</span>
+              </div>
+              <div class="info-tile" *ngIf="staff.shiftTimings">
+                <span class="label">Shift Timings</span>
+                <span class="value">{{ staff.shiftTimings }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social & Links -->
+          <div class="info-group" *ngIf="staff.instagramUrl || staff.portfolioUrl">
+            <div class="group-header">
+              <i class="fa-solid fa-link"></i>
+              <h3>Digital Presence</h3>
+              <div class="line"></div>
+            </div>
+            <div class="link-grid">
+              <a *ngIf="staff.instagramUrl" [href]="staff.instagramUrl" target="_blank" class="social-link instagram">
+                <i class="fa-brands fa-instagram"></i> Instagram
+              </a>
+              <a *ngIf="staff.portfolioUrl" [href]="staff.portfolioUrl" target="_blank" class="social-link portfolio">
+                <i class="fa-solid fa-globe"></i> Portfolio
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Members View -->
+      <div class="tab-content" *ngIf="activeTab === 'members'">
+        <div class="members-list-container">
+          <div *ngIf="isLoadingMembers" class="loading-state">
+            <div class="spinner"></div>
+            <p>Fetching assigned members...</p>
+          </div>
+
+          <div *ngIf="!isLoadingMembers && assignedMembers.length === 0" class="no-data-state">
+            <i class="fa-solid fa-user-group"></i>
+            <p>No members assigned to this trainer yet.</p>
+          </div>
+
+          <div *ngIf="!isLoadingMembers && assignedMembers.length > 0" class="member-cards">
+            <div class="member-mini-card" *ngFor="let m of assignedMembers">
+              <div class="member-avatar">
+                {{ m.firstName[0] }}{{ m.lastName[0] }}
+              </div>
+              <div class="member-details">
+                <div class="name-row">
+                  <h4>{{ m.firstName }} {{ m.lastName }}</h4>
+                  <span class="slot-badge" *ngIf="m.assignedSlot">{{ m.assignedSlot }}</span>
+                </div>
+                <p class="id">{{ m.membershipNumber }}</p>
+                <div class="footer-row">
+                  <span class="date"><i class="fa-solid fa-calendar-day"></i> Since {{ m.assignedDate | date:'MMM dd,
+                    yyyy' }}</span>
+                  <a [href]="'tel:' + m.phoneNumber" class="call-action"><i class="fa-solid fa-phone"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div drawer-footer>
+    <div class="footer-actions" *ngIf="staff">
+      <div class="status-actions">
+        <button class="status-btn toggle" (click)="toggleStatus()">
+          <i class="fa-solid" [ngClass]="staff.isActive ? 'fa-user-slash' : 'fa-user-check'"></i>
+          {{ staff.isActive ? 'Deactivate' : 'Activate' }} Staff
+        </button>
+      </div>
+      <button class="manage-btn" (click)="onEdit()">
+        <i class="fa-solid fa-pen-to-square"></i>
+        Edit Staff Profile
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>
