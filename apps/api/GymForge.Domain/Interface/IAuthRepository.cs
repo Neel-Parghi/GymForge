@@ -15,6 +15,8 @@ namespace GymForge.Domain.Interface
         
         Task<User?> GetByRefreshTokenAsync(string refreshToken);
         
+        Task<User?> GetByUserByEmailAsync(string email);
+        
         Task<User?> Login(LoginRequestDto user);
     }
 }

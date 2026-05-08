@@ -52,5 +52,10 @@ namespace GymForge.Infrastructure.Repositories
             
             return token?.User;
         }
+
+        public async Task<User?> GetByUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
     }
 }

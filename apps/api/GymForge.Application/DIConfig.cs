@@ -40,6 +40,8 @@ namespace GymForge.Application
             services.AddScoped<IGymPlanService, GymPlanService>();
 
             services.AddScoped<IGymMemberService, GymMemberService>();
+           
+            services.AddScoped<IStaffService, StaffService>();
 
             return services;
         }

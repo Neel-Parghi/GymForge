@@ -35,6 +35,12 @@ namespace GymForge.Infrastructure.Persistence
         
         public DbSet<MemberSubscription> MemberSubscriptions { get; set; }
 
+        public DbSet<Staff> Staff { get; set; }
+        
+        public DbSet<PTAssignment> PTAssignments { get; set; }
+        
+        public DbSet<MemberMeasurement> MemberMeasurements { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -77,6 +83,36 @@ namespace GymForge.Infrastructure.Persistence
                       .HasPrecision(18, 2);
                 entity.Property(x => x.SubscriptionTarget);
                 entity.Property(x => x.UptimeThreshold).HasPrecision(5, 2);
+            });
+
+            modelBuilder.Entity<PTAssignment>(entity =>
+            {
+                entity.HasOne(pt => pt.Trainer)
+                      .WithMany(s => s.PTAssignments)
+                      .HasForeignKey(pt => pt.TrainerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(pt => pt.Member)
+                      .WithMany()
+                      .HasForeignKey(pt => pt.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MemberMeasurement>(entity =>
+            {
+                entity.HasOne(mm => mm.Member)
+                      .WithMany(m => m.Measurements)
+                      .HasForeignKey(mm => mm.MemberId);
+
+                entity.HasOne(mm => mm.RecordedBy)
+                      .WithMany()
+                      .HasForeignKey(mm => mm.RecordedById)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.Property(mm => mm.Weight).HasPrecision(5, 2);
+                entity.Property(mm => mm.Height).HasPrecision(5, 2);
+                entity.Property(mm => mm.BodyFatPercentage).HasPrecision(5, 2);
+                entity.Property(mm => mm.BMI).HasPrecision(5, 2);
             });
 
             // Seed default settings

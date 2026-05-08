@@ -1,4 +1,4 @@
-﻿using GymForge.Shared.Enums;
+using GymForge.Shared.Enums;
 
 namespace GymForge.Domain.Entities
 {
@@ -16,6 +16,7 @@ namespace GymForge.Domain.Entities
         public DateTime EndDate { get; set; }
 
         public bool IsActive { get; set; }
+        public bool IsComplementary { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
                                                          
         public GymMember Member { get; set; } = null!;

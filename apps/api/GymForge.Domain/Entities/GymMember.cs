@@ -12,6 +12,9 @@ namespace GymForge.Domain.Entities
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
 
+        public Guid? UserId { get; set; }
+        public User? User { get; set; }
+
         public DateTime DateOfBirth { get; set; }
         public Gender Gender { get; set; }
         public string? ProfilePictureUrl { get; set; }
@@ -30,5 +33,6 @@ namespace GymForge.Domain.Entities
 
         public Gym Gym { get; set; } = null!;
         public ICollection<MemberSubscription> Subscriptions { get; set; } = new List<MemberSubscription>();
+        public ICollection<MemberMeasurement> Measurements { get; set; } = new List<MemberMeasurement>();
     }
 }

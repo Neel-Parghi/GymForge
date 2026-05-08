@@ -5,6 +5,7 @@ namespace GymForge.Shared.Enums
         SuperAdmin = 1,
         GymOwner = 2,
         Trainer = 3,
-        Member = 4
+        Member = 4,
+        Staff = 5
     }
 }
