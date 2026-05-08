@@ -1,25 +1,25 @@
-<div class="members-container">
+<div class="standard-container">
 
   <!-- Header -->
-  <div class="header-section">
-    <div class="title-info">
-      <h1>Member Directory</h1>
-      <p>Manage and track all gym members in one place.</p>
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Member Directory</h2>
+      <p>Directory of all active members and their subscription status.</p>
     </div>
     <div class="actions">
-      <button class="btn-secondary" (click)="toggleViewMode()">
+      <button class="secondary-btn" (click)="toggleViewMode()">
         <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
       </button>
-      <button class="btn-secondary" (click)="exportToCsv()" [disabled]="members.length === 0">
+      <button class="secondary-btn" (click)="exportToCsv()" [disabled]="members.length === 0">
         <i class="fa-solid fa-file-csv"></i> Export CSV
       </button>
-      <button class="btn-primary" id="btn-onboard-member" (click)="openOnboardModal()">
+      <button class="primary-btn" id="btn-onboard-member" (click)="openOnboardModal()">
         <i class="fa-solid fa-user-plus"></i> Onboard New Member
       </button>
     </div>
   </div>
 
-  <!-- Stats Bar (Dashboard View) -->
+  <!-- Stats Bar -->
   <div class="stats-bar" *ngIf="viewMode === 'dashboard'">
     <div class="stat-card">
       <div class="stat-icon total"><i class="fa-solid fa-users"></i></div>
@@ -76,25 +76,24 @@
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Data Grid -->
+  <app-data-grid *ngIf="viewMode === 'list' && !loading" [config]="gridConfig" [data]="filteredMembers"
+    [totalItems]="filteredMembers.length" [pageSize]="pageSize" [currentPage]="currentPage"
+    (actionEvent)="onAction($event)" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
 
-<!-- Data Grid -->
-<app-data-grid *ngIf="viewMode === 'list' && !loading" [config]="gridConfig" [data]="filteredMembers"
-  [totalItems]="filteredMembers.length" [pageSize]="pageSize" [currentPage]="currentPage"
-  (actionEvent)="onAction($event)" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
-
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <div class="empty-icon">
-        <i class="fa-solid fa-user-slash"></i>
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fa-solid fa-user-slash"></i>
+        </div>
+        <h3>{{ members.length === 0 ? 'No members yet' : 'No matches found' }}</h3>
+        <p *ngIf="members.length === 0">Get started by onboarding your first gym member.</p>
+        <p *ngIf="members.length > 0">Try adjusting your search or filter.</p>
       </div>
-      <h3>{{ members.length === 0 ? 'No members yet' : 'No matches found' }}</h3>
-      <p *ngIf="members.length === 0">Get started by onboarding your first gym member.</p>
-      <p *ngIf="members.length > 0">Try adjusting your search or filter.</p>
-    </div>
-  </ng-template>
-</app-data-grid>
+    </ng-template>
+  </app-data-grid>
+</div>
 
 
 <!-- Onboard / Manage Modal -->

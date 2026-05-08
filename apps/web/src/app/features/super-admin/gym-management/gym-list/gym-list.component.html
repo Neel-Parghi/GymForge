@@ -1,19 +1,25 @@
-<div class="page-header">
-  <h2>Gym List</h2>
-  @if (selectedGyms.length === 0) {
-  <button class="btn-add" (click)="openAddGymModal()">Add Gym</button>
-  } @else {
-  <button class="primary-btn edit-mode">Edit ({{ selectedGyms.length }} selected)</button>
-  }
-</div>
-<app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search gyms by name..."
-  (filterChanged)="onFilterChanged($event)">
-</app-filter-bar>
+<div class="standard-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Gym List</h2>
+      <p>Comprehensive directory of all gyms on the platform.</p>
+    </div>
+    @if (selectedGyms.length === 0) {
+    <button class="btn-add" (click)="openAddGymModal()">Add Gym</button>
+    } @else {
+    <button class="primary-btn edit-mode">Edit ({{ selectedGyms.length }} selected)</button>
+    }
+  </div>
 
-<app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
-  [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
-  (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
-</app-data-grid>
+  <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search gyms by name..."
+    (filterChanged)="onFilterChanged($event)">
+  </app-filter-bar>
+
+  <app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
+    [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
+    (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
+  </app-data-grid>
+</div>
 
 <!-- Gym Details Drawer -->
 <app-gym-details-drawer [isOpen]="isDetailsDrawerOpen" [gym]="selectedGymDetail" [isEditing]="isEditMode"

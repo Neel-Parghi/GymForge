@@ -1,19 +1,25 @@
-<div class="page-header">
-    <h2>Plans List</h2>
+<div class="standard-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h2>SaaS Pricing Plans</h2>
+      <p>Manage subscription tiers and platform pricing models.</p>
+    </div>
     @if (selectedPlans.length === 0) {
     <button class="btn-add" (click)="openAddPlanModal()">Add Plan</button>
     } @else {
     <button class="primary-btn edit-mode">Edit ({{ selectedPlans.length }} selected)</button>
     }
-</div>
-<app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search plans by name or description..."
+  </div>
+  
+  <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search plans by name or description..."
     (filterChanged)="onFilterChanged($event)">
-</app-filter-bar>
+  </app-filter-bar>
 
-<app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
+  <app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
     [currentPage]="currentPage" (selectionChange)="onSelectionChange($event)" (actionEvent)="handleAction($event)"
     (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
-</app-data-grid>
+  </app-data-grid>
+</div>
 
 <!-- Plan Details Drawer -->
 <app-plan-details-drawer [isOpen]="isViewDrawerOpen" [isEditing]="isEditMode" [planContext]="selectedPlan"

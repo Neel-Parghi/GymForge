@@ -3,12 +3,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  padding: 16px 24px;
-  background-color: white;
+  // padding: 16px 24px;
+  // background-color: white;
   border-radius: 12px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  // margin-bottom: 24px;
+  // box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  // border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .search-container {
@@ -59,7 +59,8 @@
   position: relative;
   min-width: 160px;
 
-  &::after, &::before {
+  &::after,
+  &::before {
     display: none !important;
   }
 

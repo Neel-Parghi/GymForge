@@ -2,7 +2,7 @@
   <!-- Sticky Top Section -->
   <div class="sticky-top-section">
     <!-- Profile Header -->
-    <header class="profile-header">
+    <div class="page-header profile-standard-header">
       <div class="header-main">
         <div class="avatar-box">
           <input type="file" id="avatarInput" style="display: none;" (change)="onFileSelected($event)" accept="image/*">
@@ -16,23 +16,23 @@
           </button>
         </div>
         <div class="header-info">
-          <h1 class="user-name">{{ profile?.fullName }}</h1>
+          <h2 class="user-name">{{ profile?.fullName }}</h2>
           <p class="user-role">{{ profile?.role }}</p>
         </div>
       </div>
 
       <div class="header-actions">
-        <button class="btn-primary" *ngIf="!isEditMode" (click)="toggleEdit()">
+        <button class="primary-btn" *ngIf="!isEditMode" (click)="toggleEdit()">
           <i class="fas fa-edit"></i> Edit Profile
         </button>
         <div class="edit-actions" *ngIf="isEditMode">
-          <button class="btn-save" (click)="saveProfile()" [disabled]="profileForm.invalid || isSaving">
+          <button class="primary-btn" (click)="saveProfile()" [disabled]="profileForm.invalid || isSaving">
             {{ isSaving ? 'Saving...' : 'Save Changes' }}
           </button>
-          <button class="btn-cancel" (click)="toggleEdit()">Cancel</button>
+          <button class="secondary-btn" (click)="toggleEdit()">Cancel</button>
         </div>
       </div>
-    </header>
+    </div>
 
     <!-- Navigation Tabs -->
     <div class="profile-tabs">

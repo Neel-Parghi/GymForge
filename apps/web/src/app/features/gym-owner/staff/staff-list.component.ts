@@ -162,7 +162,7 @@ export class StaffListComponent implements OnInit {
       this.staffToDelete = event.row;
       this.isConfirmDeleteOpen = true;
     }
-    else if (event.action === CONSTANTS.ACTIONS.VIEW) {
+    else if (event.action === CONSTANTS.ACTIONS.VIEW || event.action === 'row-click') {
       this.onViewStaff(event.row);
     }
   }

@@ -1,80 +1,9 @@
 .dashboard-container {
-  padding: 24px;
-  animation: fadeIn 0.4s ease-out;
-}
-
-.dashboard-header {
+  padding: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-
-  .header-info {
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #1a1c1c;
-      margin: 0;
-      letter-spacing: -0.02em;
-    }
-    p {
-      color: #64748b;
-      margin: 4px 0 0 0;
-      font-size: 0.95rem;
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 12px;
-
-    .btn-refresh {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      color: #64748b;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-
-      &:hover {
-        background: #f8fafc;
-        color: #1a1c1c;
-        border-color: #cbd5e1;
-      }
-
-      &.spinning i {
-        animation: spin 1s linear infinite;
-      }
-    }
-
-    .btn-primary {
-      padding: 0 20px;
-      height: 40px;
-      background: var(--primary-precision-gradient, linear-gradient(135deg, #005bbc 0%, #1473e6 100%));
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 12px rgba(0, 91, 191, 0.2);
-      transition: all 0.2s;
-
-      &:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.1);
-        box-shadow: 0 6px 16px rgba(0, 91, 191, 0.25);
-      }
-    }
-  }
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.4s ease-out;
 }
 
 // Stats Grid

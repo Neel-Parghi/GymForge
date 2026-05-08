@@ -1,15 +1,15 @@
-<div class="dashboard-container">
+<div class="standard-container">
   <!-- Header Section -->
-  <div class="dashboard-header-row">
-    <div class="title-group">
-      <h2 class="title">Platform Overview</h2>
-      <p class="subtitle">Architecture-level metrics and system performance health.</p>
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Platform Overview</h2>
+      <p>Architecture-level metrics and system performance health.</p>
     </div>
     <div class="header-actions">
-      <button class="btn-secondary" (click)="openReportModal()">
+      <button class="secondary-btn" (click)="openReportModal()">
         <i class="fas fa-download"></i> Download Report
       </button>
-      <button class="btn-primary" [routerLink]="'/super-admin/settings'">
+      <button class="primary-btn" [routerLink]="'/super-admin/settings'">
         <i class="fas fa-cog"></i> Global Config
       </button>
     </div>

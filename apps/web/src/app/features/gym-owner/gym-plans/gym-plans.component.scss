@@ -1,36 +1,11 @@
-.dashboard-container {
-  // padding: 24px;
-  max-width: 80vw;
+.standard-container {
+  padding: 0;
+  max-width: 1400px;
   margin: 0 auto;
-  animation: fadeIn 0.4s ease-out;
-}
-
-.dashboard-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  .header-info {
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin: 0;
-      letter-spacing: -0.02em;
-    }
-
-    p {
-      color: var(--text-muted);
-      margin: 4px 0 0 0;
-      font-size: 0.95rem;
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 12px;
-  }
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .carousel-wrapper {
@@ -39,7 +14,7 @@
   align-items: center;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 8px 0;
 }
 
 .carousel-viewport {
@@ -50,6 +25,7 @@
 
 .plans-grid {
   display: flex;
+  align-items: stretch;
   gap: 24px;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0 20px;
@@ -104,6 +80,7 @@
 
 .plan-card {
   flex: 0 0 320px;
+  min-height: 580px;
   background: #fff;
   border: 1px solid var(--border-color);
   border-radius: 24px;
@@ -324,6 +301,7 @@
     gap: 12px;
     padding-top: 16px;
     border-top: 1px solid #f1f5f9;
+    margin-top: auto;
 
     .action-btn {
       width: 36px;

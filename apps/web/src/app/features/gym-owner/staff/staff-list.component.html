@@ -1,25 +1,25 @@
-<div class="staff-container">
+<div class="standard-container">
   <!-- Header Section -->
-  <div class="header-section">
-    <div class="title-info">
-      <h1>Staff Directory</h1>
-      <p>Manage your gym trainers, receptionists, and administrative team.</p>
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Staff Directory</h2>
+      <p>Manage your gym staff, roles and trainer assignments.</p>
     </div>
     <div class="actions">
-      <button class="btn-secondary" (click)="toggleViewMode()"
+      <button class="secondary-btn" (click)="toggleViewMode()"
         [title]="viewMode === 'list' ? 'Dashboard View' : 'List View'">
         <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
       </button>
-      <button class="btn-secondary" (click)="exportToCsv()" [disabled]="staff.length === 0">
+      <button class="secondary-btn" (click)="exportToCsv()" [disabled]="staff.length === 0">
         <i class="fa-solid fa-file-csv"></i> Export CSV
       </button>
-      <button class="btn-primary" (click)="onAddStaff()">
+      <button class="primary-btn" (click)="onAddStaff()">
         <i class="fa-solid fa-user-plus"></i> Onboard Staff
       </button>
     </div>
   </div>
 
-  <!-- Stats Bar (Dashboard View) -->
+  <!-- Stats Bar -->
   <div class="stats-bar" *ngIf="viewMode === 'dashboard'">
     <div class="stat-card">
       <div class="stat-icon total"><i class="fa-solid fa-users"></i></div>
@@ -79,14 +79,9 @@
   </div>
 
   <!-- Data Grid (Only in List View) -->
-  <app-data-grid *ngIf="viewMode === 'list'" 
-    [config]="gridConfig" 
-    [data]="filteredStaff" 
-    [totalItems]="filteredStaff.length"
-    [pageSize]="pageSize"
-    [currentPage]="currentPage"
-    (actionEvent)="onAction($event)"
-    (rowClick)="onViewStaff($event)">
+  <app-data-grid *ngIf="viewMode === 'list'" [config]="gridConfig" [data]="filteredStaff"
+    [totalItems]="filteredStaff.length" [pageSize]="pageSize" [currentPage]="currentPage"
+    (actionEvent)="onAction($event)">
   </app-data-grid>
 </div>
 

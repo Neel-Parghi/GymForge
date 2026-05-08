@@ -82,9 +82,9 @@
     height: var(--topbar-height);
     display: flex;
     align-items: center;
-    padding: 0 0px;
-    justify-content: space-around;
-    margin-bottom: 20px;
+    padding: 0 20px;
+    justify-content: space-between;
+    margin-bottom: 12px;
 
     .brand-container {
       display: flex;
@@ -260,6 +260,7 @@
 
   .topbar {
     height: var(--topbar-height);
+    flex-shrink: 0;
     background-color: var(--bg-surface);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -267,6 +268,7 @@
     padding: 0 32px;
     gap: 40px;
     justify-content: end;
+    z-index: 50;
 
     .topbar-search {
       flex: 1;
@@ -389,7 +391,7 @@
 
   .page-content {
     flex: 1;
-    padding: 14px;
+    padding: 8px 16px;
     // overflow-y: auto;
     background-color: var(--bg-color);
     position: relative;
