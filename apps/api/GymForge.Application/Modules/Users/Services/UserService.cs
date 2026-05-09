@@ -1,4 +1,3 @@
-using AutoMapper;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Contracts.Users;
@@ -20,7 +19,6 @@ namespace GymForge.Application.Modules.Users.Services
         private readonly IConfiguration _config;
         private readonly IFileStorageService _fileStorageService;
         private readonly IAddressRepository _addressRepository;
-        private readonly IMapper _mapper;
 
         public UserService(
             IAuthRepository authRepository, 
@@ -30,8 +28,7 @@ namespace GymForge.Application.Modules.Users.Services
             ICurrentUserService currentUserService,
             IConfiguration config,
             IFileStorageService fileStorageService,
-            IAddressRepository addressRepository,
-            IMapper mapper)
+            IAddressRepository addressRepository)
         {
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
@@ -41,7 +38,6 @@ namespace GymForge.Application.Modules.Users.Services
             _config = config;
             _fileStorageService = fileStorageService;
             _addressRepository = addressRepository;
-            _mapper = mapper;
         }
 
         public async Task InviteOwnerAsync(InviteOwnerRequestDto inviteOwnerRequestDto)
@@ -177,14 +173,7 @@ namespace GymForge.Application.Modules.Users.Services
                 user.Address.Id = Guid.NewGuid();
                 user.Address.CreatedOn = DateTime.UtcNow;
                 await _addressRepository.AddAsync(user.Address);
-                    
-                    
-                    
-                    
-                    
-
             }
-
             if (user.Address != null)
             {
                 user.Address.ModifiedOn = DateTime.UtcNow;
@@ -219,7 +208,6 @@ namespace GymForge.Application.Modules.Users.Services
 
             using (var stream = file.OpenReadStream())
             {
-                // Just save the file and return the path
                 return await _fileStorageService.SaveFileAsync(stream, file.FileName, "avatars");
             }
         }
