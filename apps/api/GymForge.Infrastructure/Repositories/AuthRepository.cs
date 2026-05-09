@@ -25,6 +25,11 @@ namespace GymForge.Infrastructure.Repositories
             await _context.Users.AddAsync(user);
         }
 
+        public async Task AddAddressAsync(Address address)
+        {
+            await _context.Addresses.AddAsync(address);
+        }
+
         public async Task<User?> Login(LoginRequestDto userRequest)
         {
             User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userRequest.Email);

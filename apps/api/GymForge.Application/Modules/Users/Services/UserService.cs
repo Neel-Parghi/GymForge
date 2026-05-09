@@ -177,10 +177,16 @@ namespace GymForge.Application.Modules.Users.Services
                 Address newAddress = new() 
                 { 
                     Id = Guid.NewGuid(),
-                    CreatedOn = DateTime.UtcNow 
+                    CreatedOn = DateTime.UtcNow,
+                    Address1 = dto.AddressLine1 ?? string.Empty,
+                    Address2 = dto.AddressLine2,
+                    City = dto.City ?? string.Empty,
+                    State = dto.State ?? string.Empty,
+                    PostalCode = dto.ZipCode ?? string.Empty
+
                 };
+                await _authRepository.AddAddressAsync(newAddress);
                 user.Address = newAddress;
-                user.AddressId = newAddress.Id;
             }
 
             user.Address.Address1 = dto.AddressLine1 ?? string.Empty;
