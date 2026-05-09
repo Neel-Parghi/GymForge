@@ -13,8 +13,6 @@ namespace GymForge.Domain.Interface
         
         Task<User?> GetUserByIdAsync(Guid userId);
         
-        Task AddAddressAsync(Address address);
-
         Task<User?> GetByRefreshTokenAsync(string refreshToken);
         
         Task<User?> GetByUserByEmailAsync(string email);

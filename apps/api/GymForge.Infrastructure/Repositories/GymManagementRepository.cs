@@ -18,11 +18,6 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task AddAddressAsync(Address address)
-        {
-            await _dbContext.Addresses.AddAsync(address);
-        }
-
         public async Task AddGymAsync(Gym gym)
         {
             await _dbContext.Gyms.AddAsync(gym);

@@ -18,7 +18,10 @@ namespace GymForge.Application.Mappings
 
             CreateMap<Address, GymForge.Contracts.Gym.Shared.AddressDto>()
                 .ForMember(dest => dest.Line1, opt => opt.MapFrom(src => src.Address1))
-                .ForMember(dest => dest.Line2, opt => opt.MapFrom(src => src.Address2));
+                .ForMember(dest => dest.Line2, opt => opt.MapFrom(src => src.Address2))
+                .ReverseMap();
+            CreateMap<OnboardMemberRequest, GymMember>()
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
         }
     }
 }

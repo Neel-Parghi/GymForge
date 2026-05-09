@@ -14,12 +14,14 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IGymManagementRepository _gymManagementRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IAddressRepository _addressRepository;
 
-        public GymManagementService(IGymManagementRepository repository, IUnitOfWork unitOfWork, IMapper mapper)
+        public GymManagementService(IGymManagementRepository repository, IUnitOfWork unitOfWork, IMapper mapper, IAddressRepository addressRepository)
         {
             _gymManagementRepository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _addressRepository = addressRepository;
         }
 
         public async Task OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto)
@@ -27,7 +29,7 @@ namespace GymForge.Application.Modules.Gym.Services
             // 1 Setup and Add Address
             Address address = _mapper.Map<Address>(gymOnboardingDto.Address);
             address.Id = Guid.NewGuid();
-            await _gymManagementRepository.AddAddressAsync(address);
+            await _addressRepository.AddAsync(address);
 
             // 2 Setup and Add Gym
             Domain.Entities.Gym gym = _mapper.Map<Domain.Entities.Gym>(gymOnboardingDto);
@@ -52,7 +54,7 @@ namespace GymForge.Application.Modules.Gym.Services
             {
                 Address branchAddress = _mapper.Map<Address>(branchDto.Address);
                 branchAddress.Id = Guid.NewGuid();
-                await _gymManagementRepository.AddAddressAsync(branchAddress);
+                await _addressRepository.AddAsync(branchAddress);
 
                 Branch branch = _mapper.Map<Branch>(branchDto);
                 branch.Id = Guid.NewGuid();
@@ -151,7 +153,7 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             Address branchAddress = _mapper.Map<Address>(branchDto.Address);
             branchAddress.Id = Guid.NewGuid();
-            await _gymManagementRepository.AddAddressAsync(branchAddress);
+            await _addressRepository.AddAsync(branchAddress);
 
             Branch branch = _mapper.Map<Branch>(branchDto);
             branch.Id = Guid.NewGuid();

@@ -13,13 +13,15 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IGymPlanRepository _planRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAddressRepository _addressRepository;
 
-        public GymMemberService(IGymMemberRepository memberRepository, IGymPlanRepository planRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public GymMemberService(IGymMemberRepository memberRepository, IGymPlanRepository planRepository, IMapper mapper, IUnitOfWork unitOfWork, IAddressRepository addressRepository)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _addressRepository = addressRepository;
         }
 
         public async Task<GymMemberResponse> OnboardMemberAsync(Guid gymId, OnboardMemberRequest request, Guid createdBy)
@@ -35,35 +37,19 @@ namespace GymForge.Application.Modules.Gym.Services
                 throw new KeyNotFoundException("The selected membership plan was not found.");
             }
 
-            GymMember member = new()
+            GymMember member = _mapper.Map<GymMember>(request);
+            member.GymId = gymId;
+            member.JoiningDate = request.StartDate ?? DateTime.UtcNow;
+            member.Status = MemberStatus.Active;
+            member.MembershipNumber = $"MEM-{DateTime.UtcNow.Ticks.ToString().Substring(10)}";
+            member.CreatedBy = createdBy;
+            member.CreatedOn = DateTime.UtcNow;
+            
+            if (member.Address != null)
             {
-                GymId = gymId,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                PhoneNumber = request.PhoneNumber,
-                DateOfBirth = request.DateOfBirth,
-                Gender = request.Gender,
-                EmergencyContactName = request.EmergencyContactName,
-                EmergencyContactPhone = request.EmergencyContactPhone,
-                BloodGroup = request.BloodGroup,
-                Address = request.Address != null ? new Domain.Entities.Address
-                {
-                    Address1 = request.Address.Line1,
-                    Address2 = request.Address.Line2,
-                    City = request.Address.City,
-                    State = request.Address.State,
-                    Country = request.Address.Country,
-                    PostalCode = request.Address.PostalCode
-                } : null,
-                MedicalConditions = request.MedicalConditions,
-                FitnessGoals = request.FitnessGoals,
-                JoiningDate = request.StartDate ?? DateTime.UtcNow,
-                Status = MemberStatus.Active,
-                MembershipNumber = $"MEM-{DateTime.UtcNow.Ticks.ToString().Substring(10)}",
-                CreatedBy = createdBy,
-                CreatedOn = DateTime.UtcNow
-            };
+                member.Address.Id = Guid.NewGuid();
+                member.Address.CreatedOn = DateTime.UtcNow;
+            }
 
             await _memberRepository.AddAsync(member);
 
@@ -113,29 +99,21 @@ namespace GymForge.Application.Modules.Gym.Services
             GymMember? member = await _memberRepository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Member not found");
 
-            member.FirstName = request.FirstName;
-            member.LastName = request.LastName;
-            member.Email = request.Email;
-            member.PhoneNumber = request.PhoneNumber;
-            member.DateOfBirth = request.DateOfBirth;
-            member.Gender = request.Gender;
-            member.EmergencyContactName = request.EmergencyContactName;
-            member.EmergencyContactPhone = request.EmergencyContactPhone;
-            member.BloodGroup = request.BloodGroup;
-            member.MedicalConditions = request.MedicalConditions;
-            member.FitnessGoals = request.FitnessGoals;
+            _mapper.Map(request, member);
             member.ModifiedBy = updatedBy;
             member.ModifiedOn = DateTime.UtcNow;
 
             if (request.Address != null)
             {
-                if (member.Address == null) member.Address = new Domain.Entities.Address();
-                member.Address.Address1 = request.Address.Line1;
-                member.Address.Address2 = request.Address.Line2;
-                member.Address.City = request.Address.City;
-                member.Address.State = request.Address.State;
-                member.Address.Country = request.Address.Country;
-                member.Address.PostalCode = request.Address.PostalCode;
+                if (member.Address == null)
+                {
+                    member.Address = _mapper.Map<Address>(request.Address);
+                    await _addressRepository.AddAsync(member.Address);
+                }
+                else
+                {
+                    _mapper.Map(request.Address, member.Address);
+                }
             }
 
             if (request.PaymentStatus.HasValue)

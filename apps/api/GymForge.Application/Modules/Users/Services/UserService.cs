@@ -1,3 +1,4 @@
+using AutoMapper;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Contracts.Users;
@@ -18,6 +19,8 @@ namespace GymForge.Application.Modules.Users.Services
         private readonly ICurrentUserService _currentUserService;
         private readonly IConfiguration _config;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IAddressRepository _addressRepository;
+        private readonly IMapper _mapper;
 
         public UserService(
             IAuthRepository authRepository, 
@@ -26,7 +29,9 @@ namespace GymForge.Application.Modules.Users.Services
             IEmailService emailService,
             ICurrentUserService currentUserService,
             IConfiguration config,
-            IFileStorageService fileStorageService)
+            IFileStorageService fileStorageService,
+            IAddressRepository addressRepository,
+            IMapper mapper)
         {
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
@@ -35,6 +40,8 @@ namespace GymForge.Application.Modules.Users.Services
             _currentUserService = currentUserService;
             _config = config;
             _fileStorageService = fileStorageService;
+            _addressRepository = addressRepository;
+            _mapper = mapper;
         }
 
         public async Task InviteOwnerAsync(InviteOwnerRequestDto inviteOwnerRequestDto)
@@ -161,41 +168,28 @@ namespace GymForge.Application.Modules.Users.Services
                 await _fileStorageService.DeleteFileAsync(user.ProfilePictureUrl);
             }
 
-            user.FirstName = dto.FirstName;
-            user.LastName = dto.LastName;
-            user.Phone = dto.Phone;
-            
-            if (!string.IsNullOrEmpty(dto.ProfilePictureUrl))
-            {
-                user.ProfilePictureUrl = dto.ProfilePictureUrl;
-            }
-
             user.ModifiedOn = DateTime.UtcNow;
+            bool isNewAddress = user.Address == null;
+            _mapper.Map(dto, user);
 
-            if (user.Address == null)
+            if (isNewAddress && user.Address != null)
             {
-                Address newAddress = new() 
-                { 
-                    Id = Guid.NewGuid(),
-                    CreatedOn = DateTime.UtcNow,
-                    Address1 = dto.AddressLine1 ?? string.Empty,
-                    Address2 = dto.AddressLine2,
-                    City = dto.City ?? string.Empty,
-                    State = dto.State ?? string.Empty,
-                    PostalCode = dto.ZipCode ?? string.Empty
+                user.Address.Id = Guid.NewGuid();
+                user.Address.CreatedOn = DateTime.UtcNow;
+                await _addressRepository.AddAsync(user.Address);
+                    
+                    
+                    
+                    
+                    
 
-                };
-                await _authRepository.AddAddressAsync(newAddress);
-                user.Address = newAddress;
             }
 
-            user.Address.Address1 = dto.AddressLine1 ?? string.Empty;
-            user.Address.Address2 = dto.AddressLine2;
-            user.Address.City = dto.City ?? string.Empty;
-            user.Address.State = dto.State ?? string.Empty;
-            user.Address.PostalCode = dto.ZipCode ?? string.Empty;
-            user.Address.ModifiedOn = DateTime.UtcNow;
-            user.Address.ModifiedBy = userId;
+            if (user.Address != null)
+            {
+                user.Address.ModifiedOn = DateTime.UtcNow;
+                user.Address.ModifiedBy = userId;
+            }
 
             await _unitOfWork.SaveChangesAsync();
         }

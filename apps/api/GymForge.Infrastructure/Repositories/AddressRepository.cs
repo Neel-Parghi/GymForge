@@ -1,0 +1,33 @@
+using GymForge.Domain.Entities;
+using GymForge.Domain.Interface;
+using GymForge.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace GymForge.Infrastructure.Repositories
+{
+    public class AddressRepository : IAddressRepository
+    {
+        private readonly AppDbContext _dbContext;
+
+        public AddressRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task AddAsync(Address address)
+        {
+            await _dbContext.Addresses.AddAsync(address);
+        }
+
+        public Task<Address?> GetByIdAsync(Guid id)
+        {
+            return _dbContext.Addresses.FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public Task Update(Address address)
+        {
+            _dbContext.Addresses.Update(address);
+            return Task.CompletedTask;
+        }
+    }
+}
