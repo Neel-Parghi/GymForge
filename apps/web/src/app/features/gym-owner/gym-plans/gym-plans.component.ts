@@ -7,6 +7,7 @@ import { GymPlan, CreateGymPlanRequest, UpdateGymPlanRequest } from '../../../sh
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { ProfileService } from '../../../core/services/profile.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-gym-plans',
@@ -89,7 +90,7 @@ export class GymPlansComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.notificationService.error('Failed to load plans');
+        this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.LOAD_ERROR);
         this.loading = false;
       }
     });
@@ -204,7 +205,7 @@ export class GymPlansComponent implements OnInit {
     }
 
     if (!this.ownerId) {
-      this.notificationService.error('User context not found. Please refresh.');
+      this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.CONTEXT_ERROR);
       return;
     }
 
@@ -221,12 +222,12 @@ export class GymPlansComponent implements OnInit {
 
       this.gymPlanService.updatePlan(request).subscribe({
         next: () => {
-          this.notificationService.success('Plan updated successfully');
+          this.notificationService.success(CONSTANTS.GYM_PLANS_MODULE.UPDATE_SUCCESS);
           this.gymPlanService.clearCache();
           this.loadPlans();
           this.closeModal();
         },
-        error: () => this.notificationService.error('Failed to update plan')
+        error: () => this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.UPDATE_ERROR)
       });
     } else {
       const request: CreateGymPlanRequest = {
@@ -237,31 +238,31 @@ export class GymPlansComponent implements OnInit {
 
       this.gymPlanService.addPlan(request).subscribe({
         next: () => {
-          this.notificationService.success('Plan created successfully');
+          this.notificationService.success(CONSTANTS.GYM_PLANS_MODULE.CREATE_SUCCESS);
           this.gymPlanService.clearCache();
           this.loadPlans();
           this.closeModal();
         },
-        error: () => this.notificationService.error('Failed to create plan')
+        error: () => this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.CREATE_ERROR)
       });
     }
   }
 
   deletePlan(plan: GymPlan): void {
     this.confirmationService.confirm({
-      title: 'Delete Plan',
-      message: `Are you sure you want to delete the plan "${plan.name}"?`,
+      title: CONSTANTS.GYM_PLANS_MODULE.DELETE_TITLE,
+      message: CONSTANTS.GYM_PLANS_MODULE.DELETE_CONFIRM.replace('{name}', plan.name),
       confirmText: 'Delete',
       type: 'danger',
     }).then(confirmed => {
       if (confirmed) {
         this.gymPlanService.deletePlan(plan.id).subscribe({
           next: () => {
-            this.notificationService.success('Plan deleted successfully');
+            this.notificationService.success(CONSTANTS.PLAN_DELETE_SUCCESS_MESSAGE);
             this.gymPlanService.clearCache();
             this.loadPlans();
           },
-          error: () => this.notificationService.error('Failed to delete plan')
+          error: () => this.notificationService.error(CONSTANTS.PLAN_DELETE_ERROR_MESSAGE)
         });
       }
     });
@@ -275,11 +276,12 @@ export class GymPlansComponent implements OnInit {
 
     this.gymPlanService.updatePlan(request).subscribe({
       next: () => {
-        this.notificationService.success(`Plan ${plan.isActive ? 'deactivated' : 'activated'} successfully`);
+        const status = plan.isActive ? 'deactivated' : 'activated';
+        this.notificationService.success(CONSTANTS.GYM_PLANS_MODULE.STATUS_UPDATE_SUCCESS.replace('{status}', status));
         this.gymPlanService.clearCache();
         this.loadPlans();
       },
-      error: () => this.notificationService.error('Failed to update plan status')
+      error: () => this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.STATUS_UPDATE_ERROR)
     });
   }
 }

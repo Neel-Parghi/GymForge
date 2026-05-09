@@ -16,6 +16,7 @@ import { GymPlan } from '../../../shared/models/gym-plan.model';
 import { PaymentStatus } from '../../../shared/enums/member-enums';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-members-list',
@@ -126,7 +127,7 @@ export class MembersListComponent implements OnInit {
           }));
           this.filterMembers();
         },
-        error: () => this.notificationService.error('Failed to load members')
+        error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.LOAD_ERROR)
       });
   }
 
@@ -148,9 +149,9 @@ export class MembersListComponent implements OnInit {
         a.download = `GymForge_Members_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         window.URL.revokeObjectURL(url);
-        this.notificationService.success('Export started');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.EXPORT_SUCCESS);
       },
-      error: () => this.notificationService.error('Failed to export members')
+      error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.EXPORT_ERROR)
     });
   }
 
@@ -199,19 +200,19 @@ export class MembersListComponent implements OnInit {
 
   handleDeleteMember(member: GymMember): void {
     this.confirmationService.confirm({
-      title: 'Remove Member',
-      message: `Are you sure you want to remove ${member.firstName} ${member.lastName}? This action cannot be undone.`,
+      title: CONSTANTS.MEMBERS_MODULE.DELETE_CONFIRM_TITLE,
+      message: CONSTANTS.MEMBERS_MODULE.DELETE_CONFIRM_MSG.replace('{name}', `${member.firstName} ${member.lastName}`),
       confirmText: 'Remove Member',
       type: 'danger'
     }).then(confirmed => {
       if (confirmed) {
         this.memberService.deleteMember(member.id).subscribe({
           next: () => {
-            this.notificationService.success('Member removed successfully');
+            this.notificationService.success(CONSTANTS.MEMBERS_MODULE.DELETE_SUCCESS);
             this.memberService.clearCache();
             this.loadMembers();
           },
-          error: () => this.notificationService.error('Failed to remove member')
+          error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.DELETE_ERROR)
         });
       }
     });
@@ -246,13 +247,13 @@ export class MembersListComponent implements OnInit {
     if (!this.gymId) return;
     this.memberService.onboardMember(this.gymId, payload).subscribe({
       next: () => {
-        this.notificationService.success('Member onboarded successfully!');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.ONBOARD_SUCCESS);
         this.isOnboardOpen = false;
         this.memberService.clearCache();
         this.loadMembers();
       },
       error: (err) => {
-        const msg = err?.error?.message ?? 'Failed to onboard member';
+        const msg = err?.error?.message ?? CONSTANTS.MEMBERS_MODULE.ONBOARD_ERROR;
         this.onboardModal?.setError(msg);
       }
     });
@@ -262,13 +263,13 @@ export class MembersListComponent implements OnInit {
     if (!this.selectedMember) return;
     this.memberService.updateMember(this.selectedMember.id, payload).subscribe({
       next: () => {
-        this.notificationService.success('Member profile updated!');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.UPDATE_SUCCESS);
         this.isOnboardOpen = false;
         this.memberService.clearCache();
         this.loadMembers();
       },
       error: (err) => {
-        const msg = err?.error?.message ?? 'Failed to update member';
+        const msg = err?.error?.message ?? CONSTANTS.MEMBERS_MODULE.UPDATE_ERROR;
         this.onboardModal?.setError(msg);
       }
     });
@@ -283,12 +284,12 @@ export class MembersListComponent implements OnInit {
           this.selectedMember = { ...m.data, statusLabel: this.getStatusLabel(m.data.status) };
           this.isDrawerOpen = true;
         } else {
-          this.notificationService.error('Failed to load member details: ' + m.message);
+          this.notificationService.error(CONSTANTS.MEMBERS_MODULE.DETAIL_LOAD_ERROR_PREFIX + m.message);
         }
       },
       error: (err) => {
         console.error('Error fetching member details:', err);
-        this.notificationService.error('Failed to load member details');
+        this.notificationService.error(CONSTANTS.MEMBERS_MODULE.DETAIL_LOAD_ERROR);
       }
     });
   }
@@ -296,44 +297,44 @@ export class MembersListComponent implements OnInit {
   handleFreeze(memberId: string): void {
     this.memberService.freezeMember(memberId).subscribe({
       next: () => {
-        this.notificationService.success('Member frozen');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.FREEZE_SUCCESS);
         this.memberService.clearCache();
         this.refreshDrawer(memberId);
       },
-      error: () => this.notificationService.error('Failed to freeze member')
+      error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.FREEZE_ERROR)
     });
   }
 
   handleUnfreeze(memberId: string): void {
     this.memberService.unfreezeMember(memberId).subscribe({
       next: () => {
-        this.notificationService.success('Member unfrozen');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.UNFREEZE_SUCCESS);
         this.memberService.clearCache();
         this.refreshDrawer(memberId);
       },
-      error: () => this.notificationService.error('Failed to unfreeze member')
+      error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.UNFREEZE_ERROR)
     });
   }
 
   handleToggle(memberId: string): void {
     this.memberService.toggleMemberStatus(memberId).subscribe({
       next: () => {
-        this.notificationService.success('Member status updated');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.STATUS_UPDATE_SUCCESS);
         this.memberService.clearCache();
         this.refreshDrawer(memberId);
       },
-      error: () => this.notificationService.error('Failed to update status')
+      error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.STATUS_UPDATE_ERROR)
     });
   }
 
   handleRenew(event: { memberId: string; request: RenewSubscriptionRequest }): void {
     this.memberService.renewSubscription(event.memberId, event.request).subscribe({
       next: () => {
-        this.notificationService.success('Subscription renewed!');
+        this.notificationService.success(CONSTANTS.MEMBERS_MODULE.RENEW_SUCCESS);
         this.memberService.clearCache();
         this.refreshDrawer(event.memberId);
       },
-      error: () => this.notificationService.error('Failed to renew subscription')
+      error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.RENEW_ERROR)
     });
   }
 

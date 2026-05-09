@@ -14,7 +14,6 @@ export class ProfileService extends BaseApiService {
 
   constructor() {
     super();
-    // Clear cache when user logs out
     this.authService.userProfile$.subscribe(user => {
       if (!user) {
         this.clearProfileCache();

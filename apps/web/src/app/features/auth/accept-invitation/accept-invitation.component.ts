@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-accept-invitation',
@@ -44,7 +45,7 @@ export class AcceptInvitationComponent implements OnInit {
     } else {
       this.isValidating = false;
       this.isTokenValid = false;
-      this.errorMessage = 'Invalid invitation link. No token provided.';
+      this.errorMessage = CONSTANTS.AUTH_ACCEPT_INVITATION.INVALID_TOKEN;
     }
   }
 
@@ -55,13 +56,13 @@ export class AcceptInvitationComponent implements OnInit {
         this.isValidating = false;
         this.isTokenValid = data.isValid;
         if (!this.isTokenValid) {
-          this.errorMessage = 'This invitation link has expired or is no longer valid.';
+          this.errorMessage = CONSTANTS.AUTH_ACCEPT_INVITATION.EXPIRED_TOKEN;
         }
       },
       error: () => {
         this.isValidating = false;
         this.isTokenValid = false;
-        this.errorMessage = 'An error occurred while validating your invitation. Please try again later.';
+        this.errorMessage = CONSTANTS.AUTH_ACCEPT_INVITATION.VALIDATION_ERROR;
       }
     });
   }
@@ -94,7 +95,7 @@ export class AcceptInvitationComponent implements OnInit {
         },
         error: (err: any) => {
           this.isSubmitting = false;
-          this.errorMessage = err.error?.message || 'Failed to set password. Please try again.';
+          this.errorMessage = err.error?.message || CONSTANTS.AUTH_ACCEPT_INVITATION.SET_PASSWORD_ERROR;
         }
       });
     }

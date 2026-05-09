@@ -13,7 +13,8 @@
           <div class="gradient-overlay"></div>
           <div class="hero-content">
             <h1 class="hero-title">Forge Your Future. Set Your Password.</h1>
-            <p class="hero-subtitle">You're one step away from joining the GYMForge ecosystem. Master your management from day one.</p>
+            <p class="hero-subtitle">You're one step away from joining the GYMForge ecosystem. Master your management
+              from day one.</p>
           </div>
         </div>
       </section>
@@ -45,8 +46,9 @@
           </div>
 
           <!-- Form Flow -->
-          <form *ngIf="!isValidating && isTokenValid" [formGroup]="acceptForm" (ngSubmit)="onSubmit()" class="auth-form">
-            
+          <form *ngIf="!isValidating && isTokenValid" [formGroup]="acceptForm" (ngSubmit)="onSubmit()"
+            class="auth-form">
+
             <div *ngIf="errorMessage" class="error-banner">
               {{ errorMessage }}
             </div>
@@ -54,12 +56,14 @@
             <div class="form-item">
               <label for="password">New Password</label>
               <div class="input-wrapper">
-                <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="••••••••" />
+                <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                  placeholder="••••••••" />
                 <button type="button" class="visibility-toggle" (click)="togglePassword()">
                   <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
-              <div class="validation-row" *ngIf="acceptForm.get('password')?.touched && acceptForm.get('password')?.invalid">
+              <div class="validation-row"
+                *ngIf="acceptForm.get('password')?.touched && acceptForm.get('password')?.invalid">
                 <small class="error-text">Min. 8 characters, with Uppercase, Number, and Special Char.</small>
               </div>
             </div>
@@ -67,9 +71,11 @@
             <div class="form-item">
               <label for="confirmPassword">Confirm Password</label>
               <div class="input-wrapper">
-                <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword" formControlName="confirmPassword" placeholder="••••••••" />
+                <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword"
+                  formControlName="confirmPassword" placeholder="••••••••" />
               </div>
-              <div class="validation-row" *ngIf="acceptForm.get('confirmPassword')?.touched && acceptForm.errors?.['mismatch']">
+              <div class="validation-row"
+                *ngIf="acceptForm.get('confirmPassword')?.touched && acceptForm.errors?.['mismatch']">
                 <small class="error-text">Passwords do not match.</small>
               </div>
             </div>

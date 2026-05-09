@@ -148,6 +148,74 @@ export const CONSTANTS = {
     SETTINGS: {
         UPDATE_SUCCESS: 'Platform strategy updated successfully!',
         UPDATE_ERROR: 'Failed to update platform strategy.'
-    }
+    },
+    //#endregion
+
+    //#region Auth Accept Invitation
+    AUTH_ACCEPT_INVITATION: {
+        TITLE: 'Setup Account',
+        SUBTITLE: 'Complete your profile by setting a secure password.',
+        HERO_TITLE: 'Forge Your Future. Set Your Password.',
+        HERO_SUBTITLE: "You're one step away from joining the GYMForge ecosystem. Master your management from day one.",
+        VALIDATING: 'Validating invitation...',
+        INVALID_TOKEN: 'Invalid invitation link. No token provided.',
+        EXPIRED_TOKEN: 'This invitation link has expired or is no longer valid.',
+        VALIDATION_ERROR: 'An error occurred while validating your invitation. Please try again later.',
+        SET_PASSWORD_ERROR: 'Failed to set password. Please try again.',
+    },
+    //#endregion
+
+    //#region Gym Plans
+    GYM_PLANS_MODULE: {
+        LOAD_ERROR: 'Failed to load plans',
+        CONTEXT_ERROR: 'User context not found. Please refresh.',
+        UPDATE_SUCCESS: 'Plan updated successfully',
+        UPDATE_ERROR: 'Failed to update plan',
+        CREATE_SUCCESS: 'Plan created successfully',
+        CREATE_ERROR: 'Failed to create plan',
+        DELETE_TITLE: 'Delete Plan',
+        DELETE_CONFIRM: 'Are you sure you want to delete the plan "{name}"?',
+        STATUS_UPDATE_SUCCESS: 'Plan {status} successfully',
+        STATUS_UPDATE_ERROR: 'Failed to update plan status',
+    },
+    //#endregion
+
+    //#region Members
+    MEMBERS_MODULE: {
+        LOAD_ERROR: 'Failed to load members',
+        DETAIL_LOAD_ERROR_PREFIX: 'Failed to load member details: ',
+        DETAIL_LOAD_ERROR: 'Failed to load member details',
+        DELETE_SUCCESS: 'Member removed successfully',
+        DELETE_ERROR: 'Failed to remove member',
+        ONBOARD_SUCCESS: 'Member onboarded successfully!',
+        ONBOARD_ERROR: 'Failed to onboard member',
+        UPDATE_SUCCESS: 'Member profile updated!',
+        UPDATE_ERROR: 'Failed to update member',
+        FREEZE_SUCCESS: 'Member frozen',
+        FREEZE_ERROR: 'Failed to freeze member',
+        UNFREEZE_SUCCESS: 'Member unfrozen',
+        UNFREEZE_ERROR: 'Failed to unfreeze member',
+        STATUS_UPDATE_SUCCESS: 'Member status updated',
+        STATUS_UPDATE_ERROR: 'Failed to update status',
+        RENEW_SUCCESS: 'Subscription renewed!',
+        RENEW_ERROR: 'Failed to renew subscription',
+        EXPORT_SUCCESS: 'Export started',
+        EXPORT_ERROR: 'Failed to export members',
+        DELETE_CONFIRM_TITLE: 'Remove Member',
+        DELETE_CONFIRM_MSG: 'Are you sure you want to remove {name}? This action cannot be undone.',
+    },
+    //#endregion
+
+    //#region Staff
+    STAFF_MODULE: {
+        SESSION_ERROR: 'Unable to identify gym session.',
+        LOAD_ERROR: 'Failed to load staff directory.',
+        DELETE_SUCCESS: 'Staff member removed successfully.',
+        DELETE_ERROR: 'Failed to remove staff.',
+        EXPORT_INFO: 'Export functionality coming soon.',
+        DELETE_CONFIRM_MSG: 'Are you sure you want to remove {name} from your gym? This action cannot be undone.',
+        DELETE_CONFIRM_TITLE: 'Remove Staff Member?',
+
+    },
     //#endregion
 }

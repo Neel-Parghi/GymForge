@@ -66,7 +66,7 @@ export class StaffListComponent implements OnInit {
   loadStaff(refresh = false): void {
     const gymId = this.authService.getGymId();
     if (!gymId) {
-      this.notification.error('Unable to identify gym session.');
+      this.notification.error(CONSTANTS.STAFF_MODULE.SESSION_ERROR);
       return;
     }
 
@@ -82,7 +82,7 @@ export class StaffListComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.notification.error('Failed to load staff directory.');
+        this.notification.error(CONSTANTS.STAFF_MODULE.LOAD_ERROR);
         this.isLoading = false;
       }
     });
@@ -173,13 +173,13 @@ export class StaffListComponent implements OnInit {
     this.isLoading = true;
     this.staffService.deleteStaff(this.staffToDelete.id).subscribe({
       next: () => {
-        this.notification.success('Staff member removed successfully.');
+        this.notification.success(CONSTANTS.STAFF_MODULE.DELETE_SUCCESS);
         this.isConfirmDeleteOpen = false;
         this.staffToDelete = null;
         this.loadStaff(true);
       },
       error: (err) => {
-        this.notification.error(err.error?.message || 'Failed to remove staff.');
+        this.notification.error(err.error?.message || CONSTANTS.STAFF_MODULE.DELETE_ERROR);
         this.isLoading = false;
       }
     });
@@ -202,7 +202,7 @@ export class StaffListComponent implements OnInit {
   }
 
   exportToCsv(): void {
-    this.notification.info('Export functionality coming soon.');
+    this.notification.info(CONSTANTS.STAFF_MODULE.EXPORT_INFO);
   }
 
   get totalCount(): number {

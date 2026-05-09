@@ -12,14 +12,6 @@ export class StaffService extends BaseApiService {
 
   private staffCache = new Map<string, Observable<ApiResponse<StaffResponse[]>>>();
 
-  clearCache(gymId?: string): void {
-    if (gymId) {
-      this.staffCache.delete(gymId);
-    } else {
-      this.staffCache.clear();
-    }
-  }
-
   getGymStaff(gymId: string, forceRefresh = false): Observable<ApiResponse<StaffResponse[]>> {
     if (!this.staffCache.has(gymId) || forceRefresh) {
       const url = API_CONSTANTS.STAFF.LIST.replace('{gymId}', gymId);
@@ -81,6 +73,14 @@ export class StaffService extends BaseApiService {
       case 5: return 'Yoga Instructor';
       case 6: return 'Zumba Instructor';
       default: return 'Other';
+    }
+  }
+
+  clearCache(gymId?: string): void {
+    if (gymId) {
+      this.staffCache.delete(gymId);
+    } else {
+      this.staffCache.clear();
     }
   }
 }

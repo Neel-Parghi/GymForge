@@ -1,5 +1,5 @@
 .profile-container {
-  height: calc(100vh - var(--topbar-height));
+  height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -11,6 +11,12 @@
   flex-shrink: 0;
   background: #f9fafb;
   padding: 16px 0 0 0;
+}
+
+.edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .profile-standard-header {

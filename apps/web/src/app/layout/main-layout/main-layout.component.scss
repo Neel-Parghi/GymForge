@@ -96,7 +96,7 @@
         width: 90px;
         height: 75px;
         background-color: var(--text-main);
-        color: #fff;
+        color: #ffffff;
         // border-radius: 6px;
         display: flex;
         align-items: center;
@@ -202,7 +202,7 @@
           }
 
           &.active {
-            background-color: #f1f5f9;
+            background-color: var(--gray-100);
             color: var(--accent-color);
             font-weight: 600;
 
@@ -239,8 +239,8 @@
       }
 
       &:hover {
-        background-color: #fef2f2;
-        color: #ef4444;
+        background-color: var(--error-red-bg);
+        color: var(--error-red);
       }
     }
   }
@@ -287,7 +287,7 @@
       input {
         width: 100%;
         height: 36px;
-        background-color: #f3f4f6;
+        background-color: var(--gray-100);
         border: 1px solid transparent;
         border-radius: 8px;
         padding: 0 12px 0 36px;
@@ -303,7 +303,7 @@
         }
 
         &::placeholder {
-          color: #9ca3af;
+          color: var(--gray-400);
         }
       }
     }
@@ -339,7 +339,7 @@
           right: 8px;
           width: 6px;
           height: 6px;
-          background-color: #ef4444;
+          background-color: var(--error-red);
           border-radius: 50%;
           border: 2px solid var(--bg-surface);
         }
@@ -368,7 +368,7 @@
           height: 38px;
           border-radius: 50%;
           background-color: var(--text-main);
-          color: #fff;
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -381,7 +381,7 @@
 
           &:hover {
             transform: scale(1.05);
-            background-color: #0d3278;
+            background-color: var(--primary-navy-hover);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
           }
         }
@@ -405,12 +405,12 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #e2e8f0;
+      background: var(--gray-200);
       border-radius: 10px;
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background: #cbd5e1;
+      background: var(--gray-300);
     }
   }
 }
