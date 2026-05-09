@@ -1,3 +1,4 @@
+using AutoMapper;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Contracts.Users;
@@ -19,6 +20,7 @@ namespace GymForge.Application.Modules.Users.Services
         private readonly IConfiguration _config;
         private readonly IFileStorageService _fileStorageService;
         private readonly IAddressRepository _addressRepository;
+        private readonly IMapper _mapper;
 
         public UserService(
             IAuthRepository authRepository, 
@@ -28,7 +30,8 @@ namespace GymForge.Application.Modules.Users.Services
             ICurrentUserService currentUserService,
             IConfiguration config,
             IFileStorageService fileStorageService,
-            IAddressRepository addressRepository)
+            IAddressRepository addressRepository,
+            IMapper mapper)
         {
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
@@ -38,6 +41,7 @@ namespace GymForge.Application.Modules.Users.Services
             _config = config;
             _fileStorageService = fileStorageService;
             _addressRepository = addressRepository;
+            _mapper = mapper;
         }
 
         public async Task InviteOwnerAsync(InviteOwnerRequestDto inviteOwnerRequestDto)
