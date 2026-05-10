@@ -16,12 +16,13 @@ namespace GymForge.Api.Controllers.Gym
             _staffService = staffService;
         }
 
-        [HttpPost("~/api/gyms/{gymId}/staff")]
-        public async Task<ActionResult> AddStaff(Guid gymId, [FromBody] AddStaffRequest request)
+        [HttpPost]
+        public async Task<ActionResult> AddStaff([FromBody] AddStaffRequest request)
         {
+            if (GymId == null) return Unauthorized();
             try
             {
-                StaffResponse response = await _staffService.AddStaffAsync(gymId, request);
+                StaffResponse response = await _staffService.AddStaffAsync(GymId.Value, request);
                 return Ok(response);
             }
             catch (InvalidOperationException ex)
@@ -30,10 +31,11 @@ namespace GymForge.Api.Controllers.Gym
             }
         }
 
-        [HttpGet("~/api/gyms/{gymId}/staff")]
-        public async Task<ActionResult> GetGymStaff(Guid gymId)
+        [HttpGet]
+        public async Task<ActionResult> GetGymStaff()
         {
-            return Ok(await _staffService.GetGymStaffAsync(gymId));
+            if (GymId == null) return Unauthorized();
+            return Ok(await _staffService.GetGymStaffAsync(GymId.Value));
         }
 
         [HttpGet("{id}")]
@@ -81,7 +83,7 @@ namespace GymForge.Api.Controllers.Gym
         [HttpPost("~/api/members/{memberId}/measurements")]
         public async Task<ActionResult> RecordMeasurement(Guid memberId, [FromBody] AddMeasurementRequest request)
         {
-            await _staffService.RecordMeasurementAsync(memberId, Guid.Empty, request);
+            await _staffService.RecordMeasurementAsync(memberId, UserId, request);
             return Ok(new { message = "Measurement recorded successfully" });
         }
 

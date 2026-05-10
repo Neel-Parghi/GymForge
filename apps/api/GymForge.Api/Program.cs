@@ -62,10 +62,9 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        if (context.Database.GetPendingMigrations().Any())
-        {
-            context.Database.Migrate();
-        }
+        Console.WriteLine("Applying pending migrations...");
+        context.Database.Migrate();
+        Console.WriteLine("Migrations applied successfully.");
     }
     catch (Exception ex)
     {

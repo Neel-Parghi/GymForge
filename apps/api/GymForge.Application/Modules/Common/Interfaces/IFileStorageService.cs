@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace GymForge.Domain.Interface
+namespace GymForge.Application.Modules.Common.Interfaces
 {
     public interface IFileStorageService
     {

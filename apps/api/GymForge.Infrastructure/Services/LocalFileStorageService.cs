@@ -1,5 +1,8 @@
-using GymForge.Domain.Interface;
+using GymForge.Application.Modules.Common.Interfaces;
 using Microsoft.AspNetCore.Hosting;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace GymForge.Infrastructure.Services
 {
@@ -14,16 +17,13 @@ namespace GymForge.Infrastructure.Services
 
         public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder)
         {
-            if (fileStream == null || fileStream.Length == 0)
-                throw new ArgumentException("File stream is empty");
-
             string uploadsFolder = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", folder);
             if (!Directory.Exists(uploadsFolder))
             {
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            string uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(fileName)}";
+            string uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var destinationStream = new FileStream(filePath, FileMode.Create))

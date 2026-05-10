@@ -1,5 +1,6 @@
 using AutoMapper;
 using GymForge.Application.Modules.Auth.Interface;
+using GymForge.Application.Modules.Common.Interfaces;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Contracts.Users;
 using GymForge.Domain.Entities;

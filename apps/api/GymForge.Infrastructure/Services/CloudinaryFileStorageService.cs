@@ -1,6 +1,6 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using GymForge.Domain.Interface;
+using GymForge.Application.Modules.Common.Interfaces;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -102,8 +102,8 @@ namespace GymForge.Infrastructure.Services
             List<string> relevantSegments = segments.Skip(uploadIndex + 2).ToList();
             string? publicIdWithExtension = string.Join("/", relevantSegments);
             string? publicId = Path.Combine(Path.GetDirectoryName(publicIdWithExtension) ?? "", 
-                                        Path.GetFileNameWithoutExtension(publicIdWithExtension))
-                                        .Replace("\\", "/");
+                                         Path.GetFileNameWithoutExtension(publicIdWithExtension))
+                                         .Replace("\\", "/");
 
             DeletionParams deletionParams = new(publicId);
             await _cloudinary.DestroyAsync(deletionParams);

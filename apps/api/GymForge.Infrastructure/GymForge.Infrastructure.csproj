@@ -57,6 +57,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GymForge.Contracts\GymForge.Contracts.csproj" />
+    <ProjectReference Include="..\GymForge.Application\GymForge.Application.csproj" />
     <ProjectReference Include="..\GymForge.Domain\GymForge.Domain.csproj" PrivateAssets="compile" />
     <ProjectReference Include="..\GymForge.Shared\GymForge.Shared.csproj" />
   </ItemGroup>

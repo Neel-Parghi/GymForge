@@ -40,6 +40,14 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<PTAssignment> PTAssignments { get; set; }
         
         public DbSet<MemberMeasurement> MemberMeasurements { get; set; }
+        
+        public DbSet<InventoryItem> InventoryItems { get; set; }
+        
+        public DbSet<Equipment> Equipment { get; set; }
+        
+        public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
+        
+        public DbSet<SaleTransaction> SaleTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -114,6 +122,13 @@ namespace GymForge.Infrastructure.Persistence
                 entity.Property(mm => mm.BodyFatPercentage).HasPrecision(5, 2);
                 entity.Property(mm => mm.BMI).HasPrecision(5, 2);
             });
+
+            // Performance Indexes for Multi-tenancy
+            modelBuilder.Entity<InventoryItem>().HasIndex(x => x.GymId);
+            modelBuilder.Entity<Equipment>().HasIndex(x => x.GymId);
+            modelBuilder.Entity<SaleTransaction>().HasIndex(x => x.GymId);
+            modelBuilder.Entity<GymMember>().HasIndex(x => x.GymId);
+            modelBuilder.Entity<Staff>().HasIndex(x => x.GymId);
 
             // Seed default settings
             modelBuilder.Entity<SaaSConfiguration>().HasData(new SaaSConfiguration

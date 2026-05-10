@@ -1,3 +1,4 @@
+using GymForge.Application.Modules.Common.Interfaces;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using GymForge.Infrastructure.Persistence.Interceptos;
@@ -16,7 +17,7 @@ namespace GymForge.Infrastructure
             services.AddHttpClient();
             services.AddHttpContextAccessor();
 
-            services.AddDbContext<AppDbContext>((sp, options) =>
+            services.AddDbContextPool<AppDbContext>((sp, options) =>
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -70,8 +71,8 @@ namespace GymForge.Infrastructure
                 }
             });
 
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
-            services.AddScoped<AuditableEntityInterceptor>();
+            services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            services.AddSingleton<AuditableEntityInterceptor>();
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IGymManagementRepository, GymManagementRepository>();
@@ -84,6 +85,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IGymMemberRepository, GymMemberRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
+            services.AddScoped<IInventoryRepository, InventoryRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

@@ -17,12 +17,13 @@ namespace GymForge.Api.Controllers.Members
             _memberService = memberService;
         }
 
-        [HttpPost("~/api/gyms/{gymId}/members")]
-        public async Task<ActionResult> OnboardMember(Guid gymId, [FromBody] OnboardMemberRequest request)
+        [HttpPost]
+        public async Task<ActionResult> OnboardMember([FromBody] OnboardMemberRequest request)
         {
+            if (GymId == null) return Unauthorized();
             try
             {
-                GymMemberResponse response = await _memberService.OnboardMemberAsync(gymId, request, UserId);
+                GymMemberResponse response = await _memberService.OnboardMemberAsync(GymId.Value, request, UserId);
                 return Ok(response);
             }
             catch (InvalidOperationException ex)
@@ -35,10 +36,11 @@ namespace GymForge.Api.Controllers.Members
             }
         }
 
-        [HttpGet("~/api/gyms/{gymId}/members")]
-        public async Task<ActionResult> GetGymMembers(Guid gymId)
+        [HttpGet]
+        public async Task<ActionResult> GetGymMembers()
         {
-            return Ok(await _memberService.GetGymMembersAsync(gymId));
+            if (GymId == null) return Unauthorized();
+            return Ok(await _memberService.GetGymMembersAsync(GymId.Value));
         }
 
         [HttpGet("{id}")]
@@ -115,11 +117,12 @@ namespace GymForge.Api.Controllers.Members
             return Ok(await _memberService.GetSubscriptionHistoryAsync(id));
         }
 
-        [HttpGet("~/api/gyms/{gymId}/members/export")]
+        [HttpGet("export")]
         [SkipResponseWrapper]
-        public async Task<IActionResult> ExportMembers(Guid gymId)
+        public async Task<IActionResult> ExportMembers()
         {
-            byte[] bytes = await _memberService.ExportMembersAsync(gymId);
+            if (GymId == null) return Unauthorized();
+            byte[] bytes = await _memberService.ExportMembersAsync(GymId.Value);
             return File(bytes, "text/csv", $"Members_Export_{DateTime.UtcNow:yyyyMMdd}.csv");
         }
     }

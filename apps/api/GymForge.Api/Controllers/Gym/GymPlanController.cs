@@ -1,10 +1,13 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.GymPlans;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/gym-plans")]
+    [Authorize(Roles = "GymOwner")]
     public class GymPlanController : BaseApiController
     {
         private readonly IGymPlanService _gymPlanService;
@@ -14,27 +17,31 @@ namespace GymForge.Api.Controllers.Gym
             _gymPlanService = gymPlanService;
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetGymPlans()
+        {
+            return Ok(await _gymPlanService.GetPlansByOwnerIdAsync(UserId));
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetGymPlanById(Guid id)
         {
             return Ok(await _gymPlanService.GetPlanByIdAsync(id));
         }
 
-        [HttpGet("~/api/gym-owners/{ownerId}/plans")]
-        public async Task<ActionResult> GetGymPlansByOwnerId(Guid ownerId)
-        {
-            return Ok(await _gymPlanService.GetPlansByOwnerIdAsync(ownerId));
-        }
-
         [HttpPost]
         public async Task<ActionResult> AddGymPlanAsync([FromBody] CreateGymPlanRequest gymPlan)
         {
+            gymPlan.GymOwnerId = UserId;
             return Ok(await _gymPlanService.AddGymPlanAsync(gymPlan));
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateGymPlanAsync(Guid id, [FromBody] UpdateGymPlanRequest gymPlan)
         {
+            if (id != gymPlan.Id) return BadRequest("ID mismatch");
+            
+            gymPlan.GymOwnerId = UserId;
             return Ok(await _gymPlanService.UpdateGymPlanAsync(gymPlan));
         }
 
