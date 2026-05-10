@@ -68,11 +68,11 @@ export const API_CONSTANTS = {
   },
   INVENTORY: {
     PRODUCTS: 'inventory/products',
-    EQUIPMENT: 'inventory/equipment',
+    EQUIPMENT: 'equipment',
     SALES: 'inventory/sales',
     SALES_HISTORY: 'inventory/sales/history',
-    MAINTENANCE: 'inventory/maintenance',
-    MAINTENANCE_HISTORY: 'inventory/maintenance/history',
+    MAINTENANCE: 'maintenance',
+    MAINTENANCE_HISTORY: 'maintenance/history',
     STATS: 'inventory/stats'
   },
   PAYMENTS: {

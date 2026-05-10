@@ -156,7 +156,7 @@ export class InventoryService extends BaseApiService {
   }
 
   getMaintenanceHistory(equipmentId: string): Observable<ApiResponse<any[]>> {
-    return this.get<ApiResponse<any[]>>(`${API_CONSTANTS.INVENTORY.EQUIPMENT}/${equipmentId}/maintenance`);
+    return this.get<ApiResponse<any[]>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/equipment/${equipmentId}/maintenance`);
   }
 
   getMaintenanceHistoryGlobal(forceRefresh = false): Observable<ApiResponse<any[]>> {
