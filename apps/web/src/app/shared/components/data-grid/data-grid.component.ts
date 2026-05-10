@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/column-def.model';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 import { DropdownOption } from '../../models/dropdown.model';
+import { GridConfigDef } from '../../models/grid-config.model';
 
 @Component({
   selector: 'app-data-grid',
@@ -13,7 +14,7 @@ import { DropdownOption } from '../../models/dropdown.model';
 })
 export class DataGrid {
   @ContentChild('emptyState') emptyStateTemplate?: TemplateRef<any>;
-  @Input() config!: { columns: ColumnDef[], selectable?: boolean };
+  @Input() config!: GridConfigDef;
   @Input() data: any[] = [];
   @Input() totalItems: number = 0;
   @Input() pageSize: number = 10;
@@ -27,6 +28,7 @@ export class DataGrid {
 
   get columns() { return this.config?.columns || []; }
   get selectable() { return this.config?.selectable || false; }
+  get isRowClickable() { return this.config?.isRowClickable || false; }
 
   get totalPages(): number {
     return Math.ceil(this.totalItems / this.pageSize);
@@ -71,6 +73,11 @@ export class DataGrid {
     if (target.closest('.checkbox-col') || target.closest('.actions-cell') || target.closest('.action-btn')) {
       return;
     }
+
+    if (this.isRowClickable) {
+      this.actionEvent.emit({ action: 'row-click', row });
+    }
+
     this.rowClick.emit(row);
   }
 

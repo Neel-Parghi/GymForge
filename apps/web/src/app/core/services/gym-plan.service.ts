@@ -15,15 +15,13 @@ export class GymPlanService extends BaseApiService {
   }
 
   private plansCache$: Observable<ApiResponse<GymPlan[]>> | null = null;
-  private lastOwnerId: string | null = null;
-
-  getPlansByOwnerId(ownerId: string): Observable<ApiResponse<GymPlan[]>> {
-    if (this.plansCache$ && this.lastOwnerId === ownerId) {
+  
+  getGymPlans(): Observable<ApiResponse<GymPlan[]>> {
+    if (this.plansCache$) {
       return this.plansCache$;
     }
 
-    this.lastOwnerId = ownerId;
-    this.plansCache$ = this.get<ApiResponse<GymPlan[]>>(API_CONSTANTS.GYM_PLAN.LIST_BY_OWNER.replace('{ownerId}', ownerId))
+    this.plansCache$ = this.get<ApiResponse<GymPlan[]>>(API_CONSTANTS.GYM_PLAN.LIST)
       .pipe(shareReplay(1));
 
     return this.plansCache$;
@@ -31,7 +29,6 @@ export class GymPlanService extends BaseApiService {
 
   clearCache(): void {
     this.plansCache$ = null;
-    this.lastOwnerId = null;
   }
 
   getPlanById(planId: string): Observable<ApiResponse<GymPlan>> {

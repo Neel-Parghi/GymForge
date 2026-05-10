@@ -66,6 +66,10 @@ export const routes: Routes = [
       {
         path: 'staff',
         loadComponent: () => import('./features/gym-owner/staff/staff-list.component').then(m => m.StaffListComponent)
+      },
+      {
+        path: 'inventory',
+        loadComponent: () => import('./features/gym-owner/inventory/inventory.component').then(m => m.InventoryComponent)
       }
     ]
   }

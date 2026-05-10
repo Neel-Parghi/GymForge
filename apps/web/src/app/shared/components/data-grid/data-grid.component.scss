@@ -1,4 +1,4 @@
-.data-grid-container {
+﻿.data-grid-container {
   width: 100%;
   height: calc(100vh - 220px);
   min-height: 400px;
@@ -140,11 +140,54 @@
         }
       }
 
+      &.service-btn {
+        &:hover {
+          color: #10b981;
+          border-color: #10b981;
+        }
+      }
+
       &.delete-btn {
         &:hover {
           color: #f56565;
           border-color: #f56565;
         }
+      }
+    }
+
+    // Progress Bar Styles
+    .progress-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 120px;
+
+      .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background-color: #f1f5f9;
+        border-radius: 4px;
+        overflow: hidden;
+
+        [data-theme="dark"] & {
+          background-color: #334155;
+        }
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.bg-success { background-color: #10b981; }
+        &.bg-warning { background-color: #f59e0b; }
+        &.bg-danger { background-color: #ef4444; }
+      }
+
+      .progress-text {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
       }
     }
 
@@ -380,5 +423,14 @@
         margin: 0 8px;
       }
     }
+  }
+}
+
+.sell-btn {
+  color: #0f172a;
+  background: #f1f5f9;
+  &:hover {
+    background: #e2e8f0;
+    color: var(--primary-navy);
   }
 }

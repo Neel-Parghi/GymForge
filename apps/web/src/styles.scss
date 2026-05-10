@@ -28,7 +28,7 @@
   --text-main: #0f172a;
   --text-muted: var(--gray-500);
   --border-color: var(--gray-200);
-  
+
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-blur: blur(12px);
   --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -231,9 +231,9 @@ h6 {
   .secondary-btn,
   .btn-secondary,
   .btn-outline {
-    background-color: #fff;
+    background-color: #e2e8f0;
     color: var(--text-main);
-    border: 1px solid var(--border-color);
+    border: none;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
@@ -245,8 +245,9 @@ h6 {
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: var(--gray-50);
-      border-color: var(--text-muted);
+      background-color: #e2e8f0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
   }
 }

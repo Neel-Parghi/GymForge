@@ -10,25 +10,24 @@ import { StaffResponse, AddStaffRequest, MeasurementResponse, AddMeasurementRequ
 })
 export class StaffService extends BaseApiService {
 
-  private staffCache = new Map<string, Observable<ApiResponse<StaffResponse[]>>>();
+  private staffCache$: Observable<ApiResponse<StaffResponse[]>> | null = null;
+  private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
 
-  getGymStaff(gymId: string, forceRefresh = false): Observable<ApiResponse<StaffResponse[]>> {
-    if (!this.staffCache.has(gymId) || forceRefresh) {
-      const url = API_CONSTANTS.STAFF.LIST.replace('{gymId}', gymId);
-      const obs = this.get<ApiResponse<StaffResponse[]>>(url).pipe(shareReplay(1));
-      this.staffCache.set(gymId, obs);
+  
+  getGymStaff(forceRefresh = false): Observable<ApiResponse<StaffResponse[]>> {
+    if (!this.staffCache$ || forceRefresh) {
+      this.staffCache$ = this.get<ApiResponse<StaffResponse[]>>(API_CONSTANTS.STAFF.LIST).pipe(shareReplay(1));
     }
-    return this.staffCache.get(gymId)!;
+    return this.staffCache$;
   }
 
   getStaffById(id: string): Observable<ApiResponse<StaffResponse>> {
     return this.get<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${id}`);
   }
 
-  addStaff(gymId: string, payload: AddStaffRequest): Observable<ApiResponse<StaffResponse>> {
-    const url = API_CONSTANTS.STAFF.LIST.replace('{gymId}', gymId);
-    return this.post<ApiResponse<StaffResponse>>(url, payload).pipe(
-      tap(() => this.clearCache(gymId))
+  addStaff(payload: AddStaffRequest): Observable<ApiResponse<StaffResponse>> {
+    return this.post<ApiResponse<StaffResponse>>(API_CONSTANTS.STAFF.LIST, payload).pipe(
+      tap(() => this.clearCache())
     );
   }
 
@@ -44,14 +43,22 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  getAssignedMembers(trainerId: string): Observable<ApiResponse<any[]>> {
-    return this.get<ApiResponse<any[]>>(`${API_CONSTANTS.STAFF.BASE}/${trainerId}/members`);
+  getAssignedMembers(trainerId: string, forceRefresh = false): Observable<ApiResponse<any[]>> {
+    if (!this.membersCache.has(trainerId) || forceRefresh) {
+      const request$ = this.get<ApiResponse<any[]>>(`${API_CONSTANTS.STAFF.BASE}/${trainerId}/members`).pipe(
+        shareReplay(1)
+      );
+      this.membersCache.set(trainerId, request$);
+    }
+    return this.membersCache.get(trainerId)!;
   }
 
   assignTrainerToMember(trainerId: string, memberId: string, slot?: string): Observable<ApiResponse<any>> {
     let url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/assign-member/${memberId}`;
     if (slot) url += `?slot=${encodeURIComponent(slot)}`;
-    return this.post<ApiResponse<any>>(url, {});
+    return this.post<ApiResponse<any>>(url, {}).pipe(
+      tap(() => this.membersCache.delete(trainerId))
+    );
   }
 
   recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<any>> {
@@ -76,11 +83,8 @@ export class StaffService extends BaseApiService {
     }
   }
 
-  clearCache(gymId?: string): void {
-    if (gymId) {
-      this.staffCache.delete(gymId);
-    } else {
-      this.staffCache.clear();
-    }
+  clearCache(): void {
+    this.staffCache$ = null;
+    this.membersCache.clear();
   }
 }

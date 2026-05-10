@@ -1,7 +1,10 @@
 import { Component, OnInit, ViewChild, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { finalize } from 'rxjs';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MemberService } from '../../../core/services/member.service';
 import { GymPlanService } from '../../../core/services/gym-plan.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
@@ -21,7 +24,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
 @Component({
   selector: 'app-members-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataGrid, OnboardMemberModal, MemberDetailDrawer, DropdownComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, OnboardMemberModal, MemberDetailDrawer, DropdownComponent],
   templateUrl: './members-list.component.html',
   styleUrl: './members-list.component.scss'
 })
@@ -31,6 +34,8 @@ export class MembersListComponent implements OnInit {
   private authService = inject(AuthApiService);
   private notificationService = inject(NotificationService);
   private confirmationService = inject(ConfirmationService);
+  private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild(OnboardMemberModal) onboardModal!: OnboardMemberModal;
 
@@ -39,9 +44,11 @@ export class MembersListComponent implements OnInit {
   filteredMembers: GymMember[] = [];
   activePlans: GymPlan[] = [];
   loading = false;
-  searchQuery = '';
   gymId: string | null = null;
   gymOwnerId: string | null = null;
+
+  // Filter Form
+  filterForm!: FormGroup;
 
   // Pagination
   currentPage = 1;
@@ -103,17 +110,35 @@ export class MembersListComponent implements OnInit {
     this.gymId = user?.gymId || this.authService.getGymId();
     this.gymOwnerId = user?.id || null;
 
+    this.initFilters();
+
     if (this.gymId) {
       this.loadMembers();
       this.loadPlans();
     }
   }
 
+  private initFilters() {
+    this.filterForm = this.fb.group({
+      search: [''],
+      plan: ['all'],
+      payment: ['all']
+    });
+
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.filterMembers();
+    });
+  }
+
   // Data Loading
   loadMembers(): void {
     if (!this.gymId) return;
     this.loading = true;
-    this.memberService.getGymMembers(this.gymId)
+    this.memberService.getGymMembers()
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (data) => {
@@ -133,7 +158,7 @@ export class MembersListComponent implements OnInit {
 
   loadPlans(): void {
     if (!this.gymOwnerId) return;
-    this.gymPlanService.getPlansByOwnerId(this.gymOwnerId).subscribe({
+    this.gymPlanService.getGymPlans().subscribe({
       next: (plans) => this.activePlans = plans.data.filter(p => p.isActive),
       error: () => { }
     });
@@ -141,7 +166,7 @@ export class MembersListComponent implements OnInit {
 
   exportToCsv(): void {
     if (!this.gymId) return;
-    this.memberService.exportMembers(this.gymId).subscribe({
+    this.memberService.exportMembers().subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -159,17 +184,19 @@ export class MembersListComponent implements OnInit {
   filterMembers(): void {
     let result = [...this.members];
 
+    const { search, plan, payment } = this.filterForm.value;
+
     if (this.activeFilter !== 'all')
       result = result.filter(m => m.status === this.activeFilter);
 
-    if (this.selectedPlan !== 'all')
-      result = result.filter(m => m.currentSubscription?.gymPlanId === this.selectedPlan);
+    if (plan !== 'all')
+      result = result.filter(m => m.currentSubscription?.gymPlanId === plan);
 
-    if (this.selectedPaymentStatus !== 'all')
-      result = result.filter(m => m.currentSubscription?.paymentStatus.toString() === this.selectedPaymentStatus);
+    if (payment !== 'all')
+      result = result.filter(m => m.currentSubscription?.paymentStatus.toString() === payment);
 
-    if (this.searchQuery.trim()) {
-      const q = this.searchQuery.toLowerCase();
+    if (search.trim()) {
+      const q = search.toLowerCase();
       result = result.filter(m =>
         m.firstName.toLowerCase().includes(q) ||
         m.lastName.toLowerCase().includes(q) ||
@@ -245,7 +272,7 @@ export class MembersListComponent implements OnInit {
 
   handleOnboard(payload: OnboardMemberRequest): void {
     if (!this.gymId) return;
-    this.memberService.onboardMember(this.gymId, payload).subscribe({
+    this.memberService.onboardMember(payload).subscribe({
       next: () => {
         this.notificationService.success(CONSTANTS.MEMBERS_MODULE.ONBOARD_SUCCESS);
         this.isOnboardOpen = false;

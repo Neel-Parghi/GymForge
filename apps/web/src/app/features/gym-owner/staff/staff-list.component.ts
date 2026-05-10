@@ -1,6 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataGrid } from "../../../shared/components/data-grid/data-grid.component";
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -16,7 +19,7 @@ import { DropdownComponent } from "../../../shared/components/dropdown/dropdown.
 @Component({
   selector: 'app-staff-list',
   standalone: true,
-  imports: [CommonModule, DataGrid, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, DropdownComponent],
+  imports: [CommonModule, DataGrid, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, DropdownComponent],
   templateUrl: './staff-list.component.html',
   styleUrl: './staff-list.component.scss'
 })
@@ -24,6 +27,7 @@ export class StaffListComponent implements OnInit {
   private staffService = inject(StaffService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   staff: StaffResponse[] = [];
   filteredStaff: StaffResponse[] = [];
@@ -37,7 +41,7 @@ export class StaffListComponent implements OnInit {
   selectedStaff: StaffResponse | null = null;
   gridConfig = AppGridConfig['StaffList'];
 
-  searchQuery = '';
+  searchControl = new FormControl('');
   activeFilter = 'all';
   pageSize = 10;
   currentPage = 1;
@@ -61,6 +65,14 @@ export class StaffListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadStaff();
+
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.filterStaff();
+    });
   }
 
   loadStaff(refresh = false): void {
@@ -71,7 +83,7 @@ export class StaffListComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.staffService.getGymStaff(gymId, refresh).subscribe({
+    this.staffService.getGymStaff(refresh).subscribe({
       next: (res) => {
         this.staff = (res.data || []).map(s => ({
           ...s,
@@ -117,7 +129,6 @@ export class StaffListComponent implements OnInit {
           return role === roleId;
         }
 
-        // Category filtering (from tabs)
         if (this.activeFilter === 'trainer') {
           return [1, 5, 6].includes(role); // Trainer, Yoga, Zumba
         } else if (this.activeFilter === 'admin') {
@@ -130,8 +141,9 @@ export class StaffListComponent implements OnInit {
     }
 
     // Search Filtering
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase().trim();
+    const searchQuery = this.searchControl.value || '';
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(s =>
         s.firstName.toLowerCase().includes(query) ||
         s.lastName.toLowerCase().includes(query) ||

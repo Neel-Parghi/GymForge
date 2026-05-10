@@ -183,7 +183,7 @@
             </div>
             <div class="features-input-container">
               <div class="feature-input-group">
-                <input type="text" [(ngModel)]="newFeature" [ngModelOptions]="{standalone: true}"
+                <input type="text" [formControl]="featureControl"
                   placeholder="e.g. Personal Trainer, Steam Room..." (keyup.enter)="addFeature()">
                 <button type="button" class="btn-add-feature" (click)="addFeature()">
                   <i class="fa-solid fa-plus"></i>

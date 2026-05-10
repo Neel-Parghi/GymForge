@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropdownOption } from '../../models/dropdown.model';
 
 @Component({
   selector: 'app-dropdown',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dropdown.component.html',
   styleUrl: './dropdown.component.scss',
   providers: [
@@ -25,12 +26,14 @@ export class DropdownComponent implements ControlValueAccessor {
   @Input() align: 'left' | 'right' = 'left';
   @Input() direction: 'up' | 'down' | 'auto' = 'down';
   @Input() minWidth: string = '150px';
+  @Input() isSearchable: boolean = false;
 
   @Output() selectionChange = new EventEmitter<any>();
 
   private el = inject(ElementRef);
   isOpen = false;
   actualDirection: 'up' | 'down' = 'down';
+  searchText: string = '';
 
   onChange: any = () => { };
   onTouched: any = () => { };
@@ -40,6 +43,8 @@ export class DropdownComponent implements ControlValueAccessor {
       if (!this.isOpen) {
         this.updateDirection();
         setTimeout(() => this.ensureVisibility(), 50);
+      } else {
+        this.searchText = '';
       }
       this.isOpen = !this.isOpen;
     }
@@ -80,6 +85,18 @@ export class DropdownComponent implements ControlValueAccessor {
   getSelectedLabel(): string {
     const option = this.options.find(o => o.value === this.value);
     return option ? option.label : this.placeholder;
+  }
+
+  get filteredOptions(): DropdownOption[] {
+    if (!this.isSearchable || !this.searchText) {
+      return this.options;
+    }
+    const search = this.searchText.toLowerCase();
+    return this.options.filter(o => o.label.toLowerCase().includes(search));
+  }
+
+  onSearch(event: Event) {
+    event.stopPropagation();
   }
 
   getSelectedIcon(): string | undefined {

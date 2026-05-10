@@ -10,11 +10,21 @@
   <div class="select-options" [class.align-right]="align === 'right'" [class.align-left]="align === 'left'"
     [class.drop-up]="actualDirection === 'up'" [class.drop-down]="actualDirection === 'down'"
     [style.minWidth]="minWidth" style="max-width: 90vw;">
-    <div *ngFor="let option of options" class="option" [class.selected]="option.value === value"
+    
+    <div class="dropdown-search" *ngIf="isSearchable" (click)="onSearch($event)">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" [(ngModel)]="searchText" placeholder="Search..." (click)="$event.stopPropagation()">
+    </div>
+
+    <div *ngFor="let option of filteredOptions" class="option" [class.selected]="option.value === value"
       (click)="selectOption(option)">
       <i *ngIf="option.icon" [class]="option.icon"></i>
       {{ option.label }}
       <i *ngIf="option.value === value" class="fa-solid fa-check check-icon"></i>
+    </div>
+    
+    <div class="no-results" *ngIf="isSearchable && filteredOptions.length === 0">
+      No results found
     </div>
   </div>
 

@@ -23,21 +23,19 @@ export class MemberService extends BaseApiService {
   }
 
   private membersCache$: Observable<ApiResponse<GymMember[]>> | null = null;
-  private lastGymId: string | null = null;
   private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
   private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
-
-  onboardMember(gymId: string, payload: OnboardMemberRequest): Observable<ApiResponse<GymMember>> {
-    return this.post<ApiResponse<GymMember>>(API_CONSTANTS.MEMBERS.ONBOARD.replace('{gymId}', gymId), payload);
+  
+  onboardMember(payload: OnboardMemberRequest): Observable<ApiResponse<GymMember>> {
+    return this.post<ApiResponse<GymMember>>(API_CONSTANTS.MEMBERS.ONBOARD, payload);
   }
 
-  getGymMembers(gymId: string): Observable<ApiResponse<GymMember[]>> {
-    if (this.membersCache$ && this.lastGymId === gymId) {
+  getGymMembers(): Observable<ApiResponse<GymMember[]>> {
+    if (this.membersCache$) {
       return this.membersCache$;
     }
 
-    this.lastGymId = gymId;
-    this.membersCache$ = this.get<ApiResponse<GymMember[]>>(API_CONSTANTS.MEMBERS.LIST.replace('{gymId}', gymId))
+    this.membersCache$ = this.get<ApiResponse<GymMember[]>>(API_CONSTANTS.MEMBERS.LIST)
       .pipe(shareReplay(1));
 
     return this.membersCache$;
@@ -89,13 +87,12 @@ export class MemberService extends BaseApiService {
     return obs;
   }
 
-  exportMembers(gymId: string): Observable<Blob> {
-    return this.getBlob(API_CONSTANTS.MEMBERS.EXPORT.replace('{gymId}', gymId));
+  exportMembers(): Observable<Blob> {
+    return this.getBlob(API_CONSTANTS.MEMBERS.EXPORT);
   }
 
   clearCache(): void {
     this.membersCache$ = null;
-    this.lastGymId = null;
     this.memberCache.clear();
     this.historyCache.clear();
   }

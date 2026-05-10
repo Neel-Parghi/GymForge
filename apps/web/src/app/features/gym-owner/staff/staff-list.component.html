@@ -10,8 +10,8 @@
         [title]="viewMode === 'list' ? 'Dashboard View' : 'List View'">
         <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
       </button>
-      <button class="secondary-btn" (click)="exportToCsv()" [disabled]="staff.length === 0">
-        <i class="fa-solid fa-file-csv"></i> Export CSV
+      <button class="btn-export" (click)="exportToCsv()" [disabled]="staff.length === 0">
+        <i class="fa-solid fa-download"></i> Export Report
       </button>
       <button class="primary-btn" (click)="onAddStaff()">
         <i class="fa-solid fa-user-plus"></i> Onboard Staff
@@ -63,7 +63,7 @@
     <div class="advanced-filters">
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Search staff...">
+        <input type="text" [formControl]="searchControl" placeholder="Search staff...">
       </div>
 
       <div class="dropdown-filters">

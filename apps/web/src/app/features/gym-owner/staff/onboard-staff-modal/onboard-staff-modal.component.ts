@@ -88,7 +88,7 @@ export class OnboardStaffModalComponent implements OnInit {
 
       const request = this.isEdit 
         ? this.staffService.updateStaff(this.staff.id, formValue)
-        : this.staffService.addStaff(gymId, formValue);
+        : this.staffService.addStaff(formValue);
 
       request.subscribe({
         next: () => {

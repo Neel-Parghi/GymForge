@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { GymPlanService } from '../../../core/services/gym-plan.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { GymPlan, CreateGymPlanRequest, UpdateGymPlanRequest } from '../../../shared/models/gym-plan.model';
@@ -39,7 +39,7 @@ export class GymPlansComponent implements OnInit {
   featuredPlanId: string = '';
 
   featuresList: string[] = [];
-  newFeature: string = '';
+  featureControl = new FormControl('');
 
   constructor() {
     this.initForm();
@@ -71,12 +71,8 @@ export class GymPlansComponent implements OnInit {
   }
 
   loadPlans(): void {
-    if (!this.ownerId) {
-      return;
-    }
-
     this.loading = true;
-    this.gymPlanService.getPlansByOwnerId(this.ownerId).subscribe({
+    this.gymPlanService.getGymPlans().subscribe({
       next: (res) => {
         const plans = (res as any).data || (Array.isArray(res) ? res : []);
 
@@ -89,7 +85,7 @@ export class GymPlansComponent implements OnInit {
         this.setupCarousel();
         this.loading = false;
       },
-      error: (err) => {
+      error: () => {
         this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.LOAD_ERROR);
         this.loading = false;
       }
@@ -154,7 +150,7 @@ export class GymPlansComponent implements OnInit {
     this.isEditing = false;
     this.currentPlanId = undefined;
     this.featuresList = [];
-    this.newFeature = '';
+    this.featureControl.reset('');
     this.planForm.reset({
       price: 0,
       durationMonths: 1,
@@ -168,7 +164,7 @@ export class GymPlansComponent implements OnInit {
     this.isEditing = true;
     this.currentPlanId = plan.id;
     this.featuresList = [...(plan.features || [])];
-    this.newFeature = '';
+    this.featureControl.reset('');
     this.planForm.patchValue({
       name: plan.name,
       description: plan.description,
@@ -188,9 +184,10 @@ export class GymPlansComponent implements OnInit {
   }
 
   addFeature(): void {
-    if (this.newFeature.trim()) {
-      this.featuresList.push(this.newFeature.trim());
-      this.newFeature = '';
+    const val = this.featureControl.value;
+    if (val && val.trim()) {
+      this.featuresList.push(val.trim());
+      this.featureControl.reset('');
     }
   }
 

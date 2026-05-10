@@ -49,8 +49,8 @@ export const API_CONSTANTS = {
     }
   },
   MEMBERS: {
-    ONBOARD: 'gyms/{gymId}/members',
-    LIST: 'gyms/{gymId}/members',
+    ONBOARD: 'members',
+    LIST: 'members',
     GET: 'members',
     UPDATE: 'members',
     TOGGLE_STATUS: 'members/{id}/status/toggle',
@@ -59,12 +59,21 @@ export const API_CONSTANTS = {
     RENEW: 'members/{id}/subscriptions',
     DELETE: 'members',
     SUBSCRIPTION_HISTORY: 'members/{id}/subscriptions',
-    EXPORT: 'gyms/{gymId}/members/export',
+    EXPORT: 'members/export',
     MEASUREMENTS: 'members/{memberId}/measurements',
   },
   STAFF: {
     BASE: 'staff',
-    LIST: 'gyms/{gymId}/staff',
+    LIST: 'staff',
+  },
+  INVENTORY: {
+    PRODUCTS: 'inventory/products',
+    EQUIPMENT: 'inventory/equipment',
+    SALES: 'inventory/sales',
+    SALES_HISTORY: 'inventory/sales/history',
+    MAINTENANCE: 'inventory/maintenance',
+    MAINTENANCE_HISTORY: 'inventory/maintenance/history',
+    STATS: 'inventory/stats'
   },
   PAYMENTS: {
     STATS: 'payments/stats',
@@ -76,9 +85,12 @@ export const API_CONSTANTS = {
   },
   GYM_PLAN: {
     GET: 'gym-plans',
-    LIST_BY_OWNER: 'gym-owners/{ownerId}/plans',
+    LIST: 'gym-plans',
     ADD: 'gym-plans',
     UPDATE: 'gym-plans',
     DELETE: 'gym-plans',
+  },
+  COMMON: {
+    UPLOAD: 'fileupload'
   }
 };

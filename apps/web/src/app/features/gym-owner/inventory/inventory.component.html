@@ -1,0 +1,844 @@
+<div class="standard-container inventory-container">
+  <!-- Top Stats Header -->
+  <header class="page-header inventory-header">
+    <div class="header-info">
+      <h2>Inventory Management</h2>
+      <p>Manage your gym assets, products, and front-desk sales.</p>
+    </div>
+    <div class="actions header-actions">
+      <button class="secondary-btn" (click)="toggleViewMode()">
+        <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
+      </button>
+      <button class="btn-primary" (click)="openProductDrawer()">
+        <i class="fas fa-plus"></i> Add New Product
+      </button>
+      <button class="btn-primary" (click)="openEquipmentDrawer()">
+        <i class="fas fa-tools"></i> Register Equipment
+      </button>
+      <button class="btn-primary" (click)="openSaleDrawer()">
+        <i class="fas fa-shopping-cart"></i> Record New Sale
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Grid (Dashboard View) -->
+  <div class="stats-grid" *ngIf="viewMode === 'dashboard'">
+    <div class="stat-card teal">
+      <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+      <div class="stat-info">
+        <span class="stat-label">Total Products</span>
+        <span class="stat-value">{{stats.totalProducts | number}}</span>
+        <span class="stat-meta text-teal">Stock units across all categories</span>
+      </div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="stat-info">
+        <span class="stat-label">Low Stock Alerts</span>
+        <span class="stat-value text-orange">{{stats.lowStockCount}}</span>
+        <span class="stat-meta">Items below reorder threshold</span>
+      </div>
+    </div>
+    <div class="stat-card violet">
+      <div class="stat-icon"><i class="fas fa-tools"></i></div>
+      <div class="stat-info">
+        <span class="stat-label">Maintenance Due</span>
+        <span class="stat-value text-violet">{{stats.maintenanceDueCount | number:'2.0-0'}}</span>
+        <span class="stat-meta">Equipment needing service</span>
+      </div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+      <div class="stat-info">
+        <span class="stat-label">Today's POS Sales</span>
+        <span class="stat-value">{{stats.todaySalesAmount | currency:'INR':'symbol'}}</span>
+        <span class="stat-meta">{{stats.todaySalesCount}} transactions recorded</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="inventory-content-wrapper" *ngIf="viewMode === 'list'">
+    <!-- Main Management Area -->
+    <main class="management-area">
+      <nav class="content-nav">
+        <div class="tabs">
+          <button [class.active]="activeTab === 'inventory'" (click)="setTab('inventory')">Products & Stock</button>
+          <button [class.active]="activeTab === 'equipment'" (click)="setTab('equipment')">Gym Equipment</button>
+          <button [class.active]="activeTab === 'maintenance'" (click)="setTab('maintenance')">Service Logs</button>
+          <button [class.active]="activeTab === 'sales'" (click)="setTab('sales')">Sale History</button>
+        </div>
+        <div class="list-header-actions">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" [formControl]="searchControl" placeholder="Search inventory...">
+          </div>
+        </div>
+      </nav>
+
+      <!-- Data Grid for Inventory -->
+      <app-data-grid *ngIf="activeTab === 'inventory'" [config]="inventoryGridConfig" [data]="inventoryItems"
+        [totalItems]="inventoryItems.length" [pageSize]="pageSize" [currentPage]="currentPage"
+        (actionEvent)="onInventoryAction($event)">
+      </app-data-grid>
+
+      <!-- Equipment Management Section -->
+      <div class="equipment-section" *ngIf="activeTab === 'equipment'">
+        <div class="section-header">
+          <div class="section-info">
+            <h3>Gym Assets & Equipment</h3>
+            <p>Track the health and maintenance of your physical gym assets.</p>
+          </div>
+          <div class="view-toggle">
+            <button class="toggle-btn" [class.active]="equipmentViewMode === 'grid'"
+              (click)="equipmentViewMode = 'grid'">
+              <i class="fas fa-th-large"></i> Grid
+            </button>
+            <button class="toggle-btn" [class.active]="equipmentViewMode === 'table'"
+              (click)="equipmentViewMode = 'table'">
+              <i class="fas fa-list"></i> Table
+            </button>
+          </div>
+        </div>
+
+        <!-- Visual Grid View -->
+        <div class="equipment-visual-grid" *ngIf="equipmentViewMode === 'grid'">
+          <div class="asset-card glass" *ngFor="let eq of equipmentItems" (click)="openEquipmentView(eq)">
+            <div class="asset-image-wrapper">
+              <img [src]="eq.imageUrl || 'assets/images/placeholder-equipment.png'" [alt]="eq.name" class="asset-image">
+              <div class="asset-status-overlay">
+                <span class="badge" [ngClass]="getBadgeClass(eq.status)">{{eq.status}}</span>
+              </div>
+            </div>
+            <div class="asset-details">
+              <div class="asset-main-info">
+                <h4>{{eq.name}}</h4>
+                <span class="asset-cat">{{eq.category}}</span>
+                <!-- <span class="asset-serial-tag">SN: {{eq.serialNumber}}</span> -->
+              </div>
+
+              <div class="asset-health">
+                <div class="health-label">
+                  <span>Condition: <strong>{{eq.condition}}</strong></span>
+                  <span>{{eq.health}}%</span>
+                </div>
+                <div class="health-bar-bg">
+                  <div class="health-bar-fill" [style.width.%]="eq.health"
+                    [ngClass]="eq.health > 70 ? 'bg-success' : eq.health > 30 ? 'bg-warning' : 'bg-danger'">
+                  </div>
+                </div>
+              </div>
+
+              <div class="asset-meta">
+                <div class="meta-item">
+                  <i class="fas fa-history"></i>
+                  <span>Last: {{eq.lastService != null ? (eq.lastService | date:'MMM d') : 'N/A'}}</span>
+                </div>
+              </div>
+
+              <div class="asset-actions">
+                <button class="btn-action-primary" (click)="openMaintenanceDrawer(eq); $event.stopPropagation()">
+                  <i class="fas fa-tools"></i> Service
+                </button>
+                <button class="btn-action-secondary" (click)="openEquipmentView(eq); $event.stopPropagation()">
+                  <i class="fas fa-info-circle"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standard Data Grid View -->
+        <app-data-grid *ngIf="equipmentViewMode === 'table'" [config]="equipmentGridConfig" [data]="equipmentItems"
+          [totalItems]="equipmentItems.length" [pageSize]="pageSize" [currentPage]="currentPage"
+          (actionEvent)="onInventoryAction($event)">
+        </app-data-grid>
+      </div>
+
+      <!-- Maintenance / Service History Section -->
+      <div class="equipment-section" *ngIf="activeTab === 'maintenance'">
+        <div class="section-header">
+          <div class="section-info">
+            <h3>Service Logs & History</h3>
+            <p>Complete history of all maintenance activities across your gym equipment.</p>
+          </div>
+        </div>
+
+        <app-data-grid [config]="serviceHistoryGridConfig" [data]="serviceHistoryItems"
+          [totalItems]="serviceHistoryItems.length" [pageSize]="pageSize" [currentPage]="currentPage"
+          (actionEvent)="onInventoryAction($event)">
+        </app-data-grid>
+      </div>
+
+      <!-- Sale History Tab -->
+      <div class="equipment-section" *ngIf="activeTab === 'sales'">
+        <div class="section-header">
+          <div class="section-info">
+            <h3>Product Sale Transactions</h3>
+            <p>Track history of products sold to gym members at the front desk.</p>
+          </div>
+        </div>
+
+        <app-data-grid [config]="salesGridConfig" [data]="salesItems" [totalItems]="salesItems.length"
+          [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onInventoryAction($event)">
+        </app-data-grid>
+      </div>
+    </main>
+  </div>
+
+</div>
+
+<!-- Add Product Drawer -->
+<app-slide-drawer [isOpen]="isProductDrawerOpen" [title]="isEditingProduct ? 'Edit Product' : 'Add New Product'"
+  [subtitle]="isEditingProduct ? 'Update product details and stock' : 'List a new product in your inventory'"
+  width="550px" (closeDrawer)="closeDrawers()">
+  <div drawer-body class="form-container" *ngIf="isProductDrawerOpen" [formGroup]="productForm">
+    <div class="image-upload-section" (click)="fileInput.click()">
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none">
+
+      <div class="image-placeholder" *ngIf="!imagePreview && !loading">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span>Upload Product Image</span>
+        <p class="text-xs">Click to browse files</p>
+      </div>
+
+      <div class="upload-loading" *ngIf="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Uploading...</span>
+      </div>
+
+      <div class="image-preview-container" *ngIf="imagePreview && !loading">
+        <img [src]="imagePreview" class="preview-img">
+        <div class="preview-overlay">
+          <i class="fas fa-camera"></i>
+          <span>Change Image</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Product Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Whey Protein Isolate">
+      </div>
+
+      <div class="form-group">
+        <label>SKU / Barcode</label>
+        <div class="input-with-action">
+          <input type="text" formControlName="sku" placeholder="Auto-generated">
+          <button class="btn-icon" (click)="generateSKU()"><i class="fas fa-redo"></i></button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <app-dropdown [options]="productCategories" formControlName="category" placeholder="Select category"
+          minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Buying Price (₹)</label>
+        <input type="number" formControlName="buyingPrice">
+      </div>
+
+      <div class="form-group">
+        <label>Selling Price (₹)</label>
+        <input type="number" formControlName="sellingPrice">
+      </div>
+
+      <div class="form-group">
+        <label>Stock Level</label>
+        <input type="number" formControlName="stockQuantity">
+      </div>
+
+      <div class="form-group">
+        <label>Reorder Alert Level</label>
+        <input type="number" formControlName="reorderLevel">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Description</label>
+        <textarea rows="3" formControlName="description"
+          placeholder="Detailed description of the product..."></textarea>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" (click)="closeDrawers()">Cancel</button>
+    <button class="btn-primary" [disabled]="productForm.invalid" (click)="saveProduct()">
+      {{isEditingProduct ? 'Update Product' : 'Save Product'}}
+    </button>
+  </div>
+</app-slide-drawer>
+
+<!-- Register Equipment Drawer -->
+<app-slide-drawer [isOpen]="isEquipmentDrawerOpen"
+  [title]="isEditingEquipment ? 'Edit Equipment' : 'Register Equipment'"
+  [subtitle]="isEditingEquipment ? 'Update gym asset details and health' : 'Add new gym assets to the tracking system'"
+  width="550px" (closeDrawer)="closeDrawers()">
+  <div drawer-body class="form-container" *ngIf="isEquipmentDrawerOpen" [formGroup]="equipmentForm">
+
+    <!-- Image Upload Section for Equipment -->
+    <div class="image-upload-section" (click)="fileInputEq.click()">
+      <input type="file" #fileInputEq (change)="onFileSelected($event)" accept="image/*" style="display: none">
+
+      <div class="image-placeholder" *ngIf="!imagePreview && !loading">
+        <i class="fas fa-camera"></i>
+        <span>Upload Equipment Photo</span>
+        <p class="text-xs">Showcase your gym assets</p>
+      </div>
+
+      <div class="upload-loading" *ngIf="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Uploading...</span>
+      </div>
+
+      <div class="image-preview-container" *ngIf="imagePreview && !loading">
+        <img [src]="imagePreview" class="preview-img">
+        <div class="preview-overlay">
+          <i class="fas fa-camera"></i>
+          <span>Change Photo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Equipment Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Matrix Treadmill T7xe">
+      </div>
+
+      <div class="form-group">
+        <label>Serial Number</label>
+        <input type="text" formControlName="serialNumber" placeholder="SN-XXXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <app-dropdown [options]="equipmentCategories" formControlName="category" placeholder="Select equipment type"
+          minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Purchase Date</label>
+        <input type="date" formControlName="purchaseDate">
+      </div>
+
+      <div class="form-group">
+        <label>Warranty Expiry</label>
+        <input type="date" formControlName="warrantyExpiry">
+      </div>
+
+      <div class="form-group">
+        <label>Condition</label>
+        <app-dropdown [options]="conditionOptions" formControlName="condition" placeholder="Initial condition"
+          minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Maintenance Interval (Months)</label>
+        <input type="number" formControlName="maintenanceInterval">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Initial Health Score ({{equipmentForm.get('initialHealth')?.value}}%)</label>
+        <input type="range" formControlName="initialHealth" min="1" max="100">
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" (click)="closeDrawers()">Cancel</button>
+    <button class="btn-primary" [disabled]="equipmentForm.invalid" (click)="saveEquipment()">
+      {{isEditingEquipment ? 'Update Asset' : 'Register Asset'}}
+    </button>
+  </div>
+</app-slide-drawer>
+
+<!-- Record Sale Drawer -->
+<app-slide-drawer [isOpen]="isSaleDrawerOpen" title="Record New Sale" subtitle="Sell a product to a gym member"
+  width="500px" (closeDrawer)="closeDrawers()">
+  <div drawer-body class="form-container" *ngIf="isSaleDrawerOpen" [formGroup]="saleForm">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Select Member</label>
+        <app-dropdown [options]="memberOptions" formControlName="memberId" [isSearchable]="true"
+          placeholder="Search for a member..." minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Select Product</label>
+        <app-dropdown [options]="productOptions" formControlName="productId" [isSearchable]="true"
+          placeholder="Choose product" minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" formControlName="quantity" min="1">
+      </div>
+
+      <div class="form-group">
+        <label>Sale Date</label>
+        <input type="date" formControlName="date">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Payment Method</label>
+        <div class="payment-options">
+          <button type="button" class="opt-btn" [class.active]="saleForm.get('paymentMethod')?.value === 'Card'"
+            (click)="saleForm.patchValue({paymentMethod: 'Card'})">
+            <i class="fas fa-credit-card"></i> Card
+          </button>
+          <button type="button" class="opt-btn" [class.active]="saleForm.get('paymentMethod')?.value === 'Cash'"
+            (click)="saleForm.patchValue({paymentMethod: 'Cash'})">
+            <i class="fas fa-money-bill-wave"></i> Cash
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Summary Card -->
+    <div class="summary-card glass mt-4" *ngIf="selectedSaleProduct">
+      <div class="summary-row">
+        <span>Unit Price</span>
+        <span>{{selectedSaleProduct.sellingPrice | currency:'INR':'symbol'}}</span>
+      </div>
+      <div class="summary-row">
+        <span>Quantity</span>
+        <span>x {{saleForm.get('quantity')?.value}}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="summary-row total">
+        <span>Total Payable</span>
+        <span>{{saleTotal | currency:'INR':'symbol'}}</span>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" (click)="closeDrawers()">Cancel</button>
+    <button class="btn-primary" [disabled]="saleForm.invalid" (click)="saveSale()">Confirm Transaction</button>
+  </div>
+</app-slide-drawer>
+
+<!-- Product View Drawer -->
+<app-slide-drawer [isOpen]="isProductViewOpen" [title]="selectedProduct?.name"
+  subtitle="Detailed product information and stock history" width="600px" (closeDrawer)="closeDrawers()">
+  <div drawer-body class="detail-container" *ngIf="selectedProduct">
+    <div class="detail-header">
+      <div class="detail-image">
+        <img [src]="selectedProduct.imageUrl || 'assets/images/placeholder-product.png'" alt="product">
+      </div>
+      <div class="detail-main">
+        <div class="detail-badges">
+          <span class="badge"
+            [ngClass]="getBadgeClass(selectedProduct.stockStatus)">{{selectedProduct.stockStatus}}</span>
+          <span class="badge badge-secondary">{{selectedProduct.category}}</span>
+        </div>
+        <p class="detail-subtitle">SKU: {{selectedProduct.sku}}</p>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Selling Price</label>
+        <span class="value currency">{{selectedProduct.sellingPrice | currency:'INR':'symbol'}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Buying Price</label>
+        <span class="value currency">{{selectedProduct.buyingPrice | currency:'INR':'symbol'}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Current Stock</label>
+        <span class="value" [class.text-danger]="selectedProduct.stockQuantity <= selectedProduct.reorderLevel">
+          {{selectedProduct.stockQuantity}} Units
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Reorder Level</label>
+        <span class="value">{{selectedProduct.reorderLevel}} Units</span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <label>Description</label>
+      <p class="description-text" [class.text-muted]="!selectedProduct.description">
+        {{selectedProduct.description || 'No detailed description available for this product.'}}
+      </p>
+    </div>
+  </div>
+  <div drawer-footer class="detail-footer">
+    <div class="drawer-actions">
+      <button class="btn-outline" (click)="closeDrawers()">Close</button>
+      <button class="btn-primary" (click)="editFromView()">
+        <i class="fas fa-edit"></i> Edit Product
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>
+
+<!-- Equipment View Drawer -->
+<app-slide-drawer [isOpen]="isEquipmentViewOpen" [title]="selectedEquipment?.name"
+  subtitle="Equipment maintenance and health status" width="600px" (closeDrawer)="closeDrawers()">
+  <div drawer-body class="detail-container" *ngIf="selectedEquipment">
+    <div class="detail-header">
+      <div class="detail-image">
+        <img [src]="selectedEquipment.imageUrl || 'assets/images/placeholder-equipment.png'" alt="equipment">
+      </div>
+      <div class="detail-main">
+        <div class="detail-badges">
+          <span class="badge" [ngClass]="getBadgeClass(selectedEquipment.status)">{{selectedEquipment.status}}</span>
+          <span class="badge badge-secondary">{{selectedEquipment.category}}</span>
+        </div>
+        <p class="detail-subtitle">S/N: {{selectedEquipment.serialNumber}}</p>
+      </div>
+    </div>
+
+    <div class="health-overview glass mt-4 mb-4">
+      <div class="health-header">
+        <span>Overall Health Status</span>
+        <span class="health-percent">{{selectedEquipment.health}}%</span>
+      </div>
+      <div class="health-bar-container">
+        <div class="health-bar-fill" [style.width.%]="selectedEquipment.health"
+          [ngClass]="selectedEquipment.health > 70 ? 'bg-success' : selectedEquipment.health > 30 ? 'bg-warning' : 'bg-danger'">
+        </div>
+      </div>
+      <p class="health-meta">
+        <i class="fas fa-history mr-1"></i>
+        {{ selectedEquipment.lastService ? ('Last serviced on ' + (selectedEquipment.lastService | date:'mediumDate'))
+        : 'No service history recorded' }}
+      </p>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Current Condition</label>
+        <span class="value">{{selectedEquipment.condition}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Category</label>
+        <span class="value">{{selectedEquipment.category}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Purchase Date</label>
+        <span class="value" [class.text-muted]="!selectedEquipment.purchaseDate">
+          {{ (selectedEquipment.purchaseDate | date:'mediumDate') || 'Not recorded' }}
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Warranty Expiry</label>
+        <span class="value">{{ (selectedEquipment.warrantyExpiry | date:'mediumDate') || 'N/A' }}</span>
+      </div>
+      <div class="detail-item">
+        <label>Last Maintenance</label>
+        <span class="value" [class.text-muted]="!selectedEquipment.lastService">
+          {{ (selectedEquipment.lastService | date:'mediumDate') || 'N/A' }}
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Next Due</label>
+        <span class="value text-warning" [class.text-muted]="!selectedEquipment.lastService">
+          {{ selectedEquipment.lastService ? 'Scheduled soon' : 'Not scheduled' }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="detail-footer">
+    <div class="drawer-actions">
+      <button class="btn-outline" (click)="closeDrawers()">Close</button>
+      <button class="btn-primary" (click)="editFromView()">
+        <i class="fas fa-tools"></i> Edit Equipment
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>
+
+<!-- Maintenance Log Drawer -->
+<app-slide-drawer [isOpen]="isMaintenanceDrawerOpen" title="Equipment Maintenance Log"
+  subtitle="Record service details, costs and technician info" width="550px"
+  (closeDrawer)="isMaintenanceDrawerOpen = false">
+  <div drawer-body class="form-container" *ngIf="isMaintenanceDrawerOpen" [formGroup]="maintenanceForm">
+
+    <div class="asset-mini-profile mb-4" *ngIf="selectedEquipment">
+      <div class="mini-img">
+        <img [src]="selectedEquipment.imageUrl || 'assets/images/placeholder-equipment.png'" alt="eq">
+      </div>
+      <div class="mini-info">
+        <h6>{{selectedEquipment.name}}</h6>
+        <span>S/N: {{selectedEquipment.serialNumber}}</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Service Type</label>
+        <app-dropdown formControlName="serviceType" [options]="serviceTypeOptions"
+          placeholder="Select Service Type"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <app-dropdown formControlName="status" [options]="maintenanceStatusOptions"
+          placeholder="Select Status"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Technician / Vendor</label>
+        <input type="text" formControlName="technicianName" placeholder="e.g. John Doe / TechFit Solutions">
+      </div>
+
+      <div class="form-group">
+        <label>Cost (Rs)</label>
+        <input type="number" formControlName="cost">
+      </div>
+
+      <div class="form-group">
+        <label>Start Date</label>
+        <input type="date" formControlName="startDate">
+      </div>
+
+      <div class="form-group">
+        <label>Est. Completion</label>
+        <input type="date" formControlName="estimatedEndDate">
+      </div>
+
+      <div class="form-group full-width" *ngIf="maintenanceForm.get('status')?.value === 'Completed'">
+        <label>Actual Completion Date</label>
+        <input type="date" formControlName="completedDate">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Description of Work</label>
+        <textarea formControlName="description" rows="3" placeholder="What was done?"></textarea>
+      </div>
+    </div>
+
+    <div class="history-section mt-4" *ngIf="maintenanceHistory.length > 0">
+      <label class="section-label">Recent History</label>
+      <div class="history-list">
+        <div class="history-item" *ngFor="let log of maintenanceHistory.slice(0, 3)">
+          <div class="log-main">
+            <span class="log-type">{{log.serviceType}}</span>
+            <span class="log-date">{{log.startDate | date:'shortDate'}}</span>
+          </div>
+          <div class="log-meta">
+            <span>Cost : ₹ {{log.cost}}</span>
+            <span>By: {{log.technicianName}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div drawer-footer>
+    <div class="drawer-actions">
+      <button class="btn-outline" (click)="isMaintenanceDrawerOpen = false">Cancel</button>
+      <button class="btn-primary" [disabled]="maintenanceForm.invalid || loading" (click)="saveMaintenance()">
+        <i class="fas fa-save"></i>
+        {{ loading ? 'Saving...' : 'Record Maintenance' }}
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>
+
+<!-- Maintenance Details View Drawer -->
+<app-slide-drawer [isOpen]="isMaintenanceViewOpen" title="Service Log Details"
+  (closeDrawer)="isMaintenanceViewOpen = false">
+  <div drawer-body class="view-drawer-content" *ngIf="selectedMaintenanceLog">
+    <div class="detail-section">
+      <div class="section-label">Equipment Asset</div>
+      <div class="asset-brief">
+        <i class="fas fa-tools"></i>
+        <div class="brief-info">
+          <span class="name">{{selectedMaintenanceLog.equipmentName}}</span>
+          <span class="sub">ID: {{selectedMaintenanceLog.equipmentId}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Service Type</label>
+        <span class="badge" [ngClass]="getBadgeClass(selectedMaintenanceLog.serviceType)">
+          {{selectedMaintenanceLog.serviceType}}
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Current Status</label>
+        <span class="badge" [ngClass]="getBadgeClass(selectedMaintenanceLog.status)">
+          {{selectedMaintenanceLog.status}}
+        </span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Personnel & Financials</div>
+      <div class="info-card">
+        <div class="info-row">
+          <i class="fas fa-user-gear"></i>
+          <div class="row-data">
+            <label>Technician / Vendor</label>
+            <span>{{selectedMaintenanceLog.technicianName}}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <i class="fas fa-receipt"></i>
+          <div class="row-data">
+            <label>Service Cost</label>
+            <span class="cost-value">{{selectedMaintenanceLog.cost | currency}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Timeline</div>
+      <div class="timeline-box">
+        <div class="time-point">
+          <div class="dot active"></div>
+          <div class="time-data">
+            <label>Started On</label>
+            <span>{{selectedMaintenanceLog.startDate | date:'mediumDate'}}</span>
+          </div>
+        </div>
+        <div class="time-point" *ngIf="selectedMaintenanceLog.completedDate">
+          <div class="dot success"></div>
+          <div class="time-data">
+            <label>Completed On</label>
+            <span>{{selectedMaintenanceLog.completedDate | date:'mediumDate'}}</span>
+          </div>
+        </div>
+        <div class="time-point"
+          *ngIf="!selectedMaintenanceLog.completedDate && selectedMaintenanceLog.estimatedEndDate">
+          <div class="dot warning"></div>
+          <div class="time-data">
+            <label>Estimated Completion</label>
+            <span>{{selectedMaintenanceLog.estimatedEndDate | date:'mediumDate'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Work Description & Notes</div>
+      <div class="notes-display">
+        <p class="description">{{selectedMaintenanceLog.description}}</p>
+        <div class="notes-box" *ngIf="selectedMaintenanceLog.notes">
+          <label>Additional Notes</label>
+          <p>{{selectedMaintenanceLog.notes}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div drawer-footer class="drawer-footer-actions" *ngIf="selectedMaintenanceLog?.status !== 'Completed'">
+    <!-- <button class="btn-secondary" (click)="isMaintenanceViewOpen = false">Close View</button> -->
+    <button class="btn-primary" (click)="isMaintenanceViewOpen = false; openMaintenanceDrawer(selectedMaintenanceLog)">
+      <i class="fas fa-edit"></i> Edit Log
+    </button>
+  </div>
+</app-slide-drawer>
+
+<!-- Sale View (Receipt) Drawer -->
+<app-slide-drawer [isOpen]="isSaleViewOpen" title="Transaction Receipt"
+  subtitle="Detailed record of the front-desk sale" width="450px" (closeDrawer)="isSaleViewOpen = false">
+  <div drawer-body class="receipt-container" *ngIf="selectedSale">
+    <div class="receipt-card">
+      <div class="receipt-header">
+        <div class="header-top">
+          <span class="invoice-label">TAX INVOICE</span>
+          <span class="badge badge-success">PAID</span>
+        </div>
+        <div class="gym-brand">
+          <i class="fas fa-dumbbell"></i>
+          <span>GYMFORGE POS</span>
+        </div>
+      </div>
+
+      <div class="receipt-main">
+        <div class="transaction-id">
+          <label>Transaction ID</label>
+          <span>#{{selectedSale.id?.substring(0,8).toUpperCase()}}</span>
+        </div>
+
+        <div class="receipt-info-grid">
+          <div class="info-item">
+            <label>Date</label>
+            <span>{{selectedSale.date | date:'mediumDate'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Time</label>
+            <span>{{selectedSale.date | date:'shortTime'}}</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="customer-info">
+          <label>Customer Details</label>
+          <div class="customer-brief">
+            <div class="avatar-mini"><i class="fas fa-user"></i></div>
+            <div class="c-data">
+              <span class="c-name">{{selectedSale.memberName}}</span>
+              <span class="c-sub">Member ID: {{selectedSale.memberId?.substring(0,6)}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="items-list">
+          <label>Items</label>
+          <div class="receipt-item">
+            <div class="item-main">
+              <span class="p-name">{{selectedSale.productName}}</span>
+              <span class="p-qty">Qty: {{selectedSale.quantity}}</span>
+            </div>
+            <div class="item-price">
+              <span>{{selectedSale.totalAmount | currency:'INR':'symbol'}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="payment-breakdown">
+          <div class="b-row">
+            <span>Subtotal</span>
+            <span>{{selectedSale.totalAmount | currency:'INR':'symbol'}}</span>
+          </div>
+          <div class="b-row">
+            <span>Tax (0%)</span>
+            <span>₹ 0.00</span>
+          </div>
+          <div class="b-row grand-total">
+            <span>Total Paid</span>
+            <span>{{selectedSale.totalAmount | currency:'INR':'symbol'}}</span>
+          </div>
+        </div>
+
+        <div class="payment-method-box mt-4">
+          <div class="pm-info">
+            <i [class]="selectedSale.paymentMethod === 'Card' ? 'fas fa-credit-card' : 'fas fa-money-bill-wave'"></i>
+            <div class="pm-text">
+              <label>Paid via</label>
+              <span>{{selectedSale.paymentMethod}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="receipt-footer">
+        <p>Thank you for your purchase!</p>
+        <div class="footer-actions">
+          <button class="btn-icon-text" (click)="printReceipt()"><i class="fas fa-print"></i> Print</button>
+          <button class="btn-icon-text" (click)="emailReceipt()"><i class="fas fa-envelope"></i> Email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" (click)="isSaleViewOpen = false">Close</button>
+    <!-- <button class="btn-primary" (click)="isSaleViewOpen = false">
+      <i class="fas fa-check"></i> Done
+    </button> -->
+  </div>
+</app-slide-drawer>

@@ -212,3 +212,47 @@
     transform: translateY(0) scaleY(1);
   }
 }
+
+.dropdown-search {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .search-icon {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    padding: 4px 0;
+
+    &::placeholder {
+      color: var(--gray-400);
+    }
+  }
+}
+
+.no-results {
+  padding: 16px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.select-options {
+  overflow-y: auto;
+  max-height: 300px;
+}

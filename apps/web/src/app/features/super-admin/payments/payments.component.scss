@@ -8,7 +8,7 @@
         top: 0;
         background: #f8fafc;
         z-index: 100;
-        padding: 24px 0 16px 0;
+        padding: 10px 0 10px 0;
         margin: 0;
 
         h1 {
@@ -103,8 +103,8 @@
             justify-content: flex-end;
 
             app-dropdown {
-              min-width: 200px;
-              max-width: 300px;
+                min-width: 200px;
+                max-width: 300px;
             }
 
             .btn-test-pay {

@@ -79,5 +79,65 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: true
+  },
+  InventoryItems: {
+    columns: [
+      { key: 'name', label: 'Product', type: 'profile', subKey: 'sku' },
+      { key: 'category', label: 'Category', type: 'text' },
+      { key: 'stockQuantity', label: 'Qty in Stock', type: 'number' },
+      { key: 'sellingPrice', label: 'Unit Price', type: 'currency' },
+      { key: 'stockStatus', label: 'Availability', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    isRowClickable: true
+  },
+  EquipmentItems: {
+    columns: [
+      { key: 'name', label: 'Equipment', type: 'profile', subKey: 'category' },
+      { key: 'condition', label: 'Condition', type: 'text' },
+      { key: 'lastService', label: 'Last Service', type: 'date' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    isRowClickable: true
+  },
+  MaintenanceTasks: {
+    columns: [
+      { key: 'name', label: 'Equipment Asset', type: 'profile', subKey: 'serialNumber' },
+      { key: 'health', label: 'Health Status', type: 'progress' },
+      { key: 'lastService', label: 'Last Serviced', type: 'date' },
+      { key: 'status', label: 'Current Status', type: 'badge' },
+      { key: 'actions', label: 'Record Service', type: 'action' }
+    ],
+    selectable: false,
+    isRowClickable: true
+  },
+  SalesHistory: {
+    columns: [
+      { key: 'memberName', label: 'Member', type: 'profile', subKey: 'memberId' },
+      { key: 'productName', label: 'Product', type: 'text' },
+      { key: 'quantity', label: 'Qty', type: 'number' },
+      { key: 'totalAmount', label: 'Total', type: 'currency' },
+      { key: 'date', label: 'Date', type: 'date' },
+      { key: 'paymentMethod', label: 'Method', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    isRowClickable: true
+  },
+  ServiceHistory: {
+    columns: [
+      { key: 'equipmentName', label: 'Equipment', type: 'text' },
+      { key: 'serviceType', label: 'Type', type: 'badge' },
+      { key: 'technicianName', label: 'Technician', type: 'text' },
+      { key: 'startDate', label: 'Date', type: 'date' },
+      { key: 'cost', label: 'Cost', type: 'currency' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    isRowClickable: true
   }
 };

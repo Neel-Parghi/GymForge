@@ -12,7 +12,7 @@
       <tbody>
         <tr *ngFor="let row of data" 
           [class.selected]="isSelected(row)"
-          [class.row-clickable]="rowClick.observed"
+          [class.row-clickable]="isRowClickable"
           (click)="onRowClick(row, $event)">
           <td *ngIf="selectable" class="checkbox-col">
             <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
@@ -23,14 +23,14 @@
             @case ('profile') {
             <div class="profile-cell clickable" (click)="onAction('view', row)" title="View Details">
               <div class="avatar-circle">
-                @if (row.profilePictureUrl) {
-                <img [src]="row.profilePictureUrl" alt="avatar">
+                @if (row.profilePictureUrl || row.imageUrl) {
+                <img [src]="row.profilePictureUrl || row.imageUrl" alt="avatar">
                 } @else {
-                <span>{{ row.firstName ? row.firstName[0] : '' }}{{ row.lastName ? row.lastName[0] : '' }}</span>
+                <span>{{ getNestedValue(row, col.key) ? getNestedValue(row, col.key)[0] : (row.firstName ? row.firstName[0] : '') }}</span>
                 }
               </div>
               <div class="profile-info">
-                <span class="primary-text">{{ row.firstName }} {{ row.lastName }}</span>
+                <span class="primary-text">{{ getNestedValue(row, col.key) }} {{ row.lastName || '' }}</span>
                 <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
               </div>
             </div>
@@ -47,12 +47,31 @@
             <!-- Action Buttons -->
             @case ('action') {
             <div class="actions-cell">
-              <button class="action-btn view-btn" (click)="onAction('view', row)" title="View">
+              <button class="action-btn view-btn" (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button class="action-btn edit-btn" (click)="onAction('edit', row)" title="Edit">
+              <button *ngIf="row.health !== undefined" class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()" title="Record Maintenance">
+                <i class="fa-solid fa-tools"></i>
+              </button>
+              <button *ngIf="row.sellingPrice !== undefined" class="action-btn sell-btn"
+                (click)="onAction('sell', row); $event.stopPropagation()" title="Sell Product">
+                <i class="fa-solid fa-cart-shopping"></i>
+              </button>
+              <button class="action-btn edit-btn" (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
                 <i class="fa-solid fa-pen"></i>
               </button>
+            </div>
+            }
+
+            <!-- Progress Bar -->
+            @case ('progress') {
+            <div class="progress-cell">
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" [style.width.%]="getNestedValue(row, col.key)"
+                  [ngClass]="getNestedValue(row, col.key) > 70 ? 'bg-success' : getNestedValue(row, col.key) > 30 ? 'bg-warning' : 'bg-danger'">
+                </div>
+              </div>
+              <span class="progress-text">{{ getNestedValue(row, col.key) }}%</span>
             </div>
             }
 

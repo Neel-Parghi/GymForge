@@ -10,8 +10,9 @@
       <button class="secondary-btn" (click)="toggleViewMode()">
         <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
       </button>
-      <button class="secondary-btn" (click)="exportToCsv()" [disabled]="members.length === 0">
-        <i class="fa-solid fa-file-csv"></i> Export CSV
+      <button class="btn-export" (click)="exportToCsv()" title="Export CSV">
+        <i class="fa-solid fa-download"></i>
+        Export Report
       </button>
       <button class="primary-btn" id="btn-onboard-member" (click)="openOnboardModal()">
         <i class="fa-solid fa-user-plus"></i> Onboard New Member
@@ -59,19 +60,17 @@
         {{ tab.label }}
       </button>
     </div>
-    <div class="advanced-filters">
+    <div class="advanced-filters" [formGroup]="filterForm">
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="filterMembers()" placeholder="Search members...">
+        <input type="text" formControlName="search" placeholder="Search members...">
       </div>
 
       <div class="dropdown-filters">
-        <app-dropdown [options]="planOptions" [(ngModel)]="selectedPlan" (selectionChange)="filterMembers()"
-          style="min-width: 160px;">
+        <app-dropdown [options]="planOptions" formControlName="plan" style="min-width: 160px;">
         </app-dropdown>
 
-        <app-dropdown [options]="paymentOptions" [(ngModel)]="selectedPaymentStatus" (selectionChange)="filterMembers()"
-          style="min-width: 160px;">
+        <app-dropdown [options]="paymentOptions" formControlName="payment" style="min-width: 160px;">
         </app-dropdown>
       </div>
     </div>
