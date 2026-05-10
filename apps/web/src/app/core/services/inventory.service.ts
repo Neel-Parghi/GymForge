@@ -155,8 +155,16 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  getMaintenanceHistory(equipmentId: string): Observable<ApiResponse<any[]>> {
-    return this.get<ApiResponse<any[]>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/equipment/${equipmentId}/maintenance`);
+  private maintenanceByEquipmentCache = new Map<string, Observable<ApiResponse<any[]>>>();
+
+  getMaintenanceHistory(equipmentId: string, forceRefresh = false): Observable<ApiResponse<any[]>> {
+    if (!this.maintenanceByEquipmentCache.has(equipmentId) || forceRefresh) {
+      const call = this.get<ApiResponse<any[]>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/equipment/${equipmentId}/maintenance`).pipe(
+        shareReplay(1)
+      );
+      this.maintenanceByEquipmentCache.set(equipmentId, call);
+    }
+    return this.maintenanceByEquipmentCache.get(equipmentId)!;
   }
 
   getMaintenanceHistoryGlobal(forceRefresh = false): Observable<ApiResponse<any[]>> {
@@ -190,6 +198,7 @@ export class InventoryService extends BaseApiService {
 
   private clearMaintenanceCache(): void {
     this.maintenanceHistoryCache$ = null;
+    this.maintenanceByEquipmentCache.clear();
     this.clearStatsCache();
   }
 

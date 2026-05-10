@@ -50,7 +50,7 @@
     <div class="stat-card amber">
       <div class="stat-icon"><i class="fas fa-receipt"></i></div>
       <div class="stat-info">
-        <span class="stat-label">Today's POS Sales</span>
+        <span class="stat-label">Total POS Sales</span>
         <span class="stat-value">{{stats.todaySalesAmount | currency:'INR':'symbol'}}</span>
         <span class="stat-meta">{{stats.todaySalesCount}} transactions recorded</span>
       </div>
@@ -264,7 +264,9 @@
   </div>
   <div drawer-footer class="drawer-actions">
     <button class="btn-outline" (click)="closeDrawers()">Cancel</button>
-    <button class="btn-primary" [disabled]="productForm.invalid" (click)="saveProduct()">
+    <button class="btn-primary"
+      [disabled]="productForm.invalid || (isEditingProduct && productForm.pristine && !selectedFile)"
+      (click)="saveProduct()">
       {{isEditingProduct ? 'Update Product' : 'Save Product'}}
     </button>
   </div>
@@ -347,8 +349,10 @@
   </div>
   <div drawer-footer class="drawer-actions">
     <button class="btn-outline" (click)="closeDrawers()">Cancel</button>
-    <button class="btn-primary" [disabled]="equipmentForm.invalid" (click)="saveEquipment()">
-      {{isEditingEquipment ? 'Update Asset' : 'Register Asset'}}
+    <button class="btn-primary"
+      [disabled]="equipmentForm.invalid || (isEditingEquipment && equipmentForm.pristine && !selectedFile)"
+      (click)="saveEquipment()">
+      {{isEditingEquipment ? 'Update Equipment' : 'Register Equipment'}}
     </button>
   </div>
 </app-slide-drawer>
@@ -683,7 +687,7 @@
           <i class="fas fa-receipt"></i>
           <div class="row-data">
             <label>Service Cost</label>
-            <span class="cost-value">{{selectedMaintenanceLog.cost | currency}}</span>
+            <span class="cost-value">{{selectedMaintenanceLog.cost | currency:'INR':'symbol'}}</span>
           </div>
         </div>
       </div>

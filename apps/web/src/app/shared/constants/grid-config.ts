@@ -125,7 +125,8 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    isRowClickable: true
+    isRowClickable: true,
+    excludeActions: ['edit']
   },
   ServiceHistory: {
     columns: [

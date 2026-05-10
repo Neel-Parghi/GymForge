@@ -117,19 +117,35 @@ export class DataGrid {
       case 'accepted':
       case 'success':
       case 'paid':
+      case 'in stock':
+      case 'excellent':
+      case 'good':
+      case 'routine':
+      case 'completed':
+      case 'cash':
+      case 'card':
+      case 'upi':
         return 'badge-active';
       case 'pending':
       case 'partial':
+      case 'low stock':
+      case 'fair':
+      case 'repair':
+      case 'scheduled':
+      case 'maintenance due':
+      case 'in progress':
         return 'badge-pending';
       case 'unpaid':
       case 'refunded':
-        return 'badge-unpaid';
-      case 'frozen':
-        return 'badge-neutral';
-      case 'inactive':
+      case 'out of stock':
+      case 'broken':
+      case 'critical':
       case 'expired':
+      case 'repair needed':
+      case 'danger':
+      case 'inactive':
       case 'failed':
-        return 'badge-inactive';
+        return 'badge-unpaid';
       default:
         return 'badge-neutral';
     }

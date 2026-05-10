@@ -30,8 +30,8 @@
                 }
               </div>
               <div class="profile-info">
-                <span class="primary-text">{{ getNestedValue(row, col.key) }} {{ row.lastName || '' }}</span>
-                <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
+                <span class="primary-text">{{ getNestedValue(row, col.key) || '-' }} {{ row.lastName || '' }}</span>
+                <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) || '-' }}</span>
               </div>
             </div>
             }
@@ -47,17 +47,17 @@
             <!-- Action Buttons -->
             @case ('action') {
             <div class="actions-cell">
-              <button class="action-btn view-btn" (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
+              <button *ngIf="!config.excludeActions?.includes('view')" class="action-btn view-btn" (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button *ngIf="row.health !== undefined" class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()" title="Record Maintenance">
+              <button *ngIf="row.health !== undefined && !config.excludeActions?.includes('service')" class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()" title="Record Maintenance">
                 <i class="fa-solid fa-tools"></i>
               </button>
-              <button *ngIf="row.sellingPrice !== undefined" class="action-btn sell-btn"
+              <button *ngIf="row.sellingPrice !== undefined && !config.excludeActions?.includes('sell')" class="action-btn sell-btn"
                 (click)="onAction('sell', row); $event.stopPropagation()" title="Sell Product">
                 <i class="fa-solid fa-cart-shopping"></i>
               </button>
-              <button class="action-btn edit-btn" (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
+              <button *ngIf="!config.excludeActions?.includes('edit')" class="action-btn edit-btn" (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
                 <i class="fa-solid fa-pen"></i>
               </button>
             </div>
@@ -88,12 +88,16 @@
 
             <!-- Date -->
             @case ('date') {
-            <span class="date-text">{{ getNestedValue(row, col.key) | date:'mediumDate' }}</span>
+            <span class="date-text">
+              {{ getNestedValue(row, col.key) ? (getNestedValue(row, col.key) | date:'mediumDate') : '-' }}
+            </span>
             }
 
             <!-- Currency -->
             @case ('currency') {
-            <span class="currency-text">{{ getNestedValue(row, col.key) | currency:'INR':'symbol' }}</span>
+            <span class="currency-text">
+              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? (getNestedValue(row, col.key) | currency:'INR':'symbol') : '-' }}
+            </span>
             }
 
             <!-- Boolean -->
@@ -107,7 +111,7 @@
             @default {
             <span [class.clickable-cell]="col.isClickable"
               (click)="col.isClickable ? onAction('row-click', row) : null">
-              {{ getNestedValue(row, col.key) }}
+              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? getNestedValue(row, col.key) : '-' }}
             </span>
             }
             }

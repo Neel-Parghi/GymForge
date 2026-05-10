@@ -4,4 +4,5 @@ export interface GridConfigDef {
   columns: ColumnDef[];
   selectable?: boolean;
   isRowClickable?: boolean;
+  excludeActions?: string[];
 }
