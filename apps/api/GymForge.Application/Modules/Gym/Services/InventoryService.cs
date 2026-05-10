@@ -3,19 +3,27 @@ using GymForge.Application.DTOs.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
-using System.Collections.Generic;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
     public class InventoryService : IInventoryService
     {
         private readonly IInventoryRepository _inventoryRepository;
+        private readonly IEquipmentRepository _equipmentRepository;
+        private readonly IMaintenanceRepository _maintenanceRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public InventoryService(IInventoryRepository inventoryRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public InventoryService(
+            IInventoryRepository inventoryRepository, 
+            IEquipmentRepository equipmentRepository,
+            IMaintenanceRepository maintenanceRepository,
+            IMapper mapper, 
+            IUnitOfWork unitOfWork)
         {
             _inventoryRepository = inventoryRepository;
+            _equipmentRepository = equipmentRepository;
+            _maintenanceRepository = maintenanceRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -59,37 +67,6 @@ namespace GymForge.Application.Modules.Gym.Services
             return true;
         }
 
-        public async Task<List<EquipmentDto>> GetEquipmentAsync(Guid gymId)
-        {
-            List<Equipment> equipment = await _inventoryRepository.GetEquipmentByGymIdAsync(gymId);
-            return _mapper.Map<List<EquipmentDto>>(equipment);
-        }
-
-        public async Task<EquipmentDto> AddEquipmentAsync(CreateEquipmentDto dto, Guid gymId)
-        {
-            var equipment = _mapper.Map<Equipment>(dto);
-            equipment.GymId = gymId;
-            equipment.CreatedOn = DateTime.UtcNow;
-
-            await _inventoryRepository.AddEquipmentAsync(equipment);
-            await _unitOfWork.SaveChangesAsync();
-
-            return _mapper.Map<EquipmentDto>(equipment);
-        }
-
-        public async Task<bool> UpdateEquipmentAsync(Guid id, CreateEquipmentDto dto)
-        {
-            Equipment? equipment = await _inventoryRepository.GetEquipmentByIdAsync(id);
-            if (equipment == null) return false;
-
-            _mapper.Map(dto, equipment);
-            equipment.ModifiedOn = DateTime.UtcNow;
-
-            _inventoryRepository.UpdateEquipment(equipment);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
-
         public async Task<bool> RecordSaleAsync(RecordSaleDto dto, Guid gymId)
         {
             InventoryItem? product = await _inventoryRepository.GetProductByIdAsync(dto.ProductId);
@@ -123,65 +100,13 @@ namespace GymForge.Application.Modules.Gym.Services
             List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
             return _mapper.Map<List<SaleTransactionDto>>(sales);
         }
-    
-        public async Task<bool> LogMaintenanceAsync(LogMaintenanceDto dto)
-        {
-            MaintenanceLog? log;
-            
-            if (dto.Id.HasValue)
-            {
-                log = await _inventoryRepository.GetMaintenanceLogByIdAsync(dto.Id.Value);
-                if (log == null) return false;
-                _mapper.Map(dto, log);
-                _inventoryRepository.UpdateMaintenanceLog(log);
-            }
-            else
-            {
-                log = _mapper.Map<MaintenanceLog>(dto);
-                log.CreatedOn = DateTime.UtcNow;
-                await _inventoryRepository.AddMaintenanceLogAsync(log);
-            }
-            
-            var equipment = await _inventoryRepository.GetEquipmentByIdAsync(dto.EquipmentId);
-            if (equipment != null)
-            {
-                if (dto.Status == "Completed")
-                {
-                    equipment.HealthPercentage = 100;
-                    equipment.LastServiceDate = dto.CompletedDate ?? DateTime.UtcNow;
-                    equipment.CurrentCondition = "Excellent";
-                    equipment.IsInMaintenance = false;
-                }
-                else if (dto.Status == "In Progress" || dto.Status == "Scheduled")
-                {
-                    equipment.IsInMaintenance = true;
-                }
-                
-                _inventoryRepository.UpdateEquipment(equipment);
-            }
-
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<MaintenanceLogDto>> GetMaintenanceHistoryAsync(Guid equipmentId)
-        {
-            var logs = await _inventoryRepository.GetMaintenanceLogsByEquipmentIdAsync(equipmentId);
-            return _mapper.Map<List<MaintenanceLogDto>>(logs);
-        }
-
-        public async Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId)
-        {
-            var logs = await _inventoryRepository.GetAllMaintenanceLogsAsync(gymId);
-            return _mapper.Map<List<MaintenanceLogDto>>(logs);
-        }
 
         public async Task<InventoryStatsDto> GetInventoryStatsAsync(Guid gymId)
         {
             var products = await _inventoryRepository.GetProductsByGymIdAsync(gymId);
-            var equipment = await _inventoryRepository.GetEquipmentByGymIdAsync(gymId);
+            var equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId);
             var sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
-            var logs = await _inventoryRepository.GetAllMaintenanceLogsAsync(gymId);
+            var logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId);
             var today = DateTime.UtcNow.Date;
 
             var todaySales = sales.Where(s => s.TransactionDate.Date == today).ToList();

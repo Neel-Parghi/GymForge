@@ -46,6 +46,8 @@ namespace GymForge.Application
             services.AddScoped<IStaffService, StaffService>();
             
             services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IEquipmentService, EquipmentService>();
+            services.AddScoped<IMaintenanceService, MaintenanceService>();
             
             return services;
         }

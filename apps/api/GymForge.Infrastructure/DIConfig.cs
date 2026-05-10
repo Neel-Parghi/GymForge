@@ -86,6 +86,8 @@ namespace GymForge.Infrastructure
             services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddScoped<IInventoryRepository, InventoryRepository>();
+            services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+            services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))
