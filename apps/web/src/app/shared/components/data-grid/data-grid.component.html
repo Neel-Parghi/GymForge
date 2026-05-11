@@ -13,6 +13,7 @@
         <tr *ngFor="let row of data" 
           [class.selected]="isSelected(row)"
           [class.row-clickable]="isRowClickable"
+          [class.row-out-of-stock]="row.stockQuantity === 0"
           (click)="onRowClick(row, $event)">
           <td *ngIf="selectable" class="checkbox-col">
             <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
@@ -54,7 +55,8 @@
                 <i class="fa-solid fa-tools"></i>
               </button>
               <button *ngIf="row.sellingPrice !== undefined && !config.excludeActions?.includes('sell')" class="action-btn sell-btn"
-                (click)="onAction('sell', row); $event.stopPropagation()" title="Sell Product">
+                [disabled]="row.stockQuantity === 0"
+                (click)="row.stockQuantity > 0 && onAction('sell', row); $event.stopPropagation()" [title]="row.stockQuantity === 0 ? 'Out of Stock' : 'Sell Product'">
                 <i class="fa-solid fa-cart-shopping"></i>
               </button>
               <button *ngIf="!config.excludeActions?.includes('edit')" class="action-btn edit-btn" (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">

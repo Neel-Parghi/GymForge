@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, F
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
@@ -28,7 +29,7 @@ export class InventoryComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private memberService = inject(MemberService);
   private fileUploadService = inject(FileUploadService);
-
+  private route = inject(ActivatedRoute);
 
   activeTab: 'inventory' | 'equipment' | 'maintenance' | 'sales' = 'inventory';
   viewMode: 'list' | 'dashboard' = 'list';
@@ -129,7 +130,9 @@ export class InventoryComponent implements OnInit {
     lowStockCount: 0,
     maintenanceDueCount: 0,
     todaySalesAmount: 0,
-    todaySalesCount: 0
+    todaySalesCount: 0,
+    totalSalesAmount: 0,
+    totalSalesCount: 0
   };
 
   constructor() { }
@@ -137,6 +140,23 @@ export class InventoryComponent implements OnInit {
   ngOnInit(): void {
     this.initForms();
     this.loadData();
+
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      }
+      if (params['filter'] === 'lowStock') {
+        this.searchControl.setValue('');
+        setTimeout(() => {
+          this.inventoryItems = this.allInventoryItems.filter(p => p.stockQuantity <= p.reorderLevel);
+        }, 500);
+      } else if (params['filter'] === 'maintenance') {
+        this.equipmentViewMode = 'grid';
+        setTimeout(() => {
+          this.equipmentItems = this.allEquipmentItems.filter(e => e.health < 70 || e.status === 'Needs Repair');
+        }, 500);
+      }
+    });
 
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -308,6 +328,19 @@ export class InventoryComponent implements OnInit {
     this.selectedSaleProduct = this.allInventoryItems.find(p => p.id === val.productId);
     if (this.selectedSaleProduct) {
       this.saleTotal = this.selectedSaleProduct.sellingPrice * (val.quantity || 1);
+
+      const quantityControl = this.saleForm.get('quantity');
+      if (quantityControl) {
+        if (val.quantity > this.selectedSaleProduct.stockQuantity) {
+          quantityControl.setErrors({ ...quantityControl.errors, insufficientStock: true, max: this.selectedSaleProduct.stockQuantity });
+        } else if (val.quantity <= 0) {
+          quantityControl.setErrors({ ...quantityControl.errors, min: 1 });
+        } else {
+          const errors = { ...quantityControl.errors };
+          delete errors['insufficientStock'];
+          quantityControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+        }
+      }
     }
   }
 
@@ -421,7 +454,17 @@ export class InventoryComponent implements OnInit {
 
   emailReceipt() {
     if (!this.selectedSale) return;
-    this.notificationService.success(`Receipt emailed to ${this.selectedSale.memberName}`);
+    this.loading = true;
+    this.inventoryService.sendReceiptEmail(this.selectedSale.id).subscribe({
+      next: () => {
+        this.notificationService.success(`Receipt emailed to ${this.selectedSale.memberName}`);
+        this.loading = false;
+      },
+      error: (err) => {
+        this.notificationService.error(err.error?.message || 'Failed to email receipt');
+        this.loading = false;
+      }
+    });
   }
 
   editFromView() {

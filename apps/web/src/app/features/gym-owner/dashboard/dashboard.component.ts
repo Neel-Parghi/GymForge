@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GymOwnerStats } from '../../../core/services/gym-owner-dashboard.service';
 import { GymOwnerDashboardService } from '../../../core/services/gym-owner-dashboard.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-gym-owner-dashboard',
@@ -14,6 +15,7 @@ import { NotificationService } from '../../../core/services/notification.service
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(GymOwnerDashboardService);
   private notification = inject(NotificationService);
+  private router = inject(Router);
 
   stats: GymOwnerStats | null = null;
   isLoading = true;
@@ -34,19 +36,6 @@ export class DashboardComponent implements OnInit {
         console.error('Error loading dashboard stats:', err);
         this.notification.error('Failed to load dashboard statistics.');
         this.isLoading = false;
-
-        // Mock data for UI development if API is not ready
-        this.stats = {
-          totalMembers: 1250,
-          activeMembers: 1180,
-          frozenMembers: 45,
-          newMembersThisMonth: 45,
-          todayAttendance: 82,
-          monthlyRevenue: 154000,
-          pendingInvoices: 12,
-          lowStockItems: 3,
-          activeTrainers: 15
-        };
       }
     });
   }
@@ -54,5 +43,21 @@ export class DashboardComponent implements OnInit {
   getAttendancePercentage(): number {
     if (!this.stats) return 0;
     return Math.round((this.stats.todayAttendance / this.stats.activeMembers) * 100);
+  }
+
+  navigateToInventory(filter?: string): void {
+    const queryParams: any = {};
+    if (filter === 'lowStock') {
+      queryParams.tab = 'inventory';
+      queryParams.filter = 'lowStock';
+    } else if (filter === 'maintenance') {
+      queryParams.tab = 'equipment';
+      queryParams.filter = 'maintenance';
+    }
+    this.router.navigate(['/gym-owner/inventory'], { queryParams });
+  }
+
+  navigateToMembers(): void {
+    this.router.navigate(['/gym-owner/members']);
   }
 }

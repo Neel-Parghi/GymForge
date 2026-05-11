@@ -1,21 +1,14 @@
-<div class="standard-container">
+<div class="standard-container dashboard-container">
   <div class="page-header">
     <div class="header-info">
       <h2>Gym Overview</h2>
       <p>Performance metrics and operational overview of your gym.</p>
     </div>
-    <div class="header-actions">
-      <button class="btn-refresh" (click)="loadStats()" [class.spinning]="isLoading">
-        <i class="fa-solid fa-rotate"></i>
-      </button>
-      <button class="primary-btn">
-        <i class="fa-solid fa-plus"></i> Add Member
-      </button>
-    </div>
   </div>
 
   <!-- Stats Grid -->
   <div class="stats-grid">
+    <!-- Row 1: Members -->
     <div class="stat-card">
       <div class="stat-icon members">
         <i class="fa-solid fa-users"></i>
@@ -23,8 +16,9 @@
       <div class="stat-content">
         <span class="stat-label">Total Members</span>
         <h2 class="stat-value">{{ stats?.totalMembers || 0 }}</h2>
-        <span class="stat-trend up">
-          <i class="fa-solid fa-arrow-up"></i> 12% from last month
+        <span class="stat-trend" [ngClass]="(stats?.memberGrowthPercentage || 0) >= 0 ? 'up' : 'down'">
+          <i class="fa-solid" [ngClass]="(stats?.memberGrowthPercentage || 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i> 
+          {{ stats?.memberGrowthPercentage || 0 }}% from last month
         </span>
       </div>
     </div>
@@ -55,7 +49,8 @@
       </div>
     </div>
 
-    <div class="stat-card">
+    <!-- Attendance (Side Card) -->
+    <div class="stat-card attendance-card">
       <div class="stat-icon attendance">
         <i class="fa-solid fa-calendar-check"></i>
       </div>
@@ -71,6 +66,7 @@
       </div>
     </div>
 
+    <!-- Row 2: Inventory & Business -->
     <div class="stat-card">
       <div class="stat-icon revenue">
         <i class="fa-solid fa-indian-rupee-sign"></i>
@@ -78,13 +74,21 @@
       <div class="stat-content">
         <span class="stat-label">Monthly Revenue</span>
         <h2 class="stat-value">₹{{ (stats?.monthlyRevenue || 0) | number }}</h2>
-        <span class="stat-trend up">
-          <i class="fa-solid fa-arrow-up"></i> 8.4% target reach
-        </span>
+        <div class="revenue-breakdown">
+          <div class="breakdown-item">
+            <span class="label">Fees:</span>
+            <span class="value">₹{{ (stats?.membershipRevenue || 0) | number }}</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="label">Sales:</span>
+            <span class="value">₹{{ (stats?.productSalesRevenue || 0) | number }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="stat-card" [class.warning]="(stats?.lowStockItems || 0) > 0">
+    <div class="stat-card clickable" [class.warning]="(stats?.lowStockItems || 0) > 0"
+      (click)="navigateToInventory('lowStock')">
       <div class="stat-icon inventory">
         <i class="fa-solid fa-boxes-stacked"></i>
       </div>
@@ -95,8 +99,42 @@
           {{ stats?.lowStockItems }} items need restocking
         </span>
         <span class="stat-status success" *ngIf="(stats?.lowStockItems || 0) === 0">
-          All stock levels normal
+          Stock levels healthy
         </span>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" [class.danger]="(stats?.maintenanceDueCount || 0) > 0"
+      (click)="navigateToInventory('maintenance')">
+      <div class="stat-icon maintenance">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Maintenance Due</span>
+        <h2 class="stat-value">{{ stats?.maintenanceDueCount || 0 }}</h2>
+        <span class="stat-status" *ngIf="(stats?.maintenanceDueCount || 0) > 0">
+          {{ stats?.maintenanceDueCount }} assets need service
+        </span>
+        <span class="stat-status success" *ngIf="(stats?.maintenanceDueCount || 0) === 0">
+          All equipment functional
+        </span>
+      </div>
+    </div>
+
+    <!-- Row 3 or Special Row: Attendance -->
+    <div class="stat-card attendance-card">
+      <div class="stat-icon attendance">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Today's Attendance</span>
+        <h2 class="stat-value">{{ stats?.todayAttendance || 0 }}</h2>
+        <div class="stat-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getAttendancePercentage()"></div>
+          </div>
+          <span class="progress-text">{{ getAttendancePercentage() }}% capacity</span>
+        </div>
       </div>
     </div>
   </div>
@@ -107,7 +145,7 @@
     <div class="content-card main-section">
       <div class="card-header">
         <h3>Recent Enrollments</h3>
-        <button class="btn-text">View All</button>
+        <button class="btn-text" (click)="navigateToMembers()">View All</button>
       </div>
       <div class="table-container">
         <table class="dashboard-table">
@@ -120,19 +158,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let i of [1,2,3,4,5]">
+            <tr *ngFor="let enrollment of stats?.recentEnrollments">
               <td>
                 <div class="member-cell">
-                  <div class="member-avatar">NP</div>
+                  <div class="member-avatar">{{ enrollment.initials }}</div>
                   <div class="member-info">
-                    <span class="name">Neel Parghi</span>
-                    <span class="email">neel@example.com</span>
+                    <span class="name">{{ enrollment.memberName }}</span>
+                    <span class="email">{{ enrollment.email }}</span>
                   </div>
                 </div>
               </td>
-              <td>Premium Annual</td>
-              <td>Oct 24, 2023</td>
-              <td><span class="badge active">Active</span></td>
+              <td>{{ enrollment.planName }}</td>
+              <td>{{ enrollment.enrollmentDate | date:'mediumDate' }}</td>
+              <td><span class="badge" [ngClass]="enrollment.status.toLowerCase()">{{ enrollment.status }}</span></td>
             </tr>
           </tbody>
         </table>
@@ -147,10 +185,10 @@
           <h3>Upcoming Renewals</h3>
         </div>
         <div class="renewal-list">
-          <div class="renewal-item" *ngFor="let i of [1,2,3]">
+          <div class="renewal-item" *ngFor="let renewal of stats?.upcomingRenewals">
             <div class="renewal-info">
-              <span class="name">John Doe</span>
-              <span class="days">In 3 days</span>
+              <span class="name">{{ renewal.memberName }}</span>
+              <span class="days">In {{ renewal.daysRemaining }} days</span>
             </div>
             <button class="btn-icon">
               <i class="fa-solid fa-bell"></i>
@@ -171,7 +209,7 @@
           </div>
           <div class="staff-stat">
             <span class="label">Support Staff</span>
-            <span class="value">4</span>
+            <span class="value">{{ stats?.supportStaffCount || 0 }}</span>
           </div>
         </div>
       </div>

@@ -137,6 +137,10 @@ export class InventoryService extends BaseApiService {
     return this.salesCache$;
   }
 
+  sendReceiptEmail(saleId: string): Observable<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(`${API_CONSTANTS.INVENTORY.SALES}/${saleId}/receipt`, {});
+  }
+
   logMaintenance(payload: any): Observable<ApiResponse<any>> {
     return this.post<ApiResponse<any>>(API_CONSTANTS.INVENTORY.MAINTENANCE, payload).pipe(
       tap(() => {

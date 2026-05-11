@@ -51,8 +51,8 @@
       <div class="stat-icon"><i class="fas fa-receipt"></i></div>
       <div class="stat-info">
         <span class="stat-label">Total POS Sales</span>
-        <span class="stat-value">{{stats.todaySalesAmount | currency:'INR':'symbol'}}</span>
-        <span class="stat-meta">{{stats.todaySalesCount}} transactions recorded</span>
+        <span class="stat-value">{{stats.totalSalesAmount | currency:'INR':'symbol'}}</span>
+        <span class="stat-meta">Total {{stats.totalSalesCount}} transactions across all time</span>
       </div>
     </div>
   </div>
@@ -377,6 +377,9 @@
       <div class="form-group">
         <label>Quantity</label>
         <input type="number" formControlName="quantity" min="1">
+        <div class="error-message" *ngIf="saleForm.get('quantity')?.errors?.['insufficientStock']">
+          Only {{saleForm.get('quantity')?.errors?.['max']}} units available in stock.
+        </div>
       </div>
 
       <div class="form-group">
