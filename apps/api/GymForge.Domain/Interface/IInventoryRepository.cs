@@ -14,5 +14,6 @@ namespace GymForge.Domain.Interface
         // Sales & Stock
         Task<bool> RecordSaleAsync(SaleTransaction transaction);
         Task<List<SaleTransaction>> GetSalesByGymIdAsync(Guid gymId);
+        Task<SaleTransaction?> GetSaleByIdAsync(Guid id);
     }
 }

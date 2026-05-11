@@ -77,5 +77,13 @@ namespace GymForge.Infrastructure.Repositories
                 .OrderByDescending(x => x.TransactionDate)
                 .ToListAsync();
         }
+
+        public async Task<SaleTransaction?> GetSaleByIdAsync(Guid id)
+        {
+            return await _context.SaleTransactions
+                .Include(x => x.InventoryItem)
+                .Include(x => x.Member)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
     }
 }

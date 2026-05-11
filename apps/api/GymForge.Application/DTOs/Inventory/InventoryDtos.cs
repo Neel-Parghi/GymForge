@@ -16,7 +16,7 @@ namespace GymForge.Application.DTOs.Inventory
         public string StockStatus => StockQuantity switch
         {
             0 => "Out of Stock",
-            <= 10 => "Low Stock",
+            _ when StockQuantity <= ReorderLevel => "Low Stock",
             _ => "In Stock"
         };
     }

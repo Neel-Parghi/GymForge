@@ -11,6 +11,7 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IInventoryRepository _inventoryRepository;
         private readonly IEquipmentRepository _equipmentRepository;
         private readonly IMaintenanceRepository _maintenanceRepository;
+        private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -18,14 +19,39 @@ namespace GymForge.Application.Modules.Gym.Services
             IInventoryRepository inventoryRepository, 
             IEquipmentRepository equipmentRepository,
             IMaintenanceRepository maintenanceRepository,
+            IEmailService emailService,
             IMapper mapper, 
             IUnitOfWork unitOfWork)
         {
             _inventoryRepository = inventoryRepository;
             _equipmentRepository = equipmentRepository;
             _maintenanceRepository = maintenanceRepository;
+            _emailService = emailService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<bool> SendSaleReceiptAsync(Guid saleId)
+        {
+            var sale = await _inventoryRepository.GetSaleByIdAsync(saleId);
+            if (sale == null || sale.Member == null) return false;
+
+            try
+            {
+                await _emailService.SendReceiptEmailAsync(
+                    sale.Member.Email,
+                    $"{sale.Member.FirstName} {sale.Member.LastName}",
+                    sale.Id.ToString().Substring(0, 8).ToUpper(),
+                    sale.TotalAmount.ToString("N2"),
+                    sale.InventoryItem?.Name ?? "Gym Product",
+                    sale.TransactionDate.ToString("MMM dd, yyyy")
+                );
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<List<InventoryItemDto>> GetProductsAsync(Guid gymId)
@@ -70,7 +96,7 @@ namespace GymForge.Application.Modules.Gym.Services
         public async Task<bool> RecordSaleAsync(RecordSaleDto dto, Guid gymId)
         {
             InventoryItem? product = await _inventoryRepository.GetProductByIdAsync(dto.ProductId);
-            if (product == null) return false;
+            if (product == null || product.StockQuantity < dto.Quantity) return false;
 
             SaleTransaction transaction = new()
             {

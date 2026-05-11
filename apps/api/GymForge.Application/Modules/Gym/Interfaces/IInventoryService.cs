@@ -13,6 +13,7 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         // Sales
         Task<bool> RecordSaleAsync(RecordSaleDto dto, Guid gymId);
         Task<List<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId);
+        Task<bool> SendSaleReceiptAsync(Guid saleId);
 
         // Aggregated Stats
         Task<InventoryStatsDto> GetInventoryStatsAsync(Guid gymId);

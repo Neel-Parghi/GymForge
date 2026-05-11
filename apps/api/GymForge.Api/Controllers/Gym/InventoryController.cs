@@ -73,5 +73,13 @@ namespace GymForge.Api.Controllers.Gym
             if (GymId == null) return Unauthorized();
             return Ok(await _inventoryService.GetSalesHistoryAsync(GymId.Value));
         }
+
+        [HttpPost("sales/{id}/receipt")]
+        public async Task<ActionResult> SendReceipt(Guid id)
+        {
+            bool success = await _inventoryService.SendSaleReceiptAsync(id);
+            if (!success) return BadRequest(new { message = "Failed to send receipt email." });
+            return Ok(new { message = "Receipt email sent successfully." });
+        }
     }
 }
