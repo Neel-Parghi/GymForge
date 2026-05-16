@@ -21,10 +21,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll",
         policy =>
         {
-            policy.WithOrigins("https://gymforge-web.onrender.com", "http://localhost:4200")
+            policy.WithOrigins("https://gymforge-prod.vercel.app", 
+                                "https://gymforge-web.onrender.com",
+                                "http://localhost:4200")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .SetIsOriginAllowedToAllowWildcardSubdomains();
+                  .SetIsOriginAllowed(origin => 
+                      new Uri(origin).Host == "localhost" || 
+                      origin.EndsWith(".vercel.app") ||
+                      origin == "https://gymforge-prod.vercel.app" ||
+                      origin == "https://gymforge-web.onrender.com");
         });
 });
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
