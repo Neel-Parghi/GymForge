@@ -1,5 +1,6 @@
 using GymForge.Application.DTOs.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,10 +28,10 @@ namespace GymForge.Api.Controllers.Gym
         // --- Products ---
 
         [HttpGet("products")]
-        public async Task<ActionResult<List<InventoryItemDto>>> GetProducts()
+        public async Task<ActionResult<List<InventoryItemDto>>> GetProducts([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _inventoryService.GetProductsAsync(GymId.Value));
+            return Ok(await _inventoryService.GetProductsAsync(GymId.Value, pagination));
         }
 
         [HttpPost("products")]

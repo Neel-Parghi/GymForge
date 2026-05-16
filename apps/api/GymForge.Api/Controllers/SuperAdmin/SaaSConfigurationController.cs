@@ -8,7 +8,7 @@ namespace GymForge.Api.Controllers.SuperAdmin
 {
     [ApiController]
     [Route("api/superadmin/config")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,GymOwner")]
     public class SaaSConfigurationController : ControllerBase
     {
         private readonly ISaaSConfigurationService _configService;
@@ -26,6 +26,7 @@ namespace GymForge.Api.Controllers.SuperAdmin
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> UpdateConfig([FromBody] SaaSConfigurationDto configDto)
         {
             await _configService.UpdateConfigurationAsync(configDto);

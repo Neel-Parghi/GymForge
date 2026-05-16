@@ -46,6 +46,29 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm)
+        {
+            IQueryable<InventoryItem> query = _context.InventoryItems
+                .AsNoTracking()
+                .Where(x => x.GymId == gymId);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.SKU.ToLower().Contains(searchTerm));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            List<InventoryItem> items = await query
+                .OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public InventoryItem UpdateProduct(InventoryItem item)
         {
             if (_context.Entry(item).State == EntityState.Detached)

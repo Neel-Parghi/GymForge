@@ -1,9 +1,11 @@
 using AutoMapper;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Members;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -82,10 +84,21 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<GymMemberResponse>(member);
         }
 
-        public async Task<IEnumerable<GymMemberResponse>> GetGymMembersAsync(Guid gymId)
+        public async Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, PaginationParams pagination)
         {
-            IEnumerable<GymMember> members = await _memberRepository.GetAllByGymIdAsync(gymId);
-            return _mapper.Map<IEnumerable<GymMemberResponse>>(members);
+            (IEnumerable<GymMember> members, int totalCount) = await _memberRepository.GetPagedMembersAsync(
+                gymId,
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm);
+
+            IEnumerable<GymMemberResponse> items = _mapper.Map<IEnumerable<GymMemberResponse>>(members);
+
+            return new PagedResponse<GymMemberResponse>(
+                items,
+                totalCount,
+                pagination.PageNumber,
+                pagination.PageSize);
         }
 
         public async Task<GymMemberResponse?> GetMemberByIdAsync(Guid id)

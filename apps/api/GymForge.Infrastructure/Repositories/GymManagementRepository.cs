@@ -33,26 +33,41 @@ namespace GymForge.Infrastructure.Repositories
             await _dbContext.SubscriptionRecords.AddAsync(subscription);
         }
 
-        public async Task<List<GymOwnersDto>> GetGymOwnersList()
+        public async Task<(List<GymOwnersDto> Items, int TotalCount)> GetGymOwnersList(int pageNumber, int pageSize, string? searchTerm)
         {
-            return await _dbContext.Users
-                .Where(x => x.Role == UserRole.GymOwner)
-                .Select(u => new GymOwnersDto
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Name = u.FirstName + " " + u.LastName,
-                    Email = u.Email,
-                    Phone = u.Phone,
-                    GymsOwned = u.Gyms != null ? u.Gyms.Count : 0,
-                    JoinedDate = u.CreatedOn,
-                    Status = u.IsActive ? "Active" : "Inactive",
-                    InvitationStatus = u.IsInvitationAccepted ? "Accepted" :
+            IQueryable<User> query = _dbContext.Users.Where(x => x.Role == UserRole.GymOwner);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(u => u.FirstName.ToLower().Contains(searchTerm) ||
+                                       u.LastName.ToLower().Contains(searchTerm) ||
+                                       u.Email.ToLower().Contains(searchTerm) ||
+                                       u.Phone.ToLower().Contains(searchTerm));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            List<GymOwnersDto> items = await query.Select(u => new GymOwnersDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Name = u.FirstName + " " + u.LastName,
+                Email = u.Email,
+                Phone = u.Phone,
+                GymsOwned = u.Gyms != null ? u.Gyms.Count : 0,
+                JoinedDate = u.CreatedOn,
+                Status = u.IsActive ? "Active" : "Inactive",
+                InvitationStatus = u.IsInvitationAccepted ? "Accepted" :
                                      (u.InvitationExpiry > DateTime.UtcNow ? "Pending" : "Expired")
-                })
-                .OrderByDescending(u => u.JoinedDate)
-                .ToListAsync();
+            })
+            .OrderByDescending(u => u.JoinedDate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<User?> GetGymOwnerByIdAsync(Guid id)
@@ -61,9 +76,21 @@ namespace GymForge.Infrastructure.Repositories
             return user;
         }
 
-        public async Task<List<GymListResponseDto>> GetGymListAsync()
+        public async Task<(List<GymListResponseDto> Items, int TotalCount)> GetGymListAsync(int pageNumber, int pageSize, string? searchTerm)
         {
-            return await _dbContext.Gyms
+            IQueryable<Gym> query = _dbContext.Gyms.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(g => g.GymName.ToLower().Contains(searchTerm) ||
+                                       g.BrandName.ToLower().Contains(searchTerm) ||
+                                       g.Email.ToLower().Contains(searchTerm));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            List<GymListResponseDto> items = await query
                 .Include(x => x.Owner)
                 .Include(x => x.Branches)
                 .Select(g => new GymListResponseDto
@@ -107,7 +134,11 @@ namespace GymForge.Infrastructure.Repositories
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .OrderByDescending(g => g.CreatedOn)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public User UpdateGymOwner(User gymOwner)
@@ -142,6 +173,101 @@ namespace GymForge.Infrastructure.Repositories
                 .Include(b => b.Address)
                 .Where(b => b.GymId == gymId)
                 .OrderByDescending(b => b.CreatedOn)
+                .ToListAsync();
+        }
+
+        public async Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId)
+        {
+            return await _dbContext.Gyms
+                .Where(g => g.OwnerUserId == ownerId)
+                .Include(x => x.Owner)
+                .Include(x => x.Branches)
+                .Select(g => new GymListResponseDto
+                {
+                    Id = g.Id,
+                    GymName = g.GymName,
+                    BrandName = g.BrandName,
+                    OwnerName = g.Owner.FirstName + " " + g.Owner.LastName,
+                    Email = g.Email,
+                    Phone = g.Phone,
+                    IsActive = g.IsActive,
+                    IsVerified = g.IsVerified,
+                    BranchesCount = g.Branches != null ? g.Branches.Count : 0,
+                    Description = g.Description,
+                    WebsiteUrl = g.WebsiteUrl,
+                    GstNumber = g.GstNumber,
+                    RegistrationNumber = g.RegistrationNumber,
+                    EstablishedDate = g.EstablishedDate,
+                    LogoUrl = g.LogoUrl,
+                    BannerUrl = g.BannerUrl,
+                    CreatedOn = g.CreatedOn,
+                    ModifiedOn = (DateTime)g.ModifiedOn!,
+                    PlanName = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.Plan.Name)
+                        .FirstOrDefault(),
+                    SubscriptionExpiry = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => (DateTime?)s.EndDate)
+                        .FirstOrDefault(),
+                    IsTrialPlan = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.IsTrial)
+                        .FirstOrDefault(),
+                    PaymentStatus = _dbContext.SaaSPaymentTransactions
+                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
+                })
+                .FirstOrDefaultAsync();
+        }
+        public async Task<List<GymListResponseDto>> GetAllGymsAsync()
+        {
+            return await _dbContext.Gyms
+                .Include(x => x.Owner)
+                .Include(x => x.Branches)
+                .Select(g => new GymListResponseDto
+                {
+                    Id = g.Id,
+                    GymName = g.GymName,
+                    BrandName = g.BrandName,
+                    OwnerName = g.Owner.FirstName + " " + g.Owner.LastName,
+                    Email = g.Email,
+                    Phone = g.Phone,
+                    IsActive = g.IsActive,
+                    IsVerified = g.IsVerified,
+                    BranchesCount = g.Branches != null ? g.Branches.Count : 0,
+                    Description = g.Description,
+                    WebsiteUrl = g.WebsiteUrl,
+                    GstNumber = g.GstNumber,
+                    RegistrationNumber = g.RegistrationNumber,
+                    EstablishedDate = g.EstablishedDate,
+                    LogoUrl = g.LogoUrl,
+                    BannerUrl = g.BannerUrl,
+                    CreatedOn = g.CreatedOn,
+                    ModifiedOn = (DateTime)g.ModifiedOn!,
+                    PlanName = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.Plan.Name)
+                        .FirstOrDefault(),
+                    SubscriptionExpiry = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => (DateTime?)s.EndDate)
+                        .FirstOrDefault(),
+                    IsTrialPlan = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.IsTrial)
+                        .FirstOrDefault(),
+                    PaymentStatus = _dbContext.SaaSPaymentTransactions
+                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
+                })
+                .OrderByDescending(g => g.CreatedOn)
                 .ToListAsync();
         }
     }

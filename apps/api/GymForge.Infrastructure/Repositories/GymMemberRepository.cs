@@ -39,6 +39,32 @@ namespace GymForge.Infrastructure.Repositories
                                     .ToListAsync();
         }
 
+        public async Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm)
+        {
+            IQueryable<GymMember> query = _dbContext.GymMembers
+                                  .AsNoTracking()
+                                  .Include(x => x.Subscriptions)
+                                  .Include(x => x.Address)
+                                  .Where(x => x.GymId == gymId);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(x => x.FirstName.ToLower().Contains(searchTerm) ||
+                                       x.LastName.ToLower().Contains(searchTerm) ||
+                                       x.Email.ToLower().Contains(searchTerm) ||
+                                       x.MembershipNumber.ToLower().Contains(searchTerm));
+            }
+
+            int totalCount = await query.CountAsync();
+            List<GymMember> items = await query.OrderByDescending(x => x.CreatedOn)
+                                   .Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<GymMember?> GetByIdAsync(Guid id)
         {
             return await _dbContext.GymMembers

@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Onboarding;
 using GymForge.Contracts.Gym.Shared;
@@ -33,9 +34,9 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGymList()
+        public async Task<ActionResult> GetGymList([FromQuery] PaginationParams pagination)
         {
-            return Ok(await _gymManagementService.GetGymListAsync());
+            return Ok(await _gymManagementService.GetGymListAsync(pagination));
         }
 
         [HttpPut("{id}")]

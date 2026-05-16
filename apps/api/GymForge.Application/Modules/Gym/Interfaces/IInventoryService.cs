@@ -1,11 +1,13 @@
 using GymForge.Application.DTOs.Inventory;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Interfaces
 {
     public interface IInventoryService
     {
         // Inventory
-        Task<List<InventoryItemDto>> GetProductsAsync(Guid gymId);
+        Task<PagedResponse<InventoryItemDto>> GetProductsAsync(Guid gymId, PaginationParams pagination);
         Task<InventoryItemDto> AddProductAsync(CreateProductDto dto, Guid gymId);
         Task<InventoryItemDto?> UpdateProductAsync(Guid id, CreateProductDto dto);
         Task<bool> DeleteProductAsync(Guid id);

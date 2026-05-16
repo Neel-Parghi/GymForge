@@ -1,8 +1,10 @@
 using AutoMapper;
 using GymForge.Application.DTOs.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -54,10 +56,17 @@ namespace GymForge.Application.Modules.Gym.Services
             }
         }
 
-        public async Task<List<InventoryItemDto>> GetProductsAsync(Guid gymId)
+        public async Task<PagedResponse<InventoryItemDto>> GetProductsAsync(Guid gymId, PaginationParams pagination)
         {
-            List<InventoryItem> products = await _inventoryRepository.GetProductsByGymIdAsync(gymId);
-            return _mapper.Map<List<InventoryItemDto>>(products);
+            (IEnumerable<InventoryItem> items, int totalCount) = await _inventoryRepository.GetPagedProductsAsync(
+                gymId,
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm);
+
+            List<InventoryItemDto> dtos = _mapper.Map<List<InventoryItemDto>>(items);
+
+            return new PagedResponse<InventoryItemDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 
         public async Task<InventoryItemDto> AddProductAsync(CreateProductDto dto, Guid gymId)
@@ -129,16 +138,16 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<InventoryStatsDto> GetInventoryStatsAsync(Guid gymId)
         {
-            var products = await _inventoryRepository.GetProductsByGymIdAsync(gymId);
-            var equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId);
-            var sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
-            var logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId);
-            var today = DateTime.UtcNow.Date;
+            List<InventoryItem> products = await _inventoryRepository.GetProductsByGymIdAsync(gymId);
+            List<Equipment> equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId);
+            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
+            List<MaintenanceLog> logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId);
+            DateTime today = DateTime.UtcNow.Date;
 
-            var todaySales = sales.Where(s => s.TransactionDate.Date == today).ToList();
-            var recentSales = sales.Take(5).ToList();
+            List<SaleTransaction> todaySales = sales.Where(s => s.TransactionDate.Date == today).ToList();
+            List<SaleTransaction> recentSales = sales.Take(5).ToList();
 
-            var categoryStats = products
+            List<CategoryStatDto> categoryStats = products
                 .GroupBy(p => p.Category)
                 .Select(g => new CategoryStatDto
                 {
@@ -148,7 +157,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 })
                 .ToList();
 
-            var topProducts = sales
+            List<TopProductDto> topProducts = sales
                 .GroupBy(s => s.InventoryItemId)
                 .Select(g => {
                     var prod = products.FirstOrDefault(p => p.Id == g.Key);
@@ -163,7 +172,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 .Take(5)
                 .ToList();
 
-            var upcomingMaintenance = logs
+            List<UpcomingMaintenanceDto> upcomingMaintenance = logs
                 .Where(l => l.Status != "Completed" && l.EstimatedEndDate.HasValue && l.EstimatedEndDate.Value >= today)
                 .OrderBy(l => l.EstimatedEndDate)
                 .Take(5)

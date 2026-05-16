@@ -1,3 +1,4 @@
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Staff;
 using GymForge.Shared.Models;
 
@@ -6,7 +7,7 @@ namespace GymForge.Application.Modules.Gym.Interfaces
     public interface IStaffService
     {
         Task<StaffResponse> AddStaffAsync(Guid gymId, AddStaffRequest request);
-        Task<IEnumerable<StaffResponse>> GetGymStaffAsync(Guid gymId);
+        Task<PagedResponse<StaffResponse>> GetGymStaffAsync(Guid gymId, PaginationParams pagination);
         Task<StaffResponse?> GetStaffByIdAsync(Guid id);
         Task UpdateStaffAsync(Guid id, AddStaffRequest request);
         Task DeleteStaffAsync(Guid id);

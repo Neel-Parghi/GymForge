@@ -37,7 +37,10 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<bool> DeleteGymPlanAsync(Guid planId)
         {
-            var plan = await _dbContext.GymPlans.FindAsync(planId);
+            bool hasMembers = await _dbContext.MemberSubscriptions.AnyAsync(s => s.GymPlanId == planId);
+            if (hasMembers) return false;
+
+            GymPlan? plan = await _dbContext.GymPlans.FindAsync(planId);
             if (plan == null) return false;
 
             _dbContext.GymPlans.Remove(plan);

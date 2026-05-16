@@ -36,6 +36,31 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(IEnumerable<Staff> Items, int TotalCount)> GetPagedStaffAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm)
+        {
+            IQueryable<Staff> query = _dbContext.Staff
+                .AsNoTracking()
+                .Where(x => x.GymId == gymId);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(x => x.FirstName.ToLower().Contains(searchTerm) ||
+                                       x.LastName.ToLower().Contains(searchTerm) ||
+                                       x.Email.ToLower().Contains(searchTerm));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            List<Staff> items = await query
+                .OrderBy(x => x.LastName)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public Task UpdateAsync(Staff staff)
         {
             _dbContext.Staff.Update(staff);

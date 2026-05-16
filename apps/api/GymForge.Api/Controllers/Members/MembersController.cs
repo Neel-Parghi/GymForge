@@ -1,5 +1,6 @@
 using GymForge.Api.Middlewares;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Members;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,10 +38,10 @@ namespace GymForge.Api.Controllers.Members
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGymMembers()
+        public async Task<ActionResult> GetGymMembers([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _memberService.GetGymMembersAsync(GymId.Value));
+            return Ok(await _memberService.GetGymMembersAsync(GymId.Value, pagination));
         }
 
         [HttpGet("{id}")]

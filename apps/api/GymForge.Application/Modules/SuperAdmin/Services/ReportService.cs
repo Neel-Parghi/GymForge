@@ -58,7 +58,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
 
         private async Task<(byte[] Content, string FileName)> GenerateGymDirectoryReportAsync()
         {
-            List<GymListResponseDto> gyms = await _gymRepository.GetGymListAsync();
+            List<GymListResponseDto> gyms = await _gymRepository.GetAllGymsAsync();
             StringBuilder csv = new();
             
             csv.AppendLine("GymName,BrandName,Email,Phone,Website,GstNumber,RegNumber,EstablishedDate,Owner,IsVerified,JoinedDate");

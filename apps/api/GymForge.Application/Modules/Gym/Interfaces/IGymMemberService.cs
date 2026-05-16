@@ -1,11 +1,13 @@
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Members;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Interfaces
 {
     public interface IGymMemberService
     {
         Task<GymMemberResponse> OnboardMemberAsync(Guid gymId, OnboardMemberRequest request, Guid createdBy);
-        Task<IEnumerable<GymMemberResponse>> GetGymMembersAsync(Guid gymId);
+        Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, PaginationParams pagination);
         Task<GymMemberResponse?> GetMemberByIdAsync(Guid id);
         Task<GymMemberResponse> UpdateMemberAsync(Guid id, OnboardMemberRequest request, Guid updatedBy);
         Task<bool> ToggleMemberStatusAsync(Guid id);

@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Staff;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,10 +33,10 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGymStaff()
+        public async Task<ActionResult> GetGymStaff([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _staffService.GetGymStaffAsync(GymId.Value));
+            return Ok(await _staffService.GetGymStaffAsync(GymId.Value, pagination));
         }
 
         [HttpGet("{id}")]

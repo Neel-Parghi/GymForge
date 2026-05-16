@@ -1,7 +1,9 @@
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Owners;
 using GymForge.Contracts.Gym.Onboarding;
 using GymForge.Contracts.Gym.Shared;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Interfaces
 {
@@ -9,14 +11,15 @@ namespace GymForge.Application.Modules.Gym.Interfaces
     {
         Task OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto);
 
-        Task<List<GymOwnersDto>> GetGymOwnersList();
+        Task<PagedResponse<GymOwnersDto>> GetGymOwnersList(PaginationParams pagination);
         Task<GymOwnersDto> UpdateGymOwner(UpdateGymOwnerDto updateGymOwnerDto);
 
-        Task<List<GymListResponseDto>> GetGymListAsync();
+        Task<PagedResponse<GymListResponseDto>> GetGymListAsync(PaginationParams pagination);
         Task UpdateGymAsync(UpdateGymDto updateGymDto);
         Task<bool> DeleteGymAsync(Guid gymId);
         Task<bool> DeleteGymOwnerAsync(Guid ownerId);
         Task AddBranchAsync(Guid gymId, BranchDto branchDto);
         Task<List<BranchDto>> GetBranchesByGymIdAsync(Guid gymId);
+        Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId);
     }
 }

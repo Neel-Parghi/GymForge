@@ -1,10 +1,12 @@
 using AutoMapper;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Staff;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -90,10 +92,21 @@ namespace GymForge.Application.Modules.Gym.Services
             };
         }
 
-        public async Task<IEnumerable<StaffResponse>> GetGymStaffAsync(Guid gymId)
+        public async Task<PagedResponse<StaffResponse>> GetGymStaffAsync(Guid gymId, PaginationParams pagination)
         {
-            IEnumerable<Staff> staff = await _staffRepository.GetAllByGymIdAsync(gymId);
-            return _mapper.Map<IEnumerable<StaffResponse>>(staff);
+            (IEnumerable<Staff> staff, int totalCount) = await _staffRepository.GetPagedStaffAsync(
+                gymId,
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm);
+
+            IEnumerable<StaffResponse> items = _mapper.Map<IEnumerable<StaffResponse>>(staff);
+
+            return new PagedResponse<StaffResponse>(
+                items,
+                totalCount,
+                pagination.PageNumber,
+                pagination.PageSize);
         }
 
         public async Task<StaffResponse?> GetStaffByIdAsync(Guid id)

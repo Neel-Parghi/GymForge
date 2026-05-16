@@ -1,11 +1,13 @@
 using AutoMapper;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Owners;
 using GymForge.Contracts.Gym.Onboarding;
 using GymForge.Contracts.Gym.Shared;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -86,14 +88,24 @@ namespace GymForge.Application.Modules.Gym.Services
             await _unitOfWork.SaveChangesAsync();
         }
     
-        public async Task<List<GymOwnersDto>> GetGymOwnersList()
+        public async Task<PagedResponse<GymOwnersDto>> GetGymOwnersList(PaginationParams pagination)
         {
-            return await _gymManagementRepository.GetGymOwnersList();
+            (List<GymOwnersDto>items, int totalCount) = await _gymManagementRepository.GetGymOwnersList(
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm);
+
+            return new PagedResponse<GymOwnersDto>(items, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 
-        public async Task<List<GymListResponseDto>> GetGymListAsync()
+        public async Task<PagedResponse<GymListResponseDto>> GetGymListAsync(PaginationParams pagination)
         {
-            return await _gymManagementRepository.GetGymListAsync();
+            (List<GymListResponseDto> items, int totalCount) = await _gymManagementRepository.GetGymListAsync(
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm);
+
+            return new PagedResponse<GymListResponseDto>(items, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 
         public async Task<GymOwnersDto> UpdateGymOwner(UpdateGymOwnerDto updateGymOwnerDto)
@@ -170,6 +182,11 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             List<Branch> branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
             return _mapper.Map<List<BranchDto>>(branches);
+        }
+
+        public async Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId)
+        {
+            return await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId);
         }
     }
 }

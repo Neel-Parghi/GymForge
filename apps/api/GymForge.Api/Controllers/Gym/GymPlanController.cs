@@ -48,7 +48,12 @@ namespace GymForge.Api.Controllers.Gym
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteGymPlanAsync(Guid id)
         {
-            return Ok(await _gymPlanService.DeleteGymPlanAsync(id));
+            bool deleted = await _gymPlanService.DeleteGymPlanAsync(id);
+            if (!deleted)
+            {
+                return Ok(new { Success = false, Message = "PLAN_HAS_MEMBERS" });
+            }
+            return Ok(new { Success = true, Message = "Plan deleted successfully" });
         }
     }
 }

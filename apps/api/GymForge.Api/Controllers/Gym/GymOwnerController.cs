@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
 using GymForge.Contracts.Gym.Owners;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,9 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGymOwnersList()
+        public async Task<ActionResult> GetGymOwnersList([FromQuery] PaginationParams pagination)
         {
-            List<GymOwnersDto> owners = await _gymManagementService.GetGymOwnersList();
-            return Ok(owners);
+            return Ok(await _gymManagementService.GetGymOwnersList(pagination));
         }
 
         [HttpPut("{id}")]
