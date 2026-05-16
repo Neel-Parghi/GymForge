@@ -78,7 +78,7 @@
 
   <!-- Data Grid -->
   <app-data-grid *ngIf="viewMode === 'list' && !loading" [config]="gridConfig" [data]="filteredMembers"
-    [totalItems]="filteredMembers.length" [pageSize]="pageSize" [currentPage]="currentPage"
+    [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
     (actionEvent)="onAction($event)" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
 
     <ng-template #emptyState>

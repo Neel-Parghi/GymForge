@@ -15,11 +15,12 @@ import { StaffDetailDrawerComponent } from './staff-detail-drawer/staff-detail-d
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { DropdownComponent } from "../../../shared/components/dropdown/dropdown.component";
+import { FilterBarComponent } from "../../../shared/components/filter-bar/filter-bar.component";
 
 @Component({
   selector: 'app-staff-list',
   standalone: true,
-  imports: [CommonModule, DataGrid, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, DropdownComponent],
+  imports: [CommonModule, DataGrid, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, DropdownComponent, FilterBarComponent],
   templateUrl: './staff-list.component.html',
   styleUrl: './staff-list.component.scss'
 })
@@ -30,7 +31,6 @@ export class StaffListComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   staff: StaffResponse[] = [];
-  filteredStaff: StaffResponse[] = [];
   isLoading = true;
   isAddStaffModalOpen = false;
   isEditMode = false;
@@ -41,38 +41,31 @@ export class StaffListComponent implements OnInit {
   selectedStaff: StaffResponse | null = null;
   gridConfig = AppGridConfig['StaffList'];
 
-  searchControl = new FormControl('');
-  activeFilter = 'all';
+  // Pagination & Filtering state
+  totalItems = 0;
   pageSize = 10;
   currentPage = 1;
+  searchTerm = '';
+  activeFilterRole: string = '';
 
-  filterTabs = [
-    { label: 'All Staff', value: 'all' },
-    { label: 'Trainers', value: 'trainer' },
-    { label: 'Management', value: 'admin' },
-    { label: 'Support', value: 'support' }
-  ];
-
-  roles = [
-    { value: 0, label: 'All Roles' },
-    { value: 1, label: 'Trainer' },
-    { value: 2, label: 'Receptionist' },
-    { value: 3, label: 'Manager' },
-    { value: 4, label: 'Cleaner' },
-    { value: 5, label: 'Yoga Instructor' },
-    { value: 6, label: 'Zumba Instructor' },
+  filterConfigs: any[] = [
+    {
+      key: 'role',
+      label: 'Role',
+      options: [
+        { value: '', label: 'All Roles' },
+        { value: '1', label: 'Trainer' },
+        { value: '2', label: 'Receptionist' },
+        { value: '3', label: 'Manager' },
+        { value: '4', label: 'Cleaner' },
+        { value: '5', label: 'Yoga Instructor' },
+        { value: '6', label: 'Zumba Instructor' },
+      ]
+    }
   ];
 
   ngOnInit(): void {
     this.loadStaff();
-
-    this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => {
-      this.filterStaff();
-    });
   }
 
   loadStaff(refresh = false): void {
@@ -83,14 +76,21 @@ export class StaffListComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.staffService.getGymStaff(refresh).subscribe({
+    this.staffService.getGymStaff(this.currentPage, this.pageSize, this.searchTerm, refresh).subscribe({
       next: (res) => {
-        this.staff = (res.data || []).map(s => ({
+        const staffData = res.data.items || [];
+        this.staff = staffData.map(s => ({
           ...s,
           fullName: `${s.firstName} ${s.lastName}`,
           roleName: this.staffService.getRoleName(s.role)
         }));
-        this.filterStaff();
+
+        // If we have a role filter active (from our local tabs or dropdown), we filter locally for now
+        // OR we could implement role filtering in backend too. 
+        // For now, let's assume the backend search handles name/email/staffNumber.
+        this.applyLocalFilters();
+
+        this.totalItems = res.data.totalCount;
         this.isLoading = false;
       },
       error: () => {
@@ -100,59 +100,44 @@ export class StaffListComponent implements OnInit {
     });
   }
 
-  setFilter(filter: string): void {
-    this.activeFilter = filter;
-    this.filterStaff();
-  }
-
-  onRoleFilter(role: any): void {
-    if (!role || role.value === 0) {
-      this.activeFilter = 'all';
-    } else {
-      this.activeFilter = role.value.toString();
-    }
-    this.filterStaff();
-  }
-
-  onSearch(): void {
-    this.filterStaff();
-  }
-
-  filterStaff(): void {
-    let filtered = [...this.staff];
-
-    if (this.activeFilter !== 'all') {
-      filtered = filtered.filter(s => {
+  applyLocalFilters(): void {
+    if (this.activeFilterRole && this.activeFilterRole !== 'all') {
+      this.staff = this.staff.filter(s => {
         const role = s.role;
-        const roleId = parseInt(this.activeFilter);
-        if (!isNaN(roleId)) {
-          return role === roleId;
-        }
+        const roleId = parseInt(this.activeFilterRole);
+        if (!isNaN(roleId)) return role === roleId;
 
-        if (this.activeFilter === 'trainer') {
-          return [1, 5, 6].includes(role); // Trainer, Yoga, Zumba
-        } else if (this.activeFilter === 'admin') {
-          return [2, 3].includes(role); // Receptionist, Manager
-        } else if (this.activeFilter === 'support') {
-          return [4, 0].includes(role); // Cleaner, Other
-        }
+        if (this.activeFilterRole === 'trainer') return [1, 5, 6].includes(role);
+        if (this.activeFilterRole === 'admin') return [2, 3].includes(role);
+        if (this.activeFilterRole === 'support') return [4, 0].includes(role);
         return true;
       });
     }
+  }
 
-    // Search Filtering
-    const searchQuery = this.searchControl.value || '';
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(s =>
-        s.firstName.toLowerCase().includes(query) ||
-        s.lastName.toLowerCase().includes(query) ||
-        s.email.toLowerCase().includes(query) ||
-        s.staffNumber.toLowerCase().includes(query)
-      );
-    }
+  onFilterChanged(filters: any): void {
+    this.searchTerm = filters.search || '';
+    this.activeFilterRole = filters.role || 'all';
+    this.currentPage = 1;
+    this.loadStaff();
+  }
 
-    this.filteredStaff = filtered;
+  onPageChanged(page: any) {
+    console.log(page)
+    this.currentPage = page;
+    this.loadStaff();
+  }
+
+  onPageSizeChanged(size: any) {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.loadStaff();
+  }
+
+  setFilter(filter: string): void {
+    this.activeFilterRole = filter;
+    this.currentPage = 1;
+    this.loadStaff();
   }
 
   onAddStaff(): void {

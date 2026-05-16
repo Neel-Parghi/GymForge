@@ -15,6 +15,7 @@ import { DropdownComponent } from '../dropdown/dropdown.component';
 export class FilterBarComponent implements OnInit, OnDestroy {
   @Input() placeholder: string = 'Search...';
   @Input() filterConfigs: FilterConfig[] = [];
+  @Input() debounce: number = 300;
   @Output() filterChanged = new EventEmitter<any>();
 
   searchControl = new FormControl('');
@@ -33,7 +34,7 @@ export class FilterBarComponent implements OnInit, OnDestroy {
     });
 
     this.searchControl.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(this.debounce),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(() => {
@@ -54,6 +55,10 @@ export class FilterBarComponent implements OnInit, OnDestroy {
       ctrl.setValue('', { emitEvent: false });
     });
     this.emitFilterChange();
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
   }
 
   private emitFilterChange(): void {

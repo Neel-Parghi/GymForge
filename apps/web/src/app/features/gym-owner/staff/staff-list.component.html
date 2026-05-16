@@ -52,36 +52,15 @@
   </div>
 
   <!-- Filter Bar (List View) -->
-  <div class="filter-bar" *ngIf="viewMode === 'list'">
-    <div class="filter-tabs">
-      <button *ngFor="let tab of filterTabs" class="filter-tab" [class.active]="activeFilter === tab.value"
-        (click)="setFilter(tab.value)">
-        {{ tab.label }}
-      </button>
-    </div>
-
-    <div class="advanced-filters">
-      <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" [formControl]="searchControl" placeholder="Search staff...">
-      </div>
-
-      <div class="dropdown-filters">
-        <app-dropdown [options]="roles" placeholder="All Roles" (selectionChange)="onRoleFilter($event)"
-          style="min-width: 160px;">
-        </app-dropdown>
-
-        <!-- <button class="refresh-btn" (click)="loadStaff(true)" [disabled]="isLoading" title="Refresh Data">
-          <i class="fa-solid fa-rotate" [class.fa-spin]="isLoading"></i>
-        </button> -->
-      </div>
-    </div>
-  </div>
+  <!-- Filter Bar (List View) -->
+  <app-filter-bar *ngIf="viewMode === 'list'" [filterConfigs]="filterConfigs" placeholder="Search staff by name or email..."
+    [debounce]="2000" (filterChanged)="onFilterChanged($event)">
+  </app-filter-bar>
 
   <!-- Data Grid (Only in List View) -->
-  <app-data-grid *ngIf="viewMode === 'list'" [config]="gridConfig" [data]="filteredStaff"
-    [totalItems]="filteredStaff.length" [pageSize]="pageSize" [currentPage]="currentPage"
-    (actionEvent)="onAction($event)">
+  <app-data-grid *ngIf="viewMode === 'list'" [config]="gridConfig" [data]="staff" [totalItems]="totalItems"
+    [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onAction($event)"
+    (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
   </app-data-grid>
 </div>
 

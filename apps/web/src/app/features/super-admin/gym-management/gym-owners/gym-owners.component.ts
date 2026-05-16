@@ -62,11 +62,12 @@ export class GymOwners implements OnInit {
     this.getGymOwners();
   }
 
-  getGymOwners() {
-    this.gymService.getGymOwnersList().subscribe({
-      next: (res: ApiResponse<GymOwnerResponse[]>) => {
-        this.originalData = res.data;
-        this.applyFilters({ search: '' });
+  getGymOwners(search: string = '') {
+    this.gymService.getGymOwnersList(this.currentPage, this.pageSize, search).subscribe({
+      next: (res) => {
+        this.displayData = res.data.items;
+        this.totalItems = res.data.totalCount;
+        this.filteredData = res.data.items;
       },
       error: (err: any) => {
         this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_LOAD_ERROR_MESSAGE);
@@ -76,25 +77,7 @@ export class GymOwners implements OnInit {
 
   applyFilters(filters: any) {
     this.currentPage = 1;
-
-    let results = [...this.originalData];
-
-    if (filters.search) {
-      const s = filters.search.toLowerCase();
-      results = results.filter(item =>
-        item.name.toLowerCase().includes(s) ||
-        item.email.toLowerCase().includes(s) ||
-        (item.name && item.name.toLowerCase().includes(s))
-      );
-    }
-
-    if (filters.status) {
-      results = results.filter(item => item.status === filters.status);
-    }
-
-    this.filteredData = results;
-    this.totalItems = results.length;
-    this.updateDisplayData();
+    this.getGymOwners(filters.search);
   }
 
   updateDisplayData() {
@@ -109,13 +92,13 @@ export class GymOwners implements OnInit {
 
   onPageChanged(page: number) {
     this.currentPage = page;
-    this.updateDisplayData();
+    this.getGymOwners();
   }
 
   onPageSizeChanged(size: number) {
     this.pageSize = size;
     this.currentPage = 1;
-    this.updateDisplayData();
+    this.getGymOwners();
   }
 
   openDrawer(rowInfo: GymOwnerResponse, action: string) {

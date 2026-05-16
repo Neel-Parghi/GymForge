@@ -36,6 +36,7 @@ export class InventoryComponent implements OnInit {
   equipmentViewMode: 'grid' | 'table' = 'grid';
   pageSize: number = 10;
   currentPage: number = 1;
+  totalItems: number = 0;
   loading = false;
 
   // Drawer & View States
@@ -159,11 +160,12 @@ export class InventoryComponent implements OnInit {
     });
 
     this.searchControl.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(1000),
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
-      this.filterInventory();
+      this.currentPage = 1;
+      this.loadProducts();
     });
   }
 
@@ -187,7 +189,7 @@ export class InventoryComponent implements OnInit {
   loadMembers() {
     this.memberService.getGymMembers().subscribe({
       next: (res) => {
-        const members = res.data || [];
+        const members = res.data?.items || [];
         this.memberOptions = members.map(m => ({
           label: `${m.firstName} ${m.lastName} (${m.membershipNumber})`,
           value: m.id
@@ -198,12 +200,15 @@ export class InventoryComponent implements OnInit {
 
   loadProducts() {
     this.loading = true;
-    this.inventoryService.getProducts().subscribe({
+    const search = this.searchControl.value || '';
+    this.inventoryService.getProducts(this.currentPage, this.pageSize, search).subscribe({
       next: (res) => {
-        const products = res.data || [];
-        this.allInventoryItems = [...products];
-        this.inventoryItems = [...this.allInventoryItems];
-        this.productOptions = products.map(p => ({ label: p.name, value: p.id }));
+        if (res.success && res.data) {
+          this.inventoryItems = res.data.items || [];
+          this.totalItems = res.data.totalCount || 0;
+
+          this.productOptions = this.inventoryItems.map(p => ({ label: p.name, value: p.id }));
+        }
         this.loading = false;
       },
       error: () => {
@@ -240,20 +245,20 @@ export class InventoryComponent implements OnInit {
   }
 
   filterInventory() {
-    const query = this.searchControl.value?.toLowerCase().trim() || '';
-    if (!query) {
-      this.inventoryItems = [...this.allInventoryItems];
-      this.equipmentItems = [...this.allEquipmentItems];
-      return;
-    }
-    this.inventoryItems = this.allInventoryItems.filter(item =>
-      (item.name?.toLowerCase().includes(query) || false) ||
-      (item.sku?.toLowerCase().includes(query) || false)
-    );
-    this.equipmentItems = this.allEquipmentItems.filter(item =>
-      (item.name?.toLowerCase().includes(query) || false) ||
-      (item.serialNumber?.toLowerCase().includes(query) || false)
-    );
+    // Now handled by loadProducts with search parameter
+    this.currentPage = 1;
+    this.loadProducts();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadProducts();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.loadProducts();
   }
 
   private initForms() {

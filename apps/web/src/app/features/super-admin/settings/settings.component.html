@@ -5,7 +5,7 @@
       <h1>Platform Settings</h1>
       <p>Configure platform identity, strategic targets, and global status</p>
     </div>
-    <button class="save-btn" [disabled]="settingsForm.invalid || saving" (click)="saveSettings()">
+    <button *ngIf="isAdmin" class="save-btn" [disabled]="settingsForm.invalid || saving" (click)="saveSettings()">
       <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
       {{ saving ? 'Saving...' : 'Save Changes' }}
     </button>

@@ -46,6 +46,7 @@ export class MembersListComponent implements OnInit {
   loading = false;
   gymId: string | null = null;
   gymOwnerId: string | null = null;
+  totalItems = 0;
 
   // Filter Form
   filterForm!: FormGroup;
@@ -70,9 +71,8 @@ export class MembersListComponent implements OnInit {
 
   readonly paymentOptions: DropdownOption[] = [
     { label: 'All Payments', value: 'all' },
-    { label: 'Paid', value: '2' },
-    { label: 'Unpaid', value: '0' },
     { label: 'Pending', value: '1' },
+    { label: 'Paid', value: '2' },
     { label: 'Partial', value: '3' },
     { label: 'Refunded', value: '4' }
   ];
@@ -126,11 +126,12 @@ export class MembersListComponent implements OnInit {
     });
 
     this.filterForm.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(1000),
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
-      this.filterMembers();
+      this.currentPage = 1;
+      this.loadMembers();
     });
   }
 
@@ -138,11 +139,14 @@ export class MembersListComponent implements OnInit {
   loadMembers(): void {
     if (!this.gymId) return;
     this.loading = true;
-    this.memberService.getGymMembers()
+    const { search } = this.filterForm.value;
+
+    this.memberService.getGymMembers(this.currentPage, this.pageSize, search)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
-        next: (data) => {
-          this.members = data.data.map(m => ({
+        next: (res) => {
+          this.totalItems = res.data.totalCount;
+          this.members = res.data.items.map(m => ({
             ...m,
             statusLabel: this.getStatusLabel(m.status),
             currentSubscription: m.currentSubscription ? {
@@ -150,7 +154,7 @@ export class MembersListComponent implements OnInit {
               paymentStatusLabel: this.getPaymentStatusLabel(m.currentSubscription.paymentStatus)
             } : undefined
           }));
-          this.filterMembers();
+          this.applyLocalFilters();
         },
         error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.LOAD_ERROR)
       });
@@ -181,10 +185,10 @@ export class MembersListComponent implements OnInit {
   }
 
   // Filtering
-  filterMembers(): void {
+  applyLocalFilters(): void {
     let result = [...this.members];
 
-    const { search, plan, payment } = this.filterForm.value;
+    const { plan, payment } = this.filterForm.value;
 
     if (this.activeFilter !== 'all')
       result = result.filter(m => m.status === this.activeFilter);
@@ -195,23 +199,12 @@ export class MembersListComponent implements OnInit {
     if (payment !== 'all')
       result = result.filter(m => m.currentSubscription?.paymentStatus.toString() === payment);
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(m =>
-        m.firstName.toLowerCase().includes(q) ||
-        m.lastName.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.membershipNumber.toLowerCase().includes(q)
-      );
-    }
-
     this.filteredMembers = result;
-    this.currentPage = 1;
   }
 
   setFilter(f: MemberStatus | 'all'): void {
     this.activeFilter = f;
-    this.filterMembers();
+    this.applyLocalFilters();
   }
 
   // Grid events
@@ -245,8 +238,8 @@ export class MembersListComponent implements OnInit {
     });
   }
 
-  onPageChange(page: number): void { this.currentPage = page; }
-  onPageSizeChange(size: number): void { this.pageSize = size; this.currentPage = 1; }
+  onPageChange(page: number): void { this.currentPage = page; this.loadMembers(); }
+  onPageSizeChange(size: number): void { this.pageSize = size; this.currentPage = 1; this.loadMembers(); }
 
   openOnboardModal(): void {
     this.isEditMode = false;

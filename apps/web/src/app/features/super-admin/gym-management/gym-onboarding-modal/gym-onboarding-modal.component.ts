@@ -241,8 +241,8 @@ export class GymOnboardingModalComponent implements OnInit {
 
   getGymOwners() {
     this.gymService.getGymOwnersList().subscribe({
-      next: (res: ApiResponse<GymOwnerResponse[]>) => {
-        this.gymOwners = res.data;
+      next: (res) => {
+        this.gymOwners = res.data.items;
       },
       error: (err: any) => {
         this.notification.error(err.error?.message || CONSTANTS.GYM_OWNER_LOAD_ERROR_MESSAGE);

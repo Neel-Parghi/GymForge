@@ -254,12 +254,25 @@ export class GymPlansComponent implements OnInit {
     }).then(confirmed => {
       if (confirmed) {
         this.gymPlanService.deletePlan(plan.id).subscribe({
-          next: () => {
+          next: (res: any) => {
+            const data = res?.data || res;
+
+            if (data?.Success === false || data?.success === false) {
+              const message = (data?.Message || data?.message) === 'PLAN_HAS_MEMBERS'
+                ? CONSTANTS.GYM_PLANS_MODULE.GYM_PLAN_DELETE_VALIDATION_MESSAGE
+                : (data?.Message || data?.message || CONSTANTS.GYM_PLANS_MODULE.GYM_PLAN_DELETE_VALIDATION_MESSAGE);
+
+              this.notificationService.error(message);
+              return;
+            }
+
             this.notificationService.success(CONSTANTS.PLAN_DELETE_SUCCESS_MESSAGE);
             this.gymPlanService.clearCache();
             this.loadPlans();
           },
-          error: () => this.notificationService.error(CONSTANTS.PLAN_DELETE_ERROR_MESSAGE)
+          error: (err) => {
+            this.notificationService.error(err.error?.message || CONSTANTS.PLAN_DELETE_ERROR_MESSAGE);
+          }
         });
       }
     });

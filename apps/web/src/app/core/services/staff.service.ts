@@ -4,19 +4,28 @@ import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { StaffResponse, AddStaffRequest, MeasurementResponse, AddMeasurementRequest } from '../models/staff.model';
+import { PagedResponse } from '../../shared/models/paged-response.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StaffService extends BaseApiService {
 
-  private staffCache$: Observable<ApiResponse<StaffResponse[]>> | null = null;
+  private staffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
 
-  
-  getGymStaff(forceRefresh = false): Observable<ApiResponse<StaffResponse[]>> {
-    if (!this.staffCache$ || forceRefresh) {
-      this.staffCache$ = this.get<ApiResponse<StaffResponse[]>>(API_CONSTANTS.STAFF.LIST).pipe(shareReplay(1));
+
+  getGymStaff(page: number = 1, pageSize: number = 10, searchTerm: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
+    if (searchTerm || page !== 1 || pageSize !== 10 || forceRefresh) {
+      let url = `${API_CONSTANTS.STAFF.LIST}?pageNumber=${page}&pageSize=${pageSize}`;
+      if (searchTerm) url += `&searchTerm=${encodeURIComponent(searchTerm)}`;
+      return this.get<ApiResponse<PagedResponse<StaffResponse>>>(url);
+    }
+
+    if (!this.staffCache$) {
+      this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(`${API_CONSTANTS.STAFF.LIST}?pageNumber=1&pageSize=10`).pipe(
+        shareReplay(1)
+      );
     }
     return this.staffCache$;
   }

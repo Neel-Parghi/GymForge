@@ -4,6 +4,7 @@ import { API_CONSTANTS } from "../constants/api-constants";
 import { Observable, shareReplay, tap } from "rxjs";
 import { ApiResponse } from "../../shared/models/api-response.model";
 import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest } from "../../shared/models/gym.model";
+import { PagedResponse } from "../../shared/models/paged-response.model";
 
 import { AuthApiService } from "./auth-api.service";
 
@@ -13,27 +14,31 @@ import { AuthApiService } from "./auth-api.service";
 export class GymService extends BaseApiService {
     private authService = inject(AuthApiService);
 
-    private gymOwnersCache$?: Observable<ApiResponse<GymOwnerResponse[]>>;
-    private gymListCache$?: Observable<ApiResponse<GymListResponse[]>>;
+    private gymOwnersCache$?: Observable<ApiResponse<PagedResponse<GymOwnerResponse>>> | null;
+    private gymListCache$?: Observable<ApiResponse<PagedResponse<GymListResponse>>> | null;
     private branchesCache = new Map<string, Observable<ApiResponse<any[]>>>();
 
     constructor() {
         super();
         this.authService.userProfile$.subscribe(user => {
             if (!user) {
-                this.clearGymOwnersCache();
-                this.clearGymListCache();
-                this.branchesCache.clear();
+                this.clearCache();
             }
         });
     }
 
+    clearCache(): void {
+        this.gymOwnersCache$ = null;
+        this.gymListCache$ = null;
+        this.branchesCache.clear();
+    }
+
     clearGymOwnersCache(): void {
-        this.gymOwnersCache$ = undefined;
+        this.gymOwnersCache$ = null;
     }
 
     clearGymListCache(): void {
-        this.gymListCache$ = undefined;
+        this.gymListCache$ = null;
         this.branchesCache.clear();
     }
 
@@ -47,28 +52,39 @@ export class GymService extends BaseApiService {
 
     onboardGym(payload: OnboardGymRequest): Observable<ApiResponse<any>> {
         return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.ONBOARD, payload).pipe(
-            tap(() => {
-                this.clearGymOwnersCache();
-                this.clearGymListCache();
-            })
+            tap(() => this.clearGymListCache())
         );
     }
 
-    getGymOwnersList(forceRefresh = false): Observable<ApiResponse<GymOwnerResponse[]>> {
-        if (!this.gymOwnersCache$ || forceRefresh) {
-            this.gymOwnersCache$ = this.get<ApiResponse<GymOwnerResponse[]>>(API_CONSTANTS.GYM_OWNER.LIST).pipe(
+    getGymOwnersList(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymOwnerResponse>>> {
+        if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
+            const params: any = { pageNumber, pageSize };
+            if (search) params.searchTerm = search;
+            return this.get<ApiResponse<PagedResponse<GymOwnerResponse>>>(API_CONSTANTS.GYM_OWNER.LIST, params);
+        }
+
+        if (!this.gymOwnersCache$) {
+            this.gymOwnersCache$ = this.get<ApiResponse<PagedResponse<GymOwnerResponse>>>(API_CONSTANTS.GYM_OWNER.LIST, { pageNumber: 1, pageSize: 10 }).pipe(
                 shareReplay(1)
             );
         }
+
         return this.gymOwnersCache$;
     }
 
-    getGymList(forceRefresh = false): Observable<ApiResponse<GymListResponse[]>> {
-        if (!this.gymListCache$ || forceRefresh) {
-            this.gymListCache$ = this.get<ApiResponse<GymListResponse[]>>(API_CONSTANTS.GYM.LIST).pipe(
+    getGymList(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymListResponse>>> {
+        if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
+            const params: any = { pageNumber, pageSize };
+            if (search) params.searchTerm = search;
+            return this.get<ApiResponse<PagedResponse<GymListResponse>>>(API_CONSTANTS.GYM.LIST, params);
+        }
+
+        if (!this.gymListCache$) {
+            this.gymListCache$ = this.get<ApiResponse<PagedResponse<GymListResponse>>>(API_CONSTANTS.GYM.LIST, { pageNumber: 1, pageSize: 10 }).pipe(
                 shareReplay(1)
             );
         }
+
         return this.gymListCache$;
     }
 
@@ -82,7 +98,7 @@ export class GymService extends BaseApiService {
         return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM_OWNER.UPDATE}/${ownerId}`, payload).pipe(
             tap(() => {
                 this.clearGymOwnersCache();
-                this.clearGymListCache(); // In case owner details reflect on gym list
+                this.clearGymListCache();
             })
         );
     }
@@ -114,5 +130,9 @@ export class GymService extends BaseApiService {
         return this.post<ApiResponse<any>>(url, payload).pipe(
             tap(() => this.clearBranchesCache(gymId))
         );
+    }
+
+    getMyGym(): Observable<ApiResponse<GymListResponse>> {
+        return this.get<ApiResponse<GymListResponse>>(API_CONSTANTS.GYM.MY_GYM);
     }
 }

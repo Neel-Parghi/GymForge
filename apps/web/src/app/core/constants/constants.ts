@@ -177,6 +177,8 @@ export const CONSTANTS = {
         DELETE_CONFIRM: 'Are you sure you want to delete the plan "{name}"?',
         STATUS_UPDATE_SUCCESS: 'Plan {status} successfully',
         STATUS_UPDATE_ERROR: 'Failed to update plan status',
+        GYM_PLAN_DELETE_VALIDATION_MESSAGE: 'Cannot delete plan as it is currently associated with active members. Please reassign members to a different plan first.',
+
     },
     //#endregion
 

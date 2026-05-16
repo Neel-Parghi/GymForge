@@ -119,7 +119,7 @@ export class PaymentsComponent implements OnInit {
   loadGyms() {
     this.gymService.getGymList().subscribe({
       next: (res) => {
-        this.gyms = res.data;
+        this.gyms = res.data.items;
       }
     });
   }

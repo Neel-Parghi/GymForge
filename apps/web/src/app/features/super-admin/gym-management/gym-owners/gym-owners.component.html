@@ -11,7 +11,7 @@
     }
   </div>
 
-  <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search by name, email or gym..."
+  <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search by name, email or gym..." [debounce]="2000"
     (filterChanged)="onFilterChanged($event)">
   </app-filter-bar>
 

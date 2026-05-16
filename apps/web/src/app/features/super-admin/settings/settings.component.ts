@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
+import { AuthApiService } from '../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-settings',
@@ -18,11 +19,13 @@ export class SettingsComponent implements OnInit {
   private configService = inject(ConfigurationService);
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthApiService);
 
   settingsForm: FormGroup;
   activeTab: 'general' | 'strategy' | 'financial' | 'legal' = 'general';
   loading = true;
   saving = false;
+  isAdmin = false;
 
   constructor() {
     this.settingsForm = this.fb.group({
@@ -46,8 +49,12 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.isAdmin = this.authService.getUserRole() === 'SuperAdmin';
     this.checkQueryParams();
     this.loadSettings();
+    if (!this.isAdmin) {
+      this.settingsForm.disable();
+    }
   }
 
   private checkQueryParams() {

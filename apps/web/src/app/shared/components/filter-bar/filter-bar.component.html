@@ -3,6 +3,9 @@
   <div class="search-container">
     <i class="fa-solid fa-magnifying-glass search-icon"></i>
     <input type="text" [placeholder]="placeholder" [formControl]="searchControl" (input)="onSearch()">
+    <button class="clear-search" *ngIf="searchControl.value" (click)="clearSearch()" title="Clear search">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
   </div>
 
   <!-- Dynamic Filters -->

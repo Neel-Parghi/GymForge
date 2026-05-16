@@ -3,83 +3,30 @@ import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
-
-export interface InventoryItem {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  buyingPrice: number;
-  sellingPrice: number;
-  stockQuantity: number;
-  reorderLevel: number;
-  imageUrl?: string;
-  description?: string;
-  stockStatus: 'Out of Stock' | 'Low Stock' | 'In Stock';
-}
-
-export interface CreateProductRequest {
-  name: string;
-  sku: string;
-  category: string;
-  buyingPrice: number;
-  sellingPrice: number;
-  stockQuantity: number;
-  reorderLevel: number;
-  imageUrl?: string;
-  description?: string;
-}
-
-export interface Equipment {
-  id: string;
-  name: string;
-  serialNumber: string;
-  category: string;
-  condition: string;
-  health: number;
-  purchaseDate: string;
-  warrantyExpiry?: string;
-  lastService?: string;
-  status: 'Expired' | 'Pending' | 'Success';
-}
-
-export interface CreateEquipmentRequest {
-  name: string;
-  serialNumber: string;
-  category: string;
-  purchaseDate: string;
-  warrantyExpiry?: string;
-  condition: string;
-  maintenanceInterval: number;
-  initialHealth: number;
-  imageUrl?: string;
-}
-
-export interface SaleTransaction {
-  id: string;
-  memberName: string;
-  memberId: string;
-  productName: string;
-  quantity: number;
-  totalAmount: number;
-  date: string;
-  paymentMethod: string;
-}
+import { PagedResponse } from '../../shared/models/paged-response.model';
+import { InventoryItem, Equipment, SaleTransaction, CreateProductRequest, CreateEquipmentRequest } from '../../shared/models/inventory.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryService extends BaseApiService {
 
-  private productsCache$: Observable<ApiResponse<InventoryItem[]>> | null = null;
+  private productsCache$: Observable<ApiResponse<PagedResponse<InventoryItem>>> | null = null;
   private equipmentCache$: Observable<ApiResponse<Equipment[]>> | null = null;
   private salesCache$: Observable<ApiResponse<SaleTransaction[]>> | null = null;
   private maintenanceHistoryCache$: Observable<ApiResponse<any[]>> | null = null;
   private statsCache$: Observable<ApiResponse<any>> | null = null;
 
-  getProducts(forceRefresh = false): Observable<ApiResponse<InventoryItem[]>> {
-    if (!this.productsCache$ || forceRefresh) {
-      this.productsCache$ = this.get<ApiResponse<InventoryItem[]>>(API_CONSTANTS.INVENTORY.PRODUCTS).pipe(shareReplay(1));
+  getProducts(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<InventoryItem>>> {
+    if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
+      const params = `?pageNumber=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(search)}`;
+      return this.get<ApiResponse<PagedResponse<InventoryItem>>>(API_CONSTANTS.INVENTORY.PRODUCTS + params);
+    }
+
+    if (!this.productsCache$) {
+      this.productsCache$ = this.get<ApiResponse<PagedResponse<InventoryItem>>>(`${API_CONSTANTS.INVENTORY.PRODUCTS}?pageNumber=1&pageSize=10`).pipe(
+        shareReplay(1)
+      );
     }
     return this.productsCache$;
   }

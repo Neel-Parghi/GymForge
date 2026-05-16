@@ -77,8 +77,9 @@
 
       <!-- Data Grid for Inventory -->
       <app-data-grid *ngIf="activeTab === 'inventory'" [config]="inventoryGridConfig" [data]="inventoryItems"
-        [totalItems]="inventoryItems.length" [pageSize]="pageSize" [currentPage]="currentPage"
-        (actionEvent)="onInventoryAction($event)">
+        [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+        (actionEvent)="onInventoryAction($event)" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
       </app-data-grid>
 
       <!-- Equipment Management Section -->

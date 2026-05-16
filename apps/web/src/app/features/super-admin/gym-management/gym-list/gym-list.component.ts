@@ -63,14 +63,15 @@ export class GymList implements OnInit {
     this.loadGyms();
   }
 
-  loadGyms() {
+  loadGyms(search: string = '') {
     this.isLoading = true;
-    this.gymService.getGymList()
+    this.gymService.getGymList(this.currentPage, this.pageSize, search)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (res) => {
-          this.originalData = res.data || [];
-          this.applyFilters({ search: '' });
+          this.displayData = res.data.items;
+          this.totalItems = res.data.totalCount;
+          this.filteredData = res.data.items;
         },
         error: (err) => this.notification.error(err.error?.message || CONSTANTS.GYM_LOAD_ERROR_MESSAGE)
       });
@@ -90,24 +91,7 @@ export class GymList implements OnInit {
 
   applyFilters(filters: any) {
     this.currentPage = 1;
-    let results = [...this.originalData];
-
-    if (filters.search) {
-      const s = filters.search.toLowerCase();
-      results = results.filter(item =>
-        item.gymName.toLowerCase().includes(s) ||
-        item.brandName.toLowerCase().includes(s)
-      );
-    }
-
-    if (filters.status) {
-      const isStatusActive = filters.status === 'true';
-      results = results.filter(item => item.isActive === isStatusActive);
-    }
-
-    this.filteredData = results;
-    this.totalItems = results.length;
-    this.updateDisplayData();
+    this.loadGyms(filters.search);
   }
 
   updateDisplayData() {
@@ -122,13 +106,13 @@ export class GymList implements OnInit {
 
   onPageChanged(page: number) {
     this.currentPage = page;
-    this.updateDisplayData();
+    this.loadGyms();
   }
 
   onPageSizeChanged(size: number) {
     this.pageSize = size;
     this.currentPage = 1;
-    this.updateDisplayData();
+    this.loadGyms();
   }
 
   handleAction(event: { action: string, row: any }) {

@@ -10,11 +10,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let row of data" 
-          [class.selected]="isSelected(row)"
-          [class.row-clickable]="isRowClickable"
-          [class.row-out-of-stock]="row.stockQuantity === 0"
-          (click)="onRowClick(row, $event)">
+        <tr *ngFor="let row of data" [class.selected]="isSelected(row)" [class.row-clickable]="isRowClickable"
+          [class.row-out-of-stock]="row.stockQuantity === 0" (click)="onRowClick(row, $event)">
           <td *ngIf="selectable" class="checkbox-col">
             <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
           </td>
@@ -27,7 +24,8 @@
                 @if (row.profilePictureUrl || row.imageUrl) {
                 <img [src]="row.profilePictureUrl || row.imageUrl" alt="avatar">
                 } @else {
-                <span>{{ getNestedValue(row, col.key) ? getNestedValue(row, col.key)[0] : (row.firstName ? row.firstName[0] : '') }}</span>
+                <span>{{ getNestedValue(row, col.key) ? getNestedValue(row, col.key)[0] : (row.firstName ?
+                  row.firstName[0] : '') }}</span>
                 }
               </div>
               <div class="profile-info">
@@ -48,18 +46,23 @@
             <!-- Action Buttons -->
             @case ('action') {
             <div class="actions-cell">
-              <button *ngIf="!config.excludeActions?.includes('view')" class="action-btn view-btn" (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
+              <button *ngIf="!config.excludeActions?.includes('view')" class="action-btn view-btn"
+                (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button *ngIf="row.health !== undefined && !config.excludeActions?.includes('service')" class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()" title="Record Maintenance">
+              <button *ngIf="row.health !== undefined && !config.excludeActions?.includes('service')"
+                class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()"
+                title="Record Maintenance">
                 <i class="fa-solid fa-tools"></i>
               </button>
-              <button *ngIf="row.sellingPrice !== undefined && !config.excludeActions?.includes('sell')" class="action-btn sell-btn"
-                [disabled]="row.stockQuantity === 0"
-                (click)="row.stockQuantity > 0 && onAction('sell', row); $event.stopPropagation()" [title]="row.stockQuantity === 0 ? 'Out of Stock' : 'Sell Product'">
+              <button *ngIf="row.sellingPrice !== undefined && !config.excludeActions?.includes('sell')"
+                class="action-btn sell-btn" [disabled]="row.stockQuantity === 0"
+                (click)="row.stockQuantity > 0 && onAction('sell', row); $event.stopPropagation()"
+                [title]="row.stockQuantity === 0 ? 'Out of Stock' : 'Sell Product'">
                 <i class="fa-solid fa-cart-shopping"></i>
               </button>
-              <button *ngIf="!config.excludeActions?.includes('edit')" class="action-btn edit-btn" (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
+              <button *ngIf="!config.excludeActions?.includes('edit')" class="action-btn edit-btn"
+                (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
                 <i class="fa-solid fa-pen"></i>
               </button>
             </div>
@@ -98,7 +101,8 @@
             <!-- Currency -->
             @case ('currency') {
             <span class="currency-text">
-              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? (getNestedValue(row, col.key) | currency:'INR':'symbol') : '-' }}
+              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? (getNestedValue(row,
+              col.key) | currency:'INR':'symbol') : '-' }}
             </span>
             }
 
@@ -113,7 +117,8 @@
             @default {
             <span [class.clickable-cell]="col.isClickable"
               (click)="col.isClickable ? onAction('row-click', row) : null">
-              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? getNestedValue(row, col.key) : '-' }}
+              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? getNestedValue(row,
+              col.key) : '-' }}
             </span>
             }
             }
