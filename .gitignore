@@ -15,3 +15,8 @@ obj/
 
 # Env
 .env
+appsettings.Development.json
+appsettings.Local.json
+*.db
+*.db-shm
+*.db-wal
