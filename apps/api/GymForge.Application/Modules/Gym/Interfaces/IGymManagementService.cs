@@ -21,5 +21,6 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         Task AddBranchAsync(Guid gymId, BranchDto branchDto);
         Task<List<BranchDto>> GetBranchesByGymIdAsync(Guid gymId);
         Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId);
+        Task UpdateMyGymAsync(Guid ownerId, UpdateMyGymDto updateMyGymDto);
     }
 }

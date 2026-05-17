@@ -188,5 +188,18 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             return await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId);
         }
+
+        public async Task UpdateMyGymAsync(Guid ownerId, UpdateMyGymDto updateMyGymDto)
+        {
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync((await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId))?.Id ?? Guid.Empty);
+            if (gym == null)
+            {
+                throw new Exception("Gym not found for this owner.");
+            }
+
+            _mapper.Map(updateMyGymDto, gym);
+            _gymManagementRepository.UpdateGym(gym);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

@@ -23,5 +23,31 @@ namespace GymForge.Api.Controllers.Gym
             if (gym == null) return NotFound("Gym not found for this owner.");
             return Ok(gym);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateMyGym([FromBody] GymForge.Contracts.Gym.Owners.UpdateMyGymDto updateDto)
+        {
+            await _gymManagementService.UpdateMyGymAsync(UserId, updateDto);
+            return Ok(new { message = "Gym profile updated successfully." });
+        }
+        [HttpGet("branches")]
+        public async Task<IActionResult> GetMyBranches()
+        {
+            var gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
+            if (gym == null) return NotFound("Gym not found for this owner.");
+            
+            var branches = await _gymManagementService.GetBranchesByGymIdAsync(gym.Id);
+            return Ok(branches);
+        }
+
+        [HttpPost("branches")]
+        public async Task<IActionResult> AddMyBranch([FromBody] GymForge.Contracts.Gym.Shared.BranchDto branchDto)
+        {
+            var gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
+            if (gym == null) return NotFound("Gym not found for this owner.");
+            
+            await _gymManagementService.AddBranchAsync(gym.Id, branchDto);
+            return Ok(new { message = "Branch added successfully" });
+        }
     }
 }

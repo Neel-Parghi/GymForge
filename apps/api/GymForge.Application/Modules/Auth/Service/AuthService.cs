@@ -113,7 +113,9 @@ namespace GymForge.Application.Modules.Auth.Service
             {
                 Token = tokenResponse.RefreshToken,
                 Expires = DateTime.UtcNow.AddDays(7),
-                UserId = user.Id
+                UserId = user.Id,
+                CreatedOn = DateTime.UtcNow,
+                CreatedBy = user.Id
             };
 
             user.RefreshTokens.Add(refreshToken);

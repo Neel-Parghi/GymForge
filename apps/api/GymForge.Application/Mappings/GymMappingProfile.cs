@@ -17,6 +17,7 @@ namespace GymForge.Application.Mappings
             CreateMap<BranchDto, Branch>().ReverseMap();
 
             CreateMap<UpdateGymDto, Gym>();
+            CreateMap<UpdateMyGymDto, Gym>();
 
             CreateMap<OwnerDto, User>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => 
