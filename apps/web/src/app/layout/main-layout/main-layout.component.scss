@@ -257,6 +257,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 
   .topbar {
     height: var(--topbar-height);

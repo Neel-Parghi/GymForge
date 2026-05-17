@@ -110,37 +110,6 @@
             <button class="btn-manage" (click)="editBranch(branch)">Manage</button>
           </div>
         </div>
-
-        <!-- If no branches, show dummy branches like the design for preview -->
-        <div class="branch-list" *ngIf="branches.length === 0">
-          <div class="branch-item">
-            <div class="branch-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
-            <div class="branch-details">
-              <h4>Downtown Flagship</h4>
-              <p>Manager: Marcus Thorne</p>
-            </div>
-            <div class="branch-status"><span class="badge operational">OPERATIONAL</span></div>
-            <button class="btn-manage" (click)="addBranch()">Manage</button>
-          </div>
-          <div class="branch-item">
-            <div class="branch-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
-            <div class="branch-details">
-              <h4>Uptown Boutique</h4>
-              <p>Manager: Elena Rodriguez</p>
-            </div>
-            <div class="branch-status"><span class="badge operational">OPERATIONAL</span></div>
-            <button class="btn-manage" (click)="addBranch()">Manage</button>
-          </div>
-          <div class="branch-item">
-            <div class="branch-icon-wrap"><i class="fas fa-hammer"></i></div>
-            <div class="branch-details">
-              <h4>Eastside Powerhouse</h4>
-              <p>Manager: Pending Hire</p>
-            </div>
-            <div class="branch-status"><span class="badge setting-up">SETTING UP</span></div>
-            <button class="btn-manage" (click)="addBranch()">Setup</button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -206,29 +175,6 @@
           <button class="btn-sub-action">REQUEST PLAN UPGRADE</button>
         </div>
       </div>
-
-      <!-- Partner Health (Visual Parity) -->
-      <div class="card health-card">
-        <div class="card-header borderless">
-          <label class="tiny-label">PARTNER HEALTH</label>
-        </div>
-        <div class="health-stats">
-          <div class="big-percent">88% <span class="trend positive">+2.4%</span></div>
-
-          <div class="mini-chart">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar highlight"></div>
-          </div>
-
-          <p class="health-desc">Attendance across all branches is performing 12% above the baseline for this quarter.
-          </p>
-        </div>
-      </div>
-
 
       <div class="modal-overlay" *ngIf="isBranchModalOpen">
         <div class="modal-container">

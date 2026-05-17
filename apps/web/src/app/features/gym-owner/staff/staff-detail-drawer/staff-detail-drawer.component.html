@@ -147,18 +147,16 @@
     </ng-container>
   </div>
 
-  <div drawer-footer>
-    <div class="footer-actions" *ngIf="staff">
-      <div class="status-actions">
-        <button class="status-btn toggle" (click)="toggleStatus()">
-          <i class="fa-solid" [ngClass]="staff.isActive ? 'fa-user-slash' : 'fa-user-check'"></i>
-          {{ staff.isActive ? 'Deactivate' : 'Activate' }} Staff
-        </button>
-      </div>
-      <button class="manage-btn" (click)="onEdit()">
-        <i class="fa-solid fa-pen-to-square"></i>
-        Edit Staff Profile
+  <div drawer-footer class="drawer-actions" *ngIf="staff">
+    <div style="display: flex; gap: 12px;">
+      <button class="btn-outline" (click)="toggleStatus()">
+        <i class="fa-solid" [ngClass]="staff.isActive ? 'fa-user-slash' : 'fa-user-check'"></i>
+        {{ staff.isActive ? 'Deactivate' : 'Activate' }} Staff
       </button>
     </div>
+    <button class="btn-primary" (click)="onEdit()">
+
+      Edit Profile
+    </button>
   </div>
 </app-slide-drawer>
