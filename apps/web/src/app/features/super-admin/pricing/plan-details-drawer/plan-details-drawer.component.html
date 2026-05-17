@@ -69,14 +69,14 @@
     </form>
   </div>
 
-  <div drawer-footer class="drawer-footer">
+  <div drawer-footer class="drawer-actions">
     <ng-container *ngIf="!isEditing">
-      <button class="btn-cancel" (click)="onClose()">Close</button>
-      <button class="primary-btn" (click)="toggleEdit()">Edit Plan</button>
+      <button class="btn-outline" (click)="onClose()">Close</button>
+      <button class="btn-primary" (click)="toggleEdit()">Edit Plan</button>
     </ng-container>
 
     <ng-container *ngIf="isEditing">
-      <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+      <button class="btn-outline" (click)="cancelEdit()">Cancel</button>
       <button class="btn-success" [disabled]="editForm.invalid" (click)="save()">Save Changes</button>
     </ng-container>
   </div>
