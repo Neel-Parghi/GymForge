@@ -84,3 +84,16 @@ export interface UpdateGymOwnerRequest {
   status: boolean;
 }
 
+export interface UpdateMyGymRequest {
+  gymName: string;
+  brandName?: string;
+  email?: string;
+  phone?: string;
+  websiteUrl?: string;
+  description?: string;
+  gstNumber?: string;
+  registrationNumber?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+}
+

@@ -1,72 +1,73 @@
 <div class="modal-overlay" (click)="close.emit()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <div class="title-wrap">
-        <h2>Add New Branch</h2>
-        <p>Enter the location and contact details for the new gym branch.</p>
-      </div>
-      <button class="close-btn" (click)="close.emit()">
-        <i class="fas fa-times"></i>
-      </button>
+      <h2>Add New Branch</h2>
+      <button class="close-btn" (click)="close.emit()"><i class="fas fa-times"></i></button>
     </div>
-
-    <form [formGroup]="branchForm" (ngSubmit)="submit()" class="modal-body">
-      <div class="form-section">
-        <div class="form-group full-width">
+    <div class="modal-body">
+      <form [formGroup]="branchForm" class="flat-form stack-form">
+        <div class="form-group">
           <label>Branch Name</label>
-          <input type="text" formControlName="name" placeholder="e.g. Downtown Branch" />
+          <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
           <app-validation-message [control]="branchForm.get('name')" fieldName="Branch Name"></app-validation-message>
         </div>
-
-        <div formGroupName="address" class="address-grid">
-          <div class="form-group full-width">
-            <label>Address Line 1</label>
-            <input type="text" formControlName="line1" placeholder="Street address" />
-          </div>
-          <div class="form-group full-width">
-            <label>Address Line 2 (Optional)</label>
-            <input type="text" formControlName="line2" placeholder="Suite, unit, etc." />
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Open Time</label>
+            <input type="time" formControlName="openTime">
           </div>
           <div class="form-group">
-            <label>City</label>
-            <input type="text" formControlName="city" placeholder="City" />
-          </div>
-          <div class="form-group">
-            <label>State</label>
-            <input type="text" formControlName="state" placeholder="State" />
-          </div>
-          <div class="form-group">
-            <label>Country</label>
-            <input type="text" formControlName="country" placeholder="Country" />
-          </div>
-          <div class="form-group">
-            <label>Postal Code</label>
-            <input type="text" formControlName="postalCode" placeholder="Postal Code" />
+            <label>Close Time</label>
+            <input type="time" formControlName="closeTime">
           </div>
         </div>
 
-        <div class="form-grid-2">
+        <div class="form-group">
+          <label>Contact Number</label>
+          <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900">
+        </div>
+
+        <div formGroupName="address" class="address-group">
+          <h4 class="section-subtitle">Address Details</h4>
+          
           <div class="form-group">
-            <label>Contact Number</label>
-            <input type="text" formControlName="contactNumber" placeholder="Phone" />
+            <label>Street Line 1</label>
+            <input type="text" formControlName="line1" placeholder="123 Fitness Blvd">
           </div>
-          <div class="form-group time-group">
-            <label>Operating Hours</label>
-            <div class="time-inputs">
-              <input type="time" formControlName="openTime" />
-              <span>to</span>
-              <input type="time" formControlName="closeTime" />
+          <div class="form-group">
+            <label>Street Line 2 (Optional)</label>
+            <input type="text" formControlName="line2" placeholder="Suite 400">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" formControlName="city" placeholder="New York">
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" formControlName="state" placeholder="NY">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" formControlName="country" placeholder="USA">
+            </div>
+            <div class="form-group">
+              <label>Postal Code</label>
+              <input type="text" formControlName="postalCode" placeholder="10001">
             </div>
           </div>
         </div>
-      </div>
-    </form>
-
+      </form>
+    </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="close.emit()" [disabled]="isSubmitting">Cancel</button>
-      <button class="btn-primary" (click)="submit()" [disabled]="branchForm.invalid || isSubmitting">
-        <i class="fas" [class.fa-plus]="!isSubmitting" [class.fa-spinner]="isSubmitting" [class.fa-spin]="isSubmitting"></i>
-        {{ isSubmitting ? 'Adding Branch...' : 'Add Branch' }}
+      <button class="secondary-btn" (click)="close.emit()" [disabled]="isSubmitting">Cancel</button>
+      <button class="primary-btn" (click)="submit()" [disabled]="branchForm.invalid || isSubmitting">
+        <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i> {{ isSubmitting ? 'Adding...' : 'Add Branch' }}
       </button>
     </div>
   </div>

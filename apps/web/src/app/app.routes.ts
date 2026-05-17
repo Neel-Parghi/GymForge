@@ -52,8 +52,8 @@ export const routes: Routes = [
         loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
       },
       {
-        path: 'settings',
-        loadComponent: () => import('./features/super-admin/settings/settings.component').then(m => m.SettingsComponent)
+        path: 'my-gyms',
+        loadComponent: () => import('./features/gym-owner/my-gyms/my-gyms.component').then(m => m.MyGymsComponent)
       },
       {
         path: 'plans',

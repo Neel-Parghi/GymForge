@@ -3,7 +3,7 @@ import { BaseApiService } from "./base-api.service";
 import { API_CONSTANTS } from "../constants/api-constants";
 import { Observable, shareReplay, tap } from "rxjs";
 import { ApiResponse } from "../../shared/models/api-response.model";
-import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest } from "../../shared/models/gym.model";
+import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest, UpdateMyGymRequest } from "../../shared/models/gym.model";
 import { PagedResponse } from "../../shared/models/paged-response.model";
 
 import { AuthApiService } from "./auth-api.service";
@@ -134,5 +134,17 @@ export class GymService extends BaseApiService {
 
     getMyGym(): Observable<ApiResponse<GymListResponse>> {
         return this.get<ApiResponse<GymListResponse>>(API_CONSTANTS.GYM.MY_GYM);
+    }
+
+    updateMyGym(payload: UpdateMyGymRequest): Observable<ApiResponse<any>> {
+        return this.put<ApiResponse<any>>(API_CONSTANTS.GYM.MY_GYM, payload);
+    }
+
+    getMyBranches(): Observable<ApiResponse<any[]>> {
+        return this.get<ApiResponse<any[]>>(API_CONSTANTS.GYM.MY_BRANCHES);
+    }
+
+    addMyBranch(payload: any): Observable<ApiResponse<any>> {
+        return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.MY_BRANCHES, payload);
     }
 }
