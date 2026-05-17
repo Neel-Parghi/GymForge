@@ -15,7 +15,7 @@
         Export Report
       </button>
       <button class="primary-btn" id="btn-onboard-member" (click)="openOnboardModal()">
-        <i class="fa-solid fa-user-plus"></i> Onboard New Member
+        Onboard New Member
       </button>
     </div>
   </div>
@@ -78,8 +78,8 @@
 
   <!-- Data Grid -->
   <app-data-grid *ngIf="viewMode === 'list' && !loading" [config]="gridConfig" [data]="filteredMembers"
-    [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
-    (actionEvent)="onAction($event)" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
+    [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onAction($event)"
+    (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
 
     <ng-template #emptyState>
       <div class="empty-state">

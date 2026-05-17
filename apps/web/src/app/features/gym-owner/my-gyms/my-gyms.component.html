@@ -1,0 +1,310 @@
+<div class="app-dashboard-container">
+
+  <!-- Profile Header -->
+  <div class="profile-header-banner">
+    <div class="header-left">
+      <div class="logo-box" [class.editable]="isEditMode" (click)="logoInput.click()">
+        <img *ngIf="gymData?.logoUrl" [src]="gymData?.logoUrl" alt="Gym Logo">
+        <div class="placeholder-logo" *ngIf="!gymData?.logoUrl">
+          <i class="fas fa-dumbbell"></i>
+        </div>
+        <div class="logo-overlay" *ngIf="isEditMode">
+          <i class="fas fa-camera"></i>
+        </div>
+        <input type="file" #logoInput hidden accept="image/*" (change)="onLogoChange($event)" [disabled]="!isEditMode">
+      </div>
+      <div class="title-block">
+        <h1>{{ gymData?.gymName || 'GymForge Elite Athletics' }}</h1>
+        <div class="status-row">
+          <span class="badge active-partner">ACTIVE PARTNER</span>
+          <span class="since-text">Partner since {{ (gymData?.establishedDate | date:'MMM yyyy') || 'Oct 2021' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <ng-container *ngIf="!isEditMode">
+        <button class="primary-btn" (click)="toggleEditMode()">
+          <i class="fas fa-edit"></i> Edit Profile
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="isEditMode">
+        <button class="secondary-btn" (click)="cancelEdit()" [disabled]="isSaving">Cancel</button>
+        <button class="primary-btn" (click)="onSubmitProfile()" [disabled]="profileForm.invalid || isSaving">
+          <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="main-dashboard-grid">
+
+    <!-- Left Column (General Info & Branches) -->
+    <div class="grid-col-left">
+
+      <!-- General Information -->
+      <div class="card form-card">
+        <div class="card-header">
+          <h2>General Information</h2>
+          <!-- <i class="fas fa-bars card-icon text-muted"></i> -->
+        </div>
+
+        <form [formGroup]="profileForm" class="flat-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>GYM NAME</label>
+              <input type="text" formControlName="gymName" placeholder="Enter gym name">
+            </div>
+            <div class="form-group">
+              <label>BRAND NAME</label>
+              <input type="text" formControlName="brandName" placeholder="Enter brand name">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>PRIMARY EMAIL</label>
+              <input type="email" formControlName="email" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+              <label>CONTACT PHONE</label>
+              <input type="text" formControlName="phone" placeholder="+1 (555) 012-3456">
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>GYM DESCRIPTION</label>
+            <textarea formControlName="description" rows="4" placeholder="Briefly describe your facility..."></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Branches Management -->
+      <div class="card branches-card">
+        <div class="card-header">
+          <div class="header-text">
+            <h2>Branches Management</h2>
+            <p>Currently managing {{ branches.length }} active locations</p>
+          </div>
+          <button class="primary-btn" (click)="addBranch()">
+            Add New Branch
+          </button>
+        </div>
+
+        <div class="branch-list" *ngIf="branches.length > 0">
+          <div class="branch-item" *ngFor="let branch of branches">
+            <div class="branch-icon-wrap">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="branch-details">
+              <h4>{{ branch.name || 'Unnamed Branch' }}</h4>
+              <p>Manager: Pending Hire</p>
+            </div>
+            <div class="branch-status">
+              <span class="badge" [ngClass]="branch.isMainBranch ? 'operational' : 'setting-up'">
+                {{ branch.isMainBranch ? 'OPERATIONAL' : 'SETTING UP' }}
+              </span>
+            </div>
+            <button class="btn-manage" (click)="editBranch(branch)">Manage</button>
+          </div>
+        </div>
+
+        <!-- If no branches, show dummy branches like the design for preview -->
+        <div class="branch-list" *ngIf="branches.length === 0">
+          <div class="branch-item">
+            <div class="branch-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="branch-details">
+              <h4>Downtown Flagship</h4>
+              <p>Manager: Marcus Thorne</p>
+            </div>
+            <div class="branch-status"><span class="badge operational">OPERATIONAL</span></div>
+            <button class="btn-manage" (click)="addBranch()">Manage</button>
+          </div>
+          <div class="branch-item">
+            <div class="branch-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="branch-details">
+              <h4>Uptown Boutique</h4>
+              <p>Manager: Elena Rodriguez</p>
+            </div>
+            <div class="branch-status"><span class="badge operational">OPERATIONAL</span></div>
+            <button class="btn-manage" (click)="addBranch()">Manage</button>
+          </div>
+          <div class="branch-item">
+            <div class="branch-icon-wrap"><i class="fas fa-hammer"></i></div>
+            <div class="branch-details">
+              <h4>Eastside Powerhouse</h4>
+              <p>Manager: Pending Hire</p>
+            </div>
+            <div class="branch-status"><span class="badge setting-up">SETTING UP</span></div>
+            <button class="btn-manage" (click)="addBranch()">Setup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column (Billing, Sub, Health) -->
+    <div class="grid-col-right">
+
+      <!-- Legal & Billing -->
+      <div class="card form-card">
+        <div class="card-header">
+          <h2>Legal & Billing</h2>
+        </div>
+        <form [formGroup]="profileForm" class="flat-form stack-form">
+          <div class="form-group">
+            <label>WEBSITE URL</label>
+            <div class="input-with-icon">
+              <input type="text" formControlName="websiteUrl" placeholder="www.yourgym.com">
+              <i class="fas fa-external-link-alt text-muted"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>TAX/GST NUMBER</label>
+            <input type="text" formControlName="gstNumber" placeholder="TAX-9900-21-XX">
+          </div>
+          <div class="form-group">
+            <label>REGISTRATION NUMBER</label>
+            <input type="text" formControlName="registrationNumber" placeholder="REG-2021-GF-104">
+          </div>
+        </form>
+      </div>
+
+      <!-- Subscription Plan -->
+      <div class="card sub-card">
+        <div class="card-header borderless">
+          <h2>Subscription Plan</h2>
+          <i class="fas fa-check-circle badge-icon"></i>
+        </div>
+
+        <div class="sub-body">
+          <label class="tiny-label">CURRENT PLAN</label>
+          <h3>{{ gymData?.planName || 'Enterprise Multi-Branch' }}</h3>
+
+          <div class="metrics-row">
+            <div class="metric">
+              <label class="tiny-label">NEXT RENEWAL</label>
+              <p>{{ (gymData?.subscriptionExpiry | date:'MMM d, yyyy') || 'Oct 14, 2024' }}</p>
+            </div>
+            <div class="metric">
+              <label class="tiny-label">STATUS</label>
+              <p class="text-active">{{ gymData?.hasActiveSubscription ? 'Active' : 'Active' }}</p>
+            </div>
+          </div>
+
+          <div class="allowance-tracker">
+            <div class="tracker-header">
+              <label class="tiny-label">BRANCH ALLOWANCE</label>
+              <span>{{ branches.length || 3 }} / 10</span>
+            </div>
+            <div class="progress-bar">
+              <div class="fill" [style.width.%]="((branches.length || 3) / 10) * 100"></div>
+            </div>
+          </div>
+
+          <button class="btn-sub-action">REQUEST PLAN UPGRADE</button>
+        </div>
+      </div>
+
+      <!-- Partner Health (Visual Parity) -->
+      <div class="card health-card">
+        <div class="card-header borderless">
+          <label class="tiny-label">PARTNER HEALTH</label>
+        </div>
+        <div class="health-stats">
+          <div class="big-percent">88% <span class="trend positive">+2.4%</span></div>
+
+          <div class="mini-chart">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar highlight"></div>
+          </div>
+
+          <p class="health-desc">Attendance across all branches is performing 12% above the baseline for this quarter.
+          </p>
+        </div>
+      </div>
+
+
+      <div class="modal-overlay" *ngIf="isBranchModalOpen">
+        <div class="modal-container">
+          <div class="modal-header">
+            <h2>Add New Branch</h2>
+            <button class="close-btn" (click)="closeBranchModal()"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="branchForm" class="flat-form stack-form">
+              <div class="form-group">
+                <label>Branch Name</label>
+                <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Open Time</label>
+                  <input type="time" formControlName="openTime">
+                </div>
+                <div class="form-group">
+                  <label>Close Time</label>
+                  <input type="time" formControlName="closeTime">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Contact Number</label>
+                <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900">
+              </div>
+
+              <div formGroupName="address" class="address-group">
+                <h4 class="section-subtitle">Address Details</h4>
+
+                <div class="form-group">
+                  <label>Street Line 1</label>
+                  <input type="text" formControlName="line1" placeholder="123 Fitness Blvd">
+                </div>
+                <div class="form-group">
+                  <label>Street Line 2 (Optional)</label>
+                  <input type="text" formControlName="line2" placeholder="Suite 400">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>City</label>
+                    <input type="text" formControlName="city" placeholder="New York">
+                  </div>
+                  <div class="form-group">
+                    <label>State</label>
+                    <input type="text" formControlName="state" placeholder="NY">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" formControlName="country" placeholder="USA">
+                  </div>
+                  <div class="form-group">
+                    <label>Postal Code</label>
+                    <input type="text" formControlName="postalCode" placeholder="10001">
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="secondary-btn" (click)="closeBranchModal()" [disabled]="isSavingBranch">Cancel</button>
+            <button class="primary-btn" (click)="onSubmitBranch()" [disabled]="branchForm.invalid || isSavingBranch">
+              <i class="fas fa-spinner fa-spin" *ngIf="isSavingBranch"></i> {{ isSavingBranch ? 'Saving...' : 'Add
+              Branch' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
