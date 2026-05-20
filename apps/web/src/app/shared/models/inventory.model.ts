@@ -9,6 +9,7 @@ export interface InventoryItem {
     reorderLevel: number;
     imageUrl?: string;
     description?: string;
+    branchId?: string;
     stockStatus: 'Out of Stock' | 'Low Stock' | 'In Stock';
 }
 
@@ -22,6 +23,7 @@ export interface CreateProductRequest {
     reorderLevel: number;
     imageUrl?: string;
     description?: string;
+    branchId?: string;
 }
 
 export interface Equipment {
@@ -35,6 +37,7 @@ export interface Equipment {
     warrantyExpiry?: string;
     lastService?: string;
     status: 'Expired' | 'Pending' | 'Success';
+    branchId?: string;
 }
 
 export interface CreateEquipmentRequest {
@@ -47,6 +50,7 @@ export interface CreateEquipmentRequest {
     maintenanceInterval: number;
     initialHealth: number;
     imageUrl?: string;
+    branchId?: string;
 }
 
 export interface SaleTransaction {
@@ -58,4 +62,5 @@ export interface SaleTransaction {
     totalAmount: number;
     date: string;
     paymentMethod: string;
+    branchId?: string;
 }

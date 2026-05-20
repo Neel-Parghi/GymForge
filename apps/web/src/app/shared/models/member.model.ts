@@ -20,6 +20,7 @@ export interface GymMember {
   joiningDate: string;
   status: MemberStatus;
   currentSubscription?: MemberSubscription;
+  branchId?: string;
   // computed client-side for grid badge rendering
   statusLabel?: string;
 }
@@ -55,6 +56,7 @@ export interface OnboardMemberRequest {
   gymPlanId: string;
   startDate?: string;
   paymentStatus?: PaymentStatus;
+  branchId?: string;
 }
 
 export interface RenewSubscriptionRequest {

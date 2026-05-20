@@ -17,6 +17,7 @@ export interface StaffResponse {
   shiftTimings?: string;
   isActive: boolean;
   joiningDate: string;
+  branchId?: string;
 }
 
 export interface AddStaffRequest {
@@ -31,6 +32,7 @@ export interface AddStaffRequest {
   instagramUrl?: string;
   portfolioUrl?: string;
   shiftTimings?: string;
+  branchId?: string;
 }
 
 export interface MeasurementResponse {

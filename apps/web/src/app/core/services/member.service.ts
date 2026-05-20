@@ -6,6 +6,7 @@ import { Observable, shareReplay, tap } from 'rxjs';
 import { GymMember, MemberSubscription, OnboardMemberRequest, RenewSubscriptionRequest } from '../../shared/models/member.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
+import { BranchContextService } from './branch-context.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ import { PagedResponse } from '../../shared/models/paged-response.model';
 export class MemberService extends BaseApiService {
 
   private authService = inject(AuthApiService);
+  private branchContextService = inject(BranchContextService);
   private membersCache$?: Observable<ApiResponse<PagedResponse<GymMember>>> | null;
   private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
   private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
@@ -24,18 +26,27 @@ export class MemberService extends BaseApiService {
         this.clearCache();
       }
     });
+    this.branchContextService.activeBranch$.subscribe(() => {
+      this.clearCache();
+    });
   }
 
   onboardMember(payload: OnboardMemberRequest): Observable<ApiResponse<GymMember>> {
+    const branchId = this.branchContextService.getActiveBranchId();
+    if (branchId && !payload.branchId) {
+      payload.branchId = branchId;
+    }
     return this.post<ApiResponse<GymMember>>(API_CONSTANTS.MEMBERS.ONBOARD, payload).pipe(
       tap(() => this.clearCache())
     );
   }
 
   getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
-    if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
+    const branchId = this.branchContextService.getActiveBranchId();
+    if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh || branchId) {
       const params: any = { pageNumber, pageSize };
       if (search) params.searchTerm = search;
+      if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params);
     }
 
@@ -107,7 +118,12 @@ export class MemberService extends BaseApiService {
   }
 
   exportMembers(): Observable<Blob> {
-    return this.getBlob(API_CONSTANTS.MEMBERS.EXPORT);
+    const branchId = this.branchContextService.getActiveBranchId();
+    const params: any = {};
+    if (branchId) {
+      params.branchId = branchId;
+    }
+    return this.getBlob(API_CONSTANTS.MEMBERS.EXPORT, params);
   }
 
   clearCache(): void {

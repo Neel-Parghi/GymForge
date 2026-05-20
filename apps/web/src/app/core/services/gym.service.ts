@@ -147,4 +147,8 @@ export class GymService extends BaseApiService {
     addMyBranch(payload: any): Observable<ApiResponse<any>> {
         return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.MY_BRANCHES, payload);
     }
+
+    updateMyBranch(branchId: string, payload: any): Observable<ApiResponse<any>> {
+        return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload);
+    }
 }

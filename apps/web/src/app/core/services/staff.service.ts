@@ -5,25 +5,36 @@ import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { StaffResponse, AddStaffRequest, MeasurementResponse, AddMeasurementRequest } from '../models/staff.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
+import { BranchContextService } from './branch-context.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StaffService extends BaseApiService {
 
+  private branchContextService = inject(BranchContextService);
   private staffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
 
+  constructor() {
+    super();
+    this.branchContextService.activeBranch$.subscribe(() => {
+      this.clearCache();
+    });
+  }
+
 
   getGymStaff(page: number = 1, pageSize: number = 10, searchTerm: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
-    if (searchTerm || page !== 1 || pageSize !== 10 || forceRefresh) {
-      let url = `${API_CONSTANTS.STAFF.LIST}?pageNumber=${page}&pageSize=${pageSize}`;
-      if (searchTerm) url += `&searchTerm=${encodeURIComponent(searchTerm)}`;
-      return this.get<ApiResponse<PagedResponse<StaffResponse>>>(url);
+    const branchId = this.branchContextService.getActiveBranchId();
+    if (searchTerm || page !== 1 || pageSize !== 10 || forceRefresh || branchId) {
+      const params: any = { pageNumber: page, pageSize };
+      if (searchTerm) params.searchTerm = searchTerm;
+      if (branchId) params.branchId = branchId;
+      return this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params);
     }
 
     if (!this.staffCache$) {
-      this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(`${API_CONSTANTS.STAFF.LIST}?pageNumber=1&pageSize=10`).pipe(
+      this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, { pageNumber: 1, pageSize: 10 }).pipe(
         shareReplay(1)
       );
     }
@@ -35,6 +46,10 @@ export class StaffService extends BaseApiService {
   }
 
   addStaff(payload: AddStaffRequest): Observable<ApiResponse<StaffResponse>> {
+    const branchId = this.branchContextService.getActiveBranchId();
+    if (branchId && !payload.branchId) {
+      payload.branchId = branchId;
+    }
     return this.post<ApiResponse<StaffResponse>>(API_CONSTANTS.STAFF.LIST, payload).pipe(
       tap(() => this.clearCache())
     );

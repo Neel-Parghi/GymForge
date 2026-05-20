@@ -1,6 +1,6 @@
 export const API_CONSTANTS = {
-  //BASE_URL: 'https://localhost:7184/api/',
-  BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
+  BASE_URL: 'https://localhost:7184/api/',
+  // BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
 
 
   AUTH: {
@@ -34,6 +34,7 @@ export const API_CONSTANTS = {
     LIST: 'gym-owners',
     UPDATE: 'gym-owners',
     DELETE: 'gym-owners',
+    DASHBOARD: 'gym-owner/dashboard/stats'
   },
   PRICING: {
     LIST: 'saas-plans',
