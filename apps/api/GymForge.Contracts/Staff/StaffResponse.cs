@@ -26,5 +26,6 @@ namespace GymForge.Contracts.Staff
         public string? ShiftTimings { get; set; }
         public bool IsActive { get; set; }
         public DateTime JoiningDate { get; set; }
+        public Guid? BranchId { get; set; }
     }
 }

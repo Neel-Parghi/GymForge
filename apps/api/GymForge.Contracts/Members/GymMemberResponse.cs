@@ -20,6 +20,7 @@ namespace GymForge.Contracts.Members
         public List<string>? FitnessGoals { get; set; }
         public DateTime JoiningDate { get; set; }
         public MemberStatus Status { get; set; }
+        public Guid? BranchId { get; set; }
         public MemberSubscriptionResponse? CurrentSubscription { get; set; }
     }
 

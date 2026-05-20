@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260517174519_AddBranchToEquipmentAndSales")]
+    partial class AddBranchToEquipmentAndSales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,7 +69,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Branch", b =>
@@ -118,7 +121,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GymId");
 
-                    b.ToTable("Branches", (string)null);
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Equipment", b =>
@@ -188,7 +191,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GymId");
 
-                    b.ToTable("Equipment", (string)null);
+                    b.ToTable("Equipment");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Gym", b =>
@@ -261,7 +264,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OwnerUserId");
 
-                    b.ToTable("Gyms", (string)null);
+                    b.ToTable("Gyms");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.GymMember", b =>
@@ -354,7 +357,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("GymMembers", (string)null);
+                    b.ToTable("GymMembers");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.GymPlan", b =>
@@ -413,7 +416,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GymPlans", (string)null);
+                    b.ToTable("GymPlans");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.InventoryItem", b =>
@@ -479,7 +482,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GymId");
 
-                    b.ToTable("InventoryItems", (string)null);
+                    b.ToTable("InventoryItems");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MaintenanceLog", b =>
@@ -539,7 +542,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("EquipmentId");
 
-                    b.ToTable("MaintenanceLogs", (string)null);
+                    b.ToTable("MaintenanceLogs");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberMeasurement", b =>
@@ -594,7 +597,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RecordedById");
 
-                    b.ToTable("MemberMeasurements", (string)null);
+                    b.ToTable("MemberMeasurements");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberSubscription", b =>
@@ -655,7 +658,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("MemberSubscriptions", (string)null);
+                    b.ToTable("MemberSubscriptions");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.PTAssignment", b =>
@@ -703,7 +706,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TrainerId");
 
-                    b.ToTable("PTAssignments", (string)null);
+                    b.ToTable("PTAssignments");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Plan", b =>
@@ -752,7 +755,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Plans", (string)null);
+                    b.ToTable("Plans");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.RefreshToken", b =>
@@ -798,7 +801,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.SaaSConfiguration", b =>
@@ -877,7 +880,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SaaSConfigurations", (string)null);
+                    b.ToTable("SaaSConfigurations");
 
                     b.HasData(
                         new
@@ -949,7 +952,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SubscriptionId");
 
-                    b.ToTable("SaaSPaymentTransactions", (string)null);
+                    b.ToTable("SaaSPaymentTransactions");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.SaleTransaction", b =>
@@ -1008,7 +1011,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("SaleTransactions", (string)null);
+                    b.ToTable("SaleTransactions");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Staff", b =>
@@ -1096,7 +1099,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Staff", (string)null);
+                    b.ToTable("Staff");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.SubscriptionRecord", b =>
@@ -1148,7 +1151,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.ToTable("SubscriptionRecords", (string)null);
+                    b.ToTable("SubscriptionRecords");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.User", b =>
@@ -1217,7 +1220,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Branch", b =>

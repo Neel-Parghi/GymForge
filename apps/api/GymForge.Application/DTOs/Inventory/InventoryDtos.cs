@@ -12,6 +12,7 @@ namespace GymForge.Application.DTOs.Inventory
         public int ReorderLevel { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
+        public Guid? BranchId { get; set; }
 
         public string StockStatus => StockQuantity switch
         {
@@ -32,6 +33,7 @@ namespace GymForge.Application.DTOs.Inventory
         public int ReorderLevel { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
+        public Guid? BranchId { get; set; }
     }
 
     public class EquipmentDto
@@ -47,6 +49,7 @@ namespace GymForge.Application.DTOs.Inventory
         public DateTime? LastService { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsInMaintenance { get; set; }
+        public Guid? BranchId { get; set; }
 
         public string Status => IsInMaintenance ? "In Maintenance" : Health switch
         {
@@ -68,6 +71,7 @@ namespace GymForge.Application.DTOs.Inventory
         public int InitialHealth { get; set; } = 100;
         public DateTime? LastServiceDate { get; set; }
         public string? ImageUrl { get; set; }
+        public Guid? BranchId { get; set; }
     }
 
     public class RecordSaleDto

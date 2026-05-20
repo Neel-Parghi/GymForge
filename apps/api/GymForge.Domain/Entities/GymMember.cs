@@ -1,10 +1,12 @@
 using GymForge.Shared.Enums;
+using GymForge.Domain.Interface;
 
 namespace GymForge.Domain.Entities
 {
-    public class GymMember: BaseEntity
+    public class GymMember: BaseEntity, IBranchScoped
     {
         public Guid GymId { get; set; }
+        public Guid? BranchId { get; set; }
         public string MembershipNumber { get; set; } = string.Empty;
 
         public string FirstName { get; set; } = string.Empty;
@@ -32,6 +34,7 @@ namespace GymForge.Domain.Entities
         public MemberStatus Status { get; set; } 
 
         public Gym Gym { get; set; } = null!;
+        public Branch? Branch { get; set; }
         public ICollection<MemberSubscription> Subscriptions { get; set; } = new List<MemberSubscription>();
         public ICollection<MemberMeasurement> Measurements { get; set; } = new List<MemberMeasurement>();
     }

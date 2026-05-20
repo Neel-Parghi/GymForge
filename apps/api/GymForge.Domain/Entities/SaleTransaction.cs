@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using GymForge.Domain.Interface;
 
 namespace GymForge.Domain.Entities
 {
-    public class SaleTransaction : BaseEntity
+    public class SaleTransaction : BaseEntity, IBranchScoped
     {
         public Guid MemberId { get; set; }
         
@@ -29,5 +30,10 @@ namespace GymForge.Domain.Entities
 
         [ForeignKey("GymId")]
         public virtual Gym Gym { get; set; } = null!;
+
+        public Guid? BranchId { get; set; }
+
+        [ForeignKey("BranchId")]
+        public virtual Branch? Branch { get; set; }
     }
 }
