@@ -306,6 +306,22 @@
   &.stack-form {
     gap: 20px;
   }
+
+  .address-group {
+    margin-top: 16px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .section-subtitle {
+      margin: 0 0 4px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+  }
 }
 
 /* Branches Card */
@@ -392,18 +408,45 @@
       }
     }
 
-    .btn-manage {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      padding: 6px 16px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-dark);
-      cursor: pointer;
+    .branch-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
 
-      &:hover {
-        background: #f1f5f9;
+      .btn-icon {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: var(--accent-color);
+          transform: rotate(30deg);
+        }
+      }
+
+      .btn-manage {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: var(--primary-navy);
+          border-color: var(--primary-navy);
+          color: white;
+        }
       }
     }
   }
@@ -722,5 +765,228 @@
   100% {
     transform: scale(1) translateY(0);
     opacity: 1;
+  }
+}
+
+/* Premium Glassmorphic Plan Upgrade Styles */
+.upgrade-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.upgrade-modal {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 950px;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  padding: 32px;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: white;
+  animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 16px;
+
+    .header-content {
+      h2 {
+        margin: 0 0 8px 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 0.95rem;
+      }
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        color: white;
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+    }
+  }
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.plan-card {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-8px);
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(56, 189, 248, 0.3);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  &.active-plan {
+    background: rgba(14, 165, 233, 0.05);
+    border: 2px solid #0ea5e9;
+    box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2);
+
+    &:hover {
+      background: rgba(14, 165, 233, 0.08);
+      border-color: #38bdf8;
+    }
+  }
+
+  .active-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #0ea5e9;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .plan-header {
+    margin-bottom: 24px;
+
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+    }
+
+     .plan-description {
+      margin: 0 0 20px 0;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      min-height: 42px;
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      color: white;
+
+      .currency {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #38bdf8;
+      }
+
+      .amount {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -1px;
+        margin: 0 4px;
+      }
+
+      .duration {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .plan-features {
+    margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+
+      i {
+        color: #38bdf8;
+        font-size: 1rem;
+      }
+
+      strong {
+        color: white;
+      }
+    }
+  }
+
+  .btn-upgrade-action {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #0ea5e9, #4f46e5);
+    color: white;
+    letter-spacing: 0.5px;
+
+    &:hover:not(:disabled) {
+      transform: scale(1.02);
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+    }
+
+    &:disabled {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+      cursor: not-allowed;
+    }
   }
 }

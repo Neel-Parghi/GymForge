@@ -100,14 +100,19 @@
             </div>
             <div class="branch-details">
               <h4>{{ branch.name || 'Unnamed Branch' }}</h4>
-              <p>Manager: Pending Hire</p>
+              <p>Manager: {{ branch.managerName || 'Pending Hire' }}</p>
             </div>
             <div class="branch-status">
               <span class="badge" [ngClass]="branch.isMainBranch ? 'operational' : 'setting-up'">
                 {{ branch.isMainBranch ? 'OPERATIONAL' : 'SETTING UP' }}
               </span>
             </div>
-            <button class="btn-manage" (click)="editBranch(branch)">Manage</button>
+            <div class="branch-actions">
+              <button class="btn-icon" (click)="editBranch(branch)" title="Branch Settings">
+                <i class="fas fa-cog"></i>
+              </button>
+              <button class="btn-manage" (click)="manageBranch(branch)">Switch to Branch</button>
+            </div>
           </div>
         </div>
       </div>
@@ -172,81 +177,137 @@
             </div>
           </div>
 
-          <button class="btn-sub-action">REQUEST PLAN UPGRADE</button>
+          <button class="btn-sub-action" (click)="openUpgradeModal()">REQUEST PLAN UPGRADE</button>
         </div>
       </div>
 
-      <div class="modal-overlay" *ngIf="isBranchModalOpen">
-        <div class="modal-container">
-          <div class="modal-header">
-            <h2>Add New Branch</h2>
-            <button class="close-btn" (click)="closeBranchModal()"><i class="fas fa-times"></i></button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="branchForm" class="flat-form stack-form">
+      <!-- Branch Slide Drawer (Add & Settings) -->
+      <app-slide-drawer [isOpen]="isBranchDrawerOpen"
+        [title]="isEditingBranch ? 'Branch Settings' : 'Add New Branch'"
+        [subtitle]="isEditingBranch ? 'Modify branch details, address and timings' : 'Setup a new physical location for your gym'"
+        width="550px" (closeDrawer)="closeBranchDrawer()">
+
+        <div drawer-body class="form-container" *ngIf="isBranchDrawerOpen">
+          <form [formGroup]="branchForm" class="flat-form stack-form">
+            <div class="form-group">
+              <label>Branch Name</label>
+              <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
+            </div>
+
+            <div class="form-row">
               <div class="form-group">
-                <label>Branch Name</label>
-                <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
+                <label>Open Time</label>
+                <input type="time" formControlName="openTime">
+              </div>
+              <div class="form-group">
+                <label>Close Time</label>
+                <input type="time" formControlName="closeTime">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Contact Number</label>
+              <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900">
+            </div>
+
+            <div formGroupName="address" class="address-group">
+              <h4 class="section-subtitle">Address Details</h4>
+
+              <div class="form-group">
+                <label>Street Line 1</label>
+                <input type="text" formControlName="line1" placeholder="123 Fitness Blvd">
+              </div>
+              <div class="form-group">
+                <label>Street Line 2 (Optional)</label>
+                <input type="text" formControlName="line2" placeholder="Suite 400">
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>Open Time</label>
-                  <input type="time" formControlName="openTime">
+                  <label>City</label>
+                  <input type="text" formControlName="city" placeholder="New York">
                 </div>
                 <div class="form-group">
-                  <label>Close Time</label>
-                  <input type="time" formControlName="closeTime">
+                  <label>State</label>
+                  <input type="text" formControlName="state" placeholder="NY">
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Contact Number</label>
-                <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900">
-              </div>
-
-              <div formGroupName="address" class="address-group">
-                <h4 class="section-subtitle">Address Details</h4>
-
+              <div class="form-row">
                 <div class="form-group">
-                  <label>Street Line 1</label>
-                  <input type="text" formControlName="line1" placeholder="123 Fitness Blvd">
+                  <label>Country</label>
+                  <input type="text" formControlName="country" placeholder="USA">
                 </div>
                 <div class="form-group">
-                  <label>Street Line 2 (Optional)</label>
-                  <input type="text" formControlName="line2" placeholder="Suite 400">
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>City</label>
-                    <input type="text" formControlName="city" placeholder="New York">
-                  </div>
-                  <div class="form-group">
-                    <label>State</label>
-                    <input type="text" formControlName="state" placeholder="NY">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Country</label>
-                    <input type="text" formControlName="country" placeholder="USA">
-                  </div>
-                  <div class="form-group">
-                    <label>Postal Code</label>
-                    <input type="text" formControlName="postalCode" placeholder="10001">
-                  </div>
+                  <label>Postal Code</label>
+                  <input type="text" formControlName="postalCode" placeholder="10001">
                 </div>
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="secondary-btn" (click)="closeBranchModal()" [disabled]="isSavingBranch">Cancel</button>
-            <button class="primary-btn" (click)="onSubmitBranch()" [disabled]="branchForm.invalid || isSavingBranch">
-              <i class="fas fa-spinner fa-spin" *ngIf="isSavingBranch"></i> {{ isSavingBranch ? 'Saving...' : 'Add
-              Branch' }}
+            </div>
+          </form>
+        </div>
+
+        <div drawer-footer class="drawer-actions">
+          <button class="btn-outline" (click)="closeBranchDrawer()" [disabled]="isSavingBranch">Cancel</button>
+          <button class="btn-success" (click)="onSubmitBranch()" [disabled]="branchForm.invalid || isSavingBranch || (isEditingBranch && branchForm.pristine)">
+            <i class="fas fa-spinner fa-spin" *ngIf="isSavingBranch"></i>
+            {{ isSavingBranch ? 'Saving...' : (isEditingBranch ? 'Save Changes' : 'Add Branch') }}
+          </button>
+        </div>
+      </app-slide-drawer>
+
+      <!-- SaaS Plan Upgrade Modal -->
+      <div class="upgrade-modal-backdrop" *ngIf="isUpgradeModalOpen" (click)="closeUpgradeModal()">
+        <div class="upgrade-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div class="header-content">
+              <h2>Upgrade Your Subscription</h2>
+              <p>Unshackle your gym potential by upgrading to a higher tier plan.</p>
+            </div>
+            <button class="close-btn" (click)="closeUpgradeModal()">
+              <i class="fas fa-times"></i>
             </button>
+          </div>
+
+          <div class="plans-grid">
+            <div class="plan-card" *ngFor="let plan of pricingPlans" [class.active-plan]="gymData?.planName === plan.name">
+              <div class="active-badge" *ngIf="gymData?.planName === plan.name">ACTIVE PLAN</div>
+              <div class="plan-header">
+                <h3>{{ plan.name }}</h3>
+                <p class="plan-description">{{ plan.description || 'Access to premium core features' }}</p>
+                <div class="plan-price">
+                  <span class="currency">$</span>
+                  <span class="amount">{{ plan.price }}</span>
+                  <span class="duration">/ {{ plan.durationInDays }} days</span>
+                </div>
+              </div>
+
+              <div class="plan-features">
+                <div class="feature-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span><strong>{{ plan.maxBranches || 'Unlimited' }}</strong> Branches Allowed</span>
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span><strong>{{ plan.maxMembers || 'Unlimited' }}</strong> Active Members</span>
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Full Dashboard & Analytics</span>
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Unlimited Maintenance Schedules</span>
+                </div>
+              </div>
+
+              <button class="btn-upgrade-action" 
+                [disabled]="gymData?.planName === plan.name || isProcessingPayment" 
+                (click)="payForPlan(plan)">
+                <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment && selectedUpgradePlanId === plan.id"></i>
+                {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' : 'UPGRADE NOW') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -83,10 +83,57 @@
 
     <!-- Topbar -->
     <header class="topbar">
-      <!-- <div class="topbar-search">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" placeholder="Global platform search...">
-      </div> -->
+      <!-- Location Switcher Dropdown (Only for Gym Owners) -->
+      <div class="topbar-context-selector" *ngIf="isGymOwner" (click)="$event.stopPropagation()">
+        <button class="selector-trigger" (click)="isBranchDropdownOpen = !isBranchDropdownOpen"
+          [class.open]="isBranchDropdownOpen">
+          <div class="trigger-left">
+            <i class="fas"
+              [ngClass]="(activeBranch$ | async) ? 'fa-location-dot location-dot-color' : 'fa-globe global-color'"></i>
+            <span>{{ (activeBranch$ | async)?.name || 'All Locations (Global)' }}</span>
+          </div>
+          <i class="fas fa-chevron-down chevron-icon"></i>
+        </button>
+
+        <!-- Switcher Menu -->
+        <div class="selector-dropdown" *ngIf="isBranchDropdownOpen">
+          <div class="dropdown-header">Switch Context</div>
+          <div class="dropdown-scroll">
+            <!-- Global Context -->
+            <button class="dropdown-item" [class.active]="!(activeBranch$ | async)" (click)="selectBranch(null)">
+              <div class="item-left">
+                <i class="fas fa-globe global-icon"></i>
+                <span>All Locations (Global)</span>
+              </div>
+              <i class="fas fa-check check-icon" *ngIf="!(activeBranch$ | async)"></i>
+            </button>
+
+            <!-- Branch Locations -->
+            <button class="dropdown-item" *ngFor="let branch of branches"
+              [class.active]="(activeBranch$ | async)?.id === branch.id" (click)="selectBranch(branch)">
+              <div class="item-left">
+                <i class="fas fa-location-dot branch-icon"></i>
+                <div class="branch-meta">
+                  <span class="branch-name">{{ branch.name }}</span>
+                  <span class="branch-city">{{ branch.address?.city || 'Active Location' }}</span>
+                </div>
+              </div>
+              <i class="fas fa-check check-icon" *ngIf="(activeBranch$ | async)?.id === branch.id"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locked Context Pill (For Assigned Staff/Trainers) -->
+      <div class="topbar-context-selector locked-context" *ngIf="!isGymOwner && isStaffLocked">
+        <div class="selector-trigger locked-trigger">
+          <div class="trigger-left">
+            <i class="fas fa-location-dot location-dot-color"></i>
+            <span>{{ (activeBranch$ | async)?.name || 'Assigned Location' }}</span>
+          </div>
+          <i class="fas fa-lock lock-icon"></i>
+        </div>
+      </div>
 
       <div class="topbar-right">
         <button class="icon-btn" title="Notifications">
