@@ -41,6 +41,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             GymMember member = _mapper.Map<GymMember>(request);
             member.GymId = gymId;
+            member.BranchId = request.BranchId;
             member.JoiningDate = request.StartDate ?? DateTime.UtcNow;
             member.Status = MemberStatus.Active;
             member.MembershipNumber = $"MEM-{DateTime.UtcNow.Ticks.ToString().Substring(10)}";
@@ -84,13 +85,14 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<GymMemberResponse>(member);
         }
 
-        public async Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, PaginationParams pagination)
+        public async Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
             (IEnumerable<GymMember> members, int totalCount) = await _memberRepository.GetPagedMembersAsync(
                 gymId,
                 pagination.PageNumber,
                 pagination.PageSize,
-                pagination.SearchTerm);
+                pagination.SearchTerm,
+                branchId);
 
             IEnumerable<GymMemberResponse> items = _mapper.Map<IEnumerable<GymMemberResponse>>(members);
 
@@ -113,6 +115,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 ?? throw new KeyNotFoundException("Member not found");
 
             _mapper.Map(request, member);
+            member.BranchId = request.BranchId;
             member.ModifiedBy = updatedBy;
             member.ModifiedOn = DateTime.UtcNow;
 
@@ -243,9 +246,9 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<IEnumerable<MemberSubscriptionResponse>>(subscriptions);
         }
 
-        public async Task<byte[]> ExportMembersAsync(Guid gymId)
+        public async Task<byte[]> ExportMembersAsync(Guid gymId, Guid? branchId = null)
         {
-            IEnumerable<GymMember> members = await _memberRepository.GetAllByGymIdAsync(gymId);
+            IEnumerable<GymMember> members = await _memberRepository.GetAllByGymIdAsync(gymId, branchId);
             
             using var sw = new StringWriter();
             sw.WriteLine("MembershipID,FirstName,LastName,Email,Phone,Gender,Status,JoiningDate,CurrentPlan,PlanExpiry");

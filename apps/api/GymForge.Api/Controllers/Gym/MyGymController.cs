@@ -49,5 +49,12 @@ namespace GymForge.Api.Controllers.Gym
             await _gymManagementService.AddBranchAsync(gym.Id, branchDto);
             return Ok(new { message = "Branch added successfully" });
         }
+
+        [HttpPut("branches/{branchId}")]
+        public async Task<IActionResult> UpdateMyBranch(Guid branchId, [FromBody] GymForge.Contracts.Gym.Shared.BranchDto branchDto)
+        {
+            await _gymManagementService.UpdateBranchAsync(branchId, branchDto);
+            return Ok(new { message = "Branch updated successfully" });
+        }
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Members
 {
     [Route("api/members")]
-    [Authorize(Roles = "GymOwner")]
+    [Authorize(Roles = "GymOwner,Staff")]
     public class MembersController : BaseApiController
     {
         private readonly IGymMemberService _memberService;
@@ -24,7 +24,13 @@ namespace GymForge.Api.Controllers.Members
             if (GymId == null) return Unauthorized();
             try
             {
-                GymMemberResponse response = await _memberService.OnboardMemberAsync(GymId.Value, request, UserId);
+                OnboardMemberRequest securedRequest = request;
+                if (!User.IsInRole("GymOwner"))
+                {
+                    securedRequest = request with { BranchId = SecureBranchId };
+                }
+
+                GymMemberResponse response = await _memberService.OnboardMemberAsync(GymId.Value, securedRequest, UserId);
                 return Ok(response);
             }
             catch (InvalidOperationException ex)
@@ -41,7 +47,7 @@ namespace GymForge.Api.Controllers.Members
         public async Task<ActionResult> GetGymMembers([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _memberService.GetGymMembersAsync(GymId.Value, pagination));
+            return Ok(await _memberService.GetGymMembersAsync(GymId.Value, pagination, SecureBranchId));
         }
 
         [HttpGet("{id}")]
@@ -57,7 +63,13 @@ namespace GymForge.Api.Controllers.Members
         {
             try
             {
-                GymMemberResponse response = await _memberService.UpdateMemberAsync(id, request, UserId);
+                OnboardMemberRequest securedRequest = request;
+                if (!User.IsInRole("GymOwner"))
+                {
+                    securedRequest = request with { BranchId = SecureBranchId };
+                }
+
+                GymMemberResponse response = await _memberService.UpdateMemberAsync(id, securedRequest, UserId);
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)
@@ -123,7 +135,7 @@ namespace GymForge.Api.Controllers.Members
         public async Task<IActionResult> ExportMembers()
         {
             if (GymId == null) return Unauthorized();
-            byte[] bytes = await _memberService.ExportMembersAsync(GymId.Value);
+            byte[] bytes = await _memberService.ExportMembersAsync(GymId.Value, SecureBranchId);
             return File(bytes, "text/csv", $"Members_Export_{DateTime.UtcNow:yyyyMMdd}.csv");
         }
     }

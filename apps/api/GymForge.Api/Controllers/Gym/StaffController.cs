@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/staff")]
-    [Authorize(Roles = "GymOwner")]
+    [Authorize(Roles = "GymOwner,Staff")]
     public class StaffController : BaseApiController
     {
         private readonly IStaffService _staffService;
@@ -23,6 +23,11 @@ namespace GymForge.Api.Controllers.Gym
             if (GymId == null) return Unauthorized();
             try
             {
+                if (!User.IsInRole("GymOwner"))
+                {
+                    request.BranchId = SecureBranchId;
+                }
+
                 StaffResponse response = await _staffService.AddStaffAsync(GymId.Value, request);
                 return Ok(response);
             }
@@ -36,7 +41,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult> GetGymStaff([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _staffService.GetGymStaffAsync(GymId.Value, pagination));
+            return Ok(await _staffService.GetGymStaffAsync(GymId.Value, pagination, SecureBranchId));
         }
 
         [HttpGet("{id}")]
@@ -52,6 +57,11 @@ namespace GymForge.Api.Controllers.Gym
         {
             try
             {
+                if (!User.IsInRole("GymOwner"))
+                {
+                    request.BranchId = SecureBranchId;
+                }
+
                 await _staffService.UpdateStaffAsync(id, request);
                 return Ok(new { message = "Staff updated successfully" });
             }

@@ -181,7 +181,39 @@ namespace GymForge.Application.Modules.Gym.Services
         public async Task<List<BranchDto>> GetBranchesByGymIdAsync(Guid gymId)
         {
             List<Branch> branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
-            return _mapper.Map<List<BranchDto>>(branches);
+            List<BranchDto> dtos = _mapper.Map<List<BranchDto>>(branches);
+
+            List<Staff> managers = await _gymManagementRepository.GetBranchManagersAsync(gymId);
+
+            foreach (var dto in dtos)
+            {
+                Staff? manager = managers.FirstOrDefault(m => m.BranchId == dto.Id);
+                dto.ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : "Pending Hire";
+            }
+
+            return dtos;
+        }
+
+        public async Task UpdateBranchAsync(Guid branchId, BranchDto branchDto)
+        {
+            Branch? branch = await _gymManagementRepository.GetBranchByIdAsync(branchId);
+            if (branch == null)
+            {
+                throw new Exception("Branch not found.");
+            }
+
+            branch.Name = branchDto.Name;
+            branch.ContactNumber = branchDto.ContactNumber;
+            branch.OpenTime = branchDto.OpenTime;
+            branch.CloseTime = branchDto.CloseTime;
+
+            if (branch.Address != null && branchDto.Address != null)
+            {
+                _mapper.Map(branchDto.Address, branch.Address);
+            }
+
+            _gymManagementRepository.UpdateBranch(branch);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId)

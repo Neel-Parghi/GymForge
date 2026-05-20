@@ -92,13 +92,14 @@ namespace GymForge.Application.Modules.Gym.Services
             };
         }
 
-        public async Task<PagedResponse<StaffResponse>> GetGymStaffAsync(Guid gymId, PaginationParams pagination)
+        public async Task<PagedResponse<StaffResponse>> GetGymStaffAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
             (IEnumerable<Staff> staff, int totalCount) = await _staffRepository.GetPagedStaffAsync(
                 gymId,
                 pagination.PageNumber,
                 pagination.PageSize,
-                pagination.SearchTerm);
+                pagination.SearchTerm,
+                branchId);
 
             IEnumerable<StaffResponse> items = _mapper.Map<IEnumerable<StaffResponse>>(staff);
 

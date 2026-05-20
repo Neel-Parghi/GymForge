@@ -22,5 +22,20 @@ namespace GymForge.Api.Controllers
                 return string.IsNullOrEmpty(id) ? null : Guid.Parse(id);
             }
         }
+
+        protected Guid? SecureBranchId
+        {
+            get
+            {
+                if (User.IsInRole("GymOwner"))
+                {
+                    string? queryValue = Request.Query["branchId"].ToString();
+                    return string.IsNullOrEmpty(queryValue) ? null : Guid.Parse(queryValue);
+                }
+                
+                string? branchClaim = User.FindFirst("branchId")?.Value;
+                return string.IsNullOrEmpty(branchClaim) ? null : Guid.Parse(branchClaim);
+            }
+        }
     }
 }

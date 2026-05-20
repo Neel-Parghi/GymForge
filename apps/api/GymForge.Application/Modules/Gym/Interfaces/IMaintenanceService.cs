@@ -6,6 +6,6 @@ namespace GymForge.Application.Modules.Gym.Interfaces
     {
         Task<bool> LogMaintenanceAsync(LogMaintenanceDto dto);
         Task<List<MaintenanceLogDto>> GetMaintenanceHistoryAsync(Guid equipmentId);
-        Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId);
+        Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null);
     }
 }

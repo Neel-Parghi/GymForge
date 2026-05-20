@@ -71,9 +71,9 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<List<MaintenanceLogDto>>(logs);
         }
 
-        public async Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId)
+        public async Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null)
         {
-            List<MaintenanceLog> logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId);
+            List<MaintenanceLog> logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId, branchId);
             return _mapper.Map<List<MaintenanceLogDto>>(logs);
         }
     }
