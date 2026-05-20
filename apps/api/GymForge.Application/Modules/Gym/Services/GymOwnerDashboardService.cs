@@ -13,31 +13,54 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IInventoryRepository _inventoryRepository;
         private readonly IEquipmentRepository _equipmentRepository;
         private readonly IStaffRepository _staffRepository;
+        private readonly IGymManagementRepository _gymManagementRepository;
 
         public GymOwnerDashboardService(
             IGymMemberRepository memberRepository,
             IInventoryRepository inventoryRepository,
             IEquipmentRepository equipmentRepository,
-            IStaffRepository staffRepository)
+            IStaffRepository staffRepository,
+            IGymManagementRepository gymManagementRepository)
         {
             _memberRepository = memberRepository;
             _inventoryRepository = inventoryRepository;
             _equipmentRepository = equipmentRepository;
             _staffRepository = staffRepository;
+            _gymManagementRepository = gymManagementRepository;
         }
 
-        public async Task<GymOwnerDashboardDto> GetGymOwnerDashboardStatsAsync(Guid gymId)
+        public async Task<GymOwnerDashboardDto> GetGymOwnerDashboardStatsAsync(Guid gymId, Guid? branchId = null)
         {
             IEnumerable<GymMember>? members = await _memberRepository.GetAllByGymIdAsync(gymId);
             List<InventoryItem>? products = await _inventoryRepository.GetProductsByGymIdAsync(gymId);
-            List<Equipment>? equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId);
+            List<Equipment>? equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId, branchId);
             IEnumerable<Staff>? staff = await _staffRepository.GetAllByGymIdAsync(gymId);
+            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
+
+            if (branchId.HasValue)
+            {
+                Guid? mainBranchId = null;
+                List<Branch>? branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
+                Branch? mainBranch = branches.FirstOrDefault(b => b.IsMainBranch);
+                if (mainBranch != null)
+                {
+                    mainBranchId = mainBranch.Id;
+                }
+
+                bool isMain = branchId.Value == mainBranchId;
+
+                members = members.Where(m => m.BranchId == branchId.Value || (isMain && m.BranchId == null));
+                products = products.Where(p => p.BranchId == branchId.Value || (isMain && p.BranchId == null)).ToList();
+                staff = staff.Where(s => s.BranchId == branchId.Value || (isMain && s.BranchId == null));
+                sales = sales.Where(s => s.BranchId == branchId.Value || 
+                                         (s.InventoryItem != null && s.InventoryItem.BranchId == branchId.Value) || 
+                                         (isMain && s.BranchId == null)).ToList();
+            }
 
             DateTime now = DateTime.UtcNow;
             DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
 
-            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
-            List<MemberSubscription>? subscriptions = members.SelectMany(m => m.Subscriptions).ToList();
+            List<MemberSubscription> subscriptions = members.SelectMany(m => m.Subscriptions).ToList();
             
             int totalMembersNow = members.Count();
             int totalMembersLastMonth = members.Count(m => m.CreatedOn < firstDayOfMonth);
@@ -99,7 +122,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 ActiveMembers = members.Count(m => m.Status == MemberStatus.Active),
                 FrozenMembers = members.Count(m => m.Status == MemberStatus.Freeze),
                 NewMembersThisMonth = members.Count(m => m.CreatedOn >= firstDayOfMonth),
-                TodayAttendance = 0, // Actual attendance tracking not yet implemented
+                TodayAttendance = 0,
                 MonthlyRevenue = monthlyRevenue,
                 MembershipRevenue = membershipRevenue,
                 ProductSalesRevenue = productSalesRevenue,

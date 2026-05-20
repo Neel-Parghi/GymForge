@@ -21,7 +21,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult<List<EquipmentDto>>> GetEquipment()
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _equipmentService.GetEquipmentAsync(GymId.Value));
+            return Ok(await _equipmentService.GetEquipmentAsync(GymId.Value, SecureBranchId));
         }
 
         [HttpPost]

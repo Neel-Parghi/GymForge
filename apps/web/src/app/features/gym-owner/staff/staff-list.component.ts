@@ -10,6 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { StaffService } from '../../../core/services/staff.service';
 import { StaffResponse } from '../../../core/models/staff.model';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 import { OnboardStaffModalComponent } from './onboard-staff-modal/onboard-staff-modal.component';
 import { StaffDetailDrawerComponent } from './staff-detail-drawer/staff-detail-drawer.component';
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
@@ -29,6 +30,7 @@ export class StaffListComponent implements OnInit {
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
+  private branchContextService = inject(BranchContextService);
 
   staff: StaffResponse[] = [];
   isLoading = true;
@@ -65,7 +67,13 @@ export class StaffListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.loadStaff();
+    this.branchContextService.activeBranch$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.currentPage = 1;
+      this.staffService.clearCache();
+      this.loadStaff(true);
+    });
   }
 
   loadStaff(refresh = false): void {

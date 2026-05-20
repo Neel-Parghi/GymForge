@@ -12,6 +12,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal.component';
 import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer.component';
 import { GymMember, MemberStatus, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../shared/models/member.model';
@@ -36,6 +37,7 @@ export class MembersListComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
+  private branchContextService = inject(BranchContextService);
 
   @ViewChild(OnboardMemberModal) onboardModal!: OnboardMemberModal;
 
@@ -113,9 +115,16 @@ export class MembersListComponent implements OnInit {
     this.initFilters();
 
     if (this.gymId) {
-      this.loadMembers();
       this.loadPlans();
     }
+
+    this.branchContextService.activeBranch$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.currentPage = 1;
+      this.memberService.clearCache();
+      this.loadMembers();
+    });
   }
 
   private initFilters() {

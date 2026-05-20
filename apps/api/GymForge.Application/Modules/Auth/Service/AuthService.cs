@@ -68,15 +68,17 @@ namespace GymForge.Application.Modules.Auth.Service
                 RefreshToken? replacement = user.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken.ReplacedByToken);
                 if (replacement != null && replacement.IsActive)
                 {
+                    Guid? branchId = await ResolveBranchIdAsync(user);
                     return new TokenResponseDto
                     {
-                        AccessToken = _jwtService.GenerateToken(user).AccessToken,
+                        AccessToken = _jwtService.GenerateToken(user, branchId).AccessToken,
                         RefreshToken = replacement.Token
                     };
                 }
             }
 
-            TokenResponseDto newTokens = _jwtService.GenerateToken(user);
+            Guid? activeBranchId = await ResolveBranchIdAsync(user);
+            TokenResponseDto newTokens = _jwtService.GenerateToken(user, activeBranchId);
             
             refreshToken.Revoked = DateTime.UtcNow;
             refreshToken.GracePeriodExpires = DateTime.UtcNow.AddSeconds(60);
@@ -97,13 +99,23 @@ namespace GymForge.Application.Modules.Auth.Service
             }
         }
 
+        private async Task<Guid?> ResolveBranchIdAsync(User user)
+        {
+            if (user.Role == UserRole.Staff || user.Role == UserRole.Trainer)
+            {
+                return await _authRepository.GetBranchIdByUserIdAsync(user.Id);
+            }
+            return null;
+        }
+
         private async Task<TokenResponseDto> GenerateAndSaveTokens(User user)
         {
             // Optional: Strict single-session policy - remove all other active tokens for this user
             // List<RefreshToken> activeTokens = [.. user.RefreshTokens.Where(t => t.IsActive)];
             // foreach (var t in activeTokens) user.RefreshTokens.Remove(t);
 
-            TokenResponseDto tokenResponse = _jwtService.GenerateToken(user);
+            Guid? branchId = await ResolveBranchIdAsync(user);
+            TokenResponseDto tokenResponse = _jwtService.GenerateToken(user, branchId);
             return await SaveTokens(user, tokenResponse);
         }
 

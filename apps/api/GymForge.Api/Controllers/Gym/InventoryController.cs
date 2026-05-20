@@ -22,7 +22,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult<InventoryStatsDto>> GetInventoryStats()
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _inventoryService.GetInventoryStatsAsync(GymId.Value));
+            return Ok(await _inventoryService.GetInventoryStatsAsync(GymId.Value, SecureBranchId));
         }
 
         // --- Products ---
@@ -31,7 +31,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult<List<InventoryItemDto>>> GetProducts([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _inventoryService.GetProductsAsync(GymId.Value, pagination));
+            return Ok(await _inventoryService.GetProductsAsync(GymId.Value, pagination, SecureBranchId));
         }
 
         [HttpPost("products")]
@@ -72,7 +72,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult<List<SaleTransactionDto>>> GetSalesHistory()
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _inventoryService.GetSalesHistoryAsync(GymId.Value));
+            return Ok(await _inventoryService.GetSalesHistoryAsync(GymId.Value, SecureBranchId));
         }
 
         [HttpPost("sales/{id}/receipt")]

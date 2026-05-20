@@ -5,7 +5,7 @@ namespace GymForge.Application.Modules.Auth.Interface
 {
     public interface IJwtService
     {
-        TokenResponseDto GenerateToken(User user);
+        TokenResponseDto GenerateToken(User user, Guid? branchId = null);
         string GenerateRefreshToken();
     }
 }

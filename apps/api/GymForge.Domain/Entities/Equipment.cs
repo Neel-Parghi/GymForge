@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using GymForge.Domain.Interface;
 
 namespace GymForge.Domain.Entities
 {
-    public class Equipment : BaseEntity
+    public class Equipment : BaseEntity, IBranchScoped
     {
         public string Name { get; set; } = string.Empty;
         public string SerialNumber { get; set; } = string.Empty;
@@ -20,6 +21,11 @@ namespace GymForge.Domain.Entities
 
         [ForeignKey("GymId")]
         public virtual Gym Gym { get; set; } = null!;
+
+        public Guid? BranchId { get; set; }
+
+        [ForeignKey("BranchId")]
+        public virtual Branch? Branch { get; set; }
 
         public virtual ICollection<MaintenanceLog> MaintenanceLogs { get; set; } = new List<MaintenanceLog>();
     }

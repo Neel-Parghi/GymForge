@@ -1,9 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GymOwnerStats } from '../../../core/services/gym-owner-dashboard.service';
 import { GymOwnerDashboardService } from '../../../core/services/gym-owner-dashboard.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router } from '@angular/router';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 
 @Component({
   selector: 'app-gym-owner-dashboard',
@@ -16,12 +18,19 @@ export class DashboardComponent implements OnInit {
   private dashboardService = inject(GymOwnerDashboardService);
   private notification = inject(NotificationService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private branchContextService = inject(BranchContextService);
 
   stats: GymOwnerStats | null = null;
   isLoading = true;
 
   ngOnInit(): void {
-    this.loadStats();
+    this.branchContextService.activeBranch$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.dashboardService.clearCache();
+      this.loadStats();
+    });
   }
 
   loadStats(): void {

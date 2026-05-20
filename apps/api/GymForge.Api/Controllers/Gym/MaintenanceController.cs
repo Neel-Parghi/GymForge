@@ -21,7 +21,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult<List<MaintenanceLogDto>>> GetAllMaintenanceHistory()
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _maintenanceService.GetAllMaintenanceLogsAsync(GymId.Value));
+            return Ok(await _maintenanceService.GetAllMaintenanceLogsAsync(GymId.Value, SecureBranchId));
         }
 
         [HttpPost]

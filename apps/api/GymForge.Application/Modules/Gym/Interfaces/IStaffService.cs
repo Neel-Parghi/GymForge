@@ -7,7 +7,7 @@ namespace GymForge.Application.Modules.Gym.Interfaces
     public interface IStaffService
     {
         Task<StaffResponse> AddStaffAsync(Guid gymId, AddStaffRequest request);
-        Task<PagedResponse<StaffResponse>> GetGymStaffAsync(Guid gymId, PaginationParams pagination);
+        Task<PagedResponse<StaffResponse>> GetGymStaffAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null);
         Task<StaffResponse?> GetStaffByIdAsync(Guid id);
         Task UpdateStaffAsync(Guid id, AddStaffRequest request);
         Task DeleteStaffAsync(Guid id);

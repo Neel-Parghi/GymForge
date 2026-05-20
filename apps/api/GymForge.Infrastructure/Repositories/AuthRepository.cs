@@ -57,5 +57,13 @@ namespace GymForge.Infrastructure.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+
+        public async Task<Guid?> GetBranchIdByUserIdAsync(Guid userId)
+        {
+            return await _context.Staff
+                .Where(s => s.UserId == userId && s.IsActive)
+                .Select(s => s.BranchId)
+                .FirstOrDefaultAsync();
+        }
     }
 }

@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using GymForge.Domain.Interface;
 
 namespace GymForge.Domain.Entities
 {
-    public class InventoryItem : BaseEntity
+    public class InventoryItem : BaseEntity, IBranchScoped
     {
         public string Name { get; set; } = string.Empty;
         public string SKU { get; set; } = string.Empty;
@@ -21,8 +22,12 @@ namespace GymForge.Domain.Entities
         public bool IsActive { get; set; } = true;
 
         public Guid GymId { get; set; }
+        public Guid? BranchId { get; set; }
         
         [ForeignKey("GymId")]
         public virtual Gym Gym { get; set; } = null!;
+
+        [ForeignKey("BranchId")]
+        public virtual Branch? Branch { get; set; }
     }
 }

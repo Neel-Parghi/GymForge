@@ -19,9 +19,9 @@ namespace GymForge.Application.Modules.Gym.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<EquipmentDto>> GetEquipmentAsync(Guid gymId)
+        public async Task<List<EquipmentDto>> GetEquipmentAsync(Guid gymId, Guid? branchId = null)
         {
-            List<Equipment> equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId);
+            List<Equipment> equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId, branchId);
             return _mapper.Map<List<EquipmentDto>>(equipment);
         }
 

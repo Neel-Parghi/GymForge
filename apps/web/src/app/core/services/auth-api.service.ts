@@ -114,6 +114,12 @@ export class AuthApiService extends BaseApiService {
     return decoded['gymId'] || null;
   }
 
+  getAssignedBranchId(): string | null {
+    const decoded: any = this.decodeToken();
+    if (!decoded) return null;
+    return decoded['branchId'] || null;
+  }
+
   decodeToken(): any {
     const token = this.getToken();
     if (!token || token === 'undefined' || token.split('.').length !== 3) {

@@ -22,7 +22,7 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult<GymOwnerDashboardDto>> GetDashboardStats()
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _dashboardService.GetGymOwnerDashboardStatsAsync(GymId.Value));
+            return Ok(await _dashboardService.GetGymOwnerDashboardStatsAsync(GymId.Value, SecureBranchId));
         }
     }
 }

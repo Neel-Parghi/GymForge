@@ -8,6 +8,6 @@ namespace GymForge.Domain.Interface
         Task<MaintenanceLog?> GetMaintenanceLogByIdAsync(Guid id);
         void UpdateMaintenanceLog(MaintenanceLog log);
         Task<List<MaintenanceLog>> GetMaintenanceLogsByEquipmentIdAsync(Guid equipmentId);
-        Task<List<MaintenanceLog>> GetAllMaintenanceLogsAsync(Guid gymId);
+        Task<List<MaintenanceLog>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null);
     }
 }

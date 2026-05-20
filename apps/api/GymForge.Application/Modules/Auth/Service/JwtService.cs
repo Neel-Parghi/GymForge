@@ -19,15 +19,20 @@ namespace GymForge.Application.Modules.Auth.Service
             _config = config;
         }
 
-        public TokenResponseDto GenerateToken(User user)
+        public TokenResponseDto GenerateToken(User user, Guid? branchId = null)
         {
-            Claim[] claims =
-            [
+            List<Claim> claims = new()
+            {
                 new Claim("userId", user.Id.ToString()),
                 new Claim("email", user.Email),
                 new Claim("role", user.Role.ToString()),
                 new Claim("gymId", user.GymId?.ToString() ?? string.Empty),
-            ];
+            };
+
+            if (branchId.HasValue)
+            {
+                claims.Add(new Claim("branchId", branchId.Value.ToString()));
+            }
 
             SymmetricSecurityKey key = new (Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             SigningCredentials creds = new (key, SecurityAlgorithms.HmacSha256);

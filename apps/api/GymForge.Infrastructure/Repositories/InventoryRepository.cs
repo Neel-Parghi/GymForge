@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
+using GymForge.Infrastructure.Extensions;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -36,21 +37,25 @@ namespace GymForge.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<List<InventoryItem>> GetProductsByGymIdAsync(Guid gymId)
+        public async Task<List<InventoryItem>> GetProductsByGymIdAsync(Guid gymId, Guid? branchId = null)
         {
-            return await _context.InventoryItems
+            IQueryable<InventoryItem> query = _context.InventoryItems
                 .TagWith("GetProductsByGymId")
                 .AsNoTracking()
-                .Where(x => x.GymId == gymId)
-                .OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn)
-                .ToListAsync();
+                .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_context.Branches, branchId);
+
+            return await query.OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn).ToListAsync();
         }
 
-        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm)
+        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
         {
             IQueryable<InventoryItem> query = _context.InventoryItems
                 .AsNoTracking()
                 .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_context.Branches, branchId);
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -85,18 +90,23 @@ namespace GymForge.Infrastructure.Repositories
             }
 
             product.StockQuantity -= transaction.Quantity;
+            transaction.BranchId = product.BranchId;
             
             await _context.SaleTransactions.AddAsync(transaction);
             return true;
         }
 
-        public async Task<List<SaleTransaction>> GetSalesByGymIdAsync(Guid gymId)
+        public async Task<List<SaleTransaction>> GetSalesByGymIdAsync(Guid gymId, Guid? branchId = null)
         {
-            return await _context.SaleTransactions
+            IQueryable<SaleTransaction> query = _context.SaleTransactions
                 .AsNoTracking()
                 .Include(x => x.InventoryItem)
                 .Include(x => x.Member)
-                .Where(x => x.GymId == gymId)
+                .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_context.Branches, branchId);
+
+            return await query
                 .OrderByDescending(x => x.TransactionDate)
                 .ToListAsync();
         }

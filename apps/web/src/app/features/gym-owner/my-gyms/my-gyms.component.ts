@@ -1,14 +1,23 @@
+declare var Razorpay: any;
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { GymListResponse } from '../../../shared/models/gym.model';
+import { Router } from '@angular/router';
+import { BranchContextService } from '../../../core/services/branch-context.service';
+import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
+import { FileUploadService } from '../../../core/services/file-upload.service';
+import { PricingService } from '../../../core/services/pricing.service';
+import { PaymentService } from '../../../core/services/payment.service';
+import { CONSTANTS } from '../../../core/constants/constants';
+import { PricingPlan } from '../../../shared/models/pricing.model';
 
 @Component({
   selector: 'app-my-gyms',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent],
   templateUrl: './my-gyms.component.html',
   styleUrl: './my-gyms.component.scss',
 })
@@ -16,12 +25,24 @@ export class MyGymsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private gymService = inject(GymService);
   private toastService = inject(NotificationService);
+  private router = inject(Router);
+  private branchContextService = inject(BranchContextService);
+  private fileUploadService = inject(FileUploadService);
+  private pricingService = inject(PricingService);
+  private paymentService = inject(PaymentService);
+
+  pricingPlans: PricingPlan[] = [];
+  isUpgradeModalOpen = false;
+  isProcessingPayment = false;
+  selectedUpgradePlanId = '';
 
   activeTab: 'profile' | 'branches' | 'plan' = 'profile';
 
   profileForm!: FormGroup;
   branchForm!: FormGroup;
-  isBranchModalOpen = false;
+  isBranchDrawerOpen = false;
+  isEditingBranch = false;
+  selectedBranchId: string | null = null;
   isSavingBranch = false;
   isLoading = false;
   isSaving = false;
@@ -33,6 +54,7 @@ export class MyGymsComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadGymData();
+    this.loadPricingPlans();
   }
 
   private initForm(): void {
@@ -45,6 +67,7 @@ export class MyGymsComponent implements OnInit {
       description: [''],
       gstNumber: [''],
       registrationNumber: [''],
+      logoUrl: ['']
     });
     this.profileForm.disable();
 
@@ -79,7 +102,28 @@ export class MyGymsComponent implements OnInit {
 
   onLogoChange(event: Event): void {
     if (!this.isEditMode) return;
-    this.toastService.info('Logo upload functionality will be integrated with cloud storage soon.');
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.isLoading = true;
+      this.fileUploadService.uploadFile(file, 'logos').subscribe({
+        next: (res) => {
+          if (res.data?.url) {
+            if (this.gymData) {
+              this.gymData.logoUrl = res.data.url;
+            }
+            this.profileForm.patchValue({ logoUrl: res.data.url });
+            this.profileForm.markAsDirty();
+            this.toastService.success('Logo uploaded successfully. Save profile changes to persist.');
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.toastService.error('Failed to upload logo.');
+          this.isLoading = false;
+        }
+      });
+    }
   }
 
   private loadGymData(): void {
@@ -141,18 +185,37 @@ export class MyGymsComponent implements OnInit {
     });
   }
 
-  openBranchModal(branch: any = null): void {
+  openBranchDrawer(branch: any = null): void {
     if (branch) {
-      this.toastService.info('Branch editing coming soon');
-      return;
+      this.isEditingBranch = true;
+      this.selectedBranchId = branch.id;
+      this.branchForm.patchValue({
+        name: branch.name,
+        contactNumber: branch.contactNumber,
+        openTime: branch.openTime,
+        closeTime: branch.closeTime,
+        address: {
+          line1: branch.address?.line1,
+          line2: branch.address?.line2,
+          city: branch.address?.city,
+          state: branch.address?.state,
+          country: branch.address?.country || 'India',
+          postalCode: branch.address?.postalCode
+        }
+      });
     } else {
+      this.isEditingBranch = false;
+      this.selectedBranchId = null;
       this.branchForm.reset({ address: { country: 'India' } });
     }
-    this.isBranchModalOpen = true;
+    this.isBranchDrawerOpen = true;
   }
 
-  closeBranchModal(): void {
-    this.isBranchModalOpen = false;
+  closeBranchDrawer(): void {
+    this.isBranchDrawerOpen = false;
+    this.isEditingBranch = false;
+    this.selectedBranchId = null;
+    this.branchForm.reset({ address: { country: 'India' } });
   }
 
   onSubmitBranch(): void {
@@ -162,27 +225,120 @@ export class MyGymsComponent implements OnInit {
     }
 
     this.isSavingBranch = true;
-    this.gymService.addMyBranch(this.branchForm.value).subscribe({
+    
+    const saveObservable = this.isEditingBranch && this.selectedBranchId
+      ? this.gymService.updateMyBranch(this.selectedBranchId, this.branchForm.value)
+      : this.gymService.addMyBranch(this.branchForm.value);
+
+    saveObservable.subscribe({
       next: () => {
-        this.toastService.success('Branch added successfully');
+        this.toastService.success(this.isEditingBranch ? 'Branch updated successfully' : 'Branch added successfully');
         this.isSavingBranch = false;
-        this.isBranchModalOpen = false;
+        this.closeBranchDrawer();
         if (this.gymData?.id) {
           this.loadBranches(this.gymData.id);
         }
       },
       error: () => {
-        this.toastService.error('Failed to add branch');
+        this.toastService.error(this.isEditingBranch ? 'Failed to update branch' : 'Failed to add branch');
         this.isSavingBranch = false;
       }
     });
   }
 
   editBranch(branch: any): void {
-    this.openBranchModal(branch);
+    this.openBranchDrawer(branch);
+  }
+
+  manageBranch(branch: any): void {
+    this.branchContextService.setActiveBranch({ id: branch.id, name: branch.name });
+    this.router.navigate(['/gym-owner/dashboard']);
   }
 
   addBranch(): void {
-    this.openBranchModal();
+    this.openBranchDrawer();
+  }
+
+  loadPricingPlans(): void {
+    this.pricingService.getAllPlans().subscribe({
+      next: (res) => {
+        this.pricingPlans = res.data || [];
+      }
+    });
+  }
+
+  openUpgradeModal(): void {
+    this.isUpgradeModalOpen = true;
+  }
+
+  closeUpgradeModal(): void {
+    this.isUpgradeModalOpen = false;
+  }
+
+  payForPlan(plan: PricingPlan): void {
+    if (!this.gymData?.id) {
+      this.toastService.error('Gym details not loaded.');
+      return;
+    }
+
+    this.isProcessingPayment = true;
+    this.selectedUpgradePlanId = plan.id;
+    const request = {
+      gymId: this.gymData.id,
+      planId: plan.id
+    };
+
+    this.paymentService.initiatePayment(request).subscribe({
+      next: (res: any) => {
+        const options = {
+          key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
+          amount: res.data.transactionResponse.amount,
+          currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
+          order_id: res.data.transactionResponse.razorpayOrderId,
+          name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
+          description: `Upgrading to ${plan.name} Plan`,
+          handler: (response: any) => {
+            this.verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
+          },
+          prefill: {
+            name: this.gymData?.ownerName || 'Gym Owner',
+            email: this.gymData?.email || 'owner@example.com'
+          },
+          theme: { color: CONSTANTS.PAYMENT.RAZORPAY.THEME_COLOR },
+          modal: {
+            ondismiss: () => {
+              this.isProcessingPayment = false;
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      },
+      error: () => {
+        this.toastService.error('Failed to initiate subscription order.');
+        this.isProcessingPayment = false;
+      }
+    });
+  }
+
+  verifyPayment(orderId: string, paymentId: string, signature: string): void {
+    this.paymentService.verifyPayment({
+      orderId,
+      paymentId,
+      signature
+    }).subscribe({
+      next: () => {
+        this.toastService.success('Payment verified! SaaS Subscription successfully upgraded.');
+        this.isUpgradeModalOpen = false;
+        this.isProcessingPayment = false;
+        this.loadGymData();
+      },
+      error: (err: any) => {
+        const msg = err.error?.message || 'Payment verification failed.';
+        this.toastService.error(msg);
+        this.isProcessingPayment = false;
+      }
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthApiService } from '../../core/services/auth-api.service';
@@ -6,8 +6,9 @@ import { ThemeService } from '../../core/services/theme.service';
 import { NavigationService } from '../../core/services/navigation.service';
 import { NavItem } from '../../core/models/nav-Item.model';
 import { ProfileService } from '../../core/services/profile.service';
-import { API_CONSTANTS } from '../../core/constants/api-constants';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { BranchContextService } from '../../core/services/branch-context.service';
+import { GymService } from '../../core/services/gym.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -22,6 +23,7 @@ export class MainLayoutComponent implements OnInit {
   private themeService = inject(ThemeService);
   private router = inject(Router);
   private readonly navService = inject(NavigationService);
+  private gymService = inject(GymService);
 
   roleName: string = '';
   dashboardRoute: string = '/super-admin/dashboard';
@@ -30,6 +32,14 @@ export class MainLayoutComponent implements OnInit {
   menuItems: NavItem[] = [];
   userProfile$ = this.authApiService.userProfile$;
 
+  private branchContextService = inject(BranchContextService);
+  activeBranch$ = this.branchContextService.activeBranch$;
+
+  isGymOwner = false;
+  isStaffLocked = false;
+  branches: any[] = [];
+  isBranchDropdownOpen = false;
+
   constructor() {
     this.menuItems = this.navService.getMenuItems();
   }
@@ -37,14 +47,32 @@ export class MainLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.setRoleName();
     this.profileService.getProfile().subscribe();
+    
+    const assignedBranchId = this.authApiService.getAssignedBranchId();
+    if (assignedBranchId) {
+      this.isStaffLocked = true;
+      this.gymService.getMyBranches().subscribe({
+        next: (res) => {
+          this.branches = res.data || [];
+          const matchedBranch = this.branches.find(b => b.id === assignedBranchId);
+          if (matchedBranch) {
+            this.branchContextService.setActiveBranch({ id: matchedBranch.id, name: matchedBranch.name });
+          } else {
+            this.branchContextService.setActiveBranch({ id: assignedBranchId, name: 'Assigned Location' });
+          }
+        }
+      });
+    } else if (this.isGymOwner) {
+      this.loadBranches();
+    }
   }
 
   private setRoleName(): void {
     const decoded = this.authApiService.decodeToken();
     const role = decoded?.role || '';
     this.roleName = role.replace(/([A-Z])/g, ' $1').trim();
+    this.isGymOwner = role === 'GymOwner';
 
-    // Set routes based on role
     if (role === 'GymOwner') {
       this.dashboardRoute = '/gym-owner/dashboard';
       this.profileRoute = '/gym-owner/profile';
@@ -52,6 +80,23 @@ export class MainLayoutComponent implements OnInit {
       this.dashboardRoute = '/super-admin/dashboard';
       this.profileRoute = '/super-admin/profile';
     }
+  }
+
+  loadBranches(): void {
+    this.gymService.getMyBranches().subscribe({
+      next: (res) => {
+        this.branches = res.data || [];
+      }
+    });
+  }
+
+  selectBranch(branch: any | null): void {
+    if (branch) {
+      this.branchContextService.setActiveBranch({ id: branch.id, name: branch.name });
+    } else {
+      this.branchContextService.setActiveBranch(null);
+    }
+    this.isBranchDropdownOpen = false;
   }
 
   toggleSidebar() {
@@ -98,5 +143,10 @@ export class MainLayoutComponent implements OnInit {
 
   logout() {
     this.authApiService.logout();
+  }
+
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.isBranchDropdownOpen = false;
   }
 }

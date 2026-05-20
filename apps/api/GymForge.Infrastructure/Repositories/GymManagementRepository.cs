@@ -176,6 +176,19 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Branch?> GetBranchByIdAsync(Guid id)
+        {
+            return await _dbContext.Branches
+                .Include(b => b.Address)
+                .FirstOrDefaultAsync(b => b.Id == id);
+        }
+
+        public Branch UpdateBranch(Branch branch)
+        {
+            _dbContext.Branches.Update(branch);
+            return branch;
+        }
+
         public async Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId)
         {
             return await _dbContext.Gyms
@@ -268,6 +281,13 @@ namespace GymForge.Infrastructure.Repositories
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .OrderByDescending(g => g.CreatedOn)
+                .ToListAsync();
+        }
+
+        public async Task<List<Staff>> GetBranchManagersAsync(Guid gymId)
+        {
+            return await _dbContext.Staff
+                .Where(s => s.GymId == gymId && s.Role == StaffRole.Manager && s.IsActive)
                 .ToListAsync();
         }
     }

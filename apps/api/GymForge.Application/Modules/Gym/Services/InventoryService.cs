@@ -56,13 +56,14 @@ namespace GymForge.Application.Modules.Gym.Services
             }
         }
 
-        public async Task<PagedResponse<InventoryItemDto>> GetProductsAsync(Guid gymId, PaginationParams pagination)
+        public async Task<PagedResponse<InventoryItemDto>> GetProductsAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
             (IEnumerable<InventoryItem> items, int totalCount) = await _inventoryRepository.GetPagedProductsAsync(
                 gymId,
                 pagination.PageNumber,
                 pagination.PageSize,
-                pagination.SearchTerm);
+                pagination.SearchTerm,
+                branchId);
 
             List<InventoryItemDto> dtos = _mapper.Map<List<InventoryItemDto>>(items);
 
@@ -73,6 +74,7 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             InventoryItem item = _mapper.Map<InventoryItem>(dto);
             item.GymId = gymId;
+            item.BranchId = dto.BranchId;
             item.CreatedOn = DateTime.UtcNow;
 
             await _inventoryRepository.AddProductAsync(item);
@@ -87,6 +89,7 @@ namespace GymForge.Application.Modules.Gym.Services
             if (item == null) return null;
 
             _mapper.Map(dto, item);
+            item.BranchId = dto.BranchId;
             item.ModifiedOn = DateTime.UtcNow;
 
             _inventoryRepository.UpdateProduct(item);
@@ -130,18 +133,18 @@ namespace GymForge.Application.Modules.Gym.Services
             return success;
         }
 
-        public async Task<List<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId)
+        public async Task<List<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId, Guid? branchId = null)
         {
-            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
+            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId, branchId);
             return _mapper.Map<List<SaleTransactionDto>>(sales);
         }
 
-        public async Task<InventoryStatsDto> GetInventoryStatsAsync(Guid gymId)
+        public async Task<InventoryStatsDto> GetInventoryStatsAsync(Guid gymId, Guid? branchId = null)
         {
-            List<InventoryItem> products = await _inventoryRepository.GetProductsByGymIdAsync(gymId);
-            List<Equipment> equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId);
-            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
-            List<MaintenanceLog> logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId);
+            List<InventoryItem> products = await _inventoryRepository.GetProductsByGymIdAsync(gymId, branchId);
+            List<Equipment> equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId, branchId);
+            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId, branchId);
+            List<MaintenanceLog> logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId, branchId);
             DateTime today = DateTime.UtcNow.Date;
 
             List<SaleTransaction> todaySales = sales.Where(s => s.TransactionDate.Date == today).ToList();

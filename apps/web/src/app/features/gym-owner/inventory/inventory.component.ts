@@ -14,6 +14,7 @@ import { InventoryService } from '../../../core/services/inventory.service';
 import { MemberService } from '../../../core/services/member.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { FileUploadService } from '../../../core/services/file-upload.service';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 
 @Component({
   selector: 'app-inventory',
@@ -30,6 +31,7 @@ export class InventoryComponent implements OnInit {
   private memberService = inject(MemberService);
   private fileUploadService = inject(FileUploadService);
   private route = inject(ActivatedRoute);
+  private branchContextService = inject(BranchContextService);
 
   activeTab: 'inventory' | 'equipment' | 'maintenance' | 'sales' = 'inventory';
   viewMode: 'list' | 'dashboard' = 'list';
@@ -140,7 +142,13 @@ export class InventoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForms();
-    this.loadData();
+
+    this.branchContextService.activeBranch$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.currentPage = 1;
+      this.loadData();
+    });
 
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['tab']) {

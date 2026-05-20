@@ -20,6 +20,9 @@ namespace GymForge.Domain.Interface
         Gym UpdateGym(Gym gym);
         Task DeleteGymAsync(Guid gymId);
         Task<List<Branch>> GetBranchesByGymIdAsync(Guid gymId);
+        Task<Branch?> GetBranchByIdAsync(Guid id);
+        Branch UpdateBranch(Branch branch);
         Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId);
+        Task<List<Staff>> GetBranchManagersAsync(Guid gymId);
     }
 }

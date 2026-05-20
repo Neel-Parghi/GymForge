@@ -6,15 +6,15 @@ namespace GymForge.Domain.Interface
     {
         // Inventory Items
         Task<InventoryItem?> GetProductByIdAsync(Guid id);
-        Task<List<InventoryItem>> GetProductsByGymIdAsync(Guid gymId);
-        Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm);
+        Task<List<InventoryItem>> GetProductsByGymIdAsync(Guid gymId, Guid? branchId = null);
+        Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null);
         Task AddProductAsync(InventoryItem item);
         InventoryItem UpdateProduct(InventoryItem item);
         Task DeleteProductAsync(Guid id);
 
         // Sales & Stock
         Task<bool> RecordSaleAsync(SaleTransaction transaction);
-        Task<List<SaleTransaction>> GetSalesByGymIdAsync(Guid gymId);
+        Task<List<SaleTransaction>> GetSalesByGymIdAsync(Guid gymId, Guid? branchId = null);
         Task<SaleTransaction?> GetSaleByIdAsync(Guid id);
     }
 }
