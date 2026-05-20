@@ -18,5 +18,7 @@ namespace GymForge.Domain.Interface
         Task<User?> GetByUserByEmailAsync(string email);
         
         Task<User?> Login(LoginRequestDto user);
+        
+        Task<Guid?> GetBranchIdByUserIdAsync(Guid userId);
     }
 }

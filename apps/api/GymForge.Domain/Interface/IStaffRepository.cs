@@ -6,8 +6,8 @@ namespace GymForge.Domain.Interface
     {
         Task AddAsync(Staff staff);
         Task<Staff?> GetByIdAsync(Guid id);
-        Task<IEnumerable<Staff>> GetAllByGymIdAsync(Guid gymId);
-        Task<(IEnumerable<Staff> Items, int TotalCount)> GetPagedStaffAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm);
+        Task<IEnumerable<Staff>> GetAllByGymIdAsync(Guid gymId, Guid? branchId = null);
+        Task<(IEnumerable<Staff> Items, int TotalCount)> GetPagedStaffAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null);
         Task UpdateAsync(Staff staff);
         Task DeleteAsync(Guid id);
         Task<bool> ExistsByEmailAsync(string email, Guid gymId);

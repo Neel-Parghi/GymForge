@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
+using GymForge.Infrastructure.Extensions;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -20,11 +21,15 @@ namespace GymForge.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<List<Equipment>> GetEquipmentByGymIdAsync(Guid gymId)
+        public async Task<List<Equipment>> GetEquipmentByGymIdAsync(Guid gymId, Guid? branchId = null)
         {
-            return await _dbContext.Equipment
+            IQueryable<Equipment> query = _dbContext.Equipment
                 .AsNoTracking()
-                .Where(x => x.GymId == gymId)
+                .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_dbContext.Branches, branchId);
+
+            return await query
                 .OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn)
                 .ToListAsync();
         }

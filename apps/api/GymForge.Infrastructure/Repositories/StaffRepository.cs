@@ -2,6 +2,7 @@ using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using GymForge.Infrastructure.Extensions;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -27,20 +28,24 @@ namespace GymForge.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<Staff>> GetAllByGymIdAsync(Guid gymId)
-        {
-            return await _dbContext.Staff
-                .AsNoTracking()
-                .Where(x => x.GymId == gymId)
-                .OrderBy(x => x.LastName)
-                .ToListAsync();
-        }
-
-        public async Task<(IEnumerable<Staff> Items, int TotalCount)> GetPagedStaffAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm)
+        public async Task<IEnumerable<Staff>> GetAllByGymIdAsync(Guid gymId, Guid? branchId = null)
         {
             IQueryable<Staff> query = _dbContext.Staff
                 .AsNoTracking()
                 .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_dbContext.Branches, branchId);
+
+            return await query.OrderBy(x => x.LastName).ToListAsync();
+        }
+
+        public async Task<(IEnumerable<Staff> Items, int TotalCount)> GetPagedStaffAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        {
+            IQueryable<Staff> query = _dbContext.Staff
+                .AsNoTracking()
+                .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_dbContext.Branches, branchId);
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {

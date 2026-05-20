@@ -5,8 +5,8 @@ namespace GymForge.Domain.Interface
     public interface IGymMemberRepository
     {
         Task<GymMember?> GetByIdAsync(Guid id); 
-        Task<IEnumerable<GymMember>> GetAllByGymIdAsync(Guid gymId); 
-        Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm);
+        Task<IEnumerable<GymMember>> GetAllByGymIdAsync(Guid gymId, Guid? branchId = null); 
+        Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null);
         Task<bool> ExistsByEmailAsync(string email, Guid gymId);
         Task AddAsync(GymMember member); 
         Task AddSubscriptionAsync(MemberSubscription subscription);

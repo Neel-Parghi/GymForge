@@ -2,6 +2,7 @@ using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using GymForge.Infrastructure.Extensions;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -28,24 +29,28 @@ namespace GymForge.Infrastructure.Repositories
             return _dbContext.GymMembers.AnyAsync(x => x.Email == email && x.GymId == gymId);
         }
 
-        public async Task<IEnumerable<GymMember>> GetAllByGymIdAsync(Guid gymId)
+        public async Task<IEnumerable<GymMember>> GetAllByGymIdAsync(Guid gymId, Guid? branchId = null)
         {
-            return await _dbContext.GymMembers
+            IQueryable<GymMember> query = _dbContext.GymMembers
                                     .AsNoTracking()
                                     .Include(x => x.Subscriptions)
                                     .Include(x => x.Address)
-                                    .Where(x => x.GymId == gymId)
-                                    .OrderByDescending(x => x.ModifiedOn)
-                                    .ToListAsync();
+                                    .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_dbContext.Branches, branchId);
+
+            return await query.OrderByDescending(x => x.ModifiedOn).ToListAsync();
         }
 
-        public async Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm)
+        public async Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
         {
             IQueryable<GymMember> query = _dbContext.GymMembers
                                   .AsNoTracking()
                                   .Include(x => x.Subscriptions)
                                   .Include(x => x.Address)
                                   .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_dbContext.Branches, branchId);
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {

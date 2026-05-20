@@ -33,11 +33,18 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<MaintenanceLog>> GetAllMaintenanceLogsAsync(Guid gymId)
+        public async Task<List<MaintenanceLog>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null)
         {
-            return await _dbContext.MaintenanceLogs
+            IQueryable<MaintenanceLog> query = _dbContext.MaintenanceLogs
                 .Include(x => x.Equipment)
-                .Where(x => x.Equipment.GymId == gymId)
+                .Where(x => x.Equipment.GymId == gymId);
+
+            if (branchId.HasValue)
+            {
+                query = query.Where(x => x.Equipment.BranchId == branchId.Value || (x.Equipment.BranchId == null && _dbContext.Branches.Any(b => b.Id == branchId.Value && b.IsMainBranch)));
+            }
+
+            return await query
                 .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
         }
