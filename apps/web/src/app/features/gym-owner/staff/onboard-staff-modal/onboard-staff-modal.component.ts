@@ -7,6 +7,8 @@ import { AuthApiService } from '../../../../core/services/auth-api.service';
 import { ConfirmationPopupComponent } from "../../../../shared/components/confirmation-popup/confirmation-popup.component";
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message.component';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { BranchContextService } from '../../../../core/services/branch-context.service';
+import { DropdownOption } from '../../../../shared/models/dropdown.model';
 
 @Component({
   selector: 'app-onboard-staff-modal',
@@ -21,15 +23,18 @@ export class OnboardStaffModalComponent implements OnInit {
 
   @Input() isEdit = false;
   @Input() staff: any = null;
+  @Input() branches: any[] = [];
 
   onboardForm!: FormGroup;
   isSubmitting = false;
   isConfirmCancelOpen = false;
+  isGymOwner = false;
 
   private fb = inject(FormBuilder);
   private staffService = inject(StaffService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
+  private branchContextService = inject(BranchContextService);
 
   roles = [
     { value: 1, label: 'Trainer' },
@@ -41,12 +46,18 @@ export class OnboardStaffModalComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.isGymOwner = this.authService.getUserRole() === 'GymOwner';
+    const defaultBranchId = this.isEdit 
+      ? (this.staff?.branchId || '')
+      : (this.branchContextService.getActiveBranchId() || '');
+
     this.onboardForm = this.fb.group({
       firstName: [this.staff?.firstName || '', [Validators.required, Validators.minLength(2)]],
       lastName: [this.staff?.lastName || '', [Validators.required, Validators.minLength(2)]],
       email: [this.staff?.email || '', [Validators.required, Validators.email]],
       phoneNumber: [this.staff?.phoneNumber || '', [Validators.required]],
       role: [this.staff?.role || 1, [Validators.required]],
+      branchId: [defaultBranchId],
       experienceYears: [this.staff?.experienceYears || 0, [Validators.min(0), Validators.max(60)]],
       bio: [this.staff?.bio || '', [Validators.maxLength(500)]],
       specializations: [this.staff?.specializations?.join(', ') || ''],
@@ -86,6 +97,10 @@ export class OnboardStaffModalComponent implements OnInit {
         formValue.specializations = [];
       }
 
+      if (!formValue.branchId) {
+        formValue.branchId = null;
+      }
+
       const request = this.isEdit 
         ? this.staffService.updateStaff(this.staff.id, formValue)
         : this.staffService.addStaff(formValue);
@@ -103,5 +118,11 @@ export class OnboardStaffModalComponent implements OnInit {
         }
       });
     }
+  }
+
+  get branchOptions(): DropdownOption[] {
+    const options: DropdownOption[] = [{ label: 'No Branch (General)', value: '' }];
+    this.branches.forEach(b => options.push({ label: b.name, value: b.id }));
+    return options;
   }
 }

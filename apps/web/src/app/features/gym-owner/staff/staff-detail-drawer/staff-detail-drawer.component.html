@@ -88,6 +88,10 @@
                 <span class="label">Shift Timings</span>
                 <span class="value">{{ staff.shiftTimings }}</span>
               </div>
+              <div class="info-tile" *ngIf="branches.length > 0">
+                <span class="label">Assigned Branch</span>
+                <span class="value">{{ getBranchName(staff.branchId) }}</span>
+              </div>
             </div>
           </div>
 
@@ -113,12 +117,49 @@
       <!-- Members View -->
       <div class="tab-content" *ngIf="activeTab === 'members'">
         <div class="members-list-container">
+          <!-- Assign Member Trigger -->
+          <div class="assign-trigger-container" *ngIf="!isLoadingMembers">
+            <button class="btn-assign-trigger" *ngIf="!isAssignFormOpen" (click)="openAssignForm()">
+              <i class="fa-solid fa-plus"></i> Assign Member
+            </button>
+          </div>
+
+          <!-- Assign Inline Form Card -->
+          <div class="assign-form-card" *ngIf="isAssignFormOpen">
+            <h4>Assign New Member</h4>
+            <div class="assign-form-grid">
+              <div class="form-group">
+                <label>Select Member</label>
+                <div *ngIf="isLoadingMembersList" class="loading-members-list" style="margin: 8px 0; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">
+                  <i class="fa-solid fa-circle-notch fa-spin"></i> Loading members...
+                </div>
+                <app-dropdown 
+                  *ngIf="!isLoadingMembersList"
+                  [options]="memberOptions" 
+                  [(ngModel)]="selectedMemberId" 
+                  placeholder="Choose Member" 
+                  minWidth="100%">
+                </app-dropdown>
+              </div>
+              <div class="form-group">
+                <label>Preferred Slot</label>
+                <input type="text" [(ngModel)]="preferredSlot" placeholder="e.g. 6:00 AM - 7:00 AM" class="slot-input">
+              </div>
+              <div class="action-buttons">
+                <button class="btn-cancel" (click)="closeAssignForm()">Cancel</button>
+                <button class="btn-submit" [disabled]="!selectedMemberId || isSubmittingAssignment" (click)="submitAssignment()">
+                  {{ isSubmittingAssignment ? 'Assigning...' : 'Assign Member' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div *ngIf="isLoadingMembers" class="loading-state">
             <div class="spinner"></div>
             <p>Fetching assigned members...</p>
           </div>
 
-          <div *ngIf="!isLoadingMembers && assignedMembers.length === 0" class="no-data-state">
+          <div *ngIf="!isLoadingMembers && assignedMembers.length === 0 && !isAssignFormOpen" class="no-data-state">
             <i class="fa-solid fa-user-group"></i>
             <p>No members assigned to this trainer yet.</p>
           </div>

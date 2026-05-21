@@ -14,6 +14,7 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
 import { OnboardStaffModalComponent } from './onboard-staff-modal/onboard-staff-modal.component';
 import { StaffDetailDrawerComponent } from './staff-detail-drawer/staff-detail-drawer.component';
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
+import { GymService } from '../../../core/services/gym.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { DropdownComponent } from "../../../shared/components/dropdown/dropdown.component";
 import { FilterBarComponent } from "../../../shared/components/filter-bar/filter-bar.component";
@@ -31,8 +32,10 @@ export class StaffListComponent implements OnInit {
   private notification = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
   private branchContextService = inject(BranchContextService);
+  private gymService = inject(GymService);
 
   staff: StaffResponse[] = [];
+  branches: any[] = [];
   isLoading = true;
   isAddStaffModalOpen = false;
   isEditMode = false;
@@ -67,6 +70,11 @@ export class StaffListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.gymService.getMyBranches().subscribe({
+      next: (res) => this.branches = res.data || [],
+      error: () => {}
+    });
+
     this.branchContextService.activeBranch$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {

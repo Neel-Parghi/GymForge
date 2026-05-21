@@ -100,6 +100,10 @@
               <span class="label">Email Address</span>
               <span class="value">{{ member.email }}</span>
             </div>
+            <div class="info-tile" style="grid-column: span 2;" *ngIf="branches.length > 0">
+              <span class="label">Assigned Branch</span>
+              <span class="value">{{ getBranchName(member.branchId) }}</span>
+            </div>
           </div>
         </div>
 

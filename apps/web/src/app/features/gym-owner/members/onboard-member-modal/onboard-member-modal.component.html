@@ -211,6 +211,15 @@
                 placeholder="Select Status">
               </app-dropdown>
             </div>
+
+            <div class="form-group lg" *ngIf="isGymOwner && branches.length > 0">
+              <label>Assign to Branch</label>
+              <app-dropdown 
+                [options]="branchOptions" 
+                formControlName="branchId" 
+                placeholder="Select Branch (Optional)">
+              </app-dropdown>
+            </div>
           </div>
         </div>
 
@@ -227,6 +236,7 @@
                 'Female' : 'Other' }}</div>
               <div><span>Email:</span> {{ form.get('email')?.value }}</div>
               <div><span>Phone:</span> {{ form.get('phoneNumber')?.value }}</div>
+              <div *ngIf="isGymOwner && branches.length > 0"><span>Branch:</span> {{ getSelectedBranchName() }}</div>
               <div *ngIf="form.get('emergencyContactName')?.value" style="grid-column: span 2;">
                 <span>Emergency:</span> {{ form.get('emergencyContactName')?.value }} ({{
                 form.get('emergencyContactPhone')?.value }})
