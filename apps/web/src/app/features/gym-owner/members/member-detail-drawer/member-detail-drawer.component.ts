@@ -20,6 +20,7 @@ export class MemberDetailDrawer implements OnChanges {
   @Input() isOpen = false;
   @Input() member: GymMember | null = null;
   @Input() plans: GymPlan[] = [];
+  @Input() branches: any[] = [];
   @Output() drawerClose = new EventEmitter<void>();
   @Output() manage = new EventEmitter<string>();
   @Output() freeze = new EventEmitter<string>();
@@ -147,5 +148,11 @@ export class MemberDetailDrawer implements OnChanges {
     if (!this.member) return;
     if (this.isFrozen) this.unfreeze.emit(this.member.id);
     else this.freeze.emit(this.member.id);
+  }
+
+  getBranchName(branchId?: string): string {
+    if (!branchId) return 'No Branch (General)';
+    const branch = this.branches.find(b => b.id === branchId);
+    return branch ? branch.name : 'Unknown Branch';
   }
 }

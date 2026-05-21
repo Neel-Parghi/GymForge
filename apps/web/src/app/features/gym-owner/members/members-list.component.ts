@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MemberService } from '../../../core/services/member.service';
 import { GymPlanService } from '../../../core/services/gym-plan.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
@@ -33,6 +34,7 @@ export class MembersListComponent implements OnInit {
   private memberService = inject(MemberService);
   private gymPlanService = inject(GymPlanService);
   private authService = inject(AuthApiService);
+  private gymService = inject(GymService);
   private notificationService = inject(NotificationService);
   private confirmationService = inject(ConfirmationService);
   private fb = inject(FormBuilder);
@@ -45,6 +47,7 @@ export class MembersListComponent implements OnInit {
   members: GymMember[] = [];
   filteredMembers: GymMember[] = [];
   activePlans: GymPlan[] = [];
+  branches: any[] = [];
   loading = false;
   gymId: string | null = null;
   gymOwnerId: string | null = null;
@@ -116,6 +119,10 @@ export class MembersListComponent implements OnInit {
 
     if (this.gymId) {
       this.loadPlans();
+      this.gymService.getMyBranches().subscribe({
+        next: (res) => this.branches = res.data || [],
+        error: () => {}
+      });
     }
 
     this.branchContextService.activeBranch$.pipe(

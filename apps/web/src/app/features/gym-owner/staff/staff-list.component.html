@@ -63,11 +63,11 @@
 </div>
 
 <!-- Modals & Drawers -->
-<app-onboard-staff-modal *ngIf="isAddStaffModalOpen" [isEdit]="isEditMode" [staff]="selectedStaff"
+<app-onboard-staff-modal *ngIf="isAddStaffModalOpen" [isEdit]="isEditMode" [staff]="selectedStaff" [branches]="branches"
   (close)="closeAddModal()" (staffOnboarded)="loadStaff(true)">
 </app-onboard-staff-modal>
 
-<app-staff-detail-drawer [isOpen]="isDrawerOpen" [staff]="selectedStaff" (close)="isDrawerOpen = false"
+<app-staff-detail-drawer [isOpen]="isDrawerOpen" [staff]="selectedStaff" [branches]="branches" (close)="isDrawerOpen = false"
   (edit)="onEditStaff($any($event))" (statusChanged)="loadStaff(true)">
 </app-staff-detail-drawer>
 

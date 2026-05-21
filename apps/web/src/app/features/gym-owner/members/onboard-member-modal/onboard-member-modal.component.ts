@@ -8,6 +8,7 @@ import { AuthApiService } from '../../../../core/services/auth-api.service';
 import { ConfirmationPopupComponent } from '../../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
+import { BranchContextService } from '../../../../core/services/branch-context.service';
 
 @Component({
   selector: 'app-onboard-member-modal',
@@ -19,6 +20,7 @@ import { DropdownOption } from '../../../../shared/models/dropdown.model';
 export class OnboardMemberModal implements OnChanges, OnInit {
   @Input() isOpen = false;
   @Input() plans: GymPlan[] = [];
+  @Input() branches: any[] = [];
   @Input() isEdit = false;
   @Input() member: GymMember | null = null;
 
@@ -32,7 +34,9 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthApiService);
   private cdr = inject(ChangeDetectorRef);
+  private branchContextService = inject(BranchContextService);
 
+  isGymOwner = false;
   currentStep = 1;
   totalSteps = 4;
   steps = [
@@ -50,6 +54,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     dateOfBirth: ['', Validators.required],
     gender: ['', Validators.required],
     bloodGroup: [''],
+    branchId: [''],
     address: this.fb.group({
       line1: [''],
       line2: [''],
@@ -111,6 +116,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   isConfirmCancelOpen = false;
 
   ngOnInit(): void {
+    this.isGymOwner = this.authService.getUserRole() === 'GymOwner';
   }
 
   toggleFitnessGoals(): void {
@@ -161,6 +167,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
             dateOfBirth: this.member!.dateOfBirth?.split('T')?.[0],
             gender: this.member!.gender,
             bloodGroup: this.member!.bloodGroup || '',
+            branchId: this.member!.branchId || '',
             address: this.member!.address || {
               line1: '', line2: '', city: '', state: '', country: '', postalCode: ''
             },
@@ -177,12 +184,14 @@ export class OnboardMemberModal implements OnChanges, OnInit {
           this.cdr.detectChanges();
         }, 100);
       } else if (!this.isEdit) {
+        const activeBranchId = this.branchContextService.getActiveBranchId() || '';
         this.form.reset({
           gender: '',
           bloodGroup: '',
           gymPlanId: '',
           paymentStatus: PaymentStatus.Paid,
           fitnessGoals: [],
+          branchId: activeBranchId,
           address: {
             line1: '', line2: '', city: '', state: '', country: '', postalCode: ''
           }
@@ -264,7 +273,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       emergencyContactPhone: v.emergencyContactPhone || undefined,
       gymPlanId: v.gymPlanId,
       startDate: v.startDate || undefined,
-      paymentStatus: Number(v.paymentStatus)
+      paymentStatus: Number(v.paymentStatus),
+      branchId: v.branchId || undefined
     };
     this.submitting = true;
     this.submitted.emit(payload);
@@ -319,5 +329,18 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     const plan = this.plans.find(p => p.id === planId);
     if (!plan) return 'Not Selected';
     return `${plan.name} — ₹${plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price} / ${plan.durationMonths} mo`;
+  }
+
+  get branchOptions(): DropdownOption[] {
+    const options: DropdownOption[] = [{ label: 'No Branch (General)', value: '' }];
+    this.branches.forEach(b => options.push({ label: b.name, value: b.id }));
+    return options;
+  }
+
+  getSelectedBranchName(): string {
+    const branchId = this.form.get('branchId')?.value;
+    if (!branchId) return 'No Branch (General)';
+    const branch = this.branches.find(b => b.id === branchId);
+    return branch ? branch.name : 'Unknown Branch';
   }
 }

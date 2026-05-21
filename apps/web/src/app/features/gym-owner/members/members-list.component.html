@@ -96,14 +96,14 @@
 
 
 <!-- Onboard / Manage Modal -->
-<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="activePlans" [isEdit]="isEditMode" [member]="selectedMember"
+<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="activePlans" [branches]="branches" [isEdit]="isEditMode" [member]="selectedMember"
   (close)="isOnboardOpen = false" (submitted)="isEditMode ? handleUpdate($event) : handleOnboard($event)"
   (freeze)="handleFreeze($event)" (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)"
   (renew)="handleRenew($event)">
 </app-onboard-member-modal>
 
 <!-- Member Detail Drawer -->
-<app-member-detail-drawer [isOpen]="isDrawerOpen" [member]="selectedMember" [plans]="activePlans"
+<app-member-detail-drawer [isOpen]="isDrawerOpen" [member]="selectedMember" [plans]="activePlans" [branches]="branches"
   (drawerClose)="isDrawerOpen = false" (manage)="openEditModal($event)" (freeze)="handleFreeze($event)"
   (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)" (renew)="handleRenew($event)">
 </app-member-detail-drawer>
