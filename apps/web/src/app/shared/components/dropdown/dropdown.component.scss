@@ -73,9 +73,6 @@
   }
 
   .select-options {
-    position: absolute;
-    width: 100%;
-    z-index: 1000;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px);
     border: 1px solid var(--border-color);
@@ -83,34 +80,65 @@
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overflow-y: auto;
     max-height: 280px;
     padding: 8px;
 
-    &.align-left {
-      left: 0;
+    &.fixed-position {
+      position: fixed;
+      z-index: 1002;
     }
 
-    &.align-right {
-      right: 0;
-      left: auto;
+    &.absolute-position {
+      position: absolute;
+      width: 100%;
+      z-index: 1000;
+
+      &.align-left {
+        left: 0;
+      }
+
+      &.align-right {
+        right: 0;
+        left: auto;
+      }
+
+      &.drop-up {
+        bottom: calc(100% + 4px);
+        top: auto;
+      }
+
+      &.drop-down {
+        top: calc(100% + 4px);
+        bottom: auto;
+      }
     }
 
     &.drop-up {
-      bottom: calc(100% + 4px);
-      top: auto;
-      transform-origin: bottom;
-      animation: dropUpSlide 0.2s cubic-bezier(0, 0, 0.2, 1);
       transform: translateY(0);
+
+      &.align-left {
+        transform-origin: bottom left;
+        animation: dropUpSlideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      &.align-right {
+        transform-origin: bottom right;
+        animation: dropUpSlideRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
     }
 
     &.drop-down {
-      top: calc(100% + 4px);
-      bottom: auto;
-      transform-origin: top;
-      animation: dropDownSlide 0.2s cubic-bezier(0, 0, 0.2, 1);
       transform: translateY(0);
+
+      &.align-left {
+        transform-origin: top left;
+        animation: dropDownSlideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      &.align-right {
+        transform-origin: top right;
+        animation: dropDownSlideRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
     }
 
     /* Custom Scrollbar */
@@ -184,32 +212,59 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 999;
     background: transparent;
+
+    &.overlay-fixed {
+      z-index: 1001;
+    }
+    
+    &.overlay-absolute {
+      z-index: 999;
+    }
   }
 }
 
-@keyframes dropDownSlide {
+@keyframes dropDownSlideLeft {
   from {
     opacity: 0;
-    transform: translateY(-10px) scaleY(0.95);
+    transform: translateY(-8px) translateX(-8px) scale(0.95);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0) scaleY(1);
+    transform: translateY(0) translateX(0) scale(1);
   }
 }
 
-@keyframes dropUpSlide {
+@keyframes dropDownSlideRight {
   from {
     opacity: 0;
-    transform: translateY(10px) scaleY(0.95);
+    transform: translateY(-8px) translateX(8px) scale(0.95);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0) scaleY(1);
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+
+@keyframes dropUpSlideLeft {
+  from {
+    opacity: 0;
+    transform: translateY(8px) translateX(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+
+@keyframes dropUpSlideRight {
+  from {
+    opacity: 0;
+    transform: translateY(8px) translateX(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
   }
 }
 

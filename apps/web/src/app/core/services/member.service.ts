@@ -43,7 +43,7 @@ export class MemberService extends BaseApiService {
 
   getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh || branchId) {
+    if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
       const params: any = { pageNumber, pageSize };
       if (search) params.searchTerm = search;
       if (branchId) params.branchId = branchId;
@@ -51,7 +51,9 @@ export class MemberService extends BaseApiService {
     }
 
     if (!this.membersCache$) {
-      this.membersCache$ = this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, { pageNumber: 1, pageSize: 10 }).pipe(
+      const params: any = { pageNumber: 1, pageSize: 10 };
+      if (branchId) params.branchId = branchId;
+      this.membersCache$ = this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params).pipe(
         shareReplay(1)
       );
     }

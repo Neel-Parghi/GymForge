@@ -90,7 +90,6 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    isRowClickable: true
   },
   EquipmentItems: {
     columns: [
@@ -101,7 +100,6 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    isRowClickable: true
   },
   MaintenanceTasks: {
     columns: [
@@ -112,7 +110,6 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Record Service', type: 'action' }
     ],
     selectable: false,
-    isRowClickable: true
   },
   SalesHistory: {
     columns: [
@@ -125,7 +122,6 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    isRowClickable: true,
     excludeActions: ['edit']
   },
   ServiceHistory: {
@@ -139,6 +135,5 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    isRowClickable: true
   }
 };

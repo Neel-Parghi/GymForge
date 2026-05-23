@@ -7,13 +7,14 @@ import { Gender, PaymentStatus } from '../../../../shared/enums/member-enums';
 import { AuthApiService } from '../../../../core/services/auth-api.service';
 import { ConfirmationPopupComponent } from '../../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { DateTimePickerComponent } from '../../../../shared/components/date-time-picker/date-time-picker.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { BranchContextService } from '../../../../core/services/branch-context.service';
 
 @Component({
   selector: 'app-onboard-member-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, DropdownComponent, DateTimePickerComponent],
   templateUrl: './onboard-member-modal.component.html',
   styleUrl: './onboard-member-modal.component.scss'
 })

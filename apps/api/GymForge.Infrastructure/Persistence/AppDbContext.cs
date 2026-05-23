@@ -1,5 +1,6 @@
 using GymForge.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 
 namespace GymForge.Infrastructure.Persistence
@@ -49,9 +50,34 @@ namespace GymForge.Infrastructure.Persistence
         
         public DbSet<SaleTransaction> SaleTransactions { get; set; }
 
+        public DbSet<AttendanceLog> AttendanceLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            ValueConverter<DateTime, DateTime> utcConverter = new(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v.ToUniversalTime(), DateTimeKind.Utc));
+
+            ValueConverter<DateTime?, DateTime?> nullableUtcConverter = new(
+                v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value.ToUniversalTime(), DateTimeKind.Utc) : v);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(utcConverter);
+                    }
+                    else if (property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetValueConverter(nullableUtcConverter);
+                    }
+                }
+            }
 
             modelBuilder.Entity<RefreshToken>(entity =>
             {
@@ -129,6 +155,29 @@ namespace GymForge.Infrastructure.Persistence
             modelBuilder.Entity<SaleTransaction>().HasIndex(x => x.GymId);
             modelBuilder.Entity<GymMember>().HasIndex(x => x.GymId);
             modelBuilder.Entity<Staff>().HasIndex(x => x.GymId);
+
+            // AttendanceLog configuration
+            modelBuilder.Entity<AttendanceLog>(entity =>
+            {
+                entity.HasOne(a => a.Member)
+                      .WithMany()
+                      .HasForeignKey(a => a.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(a => a.Branch)
+                      .WithMany()
+                      .HasForeignKey(a => a.BranchId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(a => a.VerificationMethod)
+                      .HasMaxLength(50)
+                      .IsRequired();
+
+                // Indexes for fast live-occupancy and log queries
+                entity.HasIndex(a => new { a.BranchId, a.CheckOutTime });
+                entity.HasIndex(a => a.MemberId);
+                entity.HasIndex(a => a.CheckInTime);
+            });
 
             // Seed default settings
             modelBuilder.Entity<SaaSConfiguration>().HasData(new SaaSConfiguration

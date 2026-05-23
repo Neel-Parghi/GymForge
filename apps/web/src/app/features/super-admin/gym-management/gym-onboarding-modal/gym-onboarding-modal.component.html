@@ -58,16 +58,19 @@
             <div class="form-group">
               <label>Email Address *</label>
               <input type="email" formControlName="email" placeholder="contact@gym.com">
-              <app-validation-message [control]="onboardingForm.get('gymInfo.email')" fieldName="Email"></app-validation-message>
+              <app-validation-message [control]="onboardingForm.get('gymInfo.email')"
+                fieldName="Email"></app-validation-message>
             </div>
             <div class="form-group">
               <label>Phone Number *</label>
               <input type="text" formControlName="phone" placeholder="+1 234 567 8900">
-              <app-validation-message [control]="onboardingForm.get('gymInfo.phone')" fieldName="Phone number"></app-validation-message>
+              <app-validation-message [control]="onboardingForm.get('gymInfo.phone')"
+                fieldName="Phone number"></app-validation-message>
             </div>
             <div class="form-group">
               <label>Established Date</label>
-              <input type="date" formControlName="establishedDate">
+              <app-date-time-picker formControlName="establishedDate"
+                placeholder="Select established date"></app-date-time-picker>
             </div>
             <div class="form-group">
               <label>Website</label>
@@ -75,36 +78,42 @@
             </div>
 
             <div class="form-section-title lg">Registered Address</div>
-            <div class="form-grid lg" formGroupName="address">
-              <div class="form-group lg">
-                <label>Address Line 1 *</label>
-                <input type="text" formControlName="line1" placeholder="Street address">
-                <app-validation-message [control]="onboardingForm.get('gymInfo.address.line1')" fieldName="Address"></app-validation-message>
-              </div>
-              <div class="form-group lg">
-                <label>Address Line 2 (Optional)</label>
-                <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
-              </div>
-              <div class="form-group">
-                <label>City *</label>
-                <input type="text" formControlName="city">
-                <app-validation-message [control]="onboardingForm.get('gymInfo.address.city')" fieldName="City"></app-validation-message>
-              </div>
-              <div class="form-group">
-                <label>State *</label>
-                <input type="text" formControlName="state">
-                <app-validation-message [control]="onboardingForm.get('gymInfo.address.state')" fieldName="State"></app-validation-message>
-              </div>
-              <div class="form-group">
-                <label>Country *</label>
-                <input type="text" formControlName="country">
-                <app-validation-message [control]="onboardingForm.get('gymInfo.address.country')" fieldName="Country"></app-validation-message>
-              </div>
-              <div class="form-group">
-                <label>Postal Code *</label>
-                <input type="text" formControlName="postalCode">
-                <app-validation-message [control]="onboardingForm.get('gymInfo.address.postalCode')" fieldName="Postal code"></app-validation-message>
-              </div>
+
+          </div>
+          <div class="form-grid lg" formGroupName="address">
+            <div class="form-group lg">
+              <label>Address Line 1 *</label>
+              <input type="text" formControlName="line1" placeholder="Street address">
+              <app-validation-message [control]="onboardingForm.get('gymInfo.address.line1')"
+                fieldName="Address"></app-validation-message>
+            </div>
+            <div class="form-group lg">
+              <label>Address Line 2 (Optional)</label>
+              <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+            </div>
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" formControlName="city">
+              <app-validation-message [control]="onboardingForm.get('gymInfo.address.city')"
+                fieldName="City"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>State *</label>
+              <input type="text" formControlName="state">
+              <app-validation-message [control]="onboardingForm.get('gymInfo.address.state')"
+                fieldName="State"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>Country *</label>
+              <input type="text" formControlName="country">
+              <app-validation-message [control]="onboardingForm.get('gymInfo.address.country')"
+                fieldName="Country"></app-validation-message>
+            </div>
+            <div class="form-group">
+              <label>Postal Code *</label>
+              <input type="text" formControlName="postalCode">
+              <app-validation-message [control]="onboardingForm.get('gymInfo.address.postalCode')"
+                fieldName="Postal code"></app-validation-message>
             </div>
           </div>
         </div>
@@ -143,13 +152,15 @@
                   <div class="form-group lg">
                     <label>Branch Name/Alias *</label>
                     <input type="text" formControlName="name" placeholder="e.g. Downtown Hub">
-                    <app-validation-message [control]="branch.get('name')" fieldName="Branch name"></app-validation-message>
+                    <app-validation-message [control]="branch.get('name')"
+                      fieldName="Branch name"></app-validation-message>
                   </div>
                   <div class="form-grid lg" formGroupName="address">
                     <div class="form-group lg">
                       <label>Address Line 1 *</label>
                       <input type="text" formControlName="line1" placeholder="Street address">
-                      <app-validation-message [control]="branch.get('address.line1')" fieldName="Address"></app-validation-message>
+                      <app-validation-message [control]="branch.get('address.line1')"
+                        fieldName="Address"></app-validation-message>
                     </div>
                     <div class="form-group lg">
                       <label>Address Line 2 (Optional)</label>
@@ -158,28 +169,33 @@
                     <div class="form-group">
                       <label>City *</label>
                       <input type="text" formControlName="city">
-                      <app-validation-message [control]="branch.get('address.city')" fieldName="City"></app-validation-message>
+                      <app-validation-message [control]="branch.get('address.city')"
+                        fieldName="City"></app-validation-message>
                     </div>
                     <div class="form-group">
                       <label>State *</label>
                       <input type="text" formControlName="state">
-                      <app-validation-message [control]="branch.get('address.state')" fieldName="State"></app-validation-message>
+                      <app-validation-message [control]="branch.get('address.state')"
+                        fieldName="State"></app-validation-message>
                     </div>
                     <div class="form-group">
                       <label>Country *</label>
                       <input type="text" formControlName="country">
-                      <app-validation-message [control]="branch.get('address.country')" fieldName="Country"></app-validation-message>
+                      <app-validation-message [control]="branch.get('address.country')"
+                        fieldName="Country"></app-validation-message>
                     </div>
                     <div class="form-group">
                       <label>Postal Code *</label>
                       <input type="text" formControlName="postalCode">
-                      <app-validation-message [control]="branch.get('address.postalCode')" fieldName="Postal code"></app-validation-message>
+                      <app-validation-message [control]="branch.get('address.postalCode')"
+                        fieldName="Postal code"></app-validation-message>
                     </div>
                   </div>
                   <div class="form-group lg">
                     <label>Phone Number *</label>
                     <input type="text" formControlName="contactNumber">
-                    <app-validation-message [control]="branch.get('contactNumber')" fieldName="Phone number"></app-validation-message>
+                    <app-validation-message [control]="branch.get('contactNumber')"
+                      fieldName="Phone number"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Opening Time</label>
@@ -202,10 +218,7 @@
           <div class="form-grid">
             <div class="form-group lg">
               <label>Select Owner *</label>
-              <app-dropdown 
-                [options]="ownerOptions" 
-                formControlName="assignedOwnerId" 
-                placeholder="Select an owner...">
+              <app-dropdown [options]="ownerOptions" formControlName="assignedOwnerId" placeholder="Select an owner...">
               </app-dropdown>
             </div>
             <div class="info-card lg">
@@ -224,9 +237,7 @@
           <div class="form-grid">
             <div class="form-group lg">
               <label>Select Plan Tier</label>
-              <app-dropdown 
-                [options]="planOptions" 
-                formControlName="subscriptionId" 
+              <app-dropdown [options]="planOptions" formControlName="subscriptionId"
                 placeholder="No Plan Selected (Trialing)">
               </app-dropdown>
             </div>
@@ -237,9 +248,7 @@
             </div>
             <div class="form-group lg" *ngIf="!onboardingForm.get('plan.isTrial')?.value">
               <label>Billing Cycle</label>
-              <app-dropdown 
-                [options]="billingCycleOptions" 
-                formControlName="billingCycle">
+              <app-dropdown [options]="billingCycleOptions" formControlName="billingCycle">
               </app-dropdown>
             </div>
           </div>

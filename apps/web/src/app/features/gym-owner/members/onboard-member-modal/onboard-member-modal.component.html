@@ -53,10 +53,7 @@
 
             <div class="form-group">
               <label>Gender *</label>
-              <app-dropdown 
-                [options]="genderOptions" 
-                formControlName="gender" 
-                placeholder="Select Gender"
+              <app-dropdown [options]="genderOptions" formControlName="gender" placeholder="Select Gender"
                 [class.error]="isInvalid('gender')">
               </app-dropdown>
               <span class="error-msg" *ngIf="isInvalid('gender')">Please select a gender</span>
@@ -64,7 +61,8 @@
 
             <div class="form-group">
               <label>Date of Birth *</label>
-              <input type="date" formControlName="dateOfBirth" [max]="today" [class.error]="isInvalid('dateOfBirth')">
+              <app-date-time-picker formControlName="dateOfBirth" [class.error]="isInvalid('dateOfBirth')"
+                placeholder="Select DOB"></app-date-time-picker>
               <span class="error-msg" *ngIf="isInvalid('dateOfBirth')">Date of birth is required</span>
             </div>
 
@@ -138,10 +136,7 @@
           <div class="form-grid">
             <div class="form-group">
               <label>Blood Group <span class="optional">(Optional)</span></label>
-              <app-dropdown 
-                [options]="bloodGroupOptions" 
-                formControlName="bloodGroup" 
-                placeholder="Select Blood Group">
+              <app-dropdown [options]="bloodGroupOptions" formControlName="bloodGroup" placeholder="Select Blood Group">
               </app-dropdown>
             </div>
 
@@ -200,24 +195,19 @@
 
             <div class="form-group lg">
               <label>Start Date (Defaults to today)</label>
-              <input type="date" formControlName="startDate">
+              <app-date-time-picker formControlName="startDate" placeholder="Select start date"></app-date-time-picker>
             </div>
 
             <div class="form-group lg">
               <label>Initial Payment Status *</label>
-              <app-dropdown 
-                [options]="paymentStatusOptions" 
-                formControlName="paymentStatus"
+              <app-dropdown [options]="paymentStatusOptions" formControlName="paymentStatus"
                 placeholder="Select Status">
               </app-dropdown>
             </div>
 
             <div class="form-group lg" *ngIf="isGymOwner && branches.length > 0">
               <label>Assign to Branch</label>
-              <app-dropdown 
-                [options]="branchOptions" 
-                formControlName="branchId" 
-                placeholder="Select Branch (Optional)">
+              <app-dropdown [options]="branchOptions" formControlName="branchId" placeholder="Select Branch (Optional)">
               </app-dropdown>
             </div>
           </div>
@@ -283,7 +273,7 @@
                 <button class="secondary-btn" (click)="unfreeze.emit(member!.id)" *ngIf="member!.status === 3">
                   <i class="fa-solid fa-fire"></i> Unfreeze Member
                 </button>
-                
+
                 <!-- Activate/Deactivate: Status 1 is Active, 2 is Inactive -->
                 <button class="secondary-btn" (click)="toggle.emit(member!.id)">
                   <i class="fa-solid" [ngClass]="member!.status === 1 ? 'fa-eye-slash' : 'fa-eye'"></i>

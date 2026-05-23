@@ -1,4 +1,6 @@
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Gym.Management;
+using GymForge.Contracts.Gym.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +21,7 @@ namespace GymForge.Api.Controllers.Gym
         [HttpGet]
         public async Task<IActionResult> GetMyGym()
         {
-            var gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
+            GymListResponseDto? gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
             if (gym == null) return NotFound("Gym not found for this owner.");
             return Ok(gym);
         }
@@ -33,17 +35,17 @@ namespace GymForge.Api.Controllers.Gym
         [HttpGet("branches")]
         public async Task<IActionResult> GetMyBranches()
         {
-            var gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
+            GymListResponseDto? gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
             if (gym == null) return NotFound("Gym not found for this owner.");
-            
-            var branches = await _gymManagementService.GetBranchesByGymIdAsync(gym.Id);
+
+            List<BranchDto> branches = await _gymManagementService.GetBranchesByGymIdAsync(gym.Id);
             return Ok(branches);
         }
 
         [HttpPost("branches")]
-        public async Task<IActionResult> AddMyBranch([FromBody] GymForge.Contracts.Gym.Shared.BranchDto branchDto)
+        public async Task<IActionResult> AddMyBranch([FromBody] BranchDto branchDto)
         {
-            var gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
+            GymListResponseDto? gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
             if (gym == null) return NotFound("Gym not found for this owner.");
             
             await _gymManagementService.AddBranchAsync(gym.Id, branchDto);
@@ -51,7 +53,7 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpPut("branches/{branchId}")]
-        public async Task<IActionResult> UpdateMyBranch(Guid branchId, [FromBody] GymForge.Contracts.Gym.Shared.BranchDto branchDto)
+        public async Task<IActionResult> UpdateMyBranch(Guid branchId, [FromBody] BranchDto branchDto)
         {
             await _gymManagementService.UpdateBranchAsync(branchId, branchDto);
             return Ok(new { message = "Branch updated successfully" });

@@ -1,0 +1,156 @@
+<div class="date-time-picker-container" [class.disabled]="disabled">
+  <!-- Backdrop to close when clicking outside -->
+  <div class="calendar-backdrop" [class.backdrop-fixed]="!insideDrawer" [class.backdrop-absolute]="insideDrawer"
+    *ngIf="showCalendarDropdown" (click)="showCalendarDropdown = false"></div>
+
+  <!-- Picker Trigger Button -->
+  <div class="calendar-trigger" [class.active]="showCalendarDropdown" [class.has-value]="selectedDate"
+    (click)="toggleCalendar()">
+    <i class="fa-solid fa-calendar-days"></i>
+    <span class="trigger-text">
+      <ng-container *ngIf="selectedDate; else placeholderText">
+        {{ selectedDate | date:(enableTime ? 'MMM d, y, h:mm a' : 'mediumDate') }}
+      </ng-container>
+      <ng-template #placeholderText>{{ placeholder }}</ng-template>
+    </span>
+    <button class="clear-date-btn" *ngIf="selectedDate && !disabled" (click)="clearDate($event)">
+      <i class="fa-solid fa-circle-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Custom Calendar & Time Picker Dropdown -->
+  <div class="calendar-dropdown" [ngClass]="[dropdownAlign, dropdownVerticalAlign]"
+    [class.fixed-position]="!insideDrawer" [class.absolute-position]="insideDrawer"
+    [style.top]="insideDrawer ? null : dropdownTop" [style.left]="insideDrawer ? null : dropdownLeft"
+    *ngIf="showCalendarDropdown">
+    <!-- Month/Year Header -->
+    <div class="calendar-header">
+      <!-- Days view: Navigates months -->
+      <ng-container *ngIf="currentPickerView === 'days'">
+        <button type="button" class="nav-btn" (click)="prevMonth($event)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="calendar-title">
+          <button type="button" class="header-picker-btn" (click)="showMonthView($event)">{{ currentViewDate |
+            date:'MMMM' }}</button>
+          <button type="button" class="header-picker-btn" (click)="showYearView($event)">{{ currentViewDate |
+            date:'yyyy' }}</button>
+        </div>
+        <button type="button" class="nav-btn" (click)="nextMonth($event)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </ng-container>
+
+      <!-- Months view: Navigates years -->
+      <ng-container *ngIf="currentPickerView === 'months'">
+        <button type="button" class="nav-btn" (click)="prevYear($event)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="calendar-title">
+          <button type="button" class="header-picker-btn" (click)="showYearView($event)">{{
+            currentViewDate.getFullYear() }}</button>
+        </div>
+        <button type="button" class="nav-btn" (click)="nextYear($event)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </ng-container>
+
+      <!-- Years view: Navigates year ranges -->
+      <ng-container *ngIf="currentPickerView === 'years'">
+        <button type="button" class="nav-btn" (click)="prevYearRange($event)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="calendar-title">
+          <span>{{ startYearRange }} - {{ startYearRange + 15 }}</span>
+        </div>
+        <button type="button" class="nav-btn" (click)="nextYearRange($event)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </ng-container>
+    </div>
+
+    <!-- Days View Grid -->
+    <ng-container *ngIf="currentPickerView === 'days'">
+      <!-- Weekdays Header -->
+      <div class="calendar-weekdays">
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="calendar-grid">
+        <button type="button" *ngFor="let day of calendarDays" class="calendar-day"
+          [class.other-month]="!day.isCurrentMonth" [class.today]="day.isToday" [class.selected-day]="day.isSelected"
+          (click)="selectDate(day, $event)">
+          {{ day.dayNumber }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Months View Grid -->
+    <ng-container *ngIf="currentPickerView === 'months'">
+      <div class="months-grid">
+        <button type="button" *ngFor="let monthName of monthsList; let i = index" class="month-item"
+          [class.active]="currentViewDate.getMonth() === i" (click)="selectMonth(i, $event)">
+          {{ monthName }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Years View Grid -->
+    <ng-container *ngIf="currentPickerView === 'years'">
+      <div class="years-grid">
+        <button type="button" *ngFor="let yr of getYearsRangeList()" class="year-item"
+          [class.active]="currentViewDate.getFullYear() === yr" (click)="selectYear(yr, $event)">
+          {{ yr }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Conditionally Rendered Time Picker Section -->
+    <div class="time-picker-section" *ngIf="enableTime">
+      <div class="time-picker-divider"></div>
+
+      <div class="time-picker-label">
+        <i class="fa-solid fa-clock"></i> Select Time
+      </div>
+
+      <div class="time-picker-controls">
+        <!-- Hour Select -->
+        <div class="time-selector">
+          <button type="button" class="time-arrow" (click)="incrementHours($event)">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <span class="time-display">{{ hours | number:'2.0-0' }}</span>
+          <button type="button" class="time-arrow" (click)="decrementHours($event)">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <span class="time-colon">:</span>
+
+        <!-- Minute Select -->
+        <div class="time-selector">
+          <button type="button" class="time-arrow" (click)="incrementMinutes($event)">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <span class="time-display">{{ minutes | number:'2.0-0' }}</span>
+          <button type="button" class="time-arrow" (click)="decrementMinutes($event)">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <!-- AM/PM Toggle Button -->
+        <button type="button" class="am-pm-toggle" (click)="togglePeriod($event)">
+          {{ period }}
+        </button>
+      </div>
+
+      <!-- Action Button for Time Picker -->
+      <div class="time-picker-footer">
+        <button type="button" class="time-apply-btn" (click)="applyTime($event)">
+          Apply Date & Time
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

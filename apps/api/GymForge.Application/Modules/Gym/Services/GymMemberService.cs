@@ -250,10 +250,10 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             IEnumerable<GymMember> members = await _memberRepository.GetAllByGymIdAsync(gymId, branchId);
             
-            using var sw = new StringWriter();
+            using StringWriter sw = new();
             sw.WriteLine("MembershipID,FirstName,LastName,Email,Phone,Gender,Status,JoiningDate,CurrentPlan,PlanExpiry");
 
-            foreach (var m in members)
+            foreach (GymMember m in members)
             {
                 MemberSubscription? sub = m.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
                 sw.WriteLine($"{m.MembershipNumber},{m.FirstName},{m.LastName},{m.Email},{m.PhoneNumber},{m.Gender},{m.Status},{m.JoiningDate:yyyy-MM-dd},{sub?.PlanNameSnapshot ?? "N/A"},{sub?.EndDate:yyyy-MM-dd}");

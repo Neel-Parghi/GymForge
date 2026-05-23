@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { StaffResponse } from '../../../../core/models/staff.model';
 import { StaffService } from '../../../../core/services/staff.service';
 import { MemberService } from '../../../../core/services/member.service';
@@ -12,7 +12,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 @Component({
   selector: 'app-staff-detail-drawer',
   standalone: true,
-  imports: [CommonModule, SlideDrawerComponent, FormsModule, DropdownComponent],
+  imports: [CommonModule, SlideDrawerComponent, ReactiveFormsModule, DropdownComponent],
   templateUrl: './staff-detail-drawer.component.html',
   styleUrl: './staff-detail-drawer.component.scss'
 })
@@ -35,8 +35,8 @@ export class StaffDetailDrawerComponent {
   members: any[] = [];
   isLoadingMembersList = false;
   isAssignFormOpen = false;
-  selectedMemberId = '';
-  preferredSlot = '';
+  memberSelectControl = new FormControl('', Validators.required);
+  preferredSlotControl = new FormControl('');
   isSubmittingAssignment = false;
 
   get initials(): string {
@@ -109,14 +109,14 @@ export class StaffDetailDrawerComponent {
 
   closeAssignForm() {
     this.isAssignFormOpen = false;
-    this.selectedMemberId = '';
-    this.preferredSlot = '';
+    this.memberSelectControl.setValue('');
+    this.preferredSlotControl.setValue('');
   }
 
   submitAssignment() {
-    if (!this.staff || !this.selectedMemberId) return;
+    if (!this.staff || this.memberSelectControl.invalid) return;
     this.isSubmittingAssignment = true;
-    this.staffService.assignTrainerToMember(this.staff.id, this.selectedMemberId, this.preferredSlot).subscribe({
+    this.staffService.assignTrainerToMember(this.staff.id, this.memberSelectControl.value!, this.preferredSlotControl.value || '').subscribe({
       next: () => {
         this.notification.success('Member assigned to trainer successfully!');
         this.isSubmittingAssignment = false;

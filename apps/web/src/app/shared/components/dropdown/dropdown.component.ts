@@ -1,13 +1,13 @@
-import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropdownOption } from '../../models/dropdown.model';
 
 @Component({
   selector: 'app-dropdown',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './dropdown.component.html',
   styleUrl: './dropdown.component.scss',
   providers: [
@@ -18,7 +18,7 @@ import { DropdownOption } from '../../models/dropdown.model';
     }
   ]
 })
-export class DropdownComponent implements ControlValueAccessor {
+export class DropdownComponent implements ControlValueAccessor, OnInit {
   @Input() options: DropdownOption[] = [];
   @Input() placeholder: string = 'Select...';
   @Input() disabled: boolean = false;
@@ -33,7 +33,17 @@ export class DropdownComponent implements ControlValueAccessor {
   private el = inject(ElementRef);
   isOpen = false;
   actualDirection: 'up' | 'down' = 'down';
-  searchText: string = '';
+  searchControl = new FormControl('');
+
+  insideDrawer = false;
+  dropdownTop = 'auto';
+  dropdownBottom = 'auto';
+  dropdownLeft = '0px';
+  dropdownWidth = '0px';
+
+  ngOnInit() {
+    this.insideDrawer = !!this.el.nativeElement.closest('.drawer-container');
+  }
 
   onChange: any = () => { };
   onTouched: any = () => { };
@@ -44,39 +54,73 @@ export class DropdownComponent implements ControlValueAccessor {
         this.updateDirection();
         setTimeout(() => this.ensureVisibility(), 50);
       } else {
-        this.searchText = '';
+        this.searchControl.setValue('', { emitEvent: false });
       }
       this.isOpen = !this.isOpen;
     }
   }
 
   private ensureVisibility() {
-    if (this.isOpen && this.actualDirection === 'down') {
+    if (this.isOpen && this.actualDirection === 'down' && this.insideDrawer) {
       this.el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
   updateDirection() {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    const parsedMinWidth = parseInt(this.minWidth) || 150;
+    const actualDropdownWidth = Math.max(rect.width, parsedMinWidth);
+    this.dropdownWidth = `${actualDropdownWidth}px`;
+
     if (this.direction !== 'auto') {
       this.actualDirection = this.direction;
-      return;
+    } else {
+      const windowHeight = window.innerHeight;
+      let spaceBelow = windowHeight - rect.bottom;
+      let spaceAbove = rect.top;
+
+      const scrollParent = this.el.nativeElement.closest('.modal-body, .drawer-body, .drawer-container, .form-container');
+      if (scrollParent) {
+        const parentRect = scrollParent.getBoundingClientRect();
+        const parentSpaceBelow = parentRect.bottom - rect.bottom;
+        const parentSpaceAbove = rect.top - parentRect.top;
+
+        spaceBelow = Math.min(spaceBelow, parentSpaceBelow);
+        spaceAbove = Math.min(spaceAbove, parentSpaceAbove);
+      }
+
+      if (spaceBelow < 240 && spaceAbove > spaceBelow) {
+        this.actualDirection = 'up';
+      } else {
+        this.actualDirection = 'down';
+      }
     }
 
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const spaceBelow = windowHeight - rect.bottom;
-    const spaceAbove = rect.top;
+    if (!this.insideDrawer) {
+      if (this.actualDirection === 'up') {
+        this.dropdownTop = 'auto';
+        this.dropdownBottom = `${window.innerHeight - rect.top + 4}px`;
+      } else {
+        this.dropdownTop = `${rect.bottom + 4}px`;
+        this.dropdownBottom = 'auto';
+      }
 
-    if (spaceBelow < 200 && spaceAbove > spaceBelow) {
-      this.actualDirection = 'up';
-    } else {
-      this.actualDirection = 'down';
+      // Dynamic horizontal shift: align to right if it overflows viewport on the right
+      const spaceRight = window.innerWidth - rect.left;
+      if (spaceRight < actualDropdownWidth || this.align === 'right') {
+        this.dropdownLeft = `${rect.right - actualDropdownWidth}px`;
+        this.align = 'right';
+      } else {
+        this.dropdownLeft = `${rect.left}px`;
+        this.align = 'left';
+      }
     }
   }
 
   selectOption(option: DropdownOption) {
     this.value = option.value;
     this.isOpen = false;
+    this.searchControl.setValue('', { emitEvent: false });
     this.onChange(this.value);
     this.onTouched();
     this.selectionChange.emit(this.value);
@@ -88,10 +132,11 @@ export class DropdownComponent implements ControlValueAccessor {
   }
 
   get filteredOptions(): DropdownOption[] {
-    if (!this.isSearchable || !this.searchText) {
+    const query = (this.searchControl.value || '').trim();
+    if (!this.isSearchable || !query) {
       return this.options;
     }
-    const search = this.searchText.toLowerCase();
+    const search = query.toLowerCase();
     return this.options.filter(o => o.label.toLowerCase().includes(search));
   }
 

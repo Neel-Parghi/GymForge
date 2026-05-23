@@ -129,7 +129,6 @@ export class MembersListComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.currentPage = 1;
-      this.memberService.clearCache();
       this.loadMembers();
     });
   }

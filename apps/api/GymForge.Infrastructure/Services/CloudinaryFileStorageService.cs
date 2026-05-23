@@ -31,8 +31,8 @@ namespace GymForge.Infrastructure.Services
             if (fileStream == null || fileStream.Length == 0)
                 throw new ArgumentException("File stream is empty");
 
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+            string? extension = Path.GetExtension(fileName).ToLowerInvariant();
             
             Stream uploadStream = fileStream;
             MemoryStream? compressedStream = null;
@@ -46,10 +46,10 @@ namespace GymForge.Infrastructure.Services
                 int maxDimension = 1200;
                 if (image.Width > maxDimension || image.Height > maxDimension)
                 {
-                    image.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
+                    image.Mutate(x => x.Resize(new ResizeOptions
                     {
                         Size = new SixLabors.ImageSharp.Size(maxDimension, maxDimension),
-                        Mode = SixLabors.ImageSharp.Processing.ResizeMode.Max
+                        Mode = ResizeMode.Max
                     }));
                 }
 

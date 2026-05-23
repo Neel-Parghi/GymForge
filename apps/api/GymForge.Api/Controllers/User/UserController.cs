@@ -79,8 +79,8 @@ namespace GymForge.Api.Controllers.User
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded");
 
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+            string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(extension))
                 return BadRequest("Invalid file type. Only JPG, PNG and GIF are allowed.");
 

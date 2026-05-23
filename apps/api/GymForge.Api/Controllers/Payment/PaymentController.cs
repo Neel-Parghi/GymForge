@@ -52,7 +52,7 @@ namespace GymForge.Api.Controllers.Payment
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetSettings()
         {
-            var settings = await _paymentService.GetSettingsAsync();
+            SaaSConfigurationDto settings = await _paymentService.GetSettingsAsync();
             return Ok(settings);
         }
 

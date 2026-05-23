@@ -19,8 +19,8 @@ namespace GymForge.Infrastructure
 
             services.AddDbContextPool<AppDbContext>((sp, options) =>
             {
-                var connectionString = configuration.GetConnectionString("DefaultConnection");
-                var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+                string? connectionString = configuration.GetConnectionString("DefaultConnection");
+                string? databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
                 // If connectionString is empty, fallback to DATABASE_URL if Render injected it
                 if (string.IsNullOrEmpty(connectionString))
@@ -88,6 +88,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IInventoryRepository, InventoryRepository>();
             services.AddScoped<IEquipmentRepository, EquipmentRepository>();
             services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
+            services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

@@ -323,12 +323,12 @@
 
       <div class="form-group">
         <label>Purchase Date</label>
-        <input type="date" formControlName="purchaseDate">
+        <app-date-time-picker formControlName="purchaseDate" placeholder="Select purchase date"></app-date-time-picker>
       </div>
 
       <div class="form-group">
         <label>Warranty Expiry</label>
-        <input type="date" formControlName="warrantyExpiry">
+        <app-date-time-picker formControlName="warrantyExpiry" placeholder="Select warranty expiry"></app-date-time-picker>
       </div>
 
       <div class="form-group">
@@ -385,7 +385,7 @@
 
       <div class="form-group">
         <label>Sale Date</label>
-        <input type="date" formControlName="date">
+        <app-date-time-picker formControlName="date" placeholder="Select sale date"></app-date-time-picker>
       </div>
 
       <div class="form-group full-width">
@@ -600,17 +600,17 @@
 
       <div class="form-group">
         <label>Start Date</label>
-        <input type="date" formControlName="startDate">
+        <app-date-time-picker formControlName="startDate" placeholder="Select start date"></app-date-time-picker>
       </div>
 
       <div class="form-group">
         <label>Est. Completion</label>
-        <input type="date" formControlName="estimatedEndDate">
+        <app-date-time-picker formControlName="estimatedEndDate" placeholder="Select estimated end date"></app-date-time-picker>
       </div>
 
       <div class="form-group full-width" *ngIf="maintenanceForm.get('status')?.value === 'Completed'">
         <label>Actual Completion Date</label>
-        <input type="date" formControlName="completedDate">
+        <app-date-time-picker formControlName="completedDate" placeholder="Select completion date"></app-date-time-picker>
       </div>
 
       <div class="form-group full-width">

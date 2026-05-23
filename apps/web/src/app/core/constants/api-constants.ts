@@ -93,6 +93,13 @@ export const API_CONSTANTS = {
     UPDATE: 'gym-plans',
     DELETE: 'gym-plans',
   },
+  ATTENDANCE: {
+    CHECK_IN: 'attendance/check-in',
+    CHECK_OUT: 'attendance/check-out',
+    OCCUPANCY: 'attendance/occupancy',
+    OCCUPANCY_STATS: 'attendance/occupancy/stats',
+    LOGS: 'attendance/logs',
+  },
   COMMON: {
     UPLOAD: 'fileupload'
   }

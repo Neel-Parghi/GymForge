@@ -79,8 +79,7 @@ export class StaffListComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.currentPage = 1;
-      this.staffService.clearCache();
-      this.loadStaff(true);
+      this.loadStaff(false);
     });
   }
 
