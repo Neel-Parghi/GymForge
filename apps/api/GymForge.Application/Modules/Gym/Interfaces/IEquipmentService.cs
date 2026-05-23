@@ -1,4 +1,4 @@
-using GymForge.Application.DTOs.Inventory;
+using GymForge.Contracts.Gym.Inventory;
 
 namespace GymForge.Application.Modules.Gym.Interfaces
 {

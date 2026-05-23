@@ -1,4 +1,7 @@
-namespace GymForge.Application.DTOs.Inventory
+using System;
+using System.Collections.Generic;
+
+namespace GymForge.Contracts.Gym.Inventory
 {
     public class InventoryItemDto
     {

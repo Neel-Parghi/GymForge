@@ -6,213 +6,360 @@
     </div>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <!-- Row 1: Members -->
-    <div class="stat-card">
-      <div class="stat-icon members">
-        <i class="fa-solid fa-users"></i>
-      </div>
-      <div class="stat-content">
-        <span class="stat-label">Total Members</span>
-        <h2 class="stat-value">{{ stats?.totalMembers || 0 }}</h2>
-        <span class="stat-trend" [ngClass]="(stats?.memberGrowthPercentage || 0) >= 0 ? 'up' : 'down'">
-          <i class="fa-solid" [ngClass]="(stats?.memberGrowthPercentage || 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i> 
-          {{ stats?.memberGrowthPercentage || 0 }}% from last month
+  <!-- Row 1: Stats Grid (3 columns) -->
+  <div class="stats-grid-premium">
+    <!-- Card 1: Total Revenue -->
+    <div class="stat-card premium-stat-card revenue">
+      <div class="stat-card-top">
+        <div class="stat-icon-badge color-revenue">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+        <span class="stat-badge-trend" [ngClass]="(stats?.revenueTrendPercentage || 0) >= 0 ? 'positive' : 'negative'">
+          {{ (stats?.revenueTrendPercentage || 0) >= 0 ? '+' : '' }}{{ stats?.revenueTrendPercentage }}%
         </span>
       </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon active-members">
-        <i class="fa-solid fa-circle-check"></i>
+      <div class="stat-card-mid">
+        <span class="stat-card-label">Total Revenue</span>
+        <h2 class="stat-card-value">₹ {{ stats?.monthlyRevenue | number:'1.0-0' }}</h2>
       </div>
-      <div class="stat-content">
-        <span class="stat-label">Active Members</span>
-        <h2 class="stat-value">{{ stats?.activeMembers || 0 }}</h2>
-        <span class="stat-status success">
-          Currently active
-        </span>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon frozen-members">
-        <i class="fa-solid fa-snowflake"></i>
-      </div>
-      <div class="stat-content">
-        <span class="stat-label">Frozen Members</span>
-        <h2 class="stat-value">{{ stats?.frozenMembers || 0 }}</h2>
-        <span class="stat-status warning">
-          On hold
-        </span>
-      </div>
-    </div>
-
-    <!-- Attendance (Side Card) -->
-    <div class="stat-card attendance-card">
-      <div class="stat-icon attendance">
-        <i class="fa-solid fa-calendar-check"></i>
-      </div>
-      <div class="stat-content">
-        <span class="stat-label">Today's Attendance</span>
-        <h2 class="stat-value">{{ stats?.todayAttendance || 0 }}</h2>
-        <div class="stat-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="getAttendancePercentage()"></div>
-          </div>
-          <span class="progress-text">{{ getAttendancePercentage() }}% capacity</span>
+      <div class="revenue-split-container">
+        <div class="revenue-split-item">
+          <span class="split-label">Fees</span>
+          <span class="split-value">₹{{ stats?.membershipRevenue | number:'1.0-0' }}</span>
+        </div>
+        <div class="revenue-split-divider"></div>
+        <div class="revenue-split-item">
+          <span class="split-label">Sales</span>
+          <span class="split-value">₹{{ stats?.productSalesRevenue | number:'1.0-0' }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Row 2: Inventory & Business -->
-    <div class="stat-card">
-      <div class="stat-icon revenue">
-        <i class="fa-solid fa-indian-rupee-sign"></i>
+    <!-- Card 2: Total Members -->
+    <div class="stat-card premium-stat-card members">
+      <div class="stat-card-top">
+        <div class="stat-icon-badge color-members">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+        <span class="stat-badge-trend positive" *ngIf="(stats?.memberGrowthPercentage || 0) >= 0">
+          +{{ stats?.memberGrowthPercentage || 0 }}% growth
+        </span>
+        <span class="stat-badge-trend negative" *ngIf="(stats?.memberGrowthPercentage || 0) < 0">
+          {{ stats?.memberGrowthPercentage }}% growth
+        </span>
       </div>
-      <div class="stat-content">
-        <span class="stat-label">Monthly Revenue</span>
-        <h2 class="stat-value">₹{{ (stats?.monthlyRevenue || 0) | number }}</h2>
-        <div class="revenue-breakdown">
-          <div class="breakdown-item">
-            <span class="label">Fees:</span>
-            <span class="value">₹{{ (stats?.membershipRevenue || 0) | number }}</span>
-          </div>
-          <div class="breakdown-item">
-            <span class="label">Sales:</span>
-            <span class="value">₹{{ (stats?.productSalesRevenue || 0) | number }}</span>
-          </div>
+      <div class="stat-card-mid">
+        <span class="stat-card-label">Total Members</span>
+        <h2 class="stat-card-value">{{ stats?.totalMembers }}</h2>
+      </div>
+      <div class="revenue-split-container">
+        <div class="revenue-split-item">
+          <span class="split-label">Active</span>
+          <span class="split-value" style="color: #27ae60;">{{ stats?.activeMembers }}</span>
+        </div>
+        <div class="revenue-split-divider"></div>
+        <div class="revenue-split-item">
+          <span class="split-label">Branches</span>
+          <span class="split-value">{{ stats?.branchesCount }}</span>
         </div>
       </div>
     </div>
 
-    <div class="stat-card clickable" [class.warning]="(stats?.lowStockItems || 0) > 0"
+    <!-- Card 3: Today's Attendance -->
+    <div class="stat-card premium-stat-card attendance">
+      <div class="stat-card-top">
+        <div class="stat-icon-badge color-attendance">
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+      <div class="stat-card-mid">
+        <span class="stat-card-label">Today's Attendance</span>
+        <h2 class="stat-card-value">{{ stats?.todayAttendance }}</h2>
+      </div>
+      <div class="stat-card-bottom inline-bottom">
+        <div class="avatar-stack">
+          <div class="avatar" *ngFor="let init of stats?.todayCheckedInInitials">{{ init }}</div>
+        </div>
+        <span class="progress-caption-dark" *ngIf="stats?.todayCheckedInInitials?.length">MEMBERS ACTIVE TODAY</span>
+        <span class="progress-caption-dark" *ngIf="!stats?.todayCheckedInInitials?.length">NO CHECK-INS TODAY</span>
+      </div>
+    </div>
+
+    <!-- Card 4: Inventory Status -->
+    <div class="stat-card premium-stat-card inventory" [class.clickable]="true"
       (click)="navigateToInventory('lowStock')">
-      <div class="stat-icon inventory">
-        <i class="fa-solid fa-boxes-stacked"></i>
-      </div>
-      <div class="stat-content">
-        <span class="stat-label">Inventory Alerts</span>
-        <h2 class="stat-value">{{ stats?.lowStockItems || 0 }}</h2>
-        <span class="stat-status" *ngIf="(stats?.lowStockItems || 0) > 0">
-          {{ stats?.lowStockItems }} items need restocking
+      <div class="stat-card-top">
+        <div class="stat-icon-badge color-inventory">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <span class="stat-badge-trend negative" *ngIf="(stats?.lowStockItems || 0) > 0">
+          {{ stats?.lowStockItems }} Critical
         </span>
-        <span class="stat-status success" *ngIf="(stats?.lowStockItems || 0) === 0">
-          Stock levels healthy
+        <span class="stat-badge-trend success" *ngIf="(stats?.lowStockItems || 0) === 0">
+          Healthy
         </span>
       </div>
-    </div>
-
-    <div class="stat-card clickable" [class.danger]="(stats?.maintenanceDueCount || 0) > 0"
-      (click)="navigateToInventory('maintenance')">
-      <div class="stat-icon maintenance">
-        <i class="fa-solid fa-screwdriver-wrench"></i>
+      <div class="stat-card-mid">
+        <span class="stat-card-label">Inventory Status</span>
+        <h2 class="stat-card-value">{{ stats?.totalProductsCount || 0 }} <span class="unit-text">Products</span></h2>
       </div>
-      <div class="stat-content">
-        <span class="stat-label">Maintenance Due</span>
-        <h2 class="stat-value">{{ stats?.maintenanceDueCount || 0 }}</h2>
-        <span class="stat-status" *ngIf="(stats?.maintenanceDueCount || 0) > 0">
-          {{ stats?.maintenanceDueCount }} assets need service
-        </span>
-        <span class="stat-status success" *ngIf="(stats?.maintenanceDueCount || 0) === 0">
-          All equipment functional
-        </span>
-      </div>
-    </div>
-
-    <!-- Row 3 or Special Row: Attendance -->
-    <div class="stat-card attendance-card">
-      <div class="stat-icon attendance">
-        <i class="fa-solid fa-calendar-check"></i>
-      </div>
-      <div class="stat-content">
-        <span class="stat-label">Today's Attendance</span>
-        <h2 class="stat-value">{{ stats?.todayAttendance || 0 }}</h2>
-        <div class="stat-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="getAttendancePercentage()"></div>
-          </div>
-          <span class="progress-text">{{ getAttendancePercentage() }}% capacity</span>
+      <div class="revenue-split-container">
+        <div class="revenue-split-item">
+          <span class="split-label">In Stock</span>
+          <span class="split-value">{{ (stats?.totalProductsCount || 0) - (stats?.lowStockItems || 0) }}</span>
+        </div>
+        <div class="revenue-split-divider"></div>
+        <div class="revenue-split-item">
+          <span class="split-label">Low Stock</span>
+          <span class="split-value" [style.color]="(stats?.lowStockItems || 0) > 0 ? '#eb5757' : 'inherit'">{{
+            stats?.lowStockItems || 0 }}</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Content Sections -->
-  <div class="dashboard-content">
-    <!-- Recent Activity -->
-    <div class="content-card main-section">
+  <!-- Row 2: Charts Grid (2 columns: Check-in Density + Member Distribution) -->
+  <div class="charts-grid-premium">
+    <!-- Check-in Density (Bar Chart) -->
+    <div class="content-card check-in-density-card">
+      <div class="card-header" style="position: relative; z-index: 100;">
+        <div>
+          <h3>Check-in Count</h3>
+          <p class="subtitle">
+            {{ selectedDensityRange === 'today' ? 'Member peak hours throughout the day' : 'Average daily peak
+            attendance throughout the week' }}
+          </p>
+        </div>
+        <div class="date-dropdown-pill" (click)="toggleDensityDropdown()" style="cursor: pointer; position: relative;">
+          <span>{{ selectedDensityRange === 'today' ? 'Today, ' + (todayDate | date:'MMM d') : 'Weekly Average'
+            }}</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; margin-left: 6px;"></i>
+
+          <!-- Dropdown List -->
+          <div class="premium-dropdown-list" *ngIf="showDensityDropdown"
+            style="position: absolute; top: calc(100% + 8px); right: 0; background: white; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); padding: 6px; width: 140px; display: flex; flex-direction: column; gap: 4px;">
+            <div class="dropdown-item" (click)="selectDensityRange('today'); $event.stopPropagation()"
+              [style.background]="selectedDensityRange === 'today' ? '#f8fafc' : 'transparent'"
+              [style.color]="selectedDensityRange === 'today' ? '#2563eb' : '#0f172a'"
+              style="font-size: 0.8rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; transition: background 0.2s;">
+              Today
+            </div>
+            <div class="dropdown-item" (click)="selectDensityRange('week'); $event.stopPropagation()"
+              [style.background]="selectedDensityRange === 'week' ? '#f8fafc' : 'transparent'"
+              [style.color]="selectedDensityRange === 'week' ? '#2563eb' : '#0f172a'"
+              style="font-size: 0.8rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; transition: background 0.2s;">
+              Weekly Average
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bar-chart-container">
+        <svg viewBox="0 0 700 220" class="density-bar-svg" preserveAspectRatio="xMidYMid meet">
+          <!-- Horizontal Grid Lines -->
+          <line x1="40" y1="40" x2="680" y2="40" stroke="#f8fafc" stroke-width="1.5" />
+          <line x1="40" y1="80" x2="680" y2="80" stroke="#f8fafc" stroke-width="1.5" />
+          <line x1="40" y1="120" x2="680" y2="120" stroke="#f8fafc" stroke-width="1.5" />
+          <line x1="40" y1="160" x2="680" y2="160" stroke="#cbd5e1" stroke-width="1.5" />
+
+          <!-- Dynamic Bars -->
+          <g *ngFor="let item of getBarChartData(); let i = index">
+            <!-- Background track / hover indicator -->
+            <rect [attr.x]="65 + i * (getBarChartData().length === 7 ? 80 : 62)" y="20" width="30" height="140"
+              fill="transparent" class="bar-hover-track" />
+
+            <!-- Dynamic vertical bar -->
+            <rect [attr.x]="65 + i * (getBarChartData().length === 7 ? 80 : 62)"
+              [attr.y]="160 - getBarHeight(item.occupancyCount)" width="30"
+              [attr.height]="getBarHeight(item.occupancyCount)" rx="6" class="chart-bar"
+              [class.active]="item.isActivePeak" />
+
+            <!-- Floating count text on top of peak bar -->
+            <text *ngIf="item.isActivePeak" [attr.x]="65 + i * (getBarChartData().length === 7 ? 80 : 62) + 15"
+              [attr.y]="160 - getBarHeight(item.occupancyCount) - 8" text-anchor="middle" class="bar-peak-value-text">{{
+              item.occupancyCount }}</text>
+
+            <!-- Dynamic Tooltip Trigger on Hover -->
+            <g class="bar-tooltip-group">
+              <rect [attr.x]="65 + i * (getBarChartData().length === 7 ? 80 : 62) - 25"
+                [attr.y]="160 - getBarHeight(item.occupancyCount) - 38" width="80" height="24" rx="6"
+                class="tooltip-bg"></rect>
+              <text [attr.x]="65 + i * (getBarChartData().length === 7 ? 80 : 62) + 15"
+                [attr.y]="160 - getBarHeight(item.occupancyCount) - 22" class="tooltip-text">{{ item.occupancyCount }}
+                active</text>
+            </g>
+          </g>
+
+          <!-- X-Axis Labels -->
+          <text *ngFor="let item of getBarChartData(); let i = index"
+            [attr.x]="65 + i * (getBarChartData().length === 7 ? 80 : 62) + 15" y="190" text-anchor="middle"
+            class="axis-label-x">{{ item.hour }}</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Member Plan Distribution (Donut Chart) -->
+    <div class="content-card membership-distribution-card" *ngIf="stats?.membershipDistribution">
+      <div class="card-header">
+        <div>
+          <h3>Member Distribution</h3>
+          <p class="subtitle">Active subscriptions by tier</p>
+        </div>
+        <button class="btn-action-dots">
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+      </div>
+
+      <div class="donut-chart-wrapper-premium">
+        <svg viewBox="0 0 160 160" class="donut-svg">
+          <g transform="rotate(-90 80 80)">
+            <!-- Base track -->
+            <circle cx="80" cy="80" r="60" fill="transparent" stroke="#f8fafc" stroke-width="14"></circle>
+
+            <!-- Dynamic segments -->
+            <circle *ngFor="let item of stats?.membershipDistribution; let i = index" cx="80" cy="80" r="60"
+              fill="transparent" [attr.stroke]="item.color" stroke-width="14"
+              [attr.stroke-dasharray]="getDistributionCircleDash(i)"
+              [attr.stroke-dashoffset]="getDistributionCircleOffset(i)" stroke-linecap="round"></circle>
+          </g>
+
+          <!-- Centered Headcount Value -->
+          <text x="80" y="78" text-anchor="middle" class="donut-value">{{ formatTotalMembers() }}</text>
+          <text x="80" y="98" text-anchor="middle" class="donut-label">TOTAL</text>
+        </svg>
+      </div>
+
+      <div class="distribution-legend-premium">
+        <div class="legend-items">
+          <div class="legend-item" *ngFor="let item of stats?.membershipDistribution; let i = index">
+            <div class="legend-item-left">
+              <span class="indicator" [style.background]="item.color"
+                [style.box-shadow]="'0 0 8px ' + item.color + '40'"></span>
+              <span class="label">{{ item.tierName }}</span>
+            </div>
+            <span class="value">{{ item.percentage }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Details Grid (2 columns: Recent Enrollments + Renewals & Actions) -->
+  <div class="details-grid-premium">
+    <!-- Recent Enrollments Table -->
+    <div class="content-card main-section recent-enrollments-premium-card">
       <div class="card-header">
         <h3>Recent Enrollments</h3>
-        <button class="btn-text" (click)="navigateToMembers()">View All</button>
+        <button class="btn-text" (click)="navigateToMembers()">View All Members</button>
       </div>
       <div class="table-container">
-        <table class="dashboard-table">
+        <table class="dashboard-table-premium">
           <thead>
             <tr>
-              <th>Member</th>
-              <th>Plan</th>
-              <th>Date</th>
-              <th>Status</th>
+              <th>MEMBER NAME</th>
+              <th>DATE JOINED</th>
+              <th>TIER</th>
+              <th>STATUS</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let enrollment of stats?.recentEnrollments">
               <td>
-                <div class="member-cell">
-                  <div class="member-avatar">{{ enrollment.initials }}</div>
-                  <div class="member-info">
+                <div class="member-cell-premium">
+                  <div class="member-avatar-circle">{{ enrollment.initials }}</div>
+                  <div class="member-info-group">
                     <span class="name">{{ enrollment.memberName }}</span>
                     <span class="email">{{ enrollment.email }}</span>
                   </div>
                 </div>
               </td>
-              <td>{{ enrollment.planName }}</td>
-              <td>{{ enrollment.enrollmentDate | date:'mediumDate' }}</td>
-              <td><span class="badge" [ngClass]="enrollment.status.toLowerCase()">{{ enrollment.status }}</span></td>
+              <td class="date-cell">{{ enrollment.enrollmentDate | date:'mediumDate' }}</td>
+              <td>
+                <span class="tier-badge" [ngClass]="getMemberTier(enrollment.planName).replace(' ', '-').toLowerCase()">
+                  {{ getMemberTier(enrollment.planName) }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="enrollment.status.toLowerCase()">
+                  {{ enrollment.status }}
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Quick Info Column -->
+    <!-- Right Side widgets (Renewals & Quick Actions & Staff Status) -->
     <div class="side-column">
-      <!-- Upcoming Renewals -->
-      <div class="content-card">
+      <!-- Staff Status Widget -->
+      <div class="content-card staff-status-premium-card">
         <div class="card-header">
-          <h3>Upcoming Renewals</h3>
+          <h3>Staff Status</h3>
         </div>
-        <div class="renewal-list">
-          <div class="renewal-item" *ngFor="let renewal of stats?.upcomingRenewals">
-            <div class="renewal-info">
-              <span class="name">{{ renewal.memberName }}</span>
-              <span class="days">In {{ renewal.daysRemaining }} days</span>
+        <div class="staff-summary-premium">
+          <div class="staff-item-premium">
+            <div class="staff-icon-circle color-trainers">
+              <i class="fa-solid fa-dumbbell"></i>
             </div>
-            <button class="btn-icon">
-              <i class="fa-solid fa-bell"></i>
-            </button>
+            <div class="staff-details">
+              <span class="staff-count">{{ stats?.activeTrainers || 0 }}</span>
+              <span class="staff-label">Active Trainers</span>
+            </div>
+          </div>
+          <div class="staff-item-premium">
+            <div class="staff-icon-circle color-support">
+              <i class="fa-solid fa-headset"></i>
+            </div>
+            <div class="staff-details">
+              <span class="staff-count">{{ stats?.supportStaffCount || 0 }}</span>
+              <span class="staff-label">Support Staff</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Staff Status -->
-      <div class="content-card">
+      <!-- Renewals Widget -->
+      <div class="content-card renewals-premium-card">
         <div class="card-header">
-          <h3>Staff Status</h3>
+          <h3>Upcoming Renewals</h3>
         </div>
-        <div class="staff-summary">
-          <div class="staff-stat">
-            <span class="label">Trainers Active</span>
-            <span class="value">{{ stats?.activeTrainers || 0 }}</span>
-          </div>
-          <div class="staff-stat">
-            <span class="label">Support Staff</span>
-            <span class="value">{{ stats?.supportStaffCount || 0 }}</span>
+        <div class="renewal-list-premium">
+          <div class="renewal-item-premium" *ngFor="let renewal of stats?.upcomingRenewals" (click)="navigateToMembers()" style="cursor: pointer;">
+            <div class="renewal-left">
+              <div class="renewal-details">
+                <span class="renewal-name">{{ renewal.memberName }}</span>
+                <span class="renewal-expiry">In {{ renewal.daysRemaining }} days</span>
+              </div>
+            </div>
+            <div class="renewal-right">
+              <button class="renewal-bell-btn" (click)="sendRenewalReminder(renewal, $event)" title="Send Reminder">
+                <i class="fa-solid fa-bell"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Quick Actions Widget -->
+      <!-- <div class="content-card quick-actions-card">
+        <div class="card-header">
+          <h3>Quick Actions</h3>
+        </div>
+        <div class="actions-grid-premium">
+          <button class="action-btn-premium add-member" (click)="navigateToMembers()">
+            <div class="action-btn-icon-wrapper">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <span class="action-btn-text">Add Member</span>
+          </button>
+          <button class="action-btn-premium restock" (click)="navigateToInventory('lowStock')">
+            <div class="action-btn-icon-wrapper">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <span class="action-btn-text">Restock</span>
+          </button>
+        </div>
+      </div> -->
     </div>
   </div>
 </div>

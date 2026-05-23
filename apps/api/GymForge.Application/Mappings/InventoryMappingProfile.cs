@@ -1,5 +1,5 @@
 using AutoMapper;
-using GymForge.Application.DTOs.Inventory;
+using GymForge.Contracts.Gym.Inventory;
 using GymForge.Domain.Entities;
 
 namespace GymForge.Application.Mappings

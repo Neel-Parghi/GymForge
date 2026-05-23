@@ -3,40 +3,7 @@ import { Observable, shareReplay, tap, Subject, of } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { BranchContextService } from './branch-context.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-
-export interface RecentEnrollment {
-  memberName: string;
-  email: string;
-  planName: string;
-  enrollmentDate: string;
-  status: string;
-  initials: string;
-}
-
-export interface UpcomingRenewal {
-  memberName: string;
-  daysRemaining: number;
-  endDate: string;
-}
-
-export interface GymOwnerStats {
-  totalMembers: number;
-  memberGrowthPercentage: number;
-  activeMembers: number;
-  frozenMembers: number;
-  newMembersThisMonth: number;
-  todayAttendance: number;
-  monthlyRevenue: number;
-  membershipRevenue: number;
-  productSalesRevenue: number;
-  pendingInvoices: number;
-  lowStockItems: number;
-  activeTrainers: number;
-  supportStaffCount: number;
-  maintenanceDueCount: number;
-  recentEnrollments: RecentEnrollment[];
-  upcomingRenewals: UpcomingRenewal[];
-}
+import { GymOwnerStats } from '../models/dashboard.model';
 
 @Injectable({
   providedIn: 'root'

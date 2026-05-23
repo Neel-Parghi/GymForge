@@ -58,7 +58,6 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<GymPlanDto>(existingPlan);
         }
 
-
         public async Task<bool> DeleteGymPlanAsync(Guid planId)
         {
             bool deleted = await _gymPlanRepository.DeleteGymPlanAsync(planId);
