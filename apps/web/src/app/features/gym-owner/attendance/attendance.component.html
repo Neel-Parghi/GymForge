@@ -1,0 +1,397 @@
+<div class="standard-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Attendance Terminal</h2>
+      <p>Real-time access verification, member check-ins, and active floor occupancy for <strong>{{ activeBranchName
+          }}</strong>.</p>
+    </div>
+
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="tab-navigation">
+    <button class="nav-tab" [class.active]="activeTab === 'terminal'" (click)="switchTab('terminal')">
+      <i class="fa-solid fa-desktop"></i> Check-In Terminal
+    </button>
+    <button class="nav-tab" [class.active]="activeTab === 'occupancy'" (click)="switchTab('occupancy')">
+      <i class="fa-solid fa-users"></i> Live Occupancy
+      <span class="tab-badge" *ngIf="currentlyCheckedIn.length > 0">{{ currentlyCheckedIn.length }}</span>
+    </button>
+    <button class="nav-tab" [class.active]="activeTab === 'logs'" (click)="switchTab('logs')">
+      <i class="fa-solid fa-clock-rotate-left"></i> Attendance Logs
+    </button>
+  </div>
+
+  <!-- Tab 1: Check-In Terminal -->
+  <div class="tab-content" *ngIf="activeTab === 'terminal'">
+    <div class="terminal-grid">
+      <!-- Search & Selection Panel -->
+      <div class="terminal-card search-panel">
+        <div class="card-header">
+          <h3>Manual Check-In</h3>
+          <p>Search by member name, email or barcode number to check them in manually.</p>
+        </div>
+
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" *ngIf="!isSearching"></i>
+            <i class="fa-solid fa-circle-notch fa-spin searching-spinner" *ngIf="isSearching"></i>
+            <input type="text" [formControl]="searchControl" placeholder="Search members by name or membership ID...">
+            <button class="clear-btn" *ngIf="searchControl.value" (click)="resetTerminal()">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Dynamic Search Results -->
+          <div class="search-results" *ngIf="searchResults.length > 0">
+            <div class="result-item" *ngFor="let m of searchResults" (click)="selectMemberToCheckIn(m)">
+              <div class="member-info">
+                <span class="name">{{ m.name }}</span>
+                <span class="subtext">{{ m.membershipNumber }} • {{ m.planName }}</span>
+              </div>
+              <span class="status-badge" [ngClass]="m.statusLabel.toLowerCase()">{{ m.statusLabel }}</span>
+            </div>
+          </div>
+
+          <div class="no-results-msg" *ngIf="searchControl.value && !isSearching && searchResults.length === 0">
+            <i class="fa-solid fa-circle-question"></i> No members match your search criteria.
+          </div>
+        </div>
+
+        <div class="quick-instructions">
+          <h4><i class="fa-solid fa-circle-info"></i> Desk Assistant Guide</h4>
+          <ul>
+            <li>Search a member by name or code and click **Check In** or **Check Out**.</li>
+            <li>Successful operations will automatically update the **Live Occupancy** count and historical logs.</li>
+            <li>Expired or Frozen plans will automatically trigger immediate security access blocks.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Live Verification Panel -->
+      <div class="terminal-card verification-panel" [ngClass]="verificationState">
+
+        <!-- Idle State -->
+        <div class="idle-state" *ngIf="verificationState === 'idle'">
+          <div class="scanner-laser"></div>
+          <div class="scanner-target">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <h3>Awaiting Card Scan</h3>
+          <p>Scan a membership card or search and select a member on the left to verify access.</p>
+        </div>
+
+        <!-- Selected State (Manual Desk Verification before Action) -->
+        <div class="feedback-container selected" *ngIf="verificationState === 'selected' && selectedMember">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <div class="access-badge selected">VERIFICATION PENDING</div>
+
+          <div class="member-display">
+            <div class="member-avatar">{{ selectedMember.initials }}</div>
+            <h2 class="member-name">{{ selectedMember.name }}</h2>
+            <div class="member-code">{{ selectedMember.membershipNumber }}</div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Membership Tier</span>
+              <span class="value">{{ selectedMember.planName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Status</span>
+              <span class="value" [ngClass]="selectedMember.statusLabel.toLowerCase()">
+                {{ selectedMember.statusLabel }}
+              </span>
+            </div>
+            <div class="detail-item" *ngIf="getCheckedInRecord(selectedMember.id) as record">
+              <span class="label">Checked In Since</span>
+              <span class="value">{{ record.checkInTime | date:'shortTime' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="!isAlreadyCheckedIn(selectedMember.id)">
+              <span class="label">Expiry Date</span>
+              <span class="value">{{ selectedMember.expiryDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          <div class="action-buttons horizontal">
+            <button class="action-btn primary checkin" *ngIf="!isAlreadyCheckedIn(selectedMember.id)"
+              (click)="confirmCheckIn()" [disabled]="isCheckingIn">
+              <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isCheckingIn"></i>
+              <i class="fa-solid fa-right-to-bracket" *ngIf="!isCheckingIn"></i>
+              {{ isCheckingIn ? 'Checking In...' : 'Check In' }}
+            </button>
+            <button class="action-btn primary checkout-action" *ngIf="isAlreadyCheckedIn(selectedMember.id)"
+              (click)="confirmCheckOut()" [disabled]="isCheckingOut">
+              <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isCheckingOut"></i>
+              <i class="fa-solid fa-right-from-bracket" *ngIf="!isCheckingOut"></i>
+              {{ isCheckingOut ? 'Checking Out...' : 'Check Out' }}
+            </button>
+
+            <button class="action-btn secondary" (click)="resetTerminal()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Success State -->
+        <div class="feedback-container success" *ngIf="verificationState === 'success' && lastScannedMember">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="access-badge">ACCESS GRANTED</div>
+
+          <div class="member-display">
+            <div class="member-avatar">{{ lastScannedMember.initials }}</div>
+            <h2 class="member-name">{{ lastScannedMember.name }}</h2>
+            <div class="member-code">{{ lastScannedMember.membershipNumber }}</div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Membership Tier</span>
+              <span class="value">{{ lastScannedMember.planName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Expiry Date</span>
+              <span class="value">{{ lastScannedMember.expiryDate | date:'longDate' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Check-In Time</span>
+              <span class="value">{{ scanTime | date:'mediumTime' }}</span>
+            </div>
+          </div>
+
+          <button class="reset-btn" (click)="resetTerminal()">Ready For Next Scan</button>
+        </div>
+
+        <!-- Expired State -->
+        <div class="feedback-container expired" *ngIf="verificationState === 'expired' && lastScannedMember">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+          <div class="access-badge">ACCESS DENIED</div>
+
+          <div class="member-display">
+            <div class="member-avatar">{{ lastScannedMember.initials }}</div>
+            <h2 class="member-name">{{ lastScannedMember.name }}</h2>
+            <div class="member-code">{{ lastScannedMember.membershipNumber }}</div>
+          </div>
+
+          <div class="alert-message">
+            <h4>Plan Expired</h4>
+            <p>This member's subscription expired on **{{ lastScannedMember.expiryDate | date:'mediumDate' }}**. Entry
+              blocked until renewal is processed.</p>
+          </div>
+
+          <div class="action-buttons">
+            <button class="action-btn primary" (click)="resetTerminal()">Open Member Billing</button>
+            <button class="action-btn secondary" (click)="resetTerminal()">Dismiss</button>
+          </div>
+        </div>
+
+        <!-- Frozen State -->
+        <div class="feedback-container frozen" *ngIf="verificationState === 'frozen' && lastScannedMember">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-snowflake"></i>
+          </div>
+          <div class="access-badge">ACCESS BLOCKED</div>
+
+          <div class="member-display">
+            <div class="member-avatar">{{ lastScannedMember.initials }}</div>
+            <h2 class="member-name">{{ lastScannedMember.name }}</h2>
+            <div class="member-code">{{ lastScannedMember.membershipNumber }}</div>
+          </div>
+
+          <div class="alert-message">
+            <h4>Membership Frozen</h4>
+            <p>This membership is currently frozen. Entry blocked. Please unfreeze their status in the members directory
+              to restore entry access.</p>
+          </div>
+
+          <div class="action-buttons">
+            <button class="action-btn primary" (click)="resetTerminal()">Manage Membership</button>
+            <button class="action-btn secondary" (click)="resetTerminal()">Dismiss</button>
+          </div>
+        </div>
+
+        <!-- Checked-Out State -->
+        <div class="feedback-container checkedout" *ngIf="verificationState === 'checkedout' && lastScannedMember">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+          <div class="access-badge">CHECK-OUT COMPLETE</div>
+
+          <div class="member-display">
+            <div class="member-avatar">{{ lastScannedMember.initials }}</div>
+            <h2 class="member-name">{{ lastScannedMember.name }}</h2>
+            <div class="member-code">{{ lastScannedMember.membershipNumber }}</div>
+          </div>
+
+          <div class="alert-message checkedout">
+            <h4>Check-Out Successful</h4>
+            <p>Member **{{ lastScannedMember.name }}** has been successfully checked out of the facility at **{{
+              scanTime | date:'mediumTime' }}**.</p>
+          </div>
+
+          <button class="reset-btn" (click)="resetTerminal()">Ready For Next Scan</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Live Floor Occupancy -->
+  <div class="tab-content" *ngIf="activeTab === 'occupancy'">
+    <!-- Headcount Capacity Overview -->
+    <div class="occupancy-stats-grid">
+      <div class="stat-card occupancy">
+        <div class="stat-icon total"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ occupancyStats.currentHeadcount }}</span>
+          <span class="stat-label">Current Gym Headcount</span>
+        </div>
+      </div>
+      <div class="stat-card capacity-indicator">
+        <div class="progress-container">
+          <div class="progress-header">
+            <span>Gym Capacity Utilisation</span>
+            <span>{{ getAttendancePercentage() }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getAttendancePercentage()"></div>
+          </div>
+          <span class="subtext">Based on safety limit of 80 concurrent members</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Occupancy List -->
+    <div class="occupancy-list-card">
+      <div class="card-header">
+        <h3>Members on the Gym Floor</h3>
+        <p>Real-time listing of members currently inside the facility. Ensure they checkout upon departure.</p>
+      </div>
+
+      <div class="table-container" *ngIf="currentlyCheckedIn.length > 0">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Member Info</th>
+              <th>Membership ID</th>
+              <th>Membership Plan</th>
+              <th>Check-in Time</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of currentlyCheckedIn">
+              <td>
+                <div class="member-cell">
+                  <div class="avatar">{{ c.initials }}</div>
+                  <div class="info">
+                    <span class="name">{{ c.name }}</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="code-span">{{ c.membershipNumber }}</span></td>
+              <td>{{ c.planName }}</td>
+              <td><i class="fa-regular fa-clock"></i> {{ c.checkInTime | date:'shortTime' }}</td>
+              <td style="text-align: right;">
+                <button class="checkout-btn" (click)="checkOutFromOccupancy(c)" [disabled]="isCheckingOut">
+                  <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isCheckingOut"></i>
+                  <i class="fa-solid fa-door-open" *ngIf="!isCheckingOut"></i> Check-Out
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="currentlyCheckedIn.length === 0">
+        <div class="empty-icon">
+          <i class="fa-solid fa-door-closed"></i>
+        </div>
+        <h3>No Members on the Floor</h3>
+        <p>There are currently no members checked into the gym. Desk staff can check members in from the terminal tab.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Attendance Logs -->
+  <div class="tab-content" *ngIf="activeTab === 'logs'">
+
+    <!-- Advanced Filters Bar -->
+    <div class="log-filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="logStatusFilter === 'all'" (click)="setLogStatus('all')">All
+          logs</button>
+        <button class="filter-tab" [class.active]="logStatusFilter === 'completed'"
+          (click)="setLogStatus('completed')">Completed Workouts</button>
+        <button class="filter-tab" [class.active]="logStatusFilter === 'active'" (click)="setLogStatus('active')">Still
+          Active Floor</button>
+      </div>
+
+      <div class="advanced-search">
+        <div class="date-picker">
+          <app-date-time-picker [placeholder]="'Filter by Date'" [formControl]="dateFilterControl"
+            (dateChange)="loadLogs()"></app-date-time-picker>
+        </div>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" [formControl]="logSearchControl" placeholder="Search logs by name or member ID...">
+        </div>
+      </div>
+    </div>
+
+    <div class="logs-card">
+      <div class="table-container" *ngIf="filteredLogs.length > 0">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Member Name</th>
+              <th>Membership ID</th>
+              <th>Check-in Time</th>
+              <th>Check-out Time</th>
+              <th>Workout Duration</th>
+              <th>Status</th>
+              <th>Branch</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of filteredLogs">
+              <td><strong>{{ l.memberName }}</strong></td>
+              <td><span class="code-span">{{ l.membershipNumber }}</span></td>
+              <td>{{ l.checkInTime | date:'medium' }}</td>
+              <td>{{ l.checkOutTime ? (l.checkOutTime | date:'medium') : 'Still checked in' }}</td>
+              <td>
+                <span class="duration-badge" [class.active]="l.checkOutTime === null">
+                  <i class="fa-solid fa-stopwatch"></i> {{ l.duration }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="l.status.toLowerCase()">
+                  {{ l.status }}
+                </span>
+              </td>
+              <td><span class="branch-pill"><i class="fa-solid fa-map-pin"></i> {{ l.branchName }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredLogs.length === 0">
+        <div class="empty-icon">
+          <i class="fa-solid fa-calendar-minus"></i>
+        </div>
+        <h3>No Logs Found</h3>
+        <p>No historical check-in logs match the selected filter criteria.</p>
+      </div>
+    </div>
+
+  </div>
+</div>

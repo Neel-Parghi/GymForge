@@ -32,7 +32,7 @@ export class InventoryService extends BaseApiService {
 
   getProducts(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<InventoryItem>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (search || page !== 1 || pageSize !== 10 || forceRefresh || branchId) {
+    if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
       const params: any = { pageNumber: page, pageSize };
       if (search) params.searchTerm = search;
       if (branchId) params.branchId = branchId;
@@ -40,7 +40,9 @@ export class InventoryService extends BaseApiService {
     }
 
     if (!this.productsCache$) {
-      this.productsCache$ = this.get<ApiResponse<PagedResponse<InventoryItem>>>(API_CONSTANTS.INVENTORY.PRODUCTS, { pageNumber: 1, pageSize: 10 }).pipe(
+      const params: any = { pageNumber: 1, pageSize: 10 };
+      if (branchId) params.branchId = branchId;
+      this.productsCache$ = this.get<ApiResponse<PagedResponse<InventoryItem>>>(API_CONSTANTS.INVENTORY.PRODUCTS, params).pipe(
         shareReplay(1)
       );
     }
@@ -75,14 +77,16 @@ export class InventoryService extends BaseApiService {
 
   getEquipment(forceRefresh = false): Observable<ApiResponse<Equipment[]>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh || branchId) {
+    if (forceRefresh) {
       const params: any = {};
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<Equipment[]>>(API_CONSTANTS.INVENTORY.EQUIPMENT, params);
     }
 
     if (!this.equipmentCache$) {
-      this.equipmentCache$ = this.get<ApiResponse<Equipment[]>>(API_CONSTANTS.INVENTORY.EQUIPMENT).pipe(
+      const params: any = {};
+      if (branchId) params.branchId = branchId;
+      this.equipmentCache$ = this.get<ApiResponse<Equipment[]>>(API_CONSTANTS.INVENTORY.EQUIPMENT, params).pipe(
         shareReplay(1)
       );
     }
@@ -120,14 +124,16 @@ export class InventoryService extends BaseApiService {
 
   getSalesHistory(forceRefresh = false): Observable<ApiResponse<SaleTransaction[]>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh || branchId) {
+    if (forceRefresh) {
       const params: any = {};
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<SaleTransaction[]>>(API_CONSTANTS.INVENTORY.SALES_HISTORY, params);
     }
 
     if (!this.salesCache$) {
-      this.salesCache$ = this.get<ApiResponse<SaleTransaction[]>>(API_CONSTANTS.INVENTORY.SALES_HISTORY).pipe(
+      const params: any = {};
+      if (branchId) params.branchId = branchId;
+      this.salesCache$ = this.get<ApiResponse<SaleTransaction[]>>(API_CONSTANTS.INVENTORY.SALES_HISTORY, params).pipe(
         shareReplay(1)
       );
     }
@@ -170,14 +176,16 @@ export class InventoryService extends BaseApiService {
 
   getMaintenanceHistoryGlobal(forceRefresh = false): Observable<ApiResponse<any[]>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh || branchId) {
+    if (forceRefresh) {
       const params: any = {};
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<any[]>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params);
     }
 
     if (!this.maintenanceHistoryCache$) {
-      this.maintenanceHistoryCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY).pipe(
+      const params: any = {};
+      if (branchId) params.branchId = branchId;
+      this.maintenanceHistoryCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params).pipe(
         shareReplay(1)
       );
     }
@@ -186,14 +194,16 @@ export class InventoryService extends BaseApiService {
 
   getStats(forceRefresh = false): Observable<ApiResponse<any>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh || branchId) {
+    if (forceRefresh) {
       const params: any = {};
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<any>>(API_CONSTANTS.INVENTORY.STATS, params);
     }
 
     if (!this.statsCache$) {
-      this.statsCache$ = this.get<ApiResponse<any>>(API_CONSTANTS.INVENTORY.STATS).pipe(
+      const params: any = {};
+      if (branchId) params.branchId = branchId;
+      this.statsCache$ = this.get<ApiResponse<any>>(API_CONSTANTS.INVENTORY.STATS, params).pipe(
         shareReplay(1)
       );
     }

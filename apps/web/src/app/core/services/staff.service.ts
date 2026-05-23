@@ -26,7 +26,7 @@ export class StaffService extends BaseApiService {
 
   getGymStaff(page: number = 1, pageSize: number = 10, searchTerm: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (searchTerm || page !== 1 || pageSize !== 10 || forceRefresh || branchId) {
+    if (searchTerm || page !== 1 || pageSize !== 10 || forceRefresh) {
       const params: any = { pageNumber: page, pageSize };
       if (searchTerm) params.searchTerm = searchTerm;
       if (branchId) params.branchId = branchId;
@@ -34,7 +34,9 @@ export class StaffService extends BaseApiService {
     }
 
     if (!this.staffCache$) {
-      this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, { pageNumber: 1, pageSize: 10 }).pipe(
+      const params: any = { pageNumber: 1, pageSize: 10 };
+      if (branchId) params.branchId = branchId;
+      this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params).pipe(
         shareReplay(1)
       );
     }

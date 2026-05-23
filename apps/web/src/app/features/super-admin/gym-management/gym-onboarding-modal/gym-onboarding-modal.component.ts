@@ -10,13 +10,14 @@ import { PricingService } from '../../../../core/services/pricing.service';
 import { ValidationMessage } from "../../../../shared/components/validation-message/validation-message.component";
 import { PricingPlan } from '../../../../shared/models/pricing.model';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { DateTimePickerComponent } from '../../../../shared/components/date-time-picker/date-time-picker.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../core/constants/constants';
 
 @Component({
   selector: 'app-gym-onboarding-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent, DateTimePickerComponent],
   templateUrl: './gym-onboarding-modal.component.html',
   styleUrl: './gym-onboarding-modal.component.scss'
 })
@@ -207,7 +208,6 @@ export class GymOnboardingModalComponent implements OnInit {
         planId: formValue.plan.subscriptionId || null,
         isTrial: formValue.plan.isTrial
       };
-
 
       this.gymService.onboardGym(payload).subscribe({
         next: () => {

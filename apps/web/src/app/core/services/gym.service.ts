@@ -17,6 +17,7 @@ export class GymService extends BaseApiService {
     private gymOwnersCache$?: Observable<ApiResponse<PagedResponse<GymOwnerResponse>>> | null;
     private gymListCache$?: Observable<ApiResponse<PagedResponse<GymListResponse>>> | null;
     private branchesCache = new Map<string, Observable<ApiResponse<any[]>>>();
+    private myBranchesCache$: Observable<ApiResponse<any[]>> | null = null;
 
     constructor() {
         super();
@@ -31,6 +32,7 @@ export class GymService extends BaseApiService {
         this.gymOwnersCache$ = null;
         this.gymListCache$ = null;
         this.branchesCache.clear();
+        this.myBranchesCache$ = null;
     }
 
     clearGymOwnersCache(): void {
@@ -40,6 +42,11 @@ export class GymService extends BaseApiService {
     clearGymListCache(): void {
         this.gymListCache$ = null;
         this.branchesCache.clear();
+        this.myBranchesCache$ = null;
+    }
+
+    clearMyBranchesCache(): void {
+        this.myBranchesCache$ = null;
     }
 
     clearBranchesCache(gymId?: string): void {
@@ -140,15 +147,24 @@ export class GymService extends BaseApiService {
         return this.put<ApiResponse<any>>(API_CONSTANTS.GYM.MY_GYM, payload);
     }
 
-    getMyBranches(): Observable<ApiResponse<any[]>> {
-        return this.get<ApiResponse<any[]>>(API_CONSTANTS.GYM.MY_BRANCHES);
+    getMyBranches(forceRefresh = false): Observable<ApiResponse<any[]>> {
+        if (forceRefresh || !this.myBranchesCache$) {
+            this.myBranchesCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.GYM.MY_BRANCHES).pipe(
+                shareReplay(1)
+            );
+        }
+        return this.myBranchesCache$;
     }
 
     addMyBranch(payload: any): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.MY_BRANCHES, payload);
+        return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.MY_BRANCHES, payload).pipe(
+            tap(() => this.clearMyBranchesCache())
+        );
     }
 
     updateMyBranch(branchId: string, payload: any): Observable<ApiResponse<any>> {
-        return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload);
+        return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload).pipe(
+            tap(() => this.clearMyBranchesCache())
+        );
     }
 }

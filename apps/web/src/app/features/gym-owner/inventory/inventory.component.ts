@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
+import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { InventoryService } from '../../../core/services/inventory.service';
@@ -19,7 +20,7 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, SlideDrawerComponent, DropdownComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, SlideDrawerComponent, DropdownComponent, DateTimePickerComponent],
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.scss']
 })
@@ -74,6 +75,9 @@ export class InventoryComponent implements OnInit {
   // File Upload Staging
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+
+  selectedSaleProduct: any = null;
+  saleTotal: number = 0;
 
   // Dropdown Options
   productCategories: DropdownOption[] = [
@@ -253,7 +257,6 @@ export class InventoryComponent implements OnInit {
   }
 
   filterInventory() {
-    // Now handled by loadProducts with search parameter
     this.currentPage = 1;
     this.loadProducts();
   }
@@ -328,9 +331,6 @@ export class InventoryComponent implements OnInit {
       this.calculateSaleSummary(val);
     });
   }
-
-  selectedSaleProduct: any = null;
-  saleTotal: number = 0;
 
   private calculateSaleSummary(val: any) {
     if (!val.productId) {
@@ -709,7 +709,6 @@ export class InventoryComponent implements OnInit {
     if (!eq) return;
     this.openMaintenanceDrawer(eq);
   }
-
 
   openMaintenanceView(log: any) {
     this.selectedMaintenanceLog = log;
