@@ -4,43 +4,40 @@ using Microsoft.Extensions.Configuration;
 
 namespace GymForge.Infrastructure.Persistence
 {
+    /// <summary>
+    /// Used exclusively by the EF Core CLI tools (migrations, database update).
+    /// Ensures Npgsql is always selected — regardless of what appsettings.json contains.
+    /// </summary>
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         public AppDbContext CreateDbContext(string[] args)
         {
             string currentDir = Directory.GetCurrentDirectory();
-            string basePath = currentDir.EndsWith("GymForge.Api") ? currentDir : Path.Combine(currentDir, "../GymForge.Api");
-            
-            // Fallback for different project structures
+            string basePath = currentDir.EndsWith("GymForge.Api")
+                ? currentDir
+                : Path.Combine(currentDir, "../GymForge.Api");
+
             if (!Directory.Exists(basePath))
-            {
                 basePath = Path.Combine(currentDir, "GymForge.Api");
-            }
 
             IConfigurationRoot config = new ConfigurationBuilder()
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)  // <-- picks up real DB
+                .AddEnvironmentVariables()
                 .Build();
 
-            DbContextOptionsBuilder<AppDbContext>? optionsBuilder = new();
-            var connectionString = config.GetConnectionString("DefaultConnection");
-            
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                // Last resort fallback for design-time if config fails
-                connectionString = "Host=localhost;Database=dummy;Username=postgres;Password=password";
-            }
-            
-            if (connectionString.Contains("Host=") || connectionString.Contains("port=") || connectionString.Contains("postgres"))
-            {
-                optionsBuilder.UseNpgsql(connectionString);
-            }
-            else
-            {
-                optionsBuilder.UseSqlServer(connectionString);
-            }
+            string? connectionString = config.GetConnectionString("DefaultConnection");
+
+            if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_CONNECTION_STRING_HERE")
+                throw new InvalidOperationException(
+                    "No valid DefaultConnection found. Ensure appsettings.Development.json contains a PostgreSQL connection string.");
+
+            DbContextOptionsBuilder<AppDbContext> optionsBuilder = new();
+            optionsBuilder.UseNpgsql(connectionString,
+                sql => sql.EnableRetryOnFailure());
 
             return new AppDbContext(optionsBuilder.Options);
         }
     }
-}
+}

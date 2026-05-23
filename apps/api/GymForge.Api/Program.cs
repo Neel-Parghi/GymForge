@@ -1,3 +1,4 @@
+using GymForge.Api;
 using GymForge.Api.Middlewares;
 using GymForge.Application;
 using GymForge.Infrastructure;
@@ -11,7 +12,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new NullableDateTimeJsonConverter());
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();

@@ -35,7 +35,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<bool> SendSaleReceiptAsync(Guid saleId)
         {
-            var sale = await _inventoryRepository.GetSaleByIdAsync(saleId);
+            SaleTransaction? sale = await _inventoryRepository.GetSaleByIdAsync(saleId);
             if (sale == null || sale.Member == null) return false;
 
             try
@@ -163,10 +163,10 @@ namespace GymForge.Application.Modules.Gym.Services
             List<TopProductDto> topProducts = sales
                 .GroupBy(s => s.InventoryItemId)
                 .Select(g => {
-                    var prod = products.FirstOrDefault(p => p.Id == g.Key);
+                    InventoryItem? product = products.FirstOrDefault(p => p.Id == g.Key);
                     return new TopProductDto
                     {
-                        Name = prod?.Name ?? "Unknown Product",
+                        Name = product?.Name ?? "Unknown Product",
                         TotalSold = g.Sum(s => s.Quantity),
                         TotalRevenue = g.Sum(s => s.TotalAmount)
                     };

@@ -185,7 +185,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             List<Staff> managers = await _gymManagementRepository.GetBranchManagersAsync(gymId);
 
-            foreach (var dto in dtos)
+            foreach (BranchDto dto in dtos)
             {
                 Staff? manager = managers.FirstOrDefault(m => m.BranchId == dto.Id);
                 dto.ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : "Pending Hire";
