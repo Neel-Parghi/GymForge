@@ -1,4 +1,4 @@
-using GymForge.Application.DTOs.Inventory;
+using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Common;
 using Microsoft.AspNetCore.Authorization;

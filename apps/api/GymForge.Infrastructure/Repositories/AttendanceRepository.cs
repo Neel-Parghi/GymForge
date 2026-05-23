@@ -90,8 +90,9 @@ namespace GymForge.Infrastructure.Repositories
 
             if (date.HasValue)
             {
-                var targetDate = date.Value.Date;
-                query = query.Where(x => x.CheckInTime.Date == targetDate);
+                DateTime startOfDay = DateTime.SpecifyKind(date.Value.Date, DateTimeKind.Utc);
+                DateTime endOfDay = startOfDay.AddDays(1);
+                query = query.Where(x => x.CheckInTime >= startOfDay && x.CheckInTime < endOfDay);
             }
 
             int total = await query.CountAsync();

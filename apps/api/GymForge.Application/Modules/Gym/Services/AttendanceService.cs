@@ -1,7 +1,6 @@
 using AutoMapper;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Attendance;
-using GymForge.Contracts.Common;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
