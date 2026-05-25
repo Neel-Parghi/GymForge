@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GymForge.Domain.Entities
 {
@@ -33,6 +33,16 @@ namespace GymForge.Domain.Entities
         public bool IsActive { get; set; }
 
         public bool IsVerified { get; set; }
+
+        // Billing & Invoicing Configuration Settings
+        public string? InvoicePrefix { get; set; } = "GF-";
+
+        [Column(TypeName = "numeric(5,2)")]
+        public decimal DefaultTaxRate { get; set; } = 18.0m;
+
+        public int OverdueGraceDays { get; set; } = 7;
+
+        public bool AutoEmailReceipts { get; set; } = true;
 
         [ForeignKey(nameof(OwnerUserId))]
         public User Owner { get; set; } = null!;

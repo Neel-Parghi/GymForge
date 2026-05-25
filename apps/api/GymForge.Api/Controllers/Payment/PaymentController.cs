@@ -8,12 +8,42 @@ namespace GymForge.Api.Controllers.Payment
 {
     [Route("api/payments")]
     [ApiController]
-    public class PaymentController : ControllerBase
+    public class PaymentController : BaseApiController
     {
         private readonly ISaaSPaymentService _paymentService;
         public PaymentController(ISaaSPaymentService saaSPaymentService)
         {
             _paymentService = saaSPaymentService;
+        }
+
+        [HttpGet("subscription")]
+        [Authorize(Roles = "GymOwner,SuperAdmin")]
+        public async Task<IActionResult> GetSubscription()
+        {
+            if (GymId == null) return Unauthorized();
+
+            GymSubscriptionStatusDto subscription = await _paymentService.GetSubscriptionStatusAsync(GymId.Value);
+            return Ok(subscription);
+        }
+
+        [HttpPost("subscription/renew")]
+        [Authorize(Roles = "GymOwner")]
+        public async Task<IActionResult> RenewSubscription([FromQuery] string planName = "GymForge Pro Plan", [FromQuery] decimal price = 4999)
+        {
+            if (GymId == null) return Unauthorized();
+
+            GymSubscriptionStatusDto subscription = await _paymentService.RenewGymSubscriptionAsync(GymId.Value, planName, price);
+            return Ok(subscription);
+        }
+
+        [HttpGet("history")]
+        [Authorize(Roles = "GymOwner")]
+        public async Task<IActionResult> GetGymTransactionHistory()
+        {
+            if (GymId == null) return Unauthorized();
+
+            List<PaymentTransactionDto> history = await _paymentService.GetGymTransactionsAsync(GymId.Value);
+            return Ok(history);
         }
 
         [HttpGet("stats")]

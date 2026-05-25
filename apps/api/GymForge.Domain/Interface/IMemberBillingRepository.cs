@@ -1,0 +1,32 @@
+using GymForge.Domain.Entities;
+
+namespace GymForge.Domain.Interface
+{
+    public interface IMemberBillingRepository
+    {
+        Task<IEnumerable<MemberSubscription>> GetSubscriptionsByMonthAsync(Guid gymId, DateTime startDate, DateTime endDate);
+        Task<IEnumerable<SaleTransaction>> GetTransactionsByMonthAsync(Guid gymId, DateTime startDate, DateTime endDate);
+
+        Task AddSaleTransactionAsync(SaleTransaction transaction);
+        Task<InventoryItem?> GetInventoryItemByNameAsync(Guid gymId, string name);
+        Task<InventoryItem?> GetAnyInventoryItemAsync(Guid gymId);
+        Task<Branch?> GetMainBranchAsync(Guid gymId);
+        Task<Gym?> GetGymByIdAsync(Guid gymId);
+        Task AddInventoryItemAsync(InventoryItem item);
+        Task<MemberSubscription?> GetSubscriptionByIdAsync(Guid recordId);
+        Task<SaleTransaction?> GetTransactionByIdAsync(Guid recordId);
+
+        // Custom Invoice methods
+        Task AddCustomInvoiceAsync(CustomInvoice invoice);
+        Task<CustomInvoice?> GetCustomInvoiceByIdAsync(Guid recordId);
+        Task<IEnumerable<CustomInvoice>> GetCustomInvoicesByMonthAsync(Guid gymId, DateTime startDate, DateTime endDate);
+
+        // Staff Payroll repository methods
+        Task<IEnumerable<StaffPayrollRule>> GetPayrollRulesAsync(Guid gymId, Guid? branchId = null);
+        Task<StaffPayrollRule?> GetPayrollRuleByStaffIdAsync(Guid staffId);
+        Task AddPayrollRuleAsync(StaffPayrollRule rule);
+        Task<IEnumerable<StaffPayoutLog>> GetPayoutLogsByMonthAsync(Guid gymId, string monthKey, Guid? branchId = null);
+        Task<StaffPayoutLog?> GetPayoutLogAsync(Guid staffId, string monthKey);
+        Task AddPayoutLogAsync(StaffPayoutLog log);
+    }
+}
