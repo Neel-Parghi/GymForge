@@ -84,7 +84,9 @@ export const API_CONSTANTS = {
     INITIATE: 'payments/initiate',
     VERIFY: 'payments/verify',
     SETTINGS: 'payments/settings',
-    UPDATE_SAAS_CONFIG: 'payments/settings/update'
+    UPDATE_SAAS_CONFIG: 'payments/settings/update',
+    SUBSCRIPTION: 'payments/subscription',
+    HISTORY: 'payments/history'
   },
   GYM_PLAN: {
     GET: 'gym-plans',
@@ -99,6 +101,14 @@ export const API_CONSTANTS = {
     OCCUPANCY: 'attendance/occupancy',
     OCCUPANCY_STATS: 'attendance/occupancy/stats',
     LOGS: 'attendance/logs',
+  },
+  BILLING: {
+    MEMBERS_OVERVIEW: 'billing/members/overview',
+    CREATE_INVOICE: 'billing/members/invoice',
+    PAY_INVOICE: 'billing/members/pay',
+    STAFF_OVERVIEW: 'billing/staff/overview',
+    UPDATE_STAFF_RULES: 'billing/staff/rules',
+    RELEASE_STAFF_PAYOUT: 'billing/staff/payout/release'
   },
   COMMON: {
     UPLOAD: 'fileupload'

@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable, shareReplay, tap } from 'rxjs';
 import { PricingPlan, PricingPlanCreateRequest } from '../../shared/models/pricing.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 
@@ -10,25 +10,40 @@ import { ApiResponse } from '../../shared/models/api-response.model';
 })
 export class PricingService extends BaseApiService {
 
+  private plansCache$?: Observable<ApiResponse<PricingPlan[]>>;
+
   constructor() {
     super();
   }
 
-  getAllPlans(): Observable<ApiResponse<PricingPlan[]>> {
-    return this.get(API_CONSTANTS.PRICING.LIST);
+  clearCache(): void {
+    this.plansCache$ = undefined;
+  }
+
+  getAllPlans(forceRefresh = false): Observable<ApiResponse<PricingPlan[]>> {
+    if (!this.plansCache$ || forceRefresh) {
+      this.plansCache$ = this.get<ApiResponse<PricingPlan[]>>(API_CONSTANTS.PRICING.LIST).pipe(
+        shareReplay(1)
+      );
+    }
+    return this.plansCache$;
   }
 
   addPlan(payload: PricingPlanCreateRequest): Observable<ApiResponse<PricingPlan>> {
-    return this.post(API_CONSTANTS.PRICING.ADD, payload);
+    return this.post<ApiResponse<PricingPlan>>(API_CONSTANTS.PRICING.ADD, payload).pipe(
+      tap(() => this.clearCache())
+    );
   }
 
   updatePlan(payload: PricingPlan): Observable<ApiResponse<PricingPlan>> {
-    return this.put(`${API_CONSTANTS.PRICING.UPDATE}/${payload.id}`, payload);
+    return this.put<ApiResponse<PricingPlan>>(`${API_CONSTANTS.PRICING.UPDATE}/${payload.id}`, payload).pipe(
+      tap(() => this.clearCache())
+    );
   }
 
   deletePlan(id: string): Observable<any> {
-    return this.delete(`${API_CONSTANTS.PRICING.DELETE}/${id}`);
+    return this.delete(`${API_CONSTANTS.PRICING.DELETE}/${id}`).pipe(
+      tap(() => this.clearCache())
+    );
   }
 }
-
-

@@ -15,7 +15,7 @@ export class MemberService extends BaseApiService {
 
   private authService = inject(AuthApiService);
   private branchContextService = inject(BranchContextService);
-  private membersCache$?: Observable<ApiResponse<PagedResponse<GymMember>>> | null;
+  private membersListCache = new Map<string, Observable<ApiResponse<PagedResponse<GymMember>>>>();
   private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
   private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
 
@@ -43,22 +43,26 @@ export class MemberService extends BaseApiService {
 
   getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
+
+    if (search) {
       const params: any = { pageNumber, pageSize };
-      if (search) params.searchTerm = search;
+      params.searchTerm = search;
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params);
     }
 
-    if (!this.membersCache$) {
-      const params: any = { pageNumber: 1, pageSize: 10 };
+    const cacheKey = `${pageNumber}-${pageSize}-${branchId || 'all'}`;
+
+    if (forceRefresh || !this.membersListCache.has(cacheKey)) {
+      const params: any = { pageNumber, pageSize };
       if (branchId) params.branchId = branchId;
-      this.membersCache$ = this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params).pipe(
+      const request$ = this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params).pipe(
         shareReplay(1)
       );
+      this.membersListCache.set(cacheKey, request$);
     }
 
-    return this.membersCache$;
+    return this.membersListCache.get(cacheKey)!;
   }
 
   getMemberById(id: string): Observable<ApiResponse<GymMember>> {
@@ -129,7 +133,7 @@ export class MemberService extends BaseApiService {
   }
 
   clearCache(): void {
-    this.membersCache$ = null;
+    this.membersListCache.clear();
     this.memberCache.clear();
     this.historyCache.clear();
   }
