@@ -44,7 +44,9 @@ namespace GymForge.Infrastructure.Repositories
 
             if (branchId.HasValue)
             {
-                query = query.Where(x => x.BranchId == branchId.Value);
+                query = query.Where(x => x.BranchId == branchId.Value || 
+                    (x.BranchId == null && x.Member.BranchId == branchId.Value) ||
+                    (x.BranchId == null && x.Member.BranchId == null && _dbContext.Branches.Any(b => b.Id == branchId.Value && b.IsMainBranch)));
             }
 
             return await query
@@ -59,7 +61,9 @@ namespace GymForge.Infrastructure.Repositories
 
             if (branchId.HasValue)
             {
-                query = query.Where(x => x.BranchId == branchId.Value);
+                query = query.Where(x => x.BranchId == branchId.Value || 
+                    (x.BranchId == null && x.Member.BranchId == branchId.Value) ||
+                    (x.BranchId == null && x.Member.BranchId == null && _dbContext.Branches.Any(b => b.Id == branchId.Value && b.IsMainBranch)));
             }
 
             return await query.CountAsync();
@@ -72,7 +76,9 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(x => x.Member.GymId == gymId);
 
             if (branchId.HasValue)
-                query = query.Where(x => x.BranchId == branchId);
+                query = query.Where(x => x.BranchId == branchId.Value || 
+                    (x.BranchId == null && x.Member.BranchId == branchId.Value) ||
+                    (x.BranchId == null && x.Member.BranchId == null && _dbContext.Branches.Any(b => b.Id == branchId.Value && b.IsMainBranch)));
 
             if (!string.IsNullOrWhiteSpace(search))
             {

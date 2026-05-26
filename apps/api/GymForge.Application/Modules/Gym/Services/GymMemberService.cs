@@ -87,6 +87,23 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
+            if (pagination.BypassPagination == true)
+            {
+                IEnumerable<GymMember> allMembers = await _memberRepository.GetAllByGymIdAsync(gymId, branchId);
+                if (!string.IsNullOrWhiteSpace(pagination.SearchTerm))
+                {
+                    string term = pagination.SearchTerm.ToLower();
+                    allMembers = allMembers.Where(x => x.FirstName.ToLower().Contains(term) ||
+                                                       x.LastName.ToLower().Contains(term) ||
+                                                       x.Email.ToLower().Contains(term) ||
+                                                       x.MembershipNumber.ToLower().Contains(term));
+                }
+                
+                IEnumerable<GymMemberResponse> mapped = _mapper.Map<IEnumerable<GymMemberResponse>>(allMembers);
+                int count = mapped.Count();
+                return new PagedResponse<GymMemberResponse>(mapped, count, 1, count > 0 ? count : 1);
+            }
+
             (IEnumerable<GymMember> members, int totalCount) = await _memberRepository.GetPagedMembersAsync(
                 gymId,
                 pagination.PageNumber,

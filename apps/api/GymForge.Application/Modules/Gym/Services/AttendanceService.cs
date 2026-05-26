@@ -12,6 +12,7 @@ namespace GymForge.Application.Modules.Gym.Services
     {
         private readonly IAttendanceRepository _attendanceRepo;
         private readonly IGymMemberRepository _memberRepo;
+        private readonly IGymManagementRepository _gymRepo;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private const int SafetyLimit = 80;
@@ -19,11 +20,13 @@ namespace GymForge.Application.Modules.Gym.Services
         public AttendanceService(
             IAttendanceRepository attendanceRepo,
             IGymMemberRepository memberRepo,
+            IGymManagementRepository gymRepo,
             IMapper mapper,
             IUnitOfWork unitOfWork)
         {
             _attendanceRepo = attendanceRepo;
             _memberRepo = memberRepo;
+            _gymRepo = gymRepo;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -54,11 +57,22 @@ namespace GymForge.Application.Modules.Gym.Services
             if (existingLog != null)
                 throw new InvalidOperationException($"{member.FirstName} {member.LastName} is already checked in.");
 
+            Guid? assignedBranchId = branchId ?? member.BranchId;
+            if (!assignedBranchId.HasValue)
+            {
+                List<Branch> branches = await _gymRepo.GetBranchesByGymIdAsync(gymId);
+                Branch? mainBranch = branches.FirstOrDefault(b => b.IsMainBranch);
+                if (mainBranch != null)
+                {
+                    assignedBranchId = mainBranch.Id;
+                }
+            }
+
             AttendanceLog log = new()
             {
                 Id = Guid.NewGuid(),
                 MemberId = request.MemberId,
-                BranchId = branchId,
+                BranchId = assignedBranchId,
                 CheckInTime = DateTime.UtcNow,
                 VerifiedByUserId = verifiedByUserId,
                 VerificationMethod = request.Method,
