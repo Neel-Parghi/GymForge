@@ -1,0 +1,86 @@
+<app-slide-drawer [isOpen]="isOpen" title="Equipment Maintenance Log"
+  subtitle="Record service details, costs and technician info" width="550px"
+  (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="maintenanceForm">
+
+    <div class="asset-mini-profile mb-4" *ngIf="equipment">
+      <div class="mini-img">
+        <img [src]="equipment.imageUrl || 'assets/images/placeholder-equipment.png'" alt="eq">
+      </div>
+      <div class="mini-info">
+        <h6>{{equipment.name}}</h6>
+        <span>S/N: {{equipment.serialNumber}}</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Service Type</label>
+        <app-dropdown formControlName="serviceType" [options]="serviceTypeOptions"
+          placeholder="Select Service Type"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <app-dropdown formControlName="status" [options]="statusOptions"
+          placeholder="Select Status"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Technician / Vendor</label>
+        <input type="text" formControlName="technicianName" placeholder="e.g. John Doe / TechFit Solutions">
+      </div>
+
+      <div class="form-group">
+        <label>Cost (₹)</label>
+        <input type="number" formControlName="cost">
+      </div>
+
+      <div class="form-group">
+        <label>Start Date</label>
+        <app-date-time-picker formControlName="startDate" placeholder="Select start date"></app-date-time-picker>
+      </div>
+
+      <div class="form-group">
+        <label>Est. Completion</label>
+        <app-date-time-picker formControlName="estimatedEndDate" placeholder="Select estimated end date"></app-date-time-picker>
+      </div>
+
+      <div class="form-group full-width" *ngIf="maintenanceForm.get('status')?.value === 'Completed'">
+        <label>Actual Completion Date</label>
+        <app-date-time-picker formControlName="completedDate" placeholder="Select completion date"></app-date-time-picker>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Description of Work</label>
+        <textarea formControlName="description" rows="3" placeholder="What was done?"></textarea>
+      </div>
+    </div>
+
+    <div class="history-section mt-4" *ngIf="maintenanceHistory.length > 0">
+      <label class="section-label">Recent History</label>
+      <div class="history-list">
+        <div class="history-item" *ngFor="let log of maintenanceHistory.slice(0, 3)">
+          <div class="log-main">
+            <span class="log-type">{{log.serviceType}}</span>
+            <span class="log-date">{{log.startDate | date:'shortDate'}}</span>
+          </div>
+          <div class="log-meta">
+            <span>Cost : ₹ {{log.cost}}</span>
+            <span>By: {{log.technicianName}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div drawer-footer>
+    <div class="drawer-actions">
+      <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
+      <button class="btn-primary" type="button" [disabled]="maintenanceForm.invalid || loading" (click)="saveMaintenance()">
+        <i class="fas fa-save"></i>
+        {{ loading ? 'Saving...' : 'Record Maintenance' }}
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>

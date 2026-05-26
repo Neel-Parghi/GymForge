@@ -1,0 +1,103 @@
+<app-slide-drawer [isOpen]="isOpen" title="Transaction Receipt"
+  subtitle="Detailed record of the front-desk sale" width="450px" (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="receipt-container" *ngIf="selectedSale">
+    <div class="receipt-card">
+      <div class="receipt-header">
+        <div class="header-top">
+          <span class="invoice-label">TAX INVOICE</span>
+          <span class="badge badge-success">PAID</span>
+        </div>
+        <div class="gym-brand">
+          <i class="fas fa-dumbbell"></i>
+          <span>GYMFORGE POS</span>
+        </div>
+      </div>
+
+      <div class="receipt-main">
+        <div class="transaction-id">
+          <label>Transaction ID</label>
+          <span>#{{selectedSale.id?.substring(0,8).toUpperCase()}}</span>
+        </div>
+
+        <div class="receipt-info-grid">
+          <div class="info-item">
+            <label>Date</label>
+            <span>{{selectedSale.date | date:'mediumDate'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Time</label>
+            <span>{{selectedSale.date | date:'shortTime'}}</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="customer-info">
+          <label>Customer Details</label>
+          <div class="customer-brief">
+            <div class="avatar-mini"><i class="fas fa-user"></i></div>
+            <div class="c-data">
+              <span class="c-name">{{selectedSale.memberName}}</span>
+              <span class="c-sub">Member ID: {{selectedSale.memberId?.substring(0,6)}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="items-list">
+          <label>Items</label>
+          <div class="receipt-item">
+            <div class="item-main">
+              <span class="p-name">{{selectedSale.productName}}</span>
+              <span class="p-qty">Qty: {{selectedSale.quantity}}</span>
+            </div>
+            <div class="item-price">
+              <span>{{selectedSale.totalAmount | currency:'INR':'symbol'}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="payment-breakdown">
+          <div class="b-row">
+            <span>Subtotal</span>
+            <span>{{selectedSale.totalAmount | currency:'INR':'symbol'}}</span>
+          </div>
+          <div class="b-row">
+            <span>Tax (0%)</span>
+            <span>₹ 0.00</span>
+          </div>
+          <div class="b-row grand-total">
+            <span>Total Paid</span>
+            <span>{{selectedSale.totalAmount | currency:'INR':'symbol'}}</span>
+          </div>
+        </div>
+
+        <div class="payment-method-box mt-4">
+          <div class="pm-info">
+            <i [class]="selectedSale.paymentMethod === 'Card' ? 'fas fa-credit-card' : 'fas fa-money-bill-wave'"></i>
+            <div class="pm-text">
+              <label>Paid via</label>
+              <span>{{selectedSale.paymentMethod}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="receipt-footer">
+        <p>Thank you for your purchase!</p>
+        <div class="footer-actions">
+          <button class="btn-icon-text" type="button" (click)="printReceipt()"><i class="fas fa-print"></i> Print</button>
+          <button class="btn-icon-text" type="button" [disabled]="loading" (click)="emailReceipt()">
+            <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-envelope'"></i> Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Close</button>
+  </div>
+</app-slide-drawer>

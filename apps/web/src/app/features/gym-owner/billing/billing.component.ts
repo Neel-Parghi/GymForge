@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router } from '@angular/router';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
@@ -12,15 +12,41 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { GymService } from '../../../core/services/gym.service';
 import { PricingService } from '../../../core/services/pricing.service';
 import { PricingPlan } from '../../../shared/models/pricing.model';
+import { InvoiceDetailModalComponent } from './components/invoice-detail-modal/invoice-detail-modal.component';
+import { CreateInvoiceModalComponent } from './components/create-invoice-modal/create-invoice-modal.component';
+import { UpgradePlansModalComponent } from './components/upgrade-plans-modal/upgrade-plans-modal.component';
+import { UpiPaymentModalComponent } from './components/upi-payment-modal/upi-payment-modal.component';
+import { PayrollRulesModalComponent } from './components/payroll-rules-modal/payroll-rules-modal.component';
+import { MerchantSettingsComponent } from './components/merchant-settings/merchant-settings.component';
+import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
+import { AppGridConfig } from '../../../shared/constants/grid-config';
 
 @Component({
   selector: 'app-gym-owner-billing',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DropdownComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    DropdownComponent,
+    InvoiceDetailModalComponent,
+    CreateInvoiceModalComponent,
+    UpgradePlansModalComponent,
+    UpiPaymentModalComponent,
+    PayrollRulesModalComponent,
+    MerchantSettingsComponent,
+    DataGrid,
+    GridCellDirective
+  ],
   templateUrl: './billing.component.html',
   styleUrl: './billing.component.scss'
 })
 export class BillingComponent implements OnInit {
+
+  // Grid Configurations
+  memberInvoicesConfig = AppGridConfig['MemberInvoices'];
+  platformInvoicesConfig = AppGridConfig['PlatformInvoices'];
+  staffPayoutsConfig = AppGridConfig['StaffPayouts'];
 
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
@@ -46,32 +72,24 @@ export class BillingComponent implements OnInit {
   activeTab: 'member' | 'saas' | 'settings' | 'staff' = 'member';
   selectedInvoice: any | null = null;
   invoiceSearch = '';
+  invoiceSearchControl = new FormControl('');
   statusFilter: 'All' | 'Paid' | 'Pending' | 'Overdue' = 'All';
   showCreateInvoiceModal = false;
 
-  // Platform Subscription Billing (UPI & GPay)
   showUpiPaymentModal = false;
-  upiTimer = '05:00';
-  upiTimerInterval: any;
-  nextBillingDate = new Date(2026, 5, 1); // June 1, 2026
+  nextBillingDate = new Date(2026, 5, 1);
 
-  // Live Merchant Gateway & UPI setup configurations
   enableOnlineMemberPayments = true;
   merchantUpiVpa = 'fitlife@okaxis';
   razorpayKeyId = 'rzp_live_9A2f8K1d3z9x';
   razorpaySecretKey = '••••••••••••••••••••••••';
-  showRazorpayKeys = false;
 
-  // Plan Comparison & Subscription Upgrade state
   showUpgradeModal = false;
   checkoutPlanName = 'GymForge Pro Plan';
   checkoutPrice = 4999;
   availablePlans: PricingPlan[] = [];
-
-  // Payroll Management Rules
   showPayrollRulesModal = false;
   selectedPayrollStaff: StaffPayout | null = null;
-  payrollRulesForm!: FormGroup;
 
   // Dropdown Lists
   memberDropdownOptions: DropdownOption[] = [];
@@ -88,39 +106,42 @@ export class BillingComponent implements OnInit {
     { label: 'Paid (Register immediately)', value: 'Paid' }
   ];
 
-  // Forms
   settingsForm!: FormGroup;
-  createInvoiceForm!: FormGroup;
 
-  // Dynamic Active Member Invoices bound to current global period
   memberInvoices: MemberInvoice[] = [];
-
-  // Collapsible overview toggle
   showBillingOverview: boolean = true;
 
-  // Pagination variables for Member Invoices ledger
   memberInvoicesCurrentPage: number = 1;
   memberInvoicesPageSize: number = 10;
   protected readonly Math = Math;
 
-  // Platform SaaS Invoices loaded dynamically
   platformInvoices: PlatformInvoice[] = [];
 
-  // Dynamic Month & Year Filter Options Configuration
   payrollMonthsOptions: DropdownOption[] = [];
-  selectedPayrollMonth = '';
+  selectedPayrollMonth = (() => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const monthNum = currentDate.getMonth() + 1;
+    const monthStr = monthNum < 10 ? `0${monthNum}` : `${monthNum}`;
+    return `${year}-${monthStr}`;
+  })();
   periodForm!: FormGroup;
 
-  // Dynamic Payroll ledger array bound to active filter
   staffPayouts: StaffPayout[] = [];
 
   ngOnInit(): void {
     this.initSettingsForm();
-    this.initPayrollRulesForm();
+    this.generatePayrollMonths();
+    this.initPeriodForm();
     this.loadGymMembers();
     this.loadSubscriptionStatus();
     this.loadPlatformInvoices();
     this.loadGymSettingsAndMonths();
+
+    this.invoiceSearchControl.valueChanges.subscribe(val => {
+      this.invoiceSearch = val || '';
+      this.memberInvoicesCurrentPage = 1;
+    });
   }
 
   loadGymSettingsAndMonths(): void {
@@ -129,7 +150,7 @@ export class BillingComponent implements OnInit {
         if (res.data) {
           const gym = res.data;
           this.gymDetails = gym;
-          
+
           this.settingsForm.patchValue({
             gymGstin: gym.gstNumber || '',
             invoicePrefix: gym.invoicePrefix || 'GF-',
@@ -138,13 +159,16 @@ export class BillingComponent implements OnInit {
             overdueGraceDays: gym.overdueGraceDays !== undefined ? gym.overdueGraceDays : 7
           });
 
-          // Generate options dynamically based on the registration date
           this.generatePayrollMonths(gym.createdOn);
 
-          // Initialize month selectors
-          this.initPeriodForm();
+          if (this.payrollMonthsOptions.length > 0) {
+            const hasMonth = this.payrollMonthsOptions.some(o => o.value === this.selectedPayrollMonth);
+            if (!hasMonth) {
+              this.selectedPayrollMonth = this.payrollMonthsOptions[0].value;
+            }
+            this.periodForm.patchValue({ selectedPeriod: this.selectedPayrollMonth }, { emitEvent: false });
+          }
 
-          // Load data dynamically for the calculated active month
           this.loadMemberBillingOverview(this.selectedPayrollMonth);
           this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
         }
@@ -152,7 +176,7 @@ export class BillingComponent implements OnInit {
       error: () => {
         this.notification.error('Failed to load gym billing settings.');
         this.generatePayrollMonths();
-        this.initPeriodForm();
+        this.periodForm.patchValue({ selectedPeriod: this.selectedPayrollMonth }, { emitEvent: false });
         this.loadMemberBillingOverview(this.selectedPayrollMonth);
         this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
       }
@@ -161,8 +185,7 @@ export class BillingComponent implements OnInit {
 
   generatePayrollMonths(createdOnStr?: string): void {
     const currentDate = new Date();
-    
-    // Parse registration date, fallback to 4 months ago if not present or invalid
+
     let registrationDate = new Date();
     if (createdOnStr) {
       registrationDate = new Date(createdOnStr);
@@ -176,7 +199,6 @@ export class BillingComponent implements OnInit {
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
 
-    // Loop back from the current month to registration month (max 12 months)
     let iterDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     let count = 0;
 
@@ -187,14 +209,13 @@ export class BillingComponent implements OnInit {
       const monthNum = iterDate.getMonth() + 1;
       const monthStr = monthNum < 10 ? `0${monthNum}` : `${monthNum}`;
       const value = `${year}-${monthStr}`;
-      
-      const label = count === 0 
+
+      const label = count === 0
         ? `${monthNames[iterDate.getMonth()]} ${year} (Current)`
         : `${monthNames[iterDate.getMonth()]} ${year}`;
 
       options.push({ label, value });
-      
-      // Navigate to previous month
+
       iterDate.setMonth(iterDate.getMonth() - 1);
       count++;
     }
@@ -284,6 +305,7 @@ export class BillingComponent implements OnInit {
           const taxRate = isService ? 0 : defaultTax;
           return {
             id: inv.id,
+            formattedInvoiceId: this.getFormattedInvoiceId({ id: inv.id }),
             memberName: inv.memberName,
             email: inv.email,
             initials: initials,
@@ -364,14 +386,6 @@ export class BillingComponent implements OnInit {
     });
   }
 
-  initPayrollRulesForm(): void {
-    this.payrollRulesForm = this.fb.group({
-      baseSalary: [0, [Validators.required, Validators.min(0)]],
-      ptCommissionRate: [15, [Validators.required, Validators.min(0), Validators.max(100)]],
-      rehabCommissionRate: [15, [Validators.required, Validators.min(0), Validators.max(100)]]
-    });
-  }
-
   initSettingsForm(): void {
     this.settingsForm = this.fb.group({
       gymGstin: ['', [Validators.required, Validators.pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)]],
@@ -382,60 +396,14 @@ export class BillingComponent implements OnInit {
     });
   }
 
-  initCustomInvoiceForm(): void {
-    this.createInvoiceForm = this.fb.group({
-      memberIndex: [0, Validators.required],
-      type: ['Personal Training', Validators.required],
-      itemName: ['', [Validators.required, Validators.minLength(3)]],
-      amount: [1000, [Validators.required, Validators.min(1)]],
-      status: ['Pending', Validators.required]
-    });
-  }
-
   openCreateInvoiceModal(): void {
     this.showCreateInvoiceModal = true;
-    this.initCustomInvoiceForm();
   }
 
   closeCreateInvoiceModal(): void {
     this.showCreateInvoiceModal = false;
   }
 
-  submitCustomInvoice(): void {
-    if (this.createInvoiceForm.invalid) {
-      this.notification.error('Please enter valid invoice details.');
-      return;
-    }
-
-    const val = this.createInvoiceForm.value;
-    const selectedMember = this.gymMembers[val.memberIndex];
-
-    if (!selectedMember) {
-      this.notification.error('Selected member is invalid.');
-      return;
-    }
-
-    const payload = {
-      memberId: selectedMember.id,
-      billingType: val.type,
-      amount: val.amount,
-      status: val.status,
-      paymentMethod: 'UPI'
-    };
-
-    this.billingService.createCustomInvoice(payload).subscribe({
-      next: () => {
-        this.notification.success('Custom invoice generated and recorded successfully!');
-        this.showCreateInvoiceModal = false;
-        this.loadMemberBillingOverview(this.selectedPayrollMonth);
-      },
-      error: () => {
-        this.notification.error('Failed to register custom invoice.');
-      }
-    });
-  }
-
-  // Filters & Searching
   getFilteredInvoices(): MemberInvoice[] {
     return (this.memberInvoices || []).filter(inv => {
       const matchesSearch =
@@ -492,7 +460,11 @@ export class BillingComponent implements OnInit {
     this.memberInvoicesCurrentPage = 1;
   }
 
-  // Aggregated Member Billing Stats
+  onPageSizeChangeGrid(size: number): void {
+    this.memberInvoicesPageSize = size;
+    this.memberInvoicesCurrentPage = 1;
+  }
+
   getPaidSum(): number {
     return (this.memberInvoices || []).filter(i => i.status === 'Paid').reduce((sum, i) => sum + i.amount, 0);
   }
@@ -518,7 +490,6 @@ export class BillingComponent implements OnInit {
     return (this.memberInvoices || []).reduce((sum, i) => sum + i.amount, 0);
   }
 
-  // Aggregated Staff Payroll Stats
   getStaffPaidSum(): number {
     return this.staffPayouts.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.totalPayout, 0);
   }
@@ -575,11 +546,6 @@ export class BillingComponent implements OnInit {
   openPayrollRulesModal(payout: StaffPayout, event: Event): void {
     event.stopPropagation();
     this.selectedPayrollStaff = payout;
-    this.payrollRulesForm.patchValue({
-      baseSalary: payout.baseSalary,
-      ptCommissionRate: payout.ptCommissionRate || 15,
-      rehabCommissionRate: payout.rehabCommissionRate || 15
-    });
     this.showPayrollRulesModal = true;
   }
 
@@ -588,98 +554,19 @@ export class BillingComponent implements OnInit {
     this.selectedPayrollStaff = null;
   }
 
-  savePayrollRules(): void {
-    if (this.payrollRulesForm.invalid || !this.selectedPayrollStaff) return;
-    const formValues = this.payrollRulesForm.value;
-
-    if (!this.selectedPayrollStaff.staffId) {
-      this.selectedPayrollStaff.baseSalary = formValues.baseSalary;
-      this.selectedPayrollStaff.ptCommissionRate = formValues.ptCommissionRate;
-      this.selectedPayrollStaff.rehabCommissionRate = formValues.rehabCommissionRate;
-      this.selectedPayrollStaff.totalPayout = this.selectedPayrollStaff.baseSalary + this.selectedPayrollStaff.commissions;
-      this.notification.success(`Payroll rules updated successfully for ${this.selectedPayrollStaff.staffName}!`);
-      this.closePayrollRulesModal();
-      return;
-    }
-
-    const payload = {
-      staffId: this.selectedPayrollStaff.staffId,
-      baseSalary: formValues.baseSalary,
-      ptCommissionRate: formValues.ptCommissionRate,
-      rehabCommissionRate: formValues.rehabCommissionRate
-    };
-
-    this.billingService.updateStaffPayrollRules(payload).subscribe({
-      next: () => {
-        this.notification.success(`Payroll rules updated successfully for ${this.selectedPayrollStaff?.staffName}!`);
-        this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
-        this.closePayrollRulesModal();
-      },
-      error: () => {
-        this.notification.error('Failed to update payroll rules on the server.');
-      }
-    });
-  }
-
   switchTab(tab: 'member' | 'saas' | 'settings' | 'staff'): void {
     this.activeTab = tab;
   }
 
   openUpiPaymentModal(planName: string = 'GymForge Pro Plan', price: number = 4999): void {
-    // Close upgrade modal first so both don't stack
     this.showUpgradeModal = false;
     this.checkoutPlanName = planName;
     this.checkoutPrice = price;
     this.showUpiPaymentModal = true;
-    this.startUpiCountdown();
   }
 
   closeUpiPaymentModal(): void {
     this.showUpiPaymentModal = false;
-    if (this.upiTimerInterval) {
-      clearInterval(this.upiTimerInterval);
-    }
-  }
-
-  startUpiCountdown(): void {
-    let totalSeconds = 300; // 5 minutes
-    if (this.upiTimerInterval) {
-      clearInterval(this.upiTimerInterval);
-    }
-    this.upiTimer = '05:00';
-    this.upiTimerInterval = setInterval(() => {
-      totalSeconds--;
-      if (totalSeconds <= 0) {
-        this.closeUpiPaymentModal();
-        this.notification.error('UPI payment request timed out. Please try again.');
-        return;
-      }
-      const mins = Math.floor(totalSeconds / 60);
-      const secs = totalSeconds % 60;
-      this.upiTimer = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }, 1000);
-  }
-
-  simulateUpiPaymentSuccess(): void {
-    this.notification.info('Authorizing payment with bank UPI gateway...');
-
-    setTimeout(() => {
-      this.paymentService.renewSubscription(this.checkoutPlanName, this.checkoutPrice).subscribe({
-        next: (res) => {
-          if (res.data) {
-            this.subscriptionStatus = res.data;
-            this.loadPlatformInvoices();
-            this.notification.success(`Payment of ₹${this.checkoutPrice.toLocaleString('en-IN')}.00 processed successfully! Plan updated to ${this.checkoutPlanName}.`);
-          }
-          this.closeUpiPaymentModal();
-          this.closeUpgradeModal();
-        },
-        error: () => {
-          this.notification.error('Failed to process payment verification on server.');
-          this.closeUpiPaymentModal();
-        }
-      });
-    }, 1500);
   }
 
   openUpgradeModal(): void {
@@ -696,13 +583,19 @@ export class BillingComponent implements OnInit {
     this.showUpgradeModal = false;
   }
 
-  saveMerchantGatewaySettings(): void {
+  saveMerchantGatewaySettings(settings: {
+    enableOnlineMemberPayments: boolean;
+    merchantUpiVpa: string;
+    razorpayKeyId: string;
+    razorpaySecretKey: string;
+  }): void {
+    this.enableOnlineMemberPayments = settings.enableOnlineMemberPayments;
+    this.merchantUpiVpa = settings.merchantUpiVpa;
+    this.razorpayKeyId = settings.razorpayKeyId;
+    this.razorpaySecretKey = settings.razorpaySecretKey;
     this.notification.success('Merchant gateway settings saved! Member online payments are fully verified.');
   }
 
-  toggleRazorpayKeysVisibility(): void {
-    this.showRazorpayKeys = !this.showRazorpayKeys;
-  }
 
   viewInvoice(invoice: MemberInvoice): void {
     this.selectedInvoice = invoice;
@@ -766,7 +659,6 @@ export class BillingComponent implements OnInit {
   getFormattedInvoiceId(invoice: any): string {
     if (!invoice?.id) return '';
 
-    // SaaS/Platform invoices issued by GymForge do not get gym owner custom prefix
     if (invoice.planName || invoice.billingDate) {
       return invoice.id;
     }
@@ -785,13 +677,10 @@ export class BillingComponent implements OnInit {
   downloadInvoicePdf(invoice: any, event: Event): void {
     event.stopPropagation();
 
-    // 1. Mount preview modal temporarily if not already open
     const wasOpen = !!this.selectedInvoice;
     if (!wasOpen) {
       this.selectedInvoice = invoice;
     }
-
-    // 2. Wait 150ms for Angular's visual rendering cycle and modal animations to complete
     setTimeout(() => {
       const printableElement = document.getElementById('printable-receipt');
       if (!printableElement) {
@@ -799,11 +688,9 @@ export class BillingComponent implements OnInit {
         return;
       }
 
-      // 3. Create absolute hidden iframe with standard viewport
       const printFrame = document.createElement('iframe');
       printFrame.setAttribute('style', 'position: absolute; width: 1024px; height: 768px; top: -9999px; left: -9999px; visibility: hidden;');
 
-      // 4. REGISTER ONLOAD EVENT HANDLER FIRST TO PREVENT SYNCHRONOUS CACHE RACE CONDITIONS!
       printFrame.onload = () => {
         printFrame.contentWindow?.postMessage({
           type: 'PRINT_INVOICE',
@@ -812,22 +699,17 @@ export class BillingComponent implements OnInit {
         }, '*');
       };
 
-      // 5. Now assign src and mount iframe in the DOM to trigger safe load
       printFrame.src = '/assets/templates/invoice-print.html';
       document.body.appendChild(printFrame);
 
-      // 6. Securely listen for the complete signal to dispose frame and reset modal states
       const handlePrintComplete = (msgEvent: MessageEvent) => {
         if (msgEvent.data && msgEvent.data.type === 'PRINT_COMPLETE') {
-          // Dispose the iframe
           if (printFrame.parentNode) {
             printFrame.parentNode.removeChild(printFrame);
           }
 
-          // Deregister event listener
           window.removeEventListener('message', handlePrintComplete);
 
-          // Clean up temporary visual states
           if (!wasOpen) {
             this.selectedInvoice = null;
           }

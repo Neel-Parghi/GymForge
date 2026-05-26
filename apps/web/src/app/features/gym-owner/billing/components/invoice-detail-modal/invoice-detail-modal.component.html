@@ -1,0 +1,140 @@
+<div class="modal-overlay-backdrop" (click)="close.emit()">
+  <div class="invoice-modal-content-wrapper" (click)="$event.stopPropagation()">
+    <!-- Modal Control Header -->
+    <div class="modal-header-controls">
+      <span class="title">Tax Invoice Preview</span>
+      <div class="buttons">
+        <button class="btn-control-slim print" (click)="downloadInvoicePdf(invoice, $event)">
+          <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </button>
+        <button class="close-btn" (click)="close.emit()" title="Close dialog">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Authentic Printable Tax Invoice layout -->
+    <div class="printable-tax-invoice-card" id="printable-receipt">
+      <!-- Top Meta Brand Block -->
+      <div class="invoice-banner-header">
+        <div class="brand">
+          <h2 class="name">{{ isSaaSInvoice(invoice) ? 'GYMFORGE SERVICES' : (gymDetails?.gymName || 'GYMFORGE OUTLET') }}</h2>
+          <span class="tag">{{ isSaaSInvoice(invoice) ? 'GymForge SaaS Platform Subscriptions' : (gymDetails?.brandName || 'Premium Health & Strength Hub') }}</span>
+        </div>
+        <div class="doc-type">
+          <span class="invoice-label">TAX INVOICE</span>
+          <span class="invoice-serial">Invoice #: {{ getFormattedInvoiceId(invoice) }}</span>
+        </div>
+      </div>
+
+      <div class="invoice-address-grid">
+        <div class="address-col source">
+          <span class="section-title">ISSUED BY</span>
+          <h4 class="company-name">{{ isSaaSInvoice(invoice) ? 'GymForge Platform Services Pvt. Ltd.' : (invoice.branchName || gymDetails?.gymName || 'GymForge Health Club') }}</h4>
+
+          <ng-container *ngIf="isSaaSInvoice(invoice)">
+            <p>104, BKC Bandra East, Mumbai</p>
+            <p>Maharashtra, 400051</p>
+            <p class="meta-field"><strong>GSTIN:</strong> 27AAACG9988A1Z9</p>
+          </ng-container>
+
+          <ng-container *ngIf="!isSaaSInvoice(invoice)">
+            <ng-container *ngIf="invoice.branchLine1; else fallbackAddress">
+              <p>{{ invoice.branchLine1 }}<span *ngIf="invoice.branchLine2">, {{ invoice.branchLine2 }}</span></p>
+              <p>{{ invoice.branchCity }}, {{ invoice.branchState }} - {{ invoice.branchPostalCode }}</p>
+            </ng-container>
+            <ng-template #fallbackAddress>
+              <p>Sector 15, Vashi, Navi Mumbai,</p>
+              <p>Maharashtra, 400703</p>
+            </ng-template>
+            <p class="meta-field"><strong>GSTIN:</strong> {{ gymDetails?.gstNumber || '27AAAAA1111A1Z1' }}</p>
+          </ng-container>
+        </div>
+        <div class="address-col client">
+          <span class="section-title">BILLED TO</span>
+          <h4 class="client-name">{{ isSaaSInvoice(invoice) ? (gymDetails?.gymName || 'GymOwner Club') : invoice.memberName }}</h4>
+          <p class="client-email">{{ isSaaSInvoice(invoice) ? (gymDetails?.contactEmail || 'owner@gymforge.com') : invoice.email }}</p>
+          <p>{{ isSaaSInvoice(invoice) ? ('Gym No: ' + (gymDetails?.id?.slice(0,8) || 'GF-OWNER')) : ('Member No: ' + (invoice.membershipNumber || invoice.initials + '-' + invoice.id.slice(-4))) }}</p>
+          <p class="meta-field"><strong>Status:</strong> <span class="st-lbl" [ngClass]="invoice.status.toLowerCase()">{{ invoice.status }}</span></p>
+        </div>
+      </div>
+
+      <div class="invoice-timeline-bar">
+        <div class="bar-item">
+          <span class="lbl">DATE ISSUED</span>
+          <span class="val">{{ (invoice.dateIssued || invoice.billingDate) | date:'mediumDate' }}</span>
+        </div>
+        <div class="bar-item">
+          <span class="lbl">PAYMENT DUE</span>
+          <span class="val">{{ (invoice.dueDate || invoice.billingDate) | date:'mediumDate' }}</span>
+        </div>
+        <div class="bar-item">
+          <span class="lbl">PAYMENT METHOD</span>
+          <span class="val">BHIM UPI Instant Gateway</span>
+        </div>
+      </div>
+
+      <!-- Itemized Ledger Table -->
+      <table class="invoice-items-table">
+        <thead>
+          <tr>
+            <th>ITEM DESCRIPTION</th>
+            <th class="num">QTY</th>
+            <th class="num">UNIT RATE (₹)</th>
+            <th class="num">TAX TAXABLE (₹)</th>
+            <th class="num">TOTAL TAX ({{ invoice.taxRate || 18 }}%)</th>
+            <th class="num">TOTAL AMOUNT (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="desc-col">
+              <strong>{{ isSaaSInvoice(invoice) ? invoice.planName : invoice.itemName }}</strong>
+              <span class="sub-caption">{{ isSaaSInvoice(invoice) ? 'GymForge SaaS Platform Subscription License' : 'Standard tax-applied Gym transaction' }}</span>
+            </td>
+            <td class="num">1</td>
+            <td class="num">₹{{ getTaxableAmount(invoice.amount, invoice.taxRate || 18) | number:'1.2-2' }}</td>
+            <td class="num">₹{{ getTaxableAmount(invoice.amount, invoice.taxRate || 18) | number:'1.2-2' }}</td>
+            <td class="num">₹{{ getTaxAmount(invoice.amount, invoice.taxRate || 18) | number:'1.2-2' }}</td>
+            <td class="num font-bold">₹{{ invoice.amount | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Calculations Totals block -->
+      <div class="invoice-totals-section">
+        <div class="totals-table-wrapper">
+          <div class="total-row">
+            <span class="lbl">Taxable Amount (Excl. Tax)</span>
+            <span class="val">₹{{ getTaxableAmount(invoice.amount, invoice.taxRate || 18) | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-row">
+            <span class="lbl">CGST ({{ (invoice.taxRate || 18) / 2 }}%)</span>
+            <span class="val">₹{{ (getTaxAmount(invoice.amount, invoice.taxRate || 18) / 2) | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-row">
+            <span class="lbl">SGST ({{ (invoice.taxRate || 18) / 2 }}%)</span>
+            <span class="val">₹{{ (getTaxAmount(invoice.amount, invoice.taxRate || 18) / 2) | number:'1.2-2' }}</span>
+          </div>
+          <div class="totals-divider"></div>
+          <div class="total-row grand-total">
+            <span class="lbl">Grand Total (Incl. Taxes)</span>
+            <span class="val">₹{{ invoice.amount | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal Footer Declarations -->
+      <div class="invoice-terms-footer">
+        <div class="footer-sign">
+          <span class="sign-label">Authorized Signatory</span>
+          <div class="signature-line"></div>
+        </div>
+        <div class="footer-decl">
+          <p>This is a computer-generated document and does not require a physical signature.</p>
+          <p>Thank you for being an active member of our health family!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

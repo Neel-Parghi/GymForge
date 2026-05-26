@@ -1,0 +1,68 @@
+<app-slide-drawer [isOpen]="isOpen" title="Record New Sale" subtitle="Sell a product to a gym member"
+  width="500px" (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="saleForm">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Select Member</label>
+        <app-dropdown [options]="memberOptions" formControlName="memberId" [isSearchable]="true"
+          placeholder="Search for a member..." minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Select Product</label>
+        <app-dropdown [options]="productOptions" formControlName="productId" [isSearchable]="true"
+          placeholder="Choose product" minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" formControlName="quantity" min="1">
+        <div class="error-message" *ngIf="saleForm.get('quantity')?.errors?.['insufficientStock']">
+          Only {{saleForm.get('quantity')?.errors?.['max']}} units available in stock.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sale Date</label>
+        <app-date-time-picker formControlName="date" placeholder="Select sale date"></app-date-time-picker>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Payment Method</label>
+        <div class="payment-options">
+          <button type="button" class="opt-btn" [class.active]="saleForm.get('paymentMethod')?.value === 'Card'"
+            (click)="saleForm.patchValue({paymentMethod: 'Card'})">
+            <i class="fas fa-credit-card"></i> Card
+          </button>
+          <button type="button" class="opt-btn" [class.active]="saleForm.get('paymentMethod')?.value === 'Cash'"
+            (click)="saleForm.patchValue({paymentMethod: 'Cash'})">
+            <i class="fas fa-money-bill-wave"></i> Cash
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Summary Card -->
+    <div class="summary-card glass mt-4" *ngIf="selectedSaleProduct">
+      <div class="summary-row">
+        <span>Unit Price</span>
+        <span>{{selectedSaleProduct.sellingPrice | currency:'INR':'symbol'}}</span>
+      </div>
+      <div class="summary-row">
+        <span>Quantity</span>
+        <span>x {{saleForm.get('quantity')?.value}}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="summary-row total">
+        <span>Total Payable</span>
+        <span>{{saleTotal | currency:'INR':'symbol'}}</span>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
+    <button class="btn-primary" type="button" [disabled]="saleForm.invalid || loading" (click)="saveSale()">
+      {{ loading ? 'Processing...' : 'Confirm Transaction' }}
+    </button>
+  </div>
+</app-slide-drawer>

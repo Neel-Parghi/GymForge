@@ -1,0 +1,69 @@
+<div class="modal-overlay-backdrop" (click)="close.emit()">
+  <div class="invoice-modal-content-wrapper payroll-rules-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Control Header -->
+    <div class="modal-header-controls">
+      <span class="title">Manage Payroll Rules</span>
+      <button class="close-btn" (click)="close.emit()" title="Close dialog">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Modal Form Body -->
+    <div class="modal-form-body">
+      <!-- Staff Member Profile Header -->
+      <div class="modal-profile-header">
+        <div class="initials-badge">{{ selectedPayrollStaff?.initials }}</div>
+        <div class="profile-info">
+          <h4>{{ selectedPayrollStaff?.staffName }}</h4>
+          <span class="role">{{ selectedPayrollStaff?.role }}</span>
+        </div>
+      </div>
+
+      <!-- Configuration Form -->
+      <form [formGroup]="payrollRulesForm" (ngSubmit)="savePayrollRules()">
+        <!-- Row 1: Full-Width Base Salary -->
+        <div class="form-group-premium form-group-margin-bottom">
+          <label for="baseSalary">Base Monthly Salary</label>
+          <div class="input-unit-wrapper">
+            <input type="number" id="baseSalary" formControlName="baseSalary"
+              class="form-input-premium unit-input unit-left">
+            <span class="unit-box left-unit">₹</span>
+          </div>
+          <span class="help-text">Fixed base monthly pay distributed to staff.</span>
+        </div>
+
+        <!-- Row 2: Side-by-Side PT and Rehab Commission Rates -->
+        <div class="form-grid-2">
+          <!-- PT Commission Rate input -->
+          <div class="form-group-premium">
+            <label for="ptCommissionRate">PT Commission Rate (%)</label>
+            <div class="input-unit-wrapper">
+              <input type="number" id="ptCommissionRate" formControlName="ptCommissionRate"
+                class="form-input-premium unit-input">
+              <span class="unit-box">%</span>
+            </div>
+            <span class="help-text">Share from Personal Training sessions.</span>
+          </div>
+
+          <!-- Rehab Commission Rate input -->
+          <div class="form-group-premium">
+            <label for="rehabCommissionRate">Rehab Commission Rate (%)</label>
+            <div class="input-unit-wrapper">
+              <input type="number" id="rehabCommissionRate" formControlName="rehabCommissionRate"
+                class="form-input-premium unit-input">
+              <span class="unit-box">%</span>
+            </div>
+            <span class="help-text">Share from Rehab & Therapy bookings.</span>
+          </div>
+        </div>
+
+        <div class="modal-form-actions modal-form-actions-margin-top">
+          <button type="button" class="btn-cancel" (click)="close.emit()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="payrollRulesForm.invalid">
+            <i class="fa-solid fa-floppy-disk"></i> Save Payroll Rules
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

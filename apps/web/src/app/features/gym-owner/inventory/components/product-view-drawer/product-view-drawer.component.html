@@ -1,0 +1,54 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="product?.name"
+  subtitle="Detailed product information and stock history" width="600px" (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="detail-container" *ngIf="product">
+    <div class="detail-header">
+      <div class="detail-image">
+        <img [src]="product.imageUrl || 'assets/images/placeholder-product.png'" alt="product">
+      </div>
+      <div class="detail-main">
+        <div class="detail-badges">
+          <span class="badge"
+            [ngClass]="getBadgeClass(product.stockStatus)">{{product.stockStatus}}</span>
+          <span class="badge badge-secondary">{{product.category}}</span>
+        </div>
+        <p class="detail-subtitle">SKU: {{product.sku}}</p>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Selling Price</label>
+        <span class="value currency">{{product.sellingPrice | currency:'INR':'symbol'}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Buying Price</label>
+        <span class="value currency">{{product.buyingPrice | currency:'INR':'symbol'}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Current Stock</label>
+        <span class="value" [class.text-danger]="product.stockQuantity <= product.reorderLevel">
+          {{product.stockQuantity}} Units
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Reorder Level</label>
+        <span class="value">{{product.reorderLevel}} Units</span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <label>Description</label>
+      <p class="description-text" [class.text-muted]="!product.description">
+        {{product.description || 'No detailed description available for this product.'}}
+      </p>
+    </div>
+  </div>
+  <div drawer-footer class="detail-footer">
+    <div class="drawer-actions">
+      <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Close</button>
+      <button class="btn-primary" type="button" (click)="editProduct.emit(product)">
+        Edit Product
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>

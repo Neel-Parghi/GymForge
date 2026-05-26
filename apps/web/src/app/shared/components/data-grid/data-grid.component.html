@@ -16,112 +16,118 @@
             <input type="checkbox" [checked]="isSelected(row)" (change)="toggleSelection(row, $event)">
           </td>
           <td *ngFor="let col of columns">
-            @switch (col.type) {
-            <!-- Profile Column (Avatar + Name + Subtext) -->
-            @case ('profile') {
-            <div class="profile-cell clickable" (click)="onAction('view', row)" title="View Details">
-              <div class="avatar-circle">
-                @if (row.profilePictureUrl || row.imageUrl) {
-                <img [src]="row.profilePictureUrl || row.imageUrl" alt="avatar">
-                } @else {
-                <span>{{ getNestedValue(row, col.key) ? getNestedValue(row, col.key)[0] : (row.firstName ?
-                  row.firstName[0] : '') }}</span>
-                }
-              </div>
-              <div class="profile-info">
-                <span class="primary-text">{{ getNestedValue(row, col.key) || '-' }} {{ row.lastName || '' }}</span>
-                <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) || '-' }}</span>
-              </div>
-            </div>
-            }
-
-            <!-- Complex Column (Two lines of text) -->
-            @case ('complex') {
-            <div class="complex-cell">
-              <span class="primary-text">{{ getNestedValue(row, col.key) }}</span>
-              <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
-            </div>
-            }
-
-            <!-- Action Buttons -->
-            @case ('action') {
-            <div class="actions-cell">
-              <button *ngIf="!config.excludeActions?.includes('view')" class="action-btn view-btn"
-                (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-              <button *ngIf="row.health !== undefined && !config.excludeActions?.includes('service')"
-                class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()"
-                title="Record Maintenance">
-                <i class="fa-solid fa-tools"></i>
-              </button>
-              <button *ngIf="row.sellingPrice !== undefined && !config.excludeActions?.includes('sell')"
-                class="action-btn sell-btn" [disabled]="row.stockQuantity === 0"
-                (click)="row.stockQuantity > 0 && onAction('sell', row); $event.stopPropagation()"
-                [title]="row.stockQuantity === 0 ? 'Out of Stock' : 'Sell Product'">
-                <i class="fa-solid fa-cart-shopping"></i>
-              </button>
-              <button *ngIf="!config.excludeActions?.includes('edit')" class="action-btn edit-btn"
-                (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-            </div>
-            }
-
-            <!-- Progress Bar -->
-            @case ('progress') {
-            <div class="progress-cell">
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill" [style.width.%]="getNestedValue(row, col.key)"
-                  [ngClass]="getNestedValue(row, col.key) > 70 ? 'bg-success' : getNestedValue(row, col.key) > 30 ? 'bg-warning' : 'bg-danger'">
+            <ng-container *ngIf="getCustomTemplate(col.key); else standardCol">
+              <ng-container *ngTemplateOutlet="getCustomTemplate(col.key)!; context: { $implicit: row }"></ng-container>
+            </ng-container>
+            <ng-template #standardCol>
+              @switch (col.type) {
+              <!-- Profile Column (Avatar + Name + Subtext) -->
+              @case ('profile') {
+              <div class="profile-cell clickable" (click)="onAction('view', row)" title="View Details">
+                <div class="avatar-circle">
+                  @if (row.profilePictureUrl || row.imageUrl) {
+                  <img [src]="row.profilePictureUrl || row.imageUrl" alt="avatar">
+                  } @else {
+                  <span>{{ getNestedValue(row, col.key) ? getNestedValue(row, col.key)[0] : (row.firstName ?
+                    row.firstName[0] : '') }}</span>
+                  }
+                </div>
+                <div class="profile-info">
+                  <span class="primary-text">{{ getNestedValue(row, col.key) || '-' }} {{ row.lastName || '' }}</span>
+                  <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) || '-' }}</span>
                 </div>
               </div>
-              <span class="progress-text">{{ getNestedValue(row, col.key) }}%</span>
-            </div>
-            }
+              }
 
-            <!-- Badges -->
-            @case ('badge') {
-            @if (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== undefined) {
-            <span class="badge" [ngClass]="getBadgeClass(getNestedValue(row, col.key).toString())">
-              {{ getNestedValue(row, col.key) }}
-            </span>
-            } @else {
-            <span>-</span>
-            }
-            }
+              <!-- Complex Column (Two lines of text) -->
+              @case ('complex') {
+              <div class="complex-cell">
+                <span class="primary-text">{{ getNestedValue(row, col.key) }}</span>
+                <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
+              </div>
+              }
 
-            <!-- Date -->
-            @case ('date') {
-            <span class="date-text">
-              {{ getNestedValue(row, col.key) ? (getNestedValue(row, col.key) | date:'mediumDate') : '-' }}
-            </span>
-            }
+              <!-- Action Buttons -->
+              @case ('action') {
+              <div class="actions-cell">
+                <button *ngIf="!config.excludeActions?.includes('view')" class="action-btn view-btn"
+                  (click)="onAction('view', row); $event.stopPropagation()" title="View Details">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button *ngIf="row.health !== undefined && !config.excludeActions?.includes('service')"
+                  class="action-btn service-btn" (click)="onAction('service', row); $event.stopPropagation()"
+                  title="Record Maintenance">
+                  <i class="fa-solid fa-tools"></i>
+                </button>
+                <button *ngIf="row.sellingPrice !== undefined && !config.excludeActions?.includes('sell')"
+                  class="action-btn sell-btn" [disabled]="row.stockQuantity === 0"
+                  (click)="row.stockQuantity > 0 && onAction('sell', row); $event.stopPropagation()"
+                  [title]="row.stockQuantity === 0 ? 'Out of Stock' : 'Sell Product'">
+                  <i class="fa-solid fa-cart-shopping"></i>
+                </button>
+                <button *ngIf="!config.excludeActions?.includes('edit')" class="action-btn edit-btn"
+                  (click)="onAction('edit', row); $event.stopPropagation()" title="Edit">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              </div>
+              }
 
-            <!-- Currency -->
-            @case ('currency') {
-            <span class="currency-text">
-              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? (getNestedValue(row,
-              col.key) | currency:'INR':'symbol') : '-' }}
-            </span>
-            }
+              <!-- Progress Bar -->
+              @case ('progress') {
+              <div class="progress-cell">
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" [style.width.%]="getNestedValue(row, col.key)"
+                    [ngClass]="getNestedValue(row, col.key) > 70 ? 'bg-success' : getNestedValue(row, col.key) > 30 ? 'bg-warning' : 'bg-danger'">
+                  </div>
+                </div>
+                <span class="progress-text">{{ getNestedValue(row, col.key) }}%</span>
+              </div>
+              }
 
-            <!-- Boolean -->
-            @case ('bool') {
-            <span [ngClass]="getNestedValue(row, col.key) ? 'icon-bool-true' : 'icon-bool-false'">
-              <i class="fa-solid" [ngClass]="getNestedValue(row, col.key) ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
-            </span>
-            }
+              <!-- Badges -->
+              @case ('badge') {
+              @if (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== undefined) {
+              <span class="badge" [ngClass]="getBadgeClass(getNestedValue(row, col.key).toString())">
+                {{ getNestedValue(row, col.key) }}
+              </span>
+              } @else {
+              <span>-</span>
+              }
+              }
 
-            <!-- Text / Clickable Links -->
-            @default {
-            <span [class.clickable-cell]="col.isClickable"
-              (click)="col.isClickable ? onAction('row-click', row) : null">
-              {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? getNestedValue(row,
-              col.key) : '-' }}
-            </span>
-            }
-            }
+              <!-- Date -->
+              @case ('date') {
+              <span class="date-text">
+                {{ getNestedValue(row, col.key) ? (getNestedValue(row, col.key) | date:'mediumDate') : '-' }}
+              </span>
+              }
+
+              <!-- Currency -->
+              @case ('currency') {
+              <span class="currency-text">
+                {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? (getNestedValue(row,
+                col.key) | currency:'INR':'symbol') : '-' }}
+              </span>
+              }
+
+              <!-- Boolean -->
+              @case ('bool') {
+              <span [ngClass]="getNestedValue(row, col.key) ? 'icon-bool-true' : 'icon-bool-false'">
+                <i class="fa-solid"
+                  [ngClass]="getNestedValue(row, col.key) ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+              </span>
+              }
+
+              <!-- Text / Clickable Links -->
+              @default {
+              <span [class.clickable-cell]="col.isClickable"
+                (click)="col.isClickable ? onAction('row-click', row) : null">
+                {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? getNestedValue(row,
+                col.key) : '-' }}
+              </span>
+              }
+              }
+            </ng-template>
           </td>
         </tr>
         <tr *ngIf="!data || data.length === 0">

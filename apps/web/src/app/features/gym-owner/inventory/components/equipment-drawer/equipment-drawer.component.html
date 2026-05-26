@@ -1,0 +1,83 @@
+<app-slide-drawer [isOpen]="isOpen"
+  [title]="isEditingEquipment ? 'Edit Equipment' : 'Register Equipment'"
+  [subtitle]="isEditingEquipment ? 'Update gym asset details and health' : 'Add new gym assets to the tracking system'"
+  width="550px" (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="equipmentForm">
+
+    <!-- Image Upload Section for Equipment -->
+    <div class="image-upload-section" (click)="fileInputEq.click()">
+      <input type="file" #fileInputEq (change)="onFileSelected($event)" accept="image/*" style="display: none">
+
+      <div class="image-placeholder" *ngIf="!imagePreview && !loading">
+        <i class="fas fa-camera"></i>
+        <span>Upload Equipment Photo</span>
+        <p class="text-xs">Showcase your gym assets</p>
+      </div>
+
+      <div class="upload-loading" *ngIf="loading && selectedFile">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Uploading Photo...</span>
+      </div>
+
+      <div class="image-preview-container" *ngIf="imagePreview && !(loading && selectedFile)">
+        <img [src]="imagePreview" class="preview-img">
+        <div class="preview-overlay">
+          <i class="fas fa-camera"></i>
+          <span>Change Photo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Equipment Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Matrix Treadmill T7xe">
+      </div>
+
+      <div class="form-group">
+        <label>Serial Number</label>
+        <input type="text" formControlName="serialNumber" placeholder="SN-XXXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <app-dropdown [options]="categories" formControlName="category" placeholder="Select equipment type"
+          minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Purchase Date</label>
+        <app-date-time-picker formControlName="purchaseDate" placeholder="Select purchase date"></app-date-time-picker>
+      </div>
+
+      <div class="form-group">
+        <label>Warranty Expiry</label>
+        <app-date-time-picker formControlName="warrantyExpiry" placeholder="Select warranty expiry"></app-date-time-picker>
+      </div>
+
+      <div class="form-group">
+        <label>Condition</label>
+        <app-dropdown [options]="conditionOptions" formControlName="condition" placeholder="Initial condition"
+          minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Maintenance Interval (Months)</label>
+        <input type="number" formControlName="maintenanceInterval">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Initial Health Score ({{equipmentForm.get('initialHealth')?.value}}%)</label>
+        <input type="range" formControlName="initialHealth" min="1" max="100">
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
+    <button class="btn-primary" type="button"
+      [disabled]="equipmentForm.invalid || loading || (isEditingEquipment && equipmentForm.pristine && !selectedFile)"
+      (click)="saveEquipment()">
+      {{isEditingEquipment ? 'Update Equipment' : 'Register Equipment'}}
+    </button>
+  </div>
+</app-slide-drawer>

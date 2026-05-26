@@ -41,12 +41,13 @@ export class MemberService extends BaseApiService {
     );
   }
 
-  getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
+  getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false, bypassPagination = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
     const branchId = this.branchContextService.getActiveBranchId();
 
-    if (search) {
+    if (search || bypassPagination) {
       const params: any = { pageNumber, pageSize };
-      params.searchTerm = search;
+      if (search) params.searchTerm = search;
+      if (bypassPagination) params.bypassPagination = true;
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params);
     }

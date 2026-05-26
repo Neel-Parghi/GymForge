@@ -1,9 +1,18 @@
-import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ContentChild, ContentChildren, QueryList, TemplateRef, Directive } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/column-def.model';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 import { DropdownOption } from '../../models/dropdown.model';
 import { GridConfigDef } from '../../models/grid-config.model';
+
+@Directive({
+  selector: '[gridCell]',
+  standalone: true
+})
+export class GridCellDirective {
+  @Input('gridCell') columnName!: string;
+  constructor(public templateRef: TemplateRef<any>) {}
+}
 
 @Component({
   selector: 'app-data-grid',
@@ -14,6 +23,7 @@ import { GridConfigDef } from '../../models/grid-config.model';
 })
 export class DataGrid {
   @ContentChild('emptyState') emptyStateTemplate?: TemplateRef<any>;
+  @ContentChildren(GridCellDirective) customCells!: QueryList<GridCellDirective>;
   @Input() config!: GridConfigDef;
   @Input() data: any[] = [];
   @Input() totalItems: number = 0;
@@ -43,6 +53,11 @@ export class DataGrid {
   }
 
   selectedRows: any[] = [];
+
+  getCustomTemplate(columnName: string): TemplateRef<any> | null {
+    const cell = this.customCells?.find(c => c.columnName === columnName);
+    return cell ? cell.templateRef : null;
+  }
 
   ngOnInit() {
   }
@@ -134,6 +149,7 @@ export class DataGrid {
       case 'scheduled':
       case 'maintenance due':
       case 'in progress':
+      case 'awaiting release':
         return 'badge-pending';
       case 'unpaid':
       case 'refunded':
@@ -145,6 +161,7 @@ export class DataGrid {
       case 'danger':
       case 'inactive':
       case 'failed':
+      case 'overdue':
         return 'badge-unpaid';
       default:
         return 'badge-neutral';
