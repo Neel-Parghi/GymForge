@@ -46,11 +46,19 @@ namespace GymForge.Application
             services.AddScoped<IStaffService, StaffService>();
             
             services.AddScoped<IInventoryService, InventoryService>();
+
             services.AddScoped<IEquipmentService, EquipmentService>();
-            services.AddScoped<IMaintenanceService, MaintenanceService>();
-            services.AddScoped<IGymOwnerDashboardService, GymOwnerDashboardService>();
-            services.AddScoped<IAttendanceService, AttendanceService>();
             
+            services.AddScoped<IMaintenanceService, MaintenanceService>();
+            
+            services.AddScoped<IGymOwnerDashboardService, GymOwnerDashboardService>();
+            
+            services.AddScoped<IAttendanceService, AttendanceService>();
+
+            services.AddScoped<IMemberBillingService, MemberBillingService>();
+            
+            services.AddScoped<IStaffPayrollService, StaffPayrollService>();
+
             return services;
         }
     }

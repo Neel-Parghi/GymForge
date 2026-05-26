@@ -1,0 +1,66 @@
+<div class="modal-overlay-backdrop" (click)="close.emit()">
+  <div class="invoice-modal-content-wrapper upi-payment-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header-controls">
+      <span class="title">BHIM UPI Instant Platform Payment</span>
+      <button class="close-btn" (click)="close.emit()" title="Close dialog">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-form-body upi-payment-body">
+      <!-- Checkout Tier Banner -->
+      <div class="upi-checkout-banner">
+        <div class="checkout-tier-details">
+          <span class="lbl font-semibold">UPGRADE ORDER PLAN</span>
+          <h3>{{ checkoutPlanName }}</h3>
+          <span class="lbl font-bold" style="color: #0369a1; font-size: 0.72rem; margin-top: 4px;">Dynamic Branch License Activation</span>
+        </div>
+        <div class="checkout-payout-box">
+          <span class="lbl">TOTAL AMOUNT DUE</span>
+          <h2>₹{{ checkoutPrice | number:'1.2-2' }}</h2>
+          <span class="lbl font-semibold" style="color: #64748b; font-size: 0.65rem;">Platform taxes included</span>
+        </div>
+      </div>
+
+      <div class="upi-gateway-grid">
+        <!-- Interactive Simulated QR section -->
+        <div class="upi-visual-box">
+          <div class="upi-live-qr-frame">
+            <img [src]="qrCodeUrl" alt="UPI QR Code" class="upi-live-qr-img">
+          </div>
+          <span class="timer-badge">
+            <i class="fa-solid fa-hourglass-half fa-spin"></i>
+            Awaiting response: <strong>{{ upiTimer }}</strong>
+          </span>
+        </div>
+
+        <div class="upi-instructions-box">
+          <h4>Scan QR & Complete Payout</h4>
+          <p>Open Google Pay, PhonePe, Paytm, or BHIM UPI app on your smartphone and scan the secure payment gateway QR code above.</p>
+          
+          <div class="payment-steps">
+            <div class="step">
+              <span class="num">1</span>
+              <span class="txt">Open preferred mobile payment app.</span>
+            </div>
+            <div class="step">
+              <span class="num">2</span>
+              <span class="txt">Scan the GymForge BHIM UPI QR above.</span>
+            </div>
+            <div class="step">
+              <span class="num">3</span>
+              <span class="txt">Enter payment PIN and confirm checkout.</span>
+            </div>
+          </div>
+
+          <div class="gateway-footer-row">
+            <button class="btn-simulate-gateway" (click)="simulateUpiPaymentSuccess()">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Simulate UPI Success
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

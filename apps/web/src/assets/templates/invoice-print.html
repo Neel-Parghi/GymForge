@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <!-- FontAwesome & Print Stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/invoice-print.css">
+  </head>
+  <body>
+    <!-- The dynamic receipt content will be injected here -->
+    <div class="printable-tax-invoice-card" id="receipt-content"></div>
+
+    <script>
+      // Listen for print requests from the parent Angular component
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'PRINT_INVOICE') {
+          // Set invoice title
+          document.title = "Invoice " + event.data.invoiceId;
+          
+          // Inject exact visual markup
+          document.getElementById('receipt-content').innerHTML = event.data.html;
+          
+          // Let custom fonts settle, focus, and print
+          setTimeout(function() {
+            window.focus();
+            window.print();
+            
+            // Notify parent to clean up the iframe
+            window.parent.postMessage({ type: 'PRINT_COMPLETE' }, '*');
+          }, 150);
+        }
+      });
+    </script>
+  </body>
+</html>

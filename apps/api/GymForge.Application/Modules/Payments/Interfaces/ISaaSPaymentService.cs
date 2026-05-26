@@ -16,5 +16,11 @@ namespace GymForge.Application.Modules.Payments.Interfaces
         Task<SaaSConfigurationDto> GetSettingsAsync();
 
         Task UpdateSettingsAsync(SaaSConfigurationDto settings);
+
+        Task<GymSubscriptionStatusDto> GetSubscriptionStatusAsync(Guid gymId);
+
+        Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, string planName = "GymForge Pro Plan", decimal price = 4999);
+
+        Task<List<PaymentTransactionDto>> GetGymTransactionsAsync(Guid gymId);
     }
 }

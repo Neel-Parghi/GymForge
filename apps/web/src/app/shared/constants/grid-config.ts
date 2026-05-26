@@ -135,5 +135,41 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
+  },
+  MemberInvoices: {
+    columns: [
+      { key: 'formattedInvoiceId', label: 'Invoice ID', type: 'text' },
+      { key: 'memberName', label: 'Member', type: 'profile', subKey: 'email' },
+      { key: 'type', label: 'Billing Type', type: 'text' },
+      { key: 'amount', label: 'Amount', type: 'currency' },
+      { key: 'dateIssued', label: 'Date Issued', type: 'date' },
+      { key: 'dueDate', label: 'Due Date', type: 'date' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false
+  },
+  PlatformInvoices: {
+    columns: [
+      { key: 'id', label: 'Transaction ID', type: 'text' },
+      { key: 'planName', label: 'Plan Tier', type: 'text' },
+      { key: 'amount', label: 'Amount', type: 'currency' },
+      { key: 'billingDate', label: 'Date Paid', type: 'date' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'receipt', label: 'Receipt', type: 'action' }
+    ],
+    selectable: false
+  },
+  StaffPayouts: {
+    columns: [
+      { key: 'staffName', label: 'Staff Member', type: 'profile', subKey: 'email' },
+      { key: 'role', label: 'Role', type: 'text' },
+      { key: 'baseSalary', label: 'Base Salary', type: 'currency' },
+      { key: 'commissions', label: 'PT Commissions', type: 'currency' },
+      { key: 'totalPayout', label: 'Net Payout', type: 'currency' },
+      { key: 'status', label: 'Payout Status', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false
   }
 };

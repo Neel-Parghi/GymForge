@@ -1,9 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, shareReplay, tap, Subject, of } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { BranchContextService } from './branch-context.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { GymOwnerStats } from '../models/dashboard.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +10,6 @@ import { GymOwnerStats } from '../models/dashboard.model';
 export class GymOwnerDashboardService extends BaseApiService {
   private branchContextService = inject(BranchContextService);
   private statsCache$?: Observable<any>;
-  private refreshStats$ = new Subject<void>();
 
   constructor() {
     super();
@@ -20,14 +18,16 @@ export class GymOwnerDashboardService extends BaseApiService {
     });
   }
 
-  getStats(): Observable<any> {
-    const branchId = this.branchContextService.getActiveBranchId();
-    if (branchId) {
-      return this.get(API_CONSTANTS.GYM_OWNER.DASHBOARD, { branchId });
+  getStats(forceRefresh = false): Observable<any> {
+    if (forceRefresh) {
+      this.clearCache();
     }
 
     if (!this.statsCache$) {
-      this.statsCache$ = this.get(API_CONSTANTS.GYM_OWNER.DASHBOARD, {}).pipe(
+      const branchId = this.branchContextService.getActiveBranchId();
+      const params = branchId ? { branchId } : {};
+
+      this.statsCache$ = this.get(API_CONSTANTS.GYM_OWNER.DASHBOARD, params).pipe(
         shareReplay(1)
       );
     }

@@ -40,7 +40,6 @@ export class DashboardComponent implements OnInit {
     this.branchContextService.activeBranch$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
-      this.dashboardService.clearCache();
       this.loadStats();
     });
   }
@@ -94,98 +93,6 @@ export class DashboardComponent implements OnInit {
   sendRenewalReminder(renewal: any, event: Event): void {
     event.stopPropagation();
     this.notification.success(`Renewal reminder sent to ${renewal.memberName} successfully!`);
-  }
-
-  getChartPoints(): string {
-    if (!this.stats || !this.stats.hourlyOccupancy || this.stats.hourlyOccupancy.length === 0) {
-      return '';
-    }
-    const data = this.stats.hourlyOccupancy;
-    const maxVal = Math.max(...data.map(d => d.occupancyCount), 10);
-    const width = 680;
-    const height = 140;
-    const startX = 65;
-    const startY = 180;
-
-    const points = data.map((d, index) => {
-      const x = startX + (index * (width / (data.length - 1)));
-      const y = startY - (d.occupancyCount / maxVal) * height;
-      return { x, y };
-    });
-
-    return points.map(p => `${p.x},${p.y}`).join(' ');
-  }
-
-  getChartPath(): string {
-    const points = this.getChartCircles();
-    if (points.length === 0) return '';
-
-    let path = `M ${points[0].x},${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const curr = points[i];
-      const next = points[i + 1];
-      const cp1x = curr.x + (next.x - curr.x) / 2;
-      const cp1y = curr.y;
-      const cp2x = curr.x + (next.x - curr.x) / 2;
-      const cp2y = next.y;
-      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${next.x},${next.y}`;
-    }
-    return path;
-  }
-
-  getChartAreaPath(): string {
-    const points = this.getChartCircles();
-    if (points.length === 0) return '';
-
-    const startY = 180;
-    let path = `M ${points[0].x},${startY} L ${points[0].x},${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const curr = points[i];
-      const next = points[i + 1];
-      const cp1x = curr.x + (next.x - curr.x) / 2;
-      const cp1y = curr.y;
-      const cp2x = curr.x + (next.x - curr.x) / 2;
-      const cp2y = next.y;
-      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${next.x},${next.y}`;
-    }
-    path += ` L ${points[points.length - 1].x},${startY} Z`;
-    return path;
-  }
-
-  getYAxisLabels(): number[] {
-    if (!this.stats || !this.stats.hourlyOccupancy || this.stats.hourlyOccupancy.length === 0) {
-      return [50, 35, 20, 0];
-    }
-    const maxVal = Math.max(...this.stats.hourlyOccupancy.map(d => d.occupancyCount), 10);
-    return [
-      maxVal,
-      Math.round(maxVal * 0.66),
-      Math.round(maxVal * 0.33),
-      0
-    ];
-  }
-
-  getChartCircles() {
-    if (!this.stats || !this.stats.hourlyOccupancy || this.stats.hourlyOccupancy.length === 0) {
-      return [];
-    }
-    const data = this.stats.hourlyOccupancy;
-    const maxVal = Math.max(...data.map(d => d.occupancyCount), 10);
-    const width = 680;
-    const height = 140;
-    const startX = 65;
-    const startY = 180;
-
-    return data.map((d, index) => {
-      const x = startX + (index * (width / (data.length - 1)));
-      const y = startY - (d.occupancyCount / maxVal) * height;
-      return {
-        x,
-        y,
-        label: d.hour,
-        value: d.occupancyCount
-      };
-    });
   }
 
   formatTotalMembers(): string {
@@ -268,10 +175,6 @@ export class DashboardComponent implements OnInit {
     const maxVal = Math.max(...data.map(d => d.occupancyCount), 1);
     const heightVal = (count / maxVal) * 120;
     return heightVal > 15 ? heightVal : 15; // Minimum height for beautiful rounded rendering
-  }
-
-  getBarChartLabels(): string[] {
-    return ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '00:00'];
   }
 
   getMemberTier(planName: string): string {

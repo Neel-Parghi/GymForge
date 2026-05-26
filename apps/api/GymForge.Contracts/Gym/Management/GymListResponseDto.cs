@@ -25,6 +25,12 @@ namespace GymForge.Contracts.Gym.Management
         public string? LogoUrl { get; set; }
         public string? BannerUrl { get; set; }
 
+        // Gym Tax and Billing Configuration Settings
+        public string? InvoicePrefix { get; set; }
+        public decimal DefaultTaxRate { get; set; }
+        public int OverdueGraceDays { get; set; }
+        public bool AutoEmailReceipts { get; set; }
+
         // Subscription Information
         public string? PlanName { get; set; }
         public DateTime? SubscriptionExpiry { get; set; }

@@ -1,0 +1,75 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="equipment?.name"
+  subtitle="Equipment maintenance and health status" width="600px" (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="detail-container" *ngIf="equipment">
+    <div class="detail-header">
+      <div class="detail-image">
+        <img [src]="equipment.imageUrl || 'assets/images/placeholder-equipment.png'" alt="equipment">
+      </div>
+      <div class="detail-main">
+        <div class="detail-badges">
+          <span class="badge" [ngClass]="getBadgeClass(equipment.status)">{{equipment.status}}</span>
+          <span class="badge badge-secondary">{{equipment.category}}</span>
+        </div>
+        <p class="detail-subtitle">S/N: {{equipment.serialNumber}}</p>
+      </div>
+    </div>
+
+    <div class="health-overview glass mt-4 mb-4">
+      <div class="health-header">
+        <span>Overall Health Status</span>
+        <span class="health-percent">{{equipment.health}}%</span>
+      </div>
+      <div class="health-bar-container">
+        <div class="health-bar-fill" [style.width.%]="equipment.health"
+          [ngClass]="equipment.health > 70 ? 'bg-success' : equipment.health > 30 ? 'bg-warning' : 'bg-danger'">
+        </div>
+      </div>
+      <p class="health-meta">
+        <i class="fas fa-history mr-1"></i>
+        {{ equipment.lastService ? ('Last serviced on ' + (equipment.lastService | date:'mediumDate'))
+        : 'No service history recorded' }}
+      </p>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Current Condition</label>
+        <span class="value">{{equipment.condition}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Category</label>
+        <span class="value">{{equipment.category}}</span>
+      </div>
+      <div class="detail-item">
+        <label>Purchase Date</label>
+        <span class="value" [class.text-muted]="!equipment.purchaseDate">
+          {{ (equipment.purchaseDate | date:'mediumDate') || 'Not recorded' }}
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Warranty Expiry</label>
+        <span class="value">{{ (equipment.warrantyExpiry | date:'mediumDate') || 'N/A' }}</span>
+      </div>
+      <div class="detail-item">
+        <label>Last Maintenance</label>
+        <span class="value" [class.text-muted]="!equipment.lastService">
+          {{ (equipment.lastService | date:'mediumDate') || 'N/A' }}
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Next Due</label>
+        <span class="value text-warning" [class.text-muted]="!equipment.lastService">
+          {{ equipment.lastService ? 'Scheduled soon' : 'Not scheduled' }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="detail-footer">
+    <div class="drawer-actions">
+      <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Close</button>
+      <button class="btn-primary" type="button" (click)="editEquipment.emit(equipment)">
+        Edit Equipment
+      </button>
+    </div>
+  </div>
+</app-slide-drawer>

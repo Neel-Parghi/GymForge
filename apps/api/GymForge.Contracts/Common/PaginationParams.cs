@@ -13,5 +13,6 @@ namespace GymForge.Contracts.Common
         }
 
         public string? SearchTerm { get; set; }
+        public bool? BypassPagination { get; set; }
     }
 }

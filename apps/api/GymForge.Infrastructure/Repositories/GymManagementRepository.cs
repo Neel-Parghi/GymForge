@@ -111,6 +111,10 @@ namespace GymForge.Infrastructure.Repositories
                     EstablishedDate = g.EstablishedDate,
                     LogoUrl = g.LogoUrl,
                     BannerUrl = g.BannerUrl,
+                    InvoicePrefix = g.InvoicePrefix,
+                    DefaultTaxRate = g.DefaultTaxRate,
+                    OverdueGraceDays = g.OverdueGraceDays,
+                    AutoEmailReceipts = g.AutoEmailReceipts,
                     CreatedOn = g.CreatedOn,
                     ModifiedOn = (DateTime)g.ModifiedOn!,
                     // Get latest active subscription
@@ -213,6 +217,10 @@ namespace GymForge.Infrastructure.Repositories
                     EstablishedDate = g.EstablishedDate,
                     LogoUrl = g.LogoUrl,
                     BannerUrl = g.BannerUrl,
+                    InvoicePrefix = g.InvoicePrefix,
+                    DefaultTaxRate = g.DefaultTaxRate,
+                    OverdueGraceDays = g.OverdueGraceDays,
+                    AutoEmailReceipts = g.AutoEmailReceipts,
                     CreatedOn = g.CreatedOn,
                     ModifiedOn = (DateTime)g.ModifiedOn!,
                     PlanName = _dbContext.SubscriptionRecords
@@ -259,6 +267,10 @@ namespace GymForge.Infrastructure.Repositories
                     EstablishedDate = g.EstablishedDate,
                     LogoUrl = g.LogoUrl,
                     BannerUrl = g.BannerUrl,
+                    InvoicePrefix = g.InvoicePrefix,
+                    DefaultTaxRate = g.DefaultTaxRate,
+                    OverdueGraceDays = g.OverdueGraceDays,
+                    AutoEmailReceipts = g.AutoEmailReceipts,
                     CreatedOn = g.CreatedOn,
                     ModifiedOn = (DateTime)g.ModifiedOn!,
                     PlanName = _dbContext.SubscriptionRecords

@@ -1,0 +1,509 @@
+<div class="standard-container billing-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-top-row">
+      <div class="header-info">
+        <h2>Billing & Invoices</h2>
+        <p>Manage membership fees, store transactions, local tax compliance, and your platform subscription.</p>
+      </div>
+      <!-- Global Period Selector -->
+      <div class="global-period-wrapper" [formGroup]="periodForm">
+        <span class="period-label">
+          <i class="fa-solid fa-calendar-days"></i> Financial Period:
+        </span>
+        <app-dropdown [options]="payrollMonthsOptions" formControlName="selectedPeriod"
+          class="period-dropdown"></app-dropdown>
+      </div>
+    </div>
+    <!-- Premium Tab Switchers -->
+    <div class="premium-tab-nav">
+      <button class="tab-btn" [class.active]="activeTab === 'member'" (click)="switchTab('member')">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <span>Member Billing & Sales</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'staff'" (click)="switchTab('staff')">
+        <i class="fa-solid fa-users-gear"></i>
+        <span>Staff Payroll & Payouts</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'saas'" (click)="switchTab('saas')">
+        <i class="fa-solid fa-gem"></i>
+        <span>Platform Subscription</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'settings'" (click)="switchTab('settings')">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Billing Settings</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: MEMBER BILLING -->
+  <div class="tab-content" *ngIf="activeTab === 'member'">
+    <!-- Collapsible Financial Overview Section -->
+    <div class="overview-collapse-section">
+      <button class="overview-toggle-bar" (click)="showBillingOverview = !showBillingOverview">
+        <div class="toggle-left">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Financial Overview</span>
+          <span class="toggle-hint" *ngIf="!showBillingOverview">
+            — ₹{{ getPaidSum() | number:'1.0-0' }} collected, ₹{{ getPendingSum() | number:'1.0-0' }} pending
+          </span>
+        </div>
+        <i class="fa-solid fa-chevron-down toggle-chevron" [class.collapsed]="!showBillingOverview"></i>
+      </button>
+
+      <div class="overview-collapsible-body" [class.collapsed]="!showBillingOverview">
+        <div class="stats-row-premium">
+          <!-- Card 1: Revenue Collected -->
+          <div class="billing-stat-card success">
+            <div class="stat-card-header">
+              <span class="label">Total Collected (This Month)</span>
+              <div class="icon-circle color-collected">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+              </div>
+            </div>
+            <div class="stat-card-body">
+              <h2 class="value">₹{{ getPaidSum() | number:'1.0-0' }}</h2>
+              <span class="meta-caption">Fees & Retail Store Sales</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Pending Fees -->
+          <div class="billing-stat-card warning">
+            <div class="stat-card-header">
+              <span class="label">Pending Receivables</span>
+              <div class="icon-circle color-pending">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+            </div>
+            <div class="stat-card-body">
+              <h2 class="value">₹{{ getPendingSum() | number:'1.0-0' }}</h2>
+              <span class="meta-caption">Awaiting bank settlement</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Overdue Balances -->
+          <div class="billing-stat-card danger">
+            <div class="stat-card-header">
+              <span class="label">Overdue Balances</span>
+              <div class="icon-circle color-overdue">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+            </div>
+            <div class="stat-card-body">
+              <h2 class="value" [style.color]="getOverdueSum() > 0 ? '#ef4444' : 'inherit'">₹{{ getOverdueSum() |
+                number:'1.0-0' }}</h2>
+              <span class="meta-caption">Expired membership renewals</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Total Invoiced (This Month) -->
+          <div class="billing-stat-card info">
+            <div class="stat-card-header">
+              <span class="label">Total Invoiced (This Month)</span>
+              <div class="icon-circle color-info">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+              </div>
+            </div>
+            <div class="stat-card-body">
+              <h2 class="value">₹{{ getTotalInvoicedSum() | number:'1.0-0' }}</h2>
+              <span class="meta-caption">Gross billing volume generated</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ledger Table Area -->
+    <div class="content-card ledger-card">
+      <div class="ledger-header">
+        <div class="header-left">
+          <div class="search-box-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" [formControl]="invoiceSearchControl"
+              placeholder="Search by invoice #, member name, type..." class="ledger-search-input">
+          </div>
+          <div class="filter-pills">
+            <button class="filter-pill" [class.active]="statusFilter === 'All'" (click)="setStatusFilter('All')">All
+              Invoices</button>
+            <button class="filter-pill paid" [class.active]="statusFilter === 'Paid'"
+              (click)="setStatusFilter('Paid')">Paid</button>
+            <button class="filter-pill pending" [class.active]="statusFilter === 'Pending'"
+              (click)="setStatusFilter('Pending')">Pending</button>
+            <button class="filter-pill overdue" [class.active]="statusFilter === 'Overdue'"
+              (click)="setStatusFilter('Overdue')">Overdue</button>
+          </div>
+        </div>
+        <button class="btn-create-invoice-primary" (click)="openCreateInvoiceModal()">
+          <i class="fa-solid fa-file-invoice"></i> Create Custom Invoice
+        </button>
+      </div>
+
+      <!-- Shared Data Grid -->
+      <app-data-grid [config]="memberInvoicesConfig" [data]="getPaginatedInvoices()"
+        [totalItems]="getFilteredInvoices().length" [pageSize]="memberInvoicesPageSize"
+        [currentPage]="memberInvoicesCurrentPage" (rowClick)="viewInvoice($event)"
+        (pageChange)="setMemberInvoicesPage($event)" (pageSizeChange)="onPageSizeChangeGrid($event)">
+
+        <!-- Custom Template for Billing Type -->
+        <ng-template gridCell="type" let-invoice>
+          <span class="billing-type-label" [ngClass]="invoice.type.toLowerCase().replace(' ', '-')">
+            {{ invoice.type }}
+          </span>
+        </ng-template>
+
+        <!-- Custom Template for Actions -->
+        <ng-template gridCell="actions" let-invoice>
+          <div class="actions-cell-wrapper" (click)="$event.stopPropagation()">
+            <!-- Mark as Paid -->
+            <button class="table-action-btn check" *ngIf="invoice.status !== 'Paid'"
+              (click)="markAsPaid(invoice, $event)" title="Mark as Paid">
+              <i class="fa-solid fa-circle-check"></i>
+            </button>
+            <!-- Send Reminder -->
+            <button class="table-action-btn bell" *ngIf="invoice.status === 'Overdue'"
+              (click)="sendInvoiceReminder(invoice, $event)" title="Send Reminder Alert">
+              <i class="fa-solid fa-bell"></i>
+            </button>
+            <!-- View Invoice -->
+            <button class="table-action-btn view" (click)="viewInvoice(invoice)" title="View Invoice Preview">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <!-- Download PDF -->
+            <button class="table-action-btn download" (click)="downloadInvoicePdf(invoice, $event)"
+              title="Download PDF Receipt">
+              <i class="fa-solid fa-file-pdf"></i>
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Custom Template for Empty State -->
+        <ng-template #emptyState>
+          <div class="empty-state-wrapper" style="padding: 40px 0; text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i>
+            <p style="font-weight: 500; font-size: 0.95rem;">No invoices found matching your criteria.</p>
+          </div>
+        </ng-template>
+      </app-data-grid>
+    </div>
+  </div>
+
+  <!-- TAB 2: SAAS PLATFORM SUBSCRIPTION -->
+  <div class="tab-content" *ngIf="activeTab === 'saas'">
+    <div class="saas-grid">
+      <!-- Plan Details Card -->
+      <div class="content-card subscription-card">
+        <div class="card-header-sub">
+          <div class="badge-active" [class.trial]="subscriptionStatus?.isTrial">
+            {{ subscriptionStatus?.isTrial ? 'FREE TRIAL PERIOD' : 'ACTIVE PLATFORM PLAN' }}
+          </div>
+          <h3>{{ subscriptionStatus?.planName || 'GymForge Pro Plan' }}</h3>
+          <span class="price">₹{{ (subscriptionStatus?.price || 4999) | number:'1.0-0' }} <span class="period">/
+              month</span></span>
+        </div>
+        <div class="plan-features">
+          <div class="feature-item">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Manage up to {{ subscriptionStatus?.branchLimit || 10 }} Branch Outlets</span>
+          </div>
+          <div class="feature-item">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Unlimited Member Registration</span>
+          </div>
+          <div class="feature-item">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Full Inventory Management</span>
+          </div>
+          <div class="feature-item">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Automated Check-in terminal & Analytics</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Branch Utilization Progress Bar -->
+        <div class="branch-usage-meter" *ngIf="subscriptionStatus">
+          <div class="meter-header">
+            <span class="meter-label">Outlet Usage License</span>
+            <span class="meter-value">{{ subscriptionStatus.branchUsageCount }} / {{ subscriptionStatus.branchLimit }}
+              Outlets</span>
+          </div>
+          <div class="meter-progress-bg">
+            <div class="meter-progress-bar animate-bar"
+              [style.width.%]="(subscriptionStatus.branchUsageCount / subscriptionStatus.branchLimit) * 100"></div>
+          </div>
+          <span class="meter-caption">Real-time synchronized location tracking.</span>
+        </div>
+
+        <div class="renewal-info-banner">
+          <span class="lbl">Next Billing Date:</span>
+          <span class="val">{{ (subscriptionStatus?.endDate || nextBillingDate) | date:'longDate' }}</span>
+        </div>
+        <div class="saas-action-buttons">
+          <button class="btn-renew-now"
+            (click)="openUpiPaymentModal(subscriptionStatus?.planName || 'GymForge Pro Plan', subscriptionStatus?.price || 4999)">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Pay & Renew via UPI</span>
+          </button>
+          <button class="btn-upgrade-plan-slim" (click)="openUpgradeModal()">
+            <i class="fa-solid fa-circle-up"></i>
+            <span>Compare & Upgrade Plan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Merchant Payment Gateway Integration Configuration Panel -->
+      <app-merchant-settings [(enableOnlineMemberPayments)]="enableOnlineMemberPayments"
+        [(merchantUpiVpa)]="merchantUpiVpa" [(razorpayKeyId)]="razorpayKeyId" [(razorpaySecretKey)]="razorpaySecretKey"
+        (saveSettings)="saveMerchantGatewaySettings($event)">
+      </app-merchant-settings>
+    </div>
+
+    <!-- Platform Payments Ledger -->
+    <div class="content-card platform-ledger-card">
+      <div class="card-header">
+        <h3>GymForge Invoice History</h3>
+      </div>
+
+      <app-data-grid [config]="platformInvoicesConfig" [data]="platformInvoices" [totalItems]="platformInvoices.length"
+        [pageSize]="10" [currentPage]="1">
+
+        <!-- Custom Template for Actions/Receipt -->
+        <ng-template gridCell="receipt" let-saasInvoice>
+          <div class="actions-cell-wrapper" (click)="$event.stopPropagation()">
+            <button class="table-action-btn download" (click)="downloadInvoicePdf(saasInvoice, $event)"
+              title="View Platform Receipt">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Custom Template for Empty State -->
+        <ng-template #emptyState>
+          <div class="empty-state-wrapper" style="padding: 40px 0; text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i>
+            <p style="font-weight: 500; font-size: 0.95rem;">No platform subscription invoices found.</p>
+          </div>
+        </ng-template>
+      </app-data-grid>
+    </div>
+  </div>
+
+  <!-- TAB 3: BILLING CONFIGURATION SETTINGS -->
+  <div class="tab-content" *ngIf="activeTab === 'settings'">
+    <div class="content-card settings-premium-card">
+      <div class="card-header">
+        <h3>Tax Rules & Invoicing Rules</h3>
+        <p class="subtitle">Set sequence, defaults, and automated email receipts settings.</p>
+      </div>
+
+      <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="settings-form-wrapper">
+        <div class="form-grid-2">
+          <!-- GSTIN -->
+          <div class="form-group-premium">
+            <label for="gymGstin">Gym GSTIN / Tax Identification</label>
+            <input type="text" id="gymGstin" formControlName="gymGstin" placeholder="e.g. 27AAAAA1111A1Z1"
+              class="form-input-premium">
+            <span class="help-text">Mandatory for printing tax invoices under local laws.</span>
+            <div class="validation-error"
+              *ngIf="settingsForm.get('gymGstin')?.invalid && settingsForm.get('gymGstin')?.touched">
+              <i class="fa-solid fa-circle-exclamation error-icon"></i>
+              <span>Please provide a valid Indian GSTIN.</span>
+            </div>
+          </div>
+
+          <!-- Invoice Prefix -->
+          <div class="form-group-premium">
+            <label for="invoicePrefix">Invoice Prefix Code</label>
+            <input type="text" id="invoicePrefix" formControlName="invoicePrefix" placeholder="e.g. GF-"
+              class="form-input-premium">
+            <span class="help-text">Prefixed code on every new billing invoice receipt.</span>
+          </div>
+
+          <!-- GST Rate -->
+          <div class="form-group-premium">
+            <label for="taxPercentage">Default GST Rate (%)</label>
+            <div class="input-unit-wrapper">
+              <input type="number" id="taxPercentage" formControlName="taxPercentage"
+                class="form-input-premium unit-input">
+              <span class="unit-box">%</span>
+            </div>
+            <span class="help-text">GST rate to auto-calculate during checkouts.</span>
+          </div>
+
+          <!-- Grace Period -->
+          <div class="form-group-premium">
+            <label for="overdueGraceDays">Grace Period Days</label>
+            <div class="input-unit-wrapper">
+              <input type="number" id="overdueGraceDays" formControlName="overdueGraceDays"
+                class="form-input-premium unit-input">
+              <span class="unit-box">Days</span>
+            </div>
+            <span class="help-text">Days before unpaid pending invoices shift to Overdue.</span>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <!-- Notification Toggles -->
+        <div class="toggles-column">
+          <div class="toggle-item-wrapper">
+            <div class="info">
+              <span class="title">Automatic Email Receipts</span>
+              <span class="desc">Email itemized receipts immediately upon payment registration.</span>
+            </div>
+            <label class="premium-switch">
+              <input type="checkbox" formControlName="autoEmailReceipts">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions-floating">
+          <button type="submit" class="btn-save-settings" [disabled]="settingsForm.invalid">
+            <i class="fa-solid fa-circle-check"></i> Save Billing Rules
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: STAFF PAYROLL & PAYOUTS -->
+<div class="tab-content" *ngIf="activeTab === 'staff'">
+  <!-- Financial Overview Summary Cards -->
+  <div class="stats-row-premium">
+    <!-- Card 1: Gross Payroll -->
+    <div class="billing-stat-card info">
+      <div class="stat-card-header">
+        <span class="label">Total Payroll (This Month)</span>
+        <div class="icon-circle color-info">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <h2 class="value">₹{{ getStaffTotalPayroll() | number:'1.0-0' }}</h2>
+        <span class="meta-caption">Base salary + PT commissions</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Paid Payouts -->
+    <div class="billing-stat-card success">
+      <div class="stat-card-header">
+        <span class="label">Paid to Date</span>
+        <div class="icon-circle color-collected">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <h2 class="value">₹{{ getStaffPaidSum() | number:'1.0-0' }}</h2>
+        <span class="meta-caption">Released to staff bank accounts</span>
+      </div>
+    </div>
+
+    <!-- Card 3: Pending Release -->
+    <div class="billing-stat-card warning">
+      <div class="stat-card-header">
+        <span class="label">Awaiting Release</span>
+        <div class="icon-circle color-pending">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <h2 class="value">₹{{ getStaffPendingSum() | number:'1.0-0' }}</h2>
+        <span class="meta-caption">Approved salary & session dues</span>
+      </div>
+    </div>
+
+    <!-- Card 4: Processing Transfers -->
+    <div class="billing-stat-card danger">
+      <div class="stat-card-header">
+        <span class="label">Processing Transfers</span>
+        <div class="icon-circle color-overdue">
+          <i class="fa-solid fa-arrows-spin"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <h2 class="value">₹{{ getStaffProcessingSum() | number:'1.0-0' }}</h2>
+        <span class="meta-caption">Bank network transfers in progress</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payout Ledger Table Area -->
+  <div class="content-card ledger-card">
+    <div class="ledger-header">
+      <div class="header-details">
+        <h3>Staff Payout & Payroll Details</h3>
+      </div>
+    </div>
+
+    <app-data-grid [config]="staffPayoutsConfig" [data]="staffPayouts" [totalItems]="staffPayouts.length"
+      [pageSize]="50" [currentPage]="1">
+
+      <!-- Custom Template for Commissions -->
+      <ng-template gridCell="commissions" let-payout>
+        <span class="amount-cell date-cell" style="color: #2ec4b6; font-weight: 600;">
+          +₹{{ payout.commissions | number:'1.2-2' }}
+        </span>
+      </ng-template>
+
+      <!-- Custom Template for Status -->
+      <ng-template gridCell="status" let-payout>
+        <span class="status-badge" [ngClass]="payout.status.toLowerCase()">
+          {{ payout.status === 'Paid' ? 'Released' : payout.status === 'Pending' ? 'Awaiting Release' : 'Processing' }}
+        </span>
+      </ng-template>
+
+      <!-- Custom Template for Actions -->
+      <ng-template gridCell="actions" let-payout>
+        <div class="actions-cell-wrapper" (click)="$event.stopPropagation()">
+          <button *ngIf="payout.status === 'Pending'" class="payout-action-btn process"
+            title="Record manual UPI/Bank payout transaction" (click)="processStaffPayout(payout.id, $event)">
+            <i class="fa-solid fa-receipt"></i> Record Payout
+          </button>
+          <button *ngIf="payout.status === 'Paid'" class="payout-action-btn payslip"
+            (click)="downloadPayslip(payout.staffName)">
+            <i class="fa-solid fa-file-invoice"></i> Payslip
+          </button>
+          <button class="payout-action-btn rules icon-only" title="Configure Payroll & Commission Rules"
+            (click)="openPayrollRulesModal(payout, $event)">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+      </ng-template>
+
+      <!-- Custom Template for Empty State -->
+      <ng-template #emptyState>
+        <div class="empty-state-wrapper" style="padding: 40px 0; text-align: center; color: #94a3b8;">
+          <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i>
+          <p style="font-weight: 500; font-size: 0.95rem;">No staff payroll records found.</p>
+        </div>
+      </ng-template>
+    </app-data-grid>
+  </div>
+</div>
+
+<app-invoice-detail-modal *ngIf="selectedInvoice" [invoice]="selectedInvoice" [gymDetails]="gymDetails"
+  [invoicePrefix]="settingsForm?.get('invoicePrefix')?.value || gymDetails?.invoicePrefix || 'GF-'"
+  (close)="closeInvoiceModal()">
+</app-invoice-detail-modal>
+
+<app-create-invoice-modal *ngIf="showCreateInvoiceModal" [gymMembers]="gymMembers"
+  [memberDropdownOptions]="memberDropdownOptions" [categoryDropdownOptions]="categoryDropdownOptions"
+  [statusDropdownOptions]="statusDropdownOptions" (close)="closeCreateInvoiceModal()"
+  (invoiceCreated)="loadMemberBillingOverview(selectedPayrollMonth)">
+</app-create-invoice-modal>
+
+<app-payroll-rules-modal *ngIf="showPayrollRulesModal && selectedPayrollStaff"
+  [selectedPayrollStaff]="selectedPayrollStaff" [selectedPayrollMonth]="selectedPayrollMonth"
+  (close)="closePayrollRulesModal()" (rulesSaved)="loadStaffPayoutsForMonth(selectedPayrollMonth)">
+</app-payroll-rules-modal>
+
+<app-upi-payment-modal *ngIf="showUpiPaymentModal" [checkoutPlanName]="checkoutPlanName" [checkoutPrice]="checkoutPrice"
+  (close)="closeUpiPaymentModal()"
+  (paymentSuccess)="subscriptionStatus = $event; loadPlatformInvoices(); closeUpgradeModal()">
+</app-upi-payment-modal>
+
+<app-upgrade-plans-modal *ngIf="showUpgradeModal" [subscriptionStatus]="subscriptionStatus"
+  [availablePlans]="availablePlans" (close)="closeUpgradeModal()"
+  (selectPlan)="openUpiPaymentModal($event.planName, $event.price)">
+</app-upgrade-plans-modal>

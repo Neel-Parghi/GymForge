@@ -54,12 +54,19 @@ export interface GymListResponse {
   logoUrl?: string;
   bannerUrl?: string;
 
+  // New Billing & Settings
+  invoicePrefix?: string;
+  defaultTaxRate?: number;
+  overdueGraceDays?: number;
+  autoEmailReceipts?: boolean;
+
   // Subscription info
   planName?: string;
   subscriptionExpiry?: string;
   isTrialPlan: boolean;
   paymentStatus: string;
   hasActiveSubscription: boolean;
+  createdOn?: string;
 }
 
 export interface GymOwnerResponse {
@@ -95,5 +102,11 @@ export interface UpdateMyGymRequest {
   registrationNumber?: string;
   logoUrl?: string;
   bannerUrl?: string;
+
+  // New Billing & Settings
+  invoicePrefix?: string;
+  defaultTaxRate?: number;
+  overdueGraceDays?: number;
+  autoEmailReceipts?: boolean;
 }
 

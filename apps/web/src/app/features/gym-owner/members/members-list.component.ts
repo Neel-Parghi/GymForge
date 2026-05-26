@@ -87,6 +87,8 @@ export class MembersListComponent implements OnInit {
 
   toggleViewMode(): void {
     this.viewMode = this.viewMode === 'list' ? 'dashboard' : 'list';
+    this.currentPage = 1;
+    this.loadMembers();
   }
 
   // Modal / Drawer state
@@ -121,7 +123,7 @@ export class MembersListComponent implements OnInit {
       this.loadPlans();
       this.gymService.getMyBranches().subscribe({
         next: (res) => this.branches = res.data || [],
-        error: () => {}
+        error: () => { }
       });
     }
 
@@ -155,8 +157,9 @@ export class MembersListComponent implements OnInit {
     if (!this.gymId) return;
     this.loading = true;
     const { search } = this.filterForm.value;
+    const bypass = this.viewMode === 'dashboard';
 
-    this.memberService.getGymMembers(this.currentPage, this.pageSize, search)
+    this.memberService.getGymMembers(this.currentPage, this.pageSize, search, false, bypass)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (res) => {

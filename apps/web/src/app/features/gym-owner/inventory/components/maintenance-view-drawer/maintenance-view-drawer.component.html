@@ -1,0 +1,95 @@
+<app-slide-drawer [isOpen]="isOpen" title="Service Log Details"
+  (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="view-drawer-content" *ngIf="selectedMaintenanceLog">
+    <div class="detail-section">
+      <div class="section-label">Equipment Asset</div>
+      <div class="asset-brief">
+        <i class="fas fa-tools"></i>
+        <div class="brief-info">
+          <span class="name">{{selectedMaintenanceLog.equipmentName}}</span>
+          <span class="sub">ID: {{selectedMaintenanceLog.equipmentId}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Service Type</label>
+        <span class="badge" [ngClass]="getBadgeClass(selectedMaintenanceLog.serviceType)">
+          {{selectedMaintenanceLog.serviceType}}
+        </span>
+      </div>
+      <div class="detail-item">
+        <label>Current Status</label>
+        <span class="badge" [ngClass]="getBadgeClass(selectedMaintenanceLog.status)">
+          {{selectedMaintenanceLog.status}}
+        </span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Personnel & Financials</div>
+      <div class="info-card">
+        <div class="info-row">
+          <i class="fas fa-user-gear"></i>
+          <div class="row-data">
+            <label>Technician / Vendor</label>
+            <span>{{selectedMaintenanceLog.technicianName}}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <i class="fas fa-receipt"></i>
+          <div class="row-data">
+            <label>Service Cost</label>
+            <span class="cost-value">{{selectedMaintenanceLog.cost | currency:'INR':'symbol'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Timeline</div>
+      <div class="timeline-box">
+        <div class="time-point">
+          <div class="dot active"></div>
+          <div class="time-data">
+            <label>Started On</label>
+            <span>{{selectedMaintenanceLog.startDate | date:'mediumDate'}}</span>
+          </div>
+        </div>
+        <div class="time-point" *ngIf="selectedMaintenanceLog.completedDate">
+          <div class="dot success"></div>
+          <div class="time-data">
+            <label>Completed On</label>
+            <span>{{selectedMaintenanceLog.completedDate | date:'mediumDate'}}</span>
+          </div>
+        </div>
+        <div class="time-point"
+          *ngIf="!selectedMaintenanceLog.completedDate && selectedMaintenanceLog.estimatedEndDate">
+          <div class="dot warning"></div>
+          <div class="time-data">
+            <label>Estimated Completion</label>
+            <span>{{selectedMaintenanceLog.estimatedEndDate | date:'mediumDate'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Work Description & Notes</div>
+      <div class="notes-display">
+        <p class="description">{{selectedMaintenanceLog.description}}</p>
+        <div class="notes-box" *ngIf="selectedMaintenanceLog.notes">
+          <label>Additional Notes</label>
+          <p>{{selectedMaintenanceLog.notes}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div drawer-footer class="drawer-footer-actions" *ngIf="selectedMaintenanceLog?.status !== 'Completed'">
+    <button class="btn-primary" type="button" (click)="editLog.emit(selectedMaintenanceLog)">
+      <i class="fas fa-edit"></i> Edit Log
+    </button>
+  </div>
+</app-slide-drawer>

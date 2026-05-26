@@ -1,0 +1,83 @@
+<app-slide-drawer [isOpen]="isOpen" [title]="isEditingProduct ? 'Edit Product' : 'Add New Product'"
+  [subtitle]="isEditingProduct ? 'Update product details and stock' : 'List a new product in your inventory'"
+  width="550px" (closeDrawer)="closeDrawer.emit()">
+  <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="productForm">
+    <div class="image-upload-section" (click)="fileInput.click()">
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none">
+
+      <div class="image-placeholder" *ngIf="!imagePreview && !loading">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span>Upload Product Image</span>
+        <p class="text-xs">Click to browse files</p>
+      </div>
+
+      <div class="upload-loading" *ngIf="loading && selectedFile">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Uploading Image...</span>
+      </div>
+
+      <div class="image-preview-container" *ngIf="imagePreview && !(loading && selectedFile)">
+        <img [src]="imagePreview" class="preview-img">
+        <div class="preview-overlay">
+          <i class="fas fa-camera"></i>
+          <span>Change Image</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Product Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Whey Protein Isolate">
+      </div>
+
+      <div class="form-group">
+        <label>SKU / Barcode</label>
+        <div class="input-with-action">
+          <input type="text" formControlName="sku" placeholder="Auto-generated">
+          <button class="btn-icon" type="button" (click)="generateSKU()"><i class="fas fa-redo"></i></button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <app-dropdown [options]="categories" formControlName="category" placeholder="Select category"
+          minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group">
+        <label>Buying Price (₹)</label>
+        <input type="number" formControlName="buyingPrice">
+      </div>
+
+      <div class="form-group">
+        <label>Selling Price (₹)</label>
+        <input type="number" formControlName="sellingPrice">
+      </div>
+
+      <div class="form-group">
+        <label>Stock Level</label>
+        <input type="number" formControlName="stockQuantity">
+      </div>
+
+      <div class="form-group">
+        <label>Reorder Alert Level</label>
+        <input type="number" formControlName="reorderLevel">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Description</label>
+        <textarea rows="3" formControlName="description"
+          placeholder="Detailed description of the product..."></textarea>
+      </div>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
+    <button class="btn-primary" type="button"
+      [disabled]="productForm.invalid || loading || (isEditingProduct && productForm.pristine && !selectedFile)"
+      (click)="saveProduct()">
+      {{isEditingProduct ? 'Update Product' : 'Save Product'}}
+    </button>
+  </div>
+</app-slide-drawer>

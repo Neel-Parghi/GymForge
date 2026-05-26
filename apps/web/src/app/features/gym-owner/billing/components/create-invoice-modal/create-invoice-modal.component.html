@@ -1,0 +1,72 @@
+<div class="modal-overlay-backdrop" (click)="close.emit()">
+  <div class="invoice-modal-content-wrapper create-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header-controls">
+      <span class="title">Create Custom Invoice</span>
+      <button class="close-btn" (click)="close.emit()" title="Close dialog">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Form Body -->
+    <div class="modal-form-body">
+      <form [formGroup]="createInvoiceForm" (ngSubmit)="submitCustomInvoice()" class="create-invoice-form-wrapper">
+        <div class="form-grid-2">
+          <!-- Gym Member -->
+          <div class="form-group-premium">
+            <label>Gym Member</label>
+            <app-dropdown [options]="memberDropdownOptions" formControlName="memberIndex" [isSearchable]="true"
+              placeholder="Select Gym Member..."></app-dropdown>
+          </div>
+
+          <!-- Billing Category -->
+          <div class="form-group-premium">
+            <label>Billing Category</label>
+            <app-dropdown [options]="categoryDropdownOptions" formControlName="type"
+              placeholder="Select Category..."></app-dropdown>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Item Name / Description -->
+          <div class="form-group-premium">
+            <label for="itemName">Item / Service Details</label>
+            <input type="text" id="itemName" formControlName="itemName"
+              placeholder="e.g. Personal Trainer 12-session pack" class="form-input-premium">
+            <div class="validation-error"
+              *ngIf="createInvoiceForm.get('itemName')?.invalid && createInvoiceForm.get('itemName')?.touched">
+              <i class="fa-solid fa-circle-exclamation error-icon"></i>
+              <span>Details must be at least 3 characters.</span>
+            </div>
+          </div>
+
+          <!-- Amount -->
+          <div class="form-group-premium">
+            <label for="billingAmount">Total Cost (Incl. GST)</label>
+            <div class="input-unit-wrapper">
+              <input type="number" id="billingAmount" formControlName="amount"
+                class="form-input-premium unit-input unit-left">
+              <span class="unit-box left-unit">₹</span>
+            </div>
+            <span class="help-text">Applies default tax automatically.</span>
+          </div>
+        </div>
+
+        <div class="form-grid-2 form-grid-margin-top">
+          <!-- Initial Payment Status -->
+          <div class="form-group-premium">
+            <label>Payment Status</label>
+            <app-dropdown [options]="statusDropdownOptions" formControlName="status"
+              placeholder="Select Status..."></app-dropdown>
+          </div>
+        </div>
+
+        <div class="modal-form-actions">
+          <button type="button" class="btn-cancel" (click)="close.emit()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="createInvoiceForm.invalid">
+            <i class="fa-solid fa-circle-check"></i> Generate Invoice
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

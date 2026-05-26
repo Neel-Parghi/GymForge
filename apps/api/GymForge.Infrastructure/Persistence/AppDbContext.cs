@@ -52,6 +52,12 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<AttendanceLog> AttendanceLogs { get; set; }
 
+        public DbSet<StaffPayrollRule> StaffPayrollRules { get; set; }
+
+        public DbSet<StaffPayoutLog> StaffPayoutLogs { get; set; }
+
+        public DbSet<CustomInvoice> CustomInvoices { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -155,6 +161,29 @@ namespace GymForge.Infrastructure.Persistence
             modelBuilder.Entity<SaleTransaction>().HasIndex(x => x.GymId);
             modelBuilder.Entity<GymMember>().HasIndex(x => x.GymId);
             modelBuilder.Entity<Staff>().HasIndex(x => x.GymId);
+            modelBuilder.Entity<StaffPayrollRule>().HasIndex(x => x.GymId);
+            modelBuilder.Entity<StaffPayoutLog>().HasIndex(x => x.GymId);
+
+            // Precision for payroll entities
+            modelBuilder.Entity<StaffPayrollRule>()
+                .Property(x => x.BaseSalary)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<StaffPayrollRule>()
+                .Property(x => x.PTCommissionRate)
+                .HasPrecision(5, 2);
+            modelBuilder.Entity<StaffPayrollRule>()
+                .Property(x => x.RehabCommissionRate)
+                .HasPrecision(5, 2);
+
+            modelBuilder.Entity<StaffPayoutLog>()
+                .Property(x => x.BaseSalarySnapshot)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<StaffPayoutLog>()
+                .Property(x => x.Commissions)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<StaffPayoutLog>()
+                .Property(x => x.TotalPayout)
+                .HasPrecision(18, 2);
 
             // AttendanceLog configuration
             modelBuilder.Entity<AttendanceLog>(entity =>

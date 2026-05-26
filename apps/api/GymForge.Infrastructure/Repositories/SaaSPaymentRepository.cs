@@ -30,6 +30,7 @@ namespace GymForge.Infrastructure.Repositories
         public async Task<SubscriptionRecord?> GetLatestSubscriptionByGymIdAsync(Guid gymId)
         {
             return await _dbContext.SubscriptionRecords
+                .Include(x => x.Plan)
                 .Where(x => x.GymId == gymId)
                 .OrderByDescending(x => x.CreatedOn)
                 .FirstOrDefaultAsync();

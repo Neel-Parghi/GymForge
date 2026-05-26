@@ -5,7 +5,6 @@ import { Observable, shareReplay, tap } from "rxjs";
 import { ApiResponse } from "../../shared/models/api-response.model";
 import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest, UpdateMyGymRequest } from "../../shared/models/gym.model";
 import { PagedResponse } from "../../shared/models/paged-response.model";
-
 import { AuthApiService } from "./auth-api.service";
 
 @Injectable({
@@ -18,6 +17,7 @@ export class GymService extends BaseApiService {
     private gymListCache$?: Observable<ApiResponse<PagedResponse<GymListResponse>>> | null;
     private branchesCache = new Map<string, Observable<ApiResponse<any[]>>>();
     private myBranchesCache$: Observable<ApiResponse<any[]>> | null = null;
+    private myGymCache$: Observable<ApiResponse<GymListResponse>> | null = null;
 
     constructor() {
         super();
@@ -33,6 +33,7 @@ export class GymService extends BaseApiService {
         this.gymListCache$ = null;
         this.branchesCache.clear();
         this.myBranchesCache$ = null;
+        this.myGymCache$ = null;
     }
 
     clearGymOwnersCache(): void {
@@ -43,6 +44,11 @@ export class GymService extends BaseApiService {
         this.gymListCache$ = null;
         this.branchesCache.clear();
         this.myBranchesCache$ = null;
+        this.myGymCache$ = null;
+    }
+
+    clearMyGymCache(): void {
+        this.myGymCache$ = null;
     }
 
     clearMyBranchesCache(): void {
@@ -139,12 +145,19 @@ export class GymService extends BaseApiService {
         );
     }
 
-    getMyGym(): Observable<ApiResponse<GymListResponse>> {
-        return this.get<ApiResponse<GymListResponse>>(API_CONSTANTS.GYM.MY_GYM);
+    getMyGym(forceRefresh = false): Observable<ApiResponse<GymListResponse>> {
+        if (forceRefresh || !this.myGymCache$) {
+            this.myGymCache$ = this.get<ApiResponse<GymListResponse>>(API_CONSTANTS.GYM.MY_GYM).pipe(
+                shareReplay(1)
+            );
+        }
+        return this.myGymCache$;
     }
 
     updateMyGym(payload: UpdateMyGymRequest): Observable<ApiResponse<any>> {
-        return this.put<ApiResponse<any>>(API_CONSTANTS.GYM.MY_GYM, payload);
+        return this.put<ApiResponse<any>>(API_CONSTANTS.GYM.MY_GYM, payload).pipe(
+            tap(() => this.clearMyGymCache())
+        );
     }
 
     getMyBranches(forceRefresh = false): Observable<ApiResponse<any[]>> {

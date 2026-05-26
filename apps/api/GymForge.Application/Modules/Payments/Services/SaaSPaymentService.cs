@@ -219,5 +219,150 @@ namespace GymForge.Application.Modules.Payments.Services
                 ActiveSubscriptions = allSubscriptions.Count(x => x.IsActive || successTxs.Any(t => t.SubscriptionId == x.Id))
             };
         }
+
+        public async Task<GymSubscriptionStatusDto> GetSubscriptionStatusAsync(Guid gymId)
+        {
+            SubscriptionRecord? sub = await _paymentRepository.GetLatestSubscriptionByGymIdAsync(gymId);
+            List<Branch> branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
+            
+            int branchesCount = branches?.Count ?? 0;
+
+            if (sub == null)
+            {
+                // Find default active Pro plan or any active plan from the database dynamically
+                List<Domain.Entities.Plan> plans = await _saaSPlanRepository.GetAllPlansAsync();
+                Domain.Entities.Plan proPlan = plans.FirstOrDefault(p => p.Name.Contains("Pro", StringComparison.OrdinalIgnoreCase)) 
+                              ?? plans.FirstOrDefault(p => p.IsActive)
+                              ?? new Domain.Entities.Plan { Name = "GymForge Pro Plan", Price = 4999, MaxBranches = 10, IsTrial = false };
+
+                return new GymSubscriptionStatusDto
+                {
+                    PlanName = proPlan.Name,
+                    Price = proPlan.Price,
+                    EndDate = DateTime.UtcNow.AddDays(15),
+                    IsActive = true,
+                    IsTrial = proPlan.IsTrial,
+                    BranchUsageCount = branchesCount,
+                    BranchLimit = proPlan.MaxBranches ?? 10
+                };
+            }
+
+            Domain.Entities.Plan? plan = sub.Plan;
+            if (plan == null)
+            {
+                plan = await _saaSPlanRepository.GetPlanByIdAsync(sub.PlanId);
+            }
+
+            if (plan == null)
+            {
+                List<Domain.Entities.Plan> plans = await _saaSPlanRepository.GetAllPlansAsync();
+                plan = plans.FirstOrDefault(p => p.IsActive) 
+                       ?? new Domain.Entities.Plan { Name = "GymForge Pro Plan", Price = 4999, MaxBranches = 10 };
+            }
+
+            return new GymSubscriptionStatusDto
+            {
+                PlanName = plan.Name,
+                Price = sub.PriceAtPurchase > 0 ? sub.PriceAtPurchase : plan.Price,
+                EndDate = sub.EndDate,
+                IsActive = sub.IsActive,
+                IsTrial = sub.IsTrial,
+                BranchUsageCount = branchesCount,
+                BranchLimit = plan.MaxBranches ?? 10
+            };
+        }
+
+        public async Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, string planName = "GymForge Pro Plan", decimal price = 4999)
+        {
+            SubscriptionRecord? sub = await _paymentRepository.GetLatestSubscriptionByGymIdAsync(gymId);
+            List<Domain.Entities.Branch> branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
+            int branchesCount = branches?.Count ?? 0;
+
+            // Fetch pricing plan dynamically from the database
+            List<Domain.Entities.Plan> plans = await _saaSPlanRepository.GetAllPlansAsync();
+            Domain.Entities.Plan plan = plans.FirstOrDefault(p => p.Name.Equals(planName, StringComparison.OrdinalIgnoreCase))
+                       ?? plans.FirstOrDefault(p => p.Price == price)
+                       ?? plans.FirstOrDefault(p => p.IsActive)
+                       ?? new Domain.Entities.Plan { Id = Guid.Parse("b0000000-0000-0000-0000-000000000001"), Name = planName, Price = price, MaxBranches = 10 };
+
+            DateTime newEndDate = DateTime.UtcNow.AddMonths(1);
+            if (sub != null)
+            {
+                newEndDate = sub.EndDate > DateTime.UtcNow ? sub.EndDate.AddMonths(1) : DateTime.UtcNow.AddMonths(1);
+                sub.EndDate = newEndDate;
+                sub.IsActive = true;
+                sub.PriceAtPurchase = price;
+                sub.PlanId = plan.Id;
+                sub.Notes = $"UPI Renewed plan: {planName} via platform checkout portal";
+            }
+            else
+            {
+                sub = new SubscriptionRecord
+                {
+                    Id = Guid.NewGuid(),
+                    GymId = gymId,
+                    PlanId = plan.Id,
+                    StartDate = DateTime.UtcNow,
+                    EndDate = newEndDate,
+                    IsActive = true,
+                    IsTrial = false,
+                    PriceAtPurchase = price,
+                    Notes = $"UPI Renewed plan: {planName} via platform checkout portal"
+                };
+                await _gymManagementRepository.AddGymSubscriptionAsync(sub);
+            }
+
+            SaaSPaymentTransaction tx = new()
+            {
+                Id = Guid.NewGuid(),
+                GymId = gymId,
+                SubscriptionId = sub.Id,
+                Amount = price,
+                Currency = "INR",
+                Status = "Success",
+                GatewayTransactionId = "pay_upi_" + Guid.NewGuid().ToString("N").Substring(0, 12),
+                CreatedOn = DateTime.UtcNow
+            };
+            await _paymentRepository.AddAsync(tx);
+            await _uow.SaveChangesAsync();
+
+            int branchLimit = plan.MaxBranches ?? 10;
+
+            return new GymSubscriptionStatusDto
+            {
+                PlanName = plan.Name,
+                Price = price,
+                EndDate = newEndDate,
+                IsActive = true,
+                IsTrial = false,
+                BranchUsageCount = branchesCount,
+                BranchLimit = branchLimit
+            };
+        }
+
+        public async Task<List<PaymentTransactionDto>> GetGymTransactionsAsync(Guid gymId)
+        {
+            List<SaaSPaymentTransaction>? transactions = await _paymentRepository.GetTransactionsAsync();
+            List<Domain.Entities.Plan> plans = await _saaSPlanRepository.GetAllPlansAsync();
+
+            return [.. transactions
+                .Where(t => t.GymId == gymId)
+                .Select(t => {
+                    decimal amt = t.Amount;
+                    string planName = t.Subscription?.Plan?.Name 
+                                      ?? plans.FirstOrDefault(p => p.Price == amt)?.Name 
+                                      ?? "GymForge Pro Plan";
+                    return new PaymentTransactionDto
+                    {
+                        Id = t.Id,
+                        GymName = t.Gym?.GymName ?? "Unknown",
+                        PlanName = planName,
+                        Amount = amt,
+                        Status = t.Status,
+                        CreatedAt = t.CreatedOn,
+                        GatewayTransactionId = t.GatewayTransactionId
+                    };
+                })];
+        }
     }
 }
