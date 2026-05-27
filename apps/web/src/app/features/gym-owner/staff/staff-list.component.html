@@ -59,6 +59,22 @@
   <app-data-grid *ngIf="viewMode === 'list'" [config]="gridConfig" [data]="staff" [totalItems]="totalItems"
     [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onAction($event)"
     (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
+    <ng-template [gridCell]="'fullName'" let-row>
+      <div class="staff-profile-cell">
+        <div class="avatar-container">
+          <div class="avatar-circle">
+            <img *ngIf="row.profilePictureUrl" [src]="row.profilePictureUrl" alt="avatar">
+            <span *ngIf="!row.profilePictureUrl">{{ row.firstName[0] }}{{ row.lastName[0] }}</span>
+          </div>
+          <!-- Real-Time Duty Pulse Dot -->
+          <span class="duty-pulse-dot" *ngIf="row.isCheckedIn" title="On Duty"></span>
+        </div>
+        <div class="profile-info">
+          <span class="primary-text font-bold">{{ row.fullName }}</span>
+          <span class="secondary-text">{{ row.staffNumber }}</span>
+        </div>
+      </div>
+    </ng-template>
   </app-data-grid>
 </div>
 
@@ -67,8 +83,8 @@
   (close)="closeAddModal()" (staffOnboarded)="loadStaff(true)">
 </app-onboard-staff-modal>
 
-<app-staff-detail-drawer [isOpen]="isDrawerOpen" [staff]="selectedStaff" [branches]="branches" (close)="isDrawerOpen = false"
-  (edit)="onEditStaff($any($event))" (statusChanged)="loadStaff(true)">
+<app-staff-detail-drawer [isOpen]="isDrawerOpen" [staff]="selectedStaff" [branches]="branches"
+  (close)="isDrawerOpen = false" (edit)="onEditStaff($any($event))" (statusChanged)="loadStaff(true)">
 </app-staff-detail-drawer>
 
 <app-confirmation-popup *ngIf="isConfirmDeleteOpen" title="Remove Staff Member?"

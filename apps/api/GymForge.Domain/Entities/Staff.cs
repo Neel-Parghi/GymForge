@@ -33,6 +33,8 @@ namespace GymForge.Domain.Entities
         public string? ShiftTimings { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime JoiningDate { get; set; }
+        public bool IsCheckedIn { get; set; } = false;
+        public DateTime? LastCheckInTime { get; set; }
 
         // Navigation
         public Gym Gym { get; set; } = null!;

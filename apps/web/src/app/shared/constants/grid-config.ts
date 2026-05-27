@@ -171,5 +171,29 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false
+  },
+  MemberAttendanceLogs: {
+    columns: [
+      { key: 'memberName', label: 'Member Name', type: 'text' },
+      { key: 'membershipNumber', label: 'Membership ID', type: 'text' },
+      { key: 'checkInTime', label: 'Check-In Time', type: 'date' },
+      { key: 'checkOutTime', label: 'Check-Out Time', type: 'date' },
+      { key: 'duration', label: 'Workout Duration', type: 'text' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'branchName', label: 'Branch', type: 'text' }
+    ],
+    selectable: false
+  },
+  StaffAttendanceLogs: {
+    columns: [
+      { key: 'staffName', label: 'Staff Name', type: 'text' },
+      { key: 'staffNumber', label: 'Staff Number', type: 'text' },
+      { key: 'roleName', label: 'Role', type: 'text' },
+      { key: 'checkInTime', label: 'Clock-In Time', type: 'date' },
+      { key: 'checkOutTime', label: 'Clock-Out Time', type: 'date' },
+      { key: 'hoursWorkedLabel', label: 'Hours Worked', type: 'text' },
+      { key: 'notes', label: 'Shift Notes', type: 'text' }
+    ],
+    selectable: false
   }
 };

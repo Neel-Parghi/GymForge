@@ -1131,3 +1131,451 @@
     }
   }
 }
+
+.staff-on-duty {
+  .stat-icon {
+    background: rgba(59, 130, 246, 0.12) !important;
+    color: #3b82f6 !important;
+  }
+}
+
+.on-duty-mini-card {
+  &:hover {
+    border-color: #3b82f6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  .mini-avatar {
+    .live-dot {
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: mini-pulse 2s infinite;
+    }
+  }
+}
+
+.checkout-btn-mini {
+  transition: all 0.2s;
+
+  &:hover {
+    color: #dc2626 !important;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes mini-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.tab-badge.staff-badge {
+  background: #3b82f6 !important;
+}
+
+// Pagination Hover Styles
+.btn-page-nav {
+  &:hover:not(:disabled) {
+    border-color: #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.05) !important;
+    color: #3b82f6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.08);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+// Attendance Log Views
+.log-type-toggle-pill {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--bg-surface);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  width: fit-content;
+
+  .toggle-pill-btn {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--text-muted);
+
+    &.active {
+      color: white;
+
+      &.member-toggle {
+        background: var(--accent-color);
+      }
+
+      &.staff-toggle {
+        background: #3b82f6;
+      }
+    }
+  }
+}
+
+.log-filter-bar {
+  .advanced-search {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-right: 3px;
+
+    .refresh-logs-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 70px;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid rgb(234, 234, 234);
+      background: #f8fafc;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      i {
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      &:hover:not(:disabled) {
+        // border-color: #3b82f6;
+        color: #3b82f6;
+        // background: rgba(59, 130, 246, 0.05);
+
+        i {
+          transform: rotate(180deg);
+        }
+      }
+
+      &:active:not(:disabled) {
+        transform: scale(0.95);
+      }
+    }
+  }
+}
+
+.logs-card {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+// Custom Grid Cell Styles
+.checkout-time-cell {
+  font-weight: 500;
+}
+
+.duration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  width: fit-content;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+
+  &.active {
+    background: rgba(59, 130, 246, 0.12) !important;
+    color: #3b82f6 !important;
+  }
+
+  &.staff-completed {
+    background: rgba(34, 197, 94, 0.12) !important;
+    color: #22c55e !important;
+  }
+
+  i {
+    font-size: 0.85rem;
+  }
+}
+
+.empty-state {
+  .empty-icon {
+    &.staff-empty {
+      color: #3b82f6 !important;
+    }
+  }
+}
+
+// Global utilities & Staff Terminal Specific Styles
+.text-right {
+  text-align: right !important;
+}
+
+.stat-icon.staff-icon {
+  background: rgba(59, 130, 246, 0.12) !important;
+  color: #3b82f6 !important;
+}
+
+.staff-guide {
+  .guide-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+
+    .guide-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .subtext {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+  }
+}
+
+.terminal-grid-margin {
+  margin-top: 24px;
+}
+
+.status-badge.staff-badge {
+  color: white !important;
+  border-radius: 20px;
+  font-weight: 700;
+  background: #22c55e !important;
+  border: none;
+
+  &.active {
+    background: #3b82f6 !important;
+  }
+}
+
+.on-duty-staff-list {
+  margin-top: 24px;
+
+  .section-title {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  .on-duty-mini-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: var(--bg-surface);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px var(--shadow-sm);
+    }
+  }
+
+  .staff-mini-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mini-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    position: relative;
+
+    .live-dot {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border: 1.5px solid white;
+      border-radius: 50%;
+    }
+  }
+
+  .staff-text-group {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  }
+
+  .checkout-btn-mini {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #dc2626 !important;
+      transform: scale(1.05);
+    }
+  }
+
+  .empty-mini-on-duty {
+    padding: 24px;
+    border: 1.5px dashed var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+
+    i {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      opacity: 0.4;
+    }
+  }
+}
+
+.access-badge.staff-badge {
+  color: white !important;
+  background: #22c55e !important;
+
+  &.active {
+    background: #3b82f6 !important;
+  }
+
+  &.completed {
+    background: #22c55e !important;
+  }
+}
+
+.member-avatar.staff-gradient {
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%) !important;
+}
+
+.detail-value-status {
+  font-weight: 700;
+  color: #22c55e !important;
+
+  &.active {
+    color: #3b82f6 !important;
+  }
+}
+
+.shift-notes-input-box {
+  margin: 16px 0;
+  width: 100%;
+
+  label {
+    display: block;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    outline: none;
+    box-sizing: border-box;
+    background: var(--bg-surface);
+    color: var(--text-main);
+
+    &:focus {
+      border-color: #3b82f6;
+    }
+  }
+}
+
+.action-btn.primary.checkout-action.staff-red {
+  background: #ef4444 !important;
+
+  &:hover {
+    background: #dc2626 !important;
+  }
+}
+
+.detail-value-duty {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.status-glow-icon.staff-red-glow {
+  background: rgba(34, 197, 94, 0.1) !important;
+  color: #22c55e !important;
+}
+
+.alert-message.checkedout.staff-red-text {
+  h4 {
+    color: #22c55e !important;
+  }
+}
+
+// Top-Level Badge Utilities for Data Grid compatibility
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  width: fit-content;
+
+  &.active {
+    background: rgba(59, 130, 246, 0.12) !important;
+    color: #3b82f6 !important;
+  }
+
+  &.completed {
+    background: rgba(34, 197, 94, 0.12) !important;
+    color: #22c55e !important;
+  }
+}

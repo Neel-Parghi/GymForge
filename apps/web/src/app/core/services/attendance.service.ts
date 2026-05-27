@@ -89,8 +89,8 @@ export class AttendanceService extends BaseApiService {
     const isDefault = !params?.searchTerm &&
                       (!params?.status || params.status === 'all') &&
                       params?.pageNumber === 1 &&
-                      params?.pageSize === 100 &&
-                      params?.date === this.getTodayDateString();
+                      params?.pageSize === 10 &&
+                      !params?.date;
 
     if (forceRefresh) {
       this.clearCache();

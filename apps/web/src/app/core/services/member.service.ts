@@ -18,6 +18,7 @@ export class MemberService extends BaseApiService {
   private membersListCache = new Map<string, Observable<ApiResponse<PagedResponse<GymMember>>>>();
   private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
   private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
+  private dashboardCache$: Observable<ApiResponse<any>> | null = null;
 
   constructor() {
     super();
@@ -133,10 +134,20 @@ export class MemberService extends BaseApiService {
     return this.getBlob(API_CONSTANTS.MEMBERS.EXPORT, params);
   }
 
+  getMemberDashboardData(forceRefresh = false): Observable<ApiResponse<any>> {
+    if (forceRefresh || !this.dashboardCache$) {
+      this.dashboardCache$ = this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.DASHBOARD).pipe(
+        shareReplay(1)
+      );
+    }
+    return this.dashboardCache$;
+  }
+
   clearCache(): void {
     this.membersListCache.clear();
     this.memberCache.clear();
     this.historyCache.clear();
+    this.dashboardCache$ = null;
   }
 
 }

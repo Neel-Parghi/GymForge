@@ -3,6 +3,8 @@ using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using GymForge.Infrastructure.Extensions;
+using GymForge.Shared.Models;
+using GymForge.Contracts.Common;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -95,7 +97,8 @@ namespace GymForge.Infrastructure.Repositories
         {
             return await _dbContext.PTAssignments
                 .Include(x => x.Member)
-                .Where(x => x.TrainerId == trainerId && x.IsActive)
+                .Where(x => x.TrainerId == trainerId)
+                .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
         }
 
@@ -103,8 +106,15 @@ namespace GymForge.Infrastructure.Repositories
         {
             return await _dbContext.PTAssignments
                 .Include(x => x.Trainer)
-                .Where(x => x.MemberId == memberId && x.IsActive)
+                .Where(x => x.MemberId == memberId)
+                .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
+        }
+
+        public async Task<PTAssignment?> GetActiveAssignmentAsync(Guid trainerId, Guid memberId)
+        {
+            return await _dbContext.PTAssignments
+                .FirstOrDefaultAsync(x => x.TrainerId == trainerId && x.MemberId == memberId && x.IsActive && (x.EndDate == null || x.EndDate > DateTime.UtcNow));
         }
 
         public async Task AddMeasurementAsync(MemberMeasurement measurement)
@@ -120,6 +130,68 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(x => x.MemberId == memberId)
                 .OrderByDescending(x => x.Date)
                 .ToListAsync();
+        }
+
+        public async Task AddStaffAttendanceLogAsync(StaffAttendanceLog log)
+        {
+            await _dbContext.StaffAttendanceLogs.AddAsync(log);
+        }
+
+        public async Task<StaffAttendanceLog?> GetActiveStaffAttendanceLogAsync(Guid staffId)
+        {
+            return await _dbContext.StaffAttendanceLogs
+                .FirstOrDefaultAsync(x => x.StaffId == staffId && x.CheckOutTime == null);
+        }
+
+        public async Task<IEnumerable<StaffAttendanceLog>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null)
+        {
+            IQueryable<StaffAttendanceLog> query = _dbContext.StaffAttendanceLogs
+                .AsNoTracking()
+                .Include(x => x.Staff)
+                .Where(x => x.GymId == gymId);
+
+            if (branchId != null)
+            {
+                query = query.Where(x => x.BranchId == branchId);
+            }
+
+            return await query
+                .OrderByDescending(x => x.CheckInTime)
+                .ToListAsync();
+        }
+
+        public async Task<PagedResponse<StaffAttendanceLog>> GetStaffAttendanceLogsPagedAsync(
+            Guid gymId,
+            PaginationParams pagination,
+            Guid? branchId = null)
+        {
+            IQueryable<StaffAttendanceLog> query = _dbContext.StaffAttendanceLogs
+                .AsNoTracking()
+                .Include(x => x.Staff)
+                .Where(x => x.GymId == gymId);
+
+            if (branchId != null)
+            {
+                query = query.Where(x => x.BranchId == branchId);
+            }
+
+            if (!string.IsNullOrEmpty(pagination.SearchTerm))
+            {
+                string term = pagination.SearchTerm.ToLower();
+                query = query.Where(x => 
+                    (x.Staff.FirstName + " " + x.Staff.LastName).ToLower().Contains(term) ||
+                    x.Staff.StaffNumber.ToLower().Contains(term));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            List<StaffAttendanceLog> items = await query
+                .OrderByDescending(x => x.CheckInTime)
+                .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            return new PagedResponse<StaffAttendanceLog>(items, totalCount, pagination.PageNumber, pagination.PageSize);
         }
     }
 }

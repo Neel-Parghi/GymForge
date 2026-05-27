@@ -3,7 +3,7 @@ import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { StaffResponse, AddStaffRequest, MeasurementResponse, AddMeasurementRequest } from '../models/staff.model';
+import { StaffResponse, AddStaffRequest, MeasurementResponse, AddMeasurementRequest, StaffAttendanceLogResponse } from '../models/staff.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
 import { BranchContextService } from './branch-context.service';
 
@@ -15,6 +15,7 @@ export class StaffService extends BaseApiService {
   private branchContextService = inject(BranchContextService);
   private staffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
+  private staffLogsCache$: Observable<ApiResponse<any>> | null = null;
 
   constructor() {
     super();
@@ -79,9 +80,26 @@ export class StaffService extends BaseApiService {
     return this.membersCache.get(trainerId)!;
   }
 
-  assignTrainerToMember(trainerId: string, memberId: string, slot?: string): Observable<ApiResponse<any>> {
-    let url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/assign-member/${memberId}`;
-    if (slot) url += `?slot=${encodeURIComponent(slot)}`;
+  assignTrainerToMember(trainerId: string, memberId: string, slot?: string, durationDays?: number): Observable<ApiResponse<any>> {
+    let url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/assign-member/${memberId}?`;
+
+    const params: string[] = [];
+
+    if (slot)
+      params.push(`slot=${encodeURIComponent(slot)}`);
+
+    if (durationDays)
+      params.push(`durationDays=${durationDays}`);
+
+    url += params.join('&');
+
+    return this.post<ApiResponse<any>>(url, {}).pipe(
+      tap(() => this.membersCache.delete(trainerId))
+    );
+  }
+
+  deallocateTrainerFromMember(trainerId: string, memberId: string): Observable<ApiResponse<any>> {
+    const url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/deallocate-member/${memberId}`;
     return this.post<ApiResponse<any>>(url, {}).pipe(
       tap(() => this.membersCache.delete(trainerId))
     );
@@ -97,6 +115,18 @@ export class StaffService extends BaseApiService {
     return this.get<ApiResponse<MeasurementResponse[]>>(url);
   }
 
+  checkInStaff(staffId: string, notes?: string): Observable<ApiResponse<StaffResponse>> {
+    return this.post<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${staffId}/check-in`, { notes }).pipe(
+      tap(() => this.clearCache())
+    );
+  }
+
+  checkOutStaff(staffId: string): Observable<ApiResponse<StaffResponse>> {
+    return this.post<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${staffId}/check-out`, {}).pipe(
+      tap(() => this.clearCache())
+    );
+  }
+
   getRoleName(role: number): string {
     switch (role) {
       case 1: return 'Trainer';
@@ -109,8 +139,33 @@ export class StaffService extends BaseApiService {
     }
   }
 
+  getStaffAttendanceLogs(params?: any, forceRefresh = false): Observable<ApiResponse<any>> {
+    if (forceRefresh) {
+      this.clearCache();
+    }
+    
+    const isDefault = !params?.searchTerm &&
+                      (!params?.status || params.status === 'all') &&
+                      params?.pageNumber === 1 &&
+                      params?.pageSize === 10 &&
+                      !params?.date &&
+                      !params?.bypassPagination;
+
+    if (isDefault) {
+      if (!this.staffLogsCache$) {
+        this.staffLogsCache$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
+          shareReplay(1)
+        );
+      }
+      return this.staffLogsCache$;
+    }
+
+    return this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params);
+  }
+
   clearCache(): void {
     this.staffCache$ = null;
     this.membersCache.clear();
+    this.staffLogsCache$ = null;
   }
 }

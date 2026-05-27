@@ -246,3 +246,83 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 }
+
+// Custom Profile Cell in Data Grid
+.staff-profile-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+
+  .avatar-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+
+    .avatar-circle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 700;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .duty-pulse-dot {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 11px;
+      height: 11px;
+      background-color: #22c55e;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: duty-pulse 2s infinite;
+    }
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .primary-text {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-main, #0f172a);
+    }
+
+    .secondary-text {
+      font-size: 0.75rem;
+      color: var(--text-muted, #64748b);
+    }
+  }
+}
+
+@keyframes duty-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}

@@ -21,6 +21,11 @@
     <button class="nav-tab" [class.active]="activeTab === 'logs'" (click)="switchTab('logs')">
       <i class="fa-solid fa-clock-rotate-left"></i> Attendance Logs
     </button>
+    <button class="nav-tab" [class.active]="activeTab === 'staff-terminal'" (click)="switchTab('staff-terminal')">
+      <i class="fa-solid fa-user-clock"></i> Staff Shifts
+      <span class="tab-badge staff-badge" *ngIf="currentlyCheckedInStaff.length > 0">{{ currentlyCheckedInStaff.length
+        }}</span>
+    </button>
   </div>
 
   <!-- Tab 1: Check-In Terminal -->
@@ -281,7 +286,7 @@
               <th>Membership ID</th>
               <th>Membership Plan</th>
               <th>Check-in Time</th>
-              <th style="text-align: right;">Action</th>
+              <th class="text-right">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -297,7 +302,7 @@
               <td><span class="code-span">{{ c.membershipNumber }}</span></td>
               <td>{{ c.planName }}</td>
               <td><i class="fa-regular fa-clock"></i> {{ c.checkInTime | date:'shortTime' }}</td>
-              <td style="text-align: right;">
+              <td class="text-right">
                 <button class="checkout-btn" (click)="checkOutFromOccupancy(c)" [disabled]="isCheckingOut">
                   <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isCheckingOut"></i>
                   <i class="fa-solid fa-door-open" *ngIf="!isCheckingOut"></i> Check-Out
@@ -323,18 +328,36 @@
   <!-- Tab 3: Attendance Logs -->
   <div class="tab-content" *ngIf="activeTab === 'logs'">
 
+    <!-- Log Type Toggle Pill -->
+    <div class="log-type-toggle-pill">
+      <button class="toggle-pill-btn member-toggle" [class.active]="logTypeFilter === 'member'"
+        (click)="setLogType('member')">
+        <i class="fa-solid fa-users"></i> Member Attendance Logs
+      </button>
+      <button class="toggle-pill-btn staff-toggle" [class.active]="logTypeFilter === 'staff'"
+        (click)="setLogType('staff')">
+        <i class="fa-solid fa-user-clock"></i> Staff Shift Logs
+      </button>
+    </div>
+
     <!-- Advanced Filters Bar -->
     <div class="log-filter-bar">
       <div class="filter-tabs">
         <button class="filter-tab" [class.active]="logStatusFilter === 'all'" (click)="setLogStatus('all')">All
           logs</button>
         <button class="filter-tab" [class.active]="logStatusFilter === 'completed'"
-          (click)="setLogStatus('completed')">Completed Workouts</button>
-        <button class="filter-tab" [class.active]="logStatusFilter === 'active'" (click)="setLogStatus('active')">Still
-          Active Floor</button>
+          (click)="setLogStatus('completed')">{{ logTypeFilter === 'member' ? 'Completed Workouts' : 'Completed Shifts'
+          }}</button>
+        <button class="filter-tab" [class.active]="logStatusFilter === 'active'" (click)="setLogStatus('active')">{{
+          logTypeFilter === 'member' ? 'Still Active Floor' : 'Active Duty Now' }}</button>
       </div>
 
       <div class="advanced-search">
+
+        <button class="refresh-logs-btn" (click)="refreshLogs()" title="Refresh Logs">
+          <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="isLoadingLogs"></i>
+        </button>
+
         <div class="date-picker">
           <app-date-time-picker [placeholder]="'Filter by Date'" [formControl]="dateFilterControl"
             (dateChange)="loadLogs()"></app-date-time-picker>
@@ -342,54 +365,292 @@
 
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" [formControl]="logSearchControl" placeholder="Search logs by name or member ID...">
+          <input type="text" [formControl]="logSearchControl"
+            [placeholder]="logTypeFilter === 'member' ? 'Search logs by name...' : 'Search shifts by name or role...'">
         </div>
       </div>
     </div>
 
     <div class="logs-card">
-      <div class="table-container" *ngIf="filteredLogs.length > 0">
-        <table class="premium-table">
-          <thead>
-            <tr>
-              <th>Member Name</th>
-              <th>Membership ID</th>
-              <th>Check-in Time</th>
-              <th>Check-out Time</th>
-              <th>Workout Duration</th>
-              <th>Status</th>
-              <th>Branch</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let l of filteredLogs">
-              <td><strong>{{ l.memberName }}</strong></td>
-              <td><span class="code-span">{{ l.membershipNumber }}</span></td>
-              <td>{{ l.checkInTime | date:'medium' }}</td>
-              <td>{{ l.checkOutTime ? (l.checkOutTime | date:'medium') : 'Still checked in' }}</td>
-              <td>
-                <span class="duration-badge" [class.active]="l.checkOutTime === null">
-                  <i class="fa-solid fa-stopwatch"></i> {{ l.duration }}
-                </span>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="l.status.toLowerCase()">
-                  {{ l.status }}
-                </span>
-              </td>
-              <td><span class="branch-pill"><i class="fa-solid fa-map-pin"></i> {{ l.branchName }}</span></td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Member logs custom grid -->
+      <app-data-grid *ngIf="logTypeFilter === 'member'" [config]="memberLogsGridConfig" [data]="filteredLogs"
+        [totalItems]="memberTotalItems" [pageSize]="memberPageSize" [currentPage]="memberPageNumber"
+        (pageChange)="goToPage($event)" (pageSizeChange)="onPageSizeChange($event)">
+
+        <ng-template gridCell="checkOutTime" let-row>
+          <span class="checkout-time-cell">
+            {{ row.checkOutTime ? (row.checkOutTime | date:'medium') : 'Still checked in' }}
+          </span>
+        </ng-template>
+
+        <ng-template gridCell="duration" let-row>
+          <span class="duration-badge" [class.active]="row.checkOutTime === null">
+            <i class="fa-solid fa-stopwatch" [class.fa-spin]="row.checkOutTime === null"></i> {{ row.duration }}
+          </span>
+        </ng-template>
+
+        <ng-template gridCell="status" let-row>
+          <span class="badge" [ngClass]="row.status.toLowerCase()">
+            {{ row.status }}
+          </span>
+        </ng-template>
+
+        <ng-template #emptyState>
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fa-solid fa-calendar-minus"></i>
+            </div>
+            <h3>No Member Logs Found</h3>
+            <p>No historical check-in logs match the selected filter criteria.</p>
+          </div>
+        </ng-template>
+      </app-data-grid>
+
+      <!-- Staff logs custom grid -->
+      <app-data-grid *ngIf="logTypeFilter === 'staff'" [config]="staffLogsGridConfig" [data]="filteredStaffLogs"
+        [totalItems]="staffTotalItems" [pageSize]="staffPageSize" [currentPage]="staffPageNumber"
+        (pageChange)="goToPage($event)" (pageSizeChange)="onPageSizeChange($event)">
+
+        <ng-template gridCell="checkOutTime" let-row>
+          <span class="checkout-time-cell">
+            {{ row.checkOutTime ? (row.checkOutTime | date:'medium') : 'Shift Active' }}
+          </span>
+        </ng-template>
+
+        <ng-template gridCell="hoursWorkedLabel" let-row>
+          <span class="duration-badge" [class.active]="row.checkOutTime === null"
+            [class.staff-completed]="row.checkOutTime !== null">
+            <i class="fa-solid fa-stopwatch"></i> {{ row.checkOutTime ? (row.hoursWorked + ' hrs') : 'On Floor' }}
+          </span>
+        </ng-template>
+
+        <ng-template #emptyState>
+          <div class="empty-state">
+            <div class="empty-icon staff-empty">
+              <i class="fa-solid fa-calendar-times"></i>
+            </div>
+            <h3>No Staff Logs Found</h3>
+            <p>No historical shift records match the selected filter criteria.</p>
+          </div>
+        </ng-template>
+      </app-data-grid>
+    </div>
+
+  </div>
+
+  <!-- Tab 4: Staff Shifts Terminal -->
+  <div class="tab-content" *ngIf="activeTab === 'staff-terminal'">
+
+    <!-- Top Stats Segment for Staff -->
+    <div class="occupancy-stats-grid">
+      <div class="stat-card staff-on-duty">
+        <div class="stat-icon total staff-icon"><i class="fa-solid fa-user-clock"></i></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ currentlyCheckedInStaff.length }}</span>
+          <span class="stat-label">Staff On Duty</span>
+        </div>
+      </div>
+      <div class="stat-card capacity-indicator staff-guide">
+        <div class="guide-container">
+          <span class="guide-title"><i class="fa-solid fa-circle-question"></i> Shift Management Terminal</span>
+          <p class="subtext">Staff members can quickly check in or check out here. All hours will be logged in their
+            payout profiles.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="terminal-grid terminal-grid-margin">
+      <!-- Search & Selection Panel -->
+      <div class="terminal-card search-panel">
+        <div class="card-header">
+          <h3>Staff Check-In Console</h3>
+          <p>Search by staff name or role to check them in or out of their shift.</p>
+        </div>
+
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" *ngIf="!isSearchingStaff"></i>
+            <i class="fa-solid fa-circle-notch fa-spin searching-spinner" *ngIf="isSearchingStaff"></i>
+            <input type="text" [formControl]="staffSearchControl" placeholder="Search staff by name or role...">
+            <button class="clear-btn" *ngIf="staffSearchControl.value" (click)="resetStaffTerminal()">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Dynamic Search Results -->
+          <div class="search-results" *ngIf="staffSearchResults.length > 0">
+            <div class="result-item" *ngFor="let s of staffSearchResults" (click)="selectStaffToCheckIn(s)">
+              <div class="member-info">
+                <span class="name">{{ s.firstName }} {{ s.lastName }}</span>
+                <span class="subtext">{{ s.staffNumber }} • {{ s.email }}</span>
+              </div>
+              <span class="status-badge staff-badge" [class.active]="s.isCheckedIn">
+                {{ s.isCheckedIn ? 'Active Shift' : 'Off-Duty' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="no-results-msg"
+            *ngIf="staffSearchControl.value && !isSearchingStaff && staffSearchResults.length === 0">
+            <i class="fa-solid fa-circle-question"></i> No staff match your search criteria.
+          </div>
+        </div>
+
+        <!-- On Duty Staff List -->
+        <div class="on-duty-staff-list">
+          <h4 class="section-title"><i class="fa-solid fa-network-wired"></i> Current Active Shift List</h4>
+          <div class="on-duty-cards" *ngIf="currentlyCheckedInStaff.length > 0">
+            <div class="on-duty-mini-card" *ngFor="let s of currentlyCheckedInStaff" (click)="selectStaffToCheckIn(s)">
+              <div class="staff-mini-info">
+                <div class="mini-avatar">
+                  <span>{{ s.initials }}</span>
+                  <span class="live-dot"></span>
+                </div>
+                <div class="staff-text-group">
+                  <span class="name">{{ s.fullName }}</span>
+                  <span class="role">{{ s.roleName }}</span>
+                </div>
+              </div>
+              <button class="checkout-btn-mini" (click)="confirmStaffCheckOut(s.id); $event.stopPropagation()">
+                <i class="fa-solid fa-right-from-bracket"></i> End Shift
+              </button>
+            </div>
+          </div>
+          <div class="empty-mini-on-duty" *ngIf="currentlyCheckedInStaff.length === 0">
+            <i class="fa-solid fa-mug-hot"></i>
+            <p>All staff are currently off-duty.</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="filteredLogs.length === 0">
-        <div class="empty-icon">
-          <i class="fa-solid fa-calendar-minus"></i>
+      <!-- Live Verification Panel -->
+      <div class="terminal-card verification-panel"
+        [ngClass]="selectedStaff?.isCheckedIn ? 'success' : (staffVerificationState === 'selected' ? 'selected' : staffVerificationState)">
+
+        <!-- Idle State -->
+        <div class="idle-state" *ngIf="staffVerificationState === 'idle'">
+          <div class="scanner-laser"></div>
+          <div class="scanner-target">
+            <i class="fa-solid fa-fingerprint"></i>
+          </div>
+          <h3>Desk Shift Console</h3>
+          <p>Search and select a staff member on the left, or view an active shift to perform operations.</p>
         </div>
-        <h3>No Logs Found</h3>
-        <p>No historical check-in logs match the selected filter criteria.</p>
+
+        <!-- Selected State (Shift Option Card) -->
+        <div class="feedback-container selected" *ngIf="staffVerificationState === 'selected' && selectedStaff">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-user-lock"></i>
+          </div>
+          <div class="access-badge staff-badge" [class.active]="selectedStaff.isCheckedIn">
+            {{ selectedStaff.isCheckedIn ? 'ACTIVE SHIFT RECORD' : 'SHIFT ONBOARDING' }}
+          </div>
+
+          <div class="member-display">
+            <div class="member-avatar staff-gradient">{{ selectedStaff.initials }}</div>
+            <h2 class="member-name">{{ selectedStaff.fullName }}</h2>
+            <div class="member-code">{{ selectedStaff.staffNumber }}</div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Staff Role</span>
+              <span class="value">{{ selectedStaff.roleName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Duty Status</span>
+              <span class="value detail-value-status" [class.active]="selectedStaff.isCheckedIn">
+                {{ selectedStaff.isCheckedIn ? 'Currently On Duty' : 'Currently Off-Duty' }}
+              </span>
+            </div>
+            <div class="detail-item" *ngIf="selectedStaff.isCheckedIn && selectedStaff.lastCheckInTime">
+              <span class="label">Shift Started</span>
+              <span class="value">{{ selectedStaff.lastCheckInTime | date:'shortTime' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="!selectedStaff.isCheckedIn">
+              <span class="label">Branch Context</span>
+              <span class="value">{{ activeBranchName }}</span>
+            </div>
+          </div>
+
+          <!-- Shift Notes for Onboarding -->
+          <div class="shift-notes-input-box" *ngIf="!selectedStaff.isCheckedIn">
+            <label>Optional Shift Notes</label>
+            <input type="text" [formControl]="staffNotesControl" placeholder="e.g. Opening shift, floor duty...">
+          </div>
+
+          <div class="action-buttons horizontal">
+            <button class="action-btn primary checkin" *ngIf="!selectedStaff.isCheckedIn"
+              (click)="confirmStaffCheckIn()" [disabled]="isStaffCheckingIn">
+              <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isStaffCheckingIn"></i>
+              <i class="fa-solid fa-right-to-bracket" *ngIf="!isStaffCheckingIn"></i>
+              {{ isStaffCheckingIn ? 'Starting Shift...' : 'Start Shift' }}
+            </button>
+            <button class="action-btn primary checkout-action staff-red" *ngIf="selectedStaff.isCheckedIn"
+              (click)="confirmStaffCheckOut()" [disabled]="isStaffCheckingOut">
+              <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isStaffCheckingOut"></i>
+              <i class="fa-solid fa-right-from-bracket" *ngIf="!isStaffCheckingOut"></i>
+              {{ isStaffCheckingOut ? 'Ending Shift...' : 'End Shift' }}
+            </button>
+
+            <button class="action-btn secondary" (click)="resetStaffTerminal()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Success/Check-In Completed State -->
+        <div class="feedback-container success" *ngIf="staffVerificationState === 'success' && lastScannedStaff">
+          <div class="status-glow-icon">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="access-badge">SHIFT INITIATED</div>
+
+          <div class="member-display">
+            <div class="member-avatar staff-gradient">{{ lastScannedStaff.initials }}</div>
+            <h2 class="member-name">{{ lastScannedStaff.fullName }}</h2>
+            <div class="member-code">{{ lastScannedStaff.staffNumber }}</div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Staff Role</span>
+              <span class="value">{{ lastScannedStaff.roleName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Shift Logged</span>
+              <span class="value detail-value-duty">On Duty</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Shift Start Time</span>
+              <span class="value">{{ staffScanTime | date:'mediumTime' }}</span>
+            </div>
+          </div>
+
+          <button class="reset-btn" (click)="resetStaffTerminal()">Ready For Next Action</button>
+        </div>
+
+        <!-- Checked-Out State -->
+        <div class="feedback-container checkedout" *ngIf="staffVerificationState === 'checkedout' && lastScannedStaff">
+          <div class="status-glow-icon staff-red-glow">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+          <div class="access-badge completed">SHIFT COMPLETED</div>
+
+          <div class="member-display">
+            <div class="member-avatar staff-gradient">{{ lastScannedStaff.initials }}</div>
+            <h2 class="member-name">{{ lastScannedStaff.fullName }}</h2>
+            <div class="member-code">{{ lastScannedStaff.staffNumber }}</div>
+          </div>
+
+          <div class="alert-message checkedout staff-red-text">
+            <h4>Shift Ended</h4>
+            <p>Staff **{{ lastScannedStaff.fullName }}** shift has been ended successfully at **{{ staffScanTime |
+              date:'mediumTime' }}**.</p>
+          </div>
+
+          <button class="reset-btn" (click)="resetStaffTerminal()">Ready For Next Action</button>
+        </div>
+
       </div>
     </div>
 

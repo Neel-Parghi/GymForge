@@ -22,6 +22,7 @@ export class CreateInvoiceModalComponent implements OnInit {
   @Input() memberDropdownOptions: DropdownOption[] = [];
   @Input() categoryDropdownOptions: DropdownOption[] = [];
   @Input() statusDropdownOptions: DropdownOption[] = [];
+  @Input() prefillData?: any;
 
   @Output() close = new EventEmitter<void>();
   @Output() invoiceCreated = new EventEmitter<void>();
@@ -34,11 +35,11 @@ export class CreateInvoiceModalComponent implements OnInit {
 
   initCustomInvoiceForm(): void {
     this.createInvoiceForm = this.fb.group({
-      memberIndex: [0, Validators.required],
-      type: ['Personal Training', Validators.required],
-      itemName: ['', [Validators.required, Validators.minLength(3)]],
-      amount: [1000, [Validators.required, Validators.min(1)]],
-      status: ['Pending', Validators.required]
+      memberIndex: [this.prefillData?.memberIndex ?? 0, Validators.required],
+      type: [this.prefillData?.type ?? 'Personal Training', Validators.required],
+      itemName: [this.prefillData?.itemName ?? '', [Validators.required, Validators.minLength(3)]],
+      amount: [this.prefillData ? this.prefillData.amount : 1000, [Validators.required, Validators.min(1)]],
+      status: [this.prefillData?.status ?? 'Pending', Validators.required]
     });
   }
 

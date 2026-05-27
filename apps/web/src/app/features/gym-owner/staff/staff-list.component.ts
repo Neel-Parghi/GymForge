@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DataGrid } from "../../../shared/components/data-grid/data-grid.component";
+import { DataGrid, GridCellDirective } from "../../../shared/components/data-grid/data-grid.component";
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { StaffService } from '../../../core/services/staff.service';
@@ -22,7 +22,7 @@ import { FilterBarComponent } from "../../../shared/components/filter-bar/filter
 @Component({
   selector: 'app-staff-list',
   standalone: true,
-  imports: [CommonModule, DataGrid, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, DropdownComponent, FilterBarComponent],
+  imports: [CommonModule, DataGrid, GridCellDirective, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, DropdownComponent, FilterBarComponent],
   templateUrl: './staff-list.component.html',
   styleUrl: './staff-list.component.scss'
 })
@@ -72,7 +72,7 @@ export class StaffListComponent implements OnInit {
   ngOnInit(): void {
     this.gymService.getMyBranches().subscribe({
       next: (res) => this.branches = res.data || [],
-      error: () => {}
+      error: () => { }
     });
 
     this.branchContextService.activeBranch$.pipe(

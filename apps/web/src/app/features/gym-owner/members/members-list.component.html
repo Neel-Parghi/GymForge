@@ -52,6 +52,120 @@
     </div>
   </div>
 
+  <!-- Dashboard Grid Widgets -->
+  <div class="dashboard-grid-widgets" *ngIf="viewMode === 'dashboard'">
+    <!-- Widget A: At-Risk Members -->
+    <div class="dashboard-widget-card retention-card">
+      <div class="widget-header">
+        <div class="title-group">
+          <h3>Retention Risk Alarm</h3>
+          <p class="subtitle">Members inactive for 8+ days</p>
+        </div>
+        <span class="alert-indicator pulse"><i class="fa-solid fa-bell"></i></span>
+      </div>
+      <div class="widget-content scrollable-list">
+        <div class="member-risk-row" *ngFor="let member of atRiskMembers">
+          <div class="member-avatar" [ngClass]="member.severity">
+            {{ member.initials }}
+          </div>
+          <div class="member-details">
+            <span class="member-name">{{ member.name }}</span>
+            <span class="member-sub">{{ member.plan }} &bull; Inactive {{ member.lastActive }}</span>
+          </div>
+          <div class="actions-group">
+            <button class="action-btn text" title="Send WhatsApp Message">
+              <i class="fa-brands fa-whatsapp text-success"></i>
+            </button>
+            <button class="action-btn text" title="Call Member">
+              <i class="fa-solid fa-phone text-muted"></i>
+            </button>
+          </div>
+        </div>
+        <div class="empty-widget-state" *ngIf="atRiskMembers.length === 0">
+          <i class="fa-solid fa-circle-check text-success"></i>
+          <p>No members at risk currently. Great retention!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget B: Renewal Conversion Funnel -->
+    <div class="dashboard-widget-card funnel-card">
+      <div class="widget-header">
+        <div class="title-group">
+          <h3>Renewal Funnel</h3>
+          <p class="subtitle">Monthly subscription conversion</p>
+        </div>
+        <span class="badge-rate success">{{ funnelData.conversionRate }}% Rate</span>
+      </div>
+      <div class="widget-content funnel-container">
+        <ng-container *ngIf="funnelData.expired > 0; else emptyFunnel">
+          <!-- Step 1: Expired -->
+          <div class="funnel-step expired-step">
+            <div class="step-bar" style="width: 100%">
+              <span class="step-label">Expired Plans</span>
+              <span class="step-value">{{ funnelData.expired }}</span>
+            </div>
+          </div>
+          <!-- Step 2: Reminded -->
+          <div class="funnel-step reminded-step">
+            <div class="step-bar"
+              [style.width.%]="funnelData.expired > 0 ? (funnelData.reminded / funnelData.expired * 100) : 0">
+              <span class="step-label">Reminded / Contacted</span>
+              <span class="step-value">{{ funnelData.reminded }}</span>
+            </div>
+          </div>
+          <!-- Step 3: Renewed -->
+          <div class="funnel-step renewed-step">
+            <div class="step-bar"
+              [style.width.%]="funnelData.expired > 0 ? (funnelData.renewed / funnelData.expired * 100) : 0">
+              <span class="step-label">Successfully Renewed</span>
+              <span class="step-value">{{ funnelData.renewed }}</span>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #emptyFunnel>
+          <div class="empty-widget-state">
+            <i class="fa-solid fa-chart-pie text-muted"></i>
+            <p>No subscriptions expired in the last 30 days.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Widget C: Active Streak Leaderboard -->
+    <div class="dashboard-widget-card leaderboard-card">
+      <div class="widget-header">
+        <div class="title-group">
+          <h3>Streak Leaderboard</h3>
+          <p class="subtitle">Longest attendance streaks this month</p>
+        </div>
+        <span class="badge-icon gold"><i class="fa-solid fa-trophy"></i></span>
+      </div>
+      <div class="widget-content scrollable-list">
+        <div class="leaderboard-row" *ngFor="let leader of streakLeaderboard">
+          <div class="rank-badge" [ngClass]="'rank-' + leader.rank">
+            #{{ leader.rank }}
+          </div>
+          <div class="member-avatar leader">
+            {{ leader.initials }}
+          </div>
+          <div class="member-details">
+            <span class="member-name">{{ leader.name }}</span>
+            <span class="member-sub">{{ leader.plan }}</span>
+          </div>
+          <div class="streak-value">
+            <span>{{ leader.streak }}</span>
+            <i class="fa-solid fa-fire text-danger"></i>
+          </div>
+        </div>
+        <div class="empty-widget-state" *ngIf="streakLeaderboard.length === 0">
+          <i class="fa-solid fa-fire text-muted"></i>
+          <p>No active streaks recorded this month.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Filter + Search Bar (List View) -->
   <div class="filter-bar" *ngIf="viewMode === 'list'">
     <div class="filter-tabs">
@@ -96,10 +210,10 @@
 
 
 <!-- Onboard / Manage Modal -->
-<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="activePlans" [branches]="branches" [isEdit]="isEditMode" [member]="selectedMember"
-  (close)="isOnboardOpen = false" (submitted)="isEditMode ? handleUpdate($event) : handleOnboard($event)"
-  (freeze)="handleFreeze($event)" (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)"
-  (renew)="handleRenew($event)">
+<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="activePlans" [branches]="branches" [isEdit]="isEditMode"
+  [member]="selectedMember" (close)="isOnboardOpen = false"
+  (submitted)="isEditMode ? handleUpdate($event) : handleOnboard($event)" (freeze)="handleFreeze($event)"
+  (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)" (renew)="handleRenew($event)">
 </app-onboard-member-modal>
 
 <!-- Member Detail Drawer -->

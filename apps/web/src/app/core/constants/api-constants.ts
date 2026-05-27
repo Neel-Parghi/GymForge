@@ -64,6 +64,7 @@ export const API_CONSTANTS = {
     SUBSCRIPTION_HISTORY: 'members/{id}/subscriptions',
     EXPORT: 'members/export',
     MEASUREMENTS: 'members/{memberId}/measurements',
+    DASHBOARD: 'members/dashboard',
   },
   STAFF: {
     BASE: 'staff',
