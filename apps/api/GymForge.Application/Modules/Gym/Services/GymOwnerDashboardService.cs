@@ -46,7 +46,7 @@ namespace GymForge.Application.Modules.Gym.Services
             if (branchId.HasValue)
             {
                 Guid? mainBranchId = null;
-                Branch? mainBranch = branches.FirstOrDefault(b => b.IsMainBranch);
+                Branch? mainBranch = branches?.FirstOrDefault(b => b.IsMainBranch);
                 if (mainBranch != null)
                 {
                     mainBranchId = mainBranch.Id;

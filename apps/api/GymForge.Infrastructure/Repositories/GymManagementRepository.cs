@@ -84,8 +84,8 @@ namespace GymForge.Infrastructure.Repositories
             {
                 searchTerm = searchTerm.ToLower();
                 query = query.Where(g => g.GymName.ToLower().Contains(searchTerm) ||
-                                       g.BrandName.ToLower().Contains(searchTerm) ||
-                                       g.Email.ToLower().Contains(searchTerm));
+                                       (g.BrandName != null && g.BrandName.ToLower().Contains(searchTerm)) ||
+                                       (g.Email != null && g.Email.ToLower().Contains(searchTerm)));
             }
 
             int totalCount = await query.CountAsync();
