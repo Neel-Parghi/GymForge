@@ -1,6 +1,7 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Common;
 using GymForge.Contracts.Staff;
+using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
