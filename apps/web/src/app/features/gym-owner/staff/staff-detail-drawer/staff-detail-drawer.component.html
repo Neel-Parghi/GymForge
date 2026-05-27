@@ -18,13 +18,17 @@
         </div>
       </div>
 
-      <div class="tab-nav" *ngIf="isTrainer">
+      <div class="tab-nav">
         <button [class.active]="activeTab === 'details'" (click)="setActiveTab('details')">
           <i class="fa-solid fa-user-gear"></i> Details
         </button>
-        <button [class.active]="activeTab === 'members'" (click)="setActiveTab('members')">
+        <button *ngIf="isTrainer" [class.active]="activeTab === 'members'" (click)="setActiveTab('members')">
           <i class="fa-solid fa-users"></i> Members
           <span class="count-badge" *ngIf="assignedMembers.length > 0">{{ assignedMembers.length }}</span>
+        </button>
+        <button [class.active]="activeTab === 'shifts'" (click)="setActiveTab('shifts')">
+          <i class="fa-solid fa-business-time"></i> Shifts
+          <span class="count-badge active-duty-badge" *ngIf="staff.isCheckedIn" style="background: #22c55e;">ON</span>
         </button>
       </div>
 
@@ -43,6 +47,30 @@
             <span class="stat-value" [style.color]="staff.isActive ? '#22c55e' : '#ef4444'">
               {{ staff.isActive ? 'Active' : 'Inactive' }}
             </span>
+          </div>
+        </div>
+
+        <!-- Shift Control Card -->
+        <div class="shift-control-card" [class.on-duty]="staff.isCheckedIn">
+          <div class="shift-info">
+            <div class="status-indicator">
+              <span class="pulse-dot" [class.on-duty]="staff.isCheckedIn"></span>
+              <h4>{{ staff.isCheckedIn ? 'Currently On Duty' : 'Currently Off-Duty' }}</h4>
+            </div>
+            <p class="shift-timestamp" *ngIf="staff.isCheckedIn && staff.lastCheckInTime">
+              Checked in at {{ staff.lastCheckInTime | date:'MMM dd, hh:mm a' }}
+            </p>
+            <p class="shift-timestamp" *ngIf="!staff.isCheckedIn">
+              Trainer is ready to check in for their shift.
+            </p>
+          </div>
+          <div class="shift-actions">
+            <button *ngIf="!staff.isCheckedIn" class="btn-checkin" (click)="checkInStaff()" [disabled]="isSubmittingShift">
+              <i class="fa-solid fa-right-to-bracket"></i> Check-In
+            </button>
+            <button *ngIf="staff.isCheckedIn" class="btn-checkout" (click)="checkOutStaff()" [disabled]="isSubmittingShift">
+              <i class="fa-solid fa-right-from-bracket"></i> Check-Out
+            </button>
           </div>
         </div>
 
@@ -137,6 +165,7 @@
                   *ngIf="!isLoadingMembersList"
                   [options]="memberOptions" 
                   [formControl]="memberSelectControl" 
+                  [isSearchable]="true"
                   placeholder="Choose Member" 
                   minWidth="100%">
                 </app-dropdown>
@@ -144,6 +173,15 @@
               <div class="form-group">
                 <label>Preferred Slot</label>
                 <input type="text" [formControl]="preferredSlotControl" placeholder="e.g. 6:00 AM - 7:00 AM" class="slot-input">
+              </div>
+              <div class="form-group">
+                <label>PT Duration</label>
+                <app-dropdown 
+                  [options]="durationOptions" 
+                  [formControl]="durationControl" 
+                  placeholder="Select Duration" 
+                  minWidth="100%">
+                </app-dropdown>
               </div>
               <div class="action-buttons">
                 <button class="btn-cancel" (click)="closeAssignForm()">Cancel</button>
@@ -164,21 +202,90 @@
             <p>No members assigned to this trainer yet.</p>
           </div>
 
-          <div *ngIf="!isLoadingMembers && assignedMembers.length > 0" class="member-cards">
-            <div class="member-mini-card" *ngFor="let m of assignedMembers">
+          <div *ngIf="!isLoadingMembers && assignedMembers.length > 0 && !isAssignFormOpen" class="member-cards">
+            <div class="member-mini-card" *ngFor="let m of assignedMembers" [class.completed]="m.status !== 'Active'">
               <div class="member-avatar">
                 {{ m.firstName[0] }}{{ m.lastName[0] }}
               </div>
               <div class="member-details">
                 <div class="name-row">
                   <h4>{{ m.firstName }} {{ m.lastName }}</h4>
-                  <span class="slot-badge" *ngIf="m.assignedSlot">{{ m.assignedSlot }}</span>
+                  <div class="badge-row">
+                    <span class="slot-badge" *ngIf="m.assignedSlot">{{ m.assignedSlot }}</span>
+                    <span class="status-badge" [ngClass]="m.status.toLowerCase()">{{ m.status }}</span>
+                  </div>
                 </div>
                 <p class="id">{{ m.membershipNumber }}</p>
                 <div class="footer-row">
-                  <span class="date"><i class="fa-solid fa-calendar-day"></i> Since {{ m.assignedDate | date:'MMM dd,
-                    yyyy' }}</span>
-                  <a [href]="'tel:' + m.phoneNumber" class="call-action"><i class="fa-solid fa-phone"></i></a>
+                  <div class="dates-info">
+                    <span class="date"><i class="fa-solid fa-calendar-day"></i> Started: {{ m.assignedDate | date:'MMM dd, yyyy' }}</span>
+                    <span class="date expiry-date" *ngIf="m.endDate"><i class="fa-solid fa-clock"></i> Ends: {{ m.endDate | date:'MMM dd, yyyy' }}</span>
+                  </div>
+                  <div class="action-icons">
+                    <a [href]="'tel:' + m.phoneNumber" class="call-action" title="Call Member"><i class="fa-solid fa-phone"></i></a>
+                    <button *ngIf="m.status === 'Active'" class="btn-deallocate" (click)="deallocateMember(m.memberId)" title="End PT Session">
+                      <i class="fa-solid fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Shift Log History -->
+      <div class="tab-content" *ngIf="activeTab === 'shifts'">
+        <div class="assigned-section">
+          <div class="section-header" style="margin-bottom: 20px;">
+            <h3>Shift History Timeline</h3>
+            <p>Chronological history of recent check-ins and completed shifts.</p>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="isLoadingShifts" class="loading-state" style="padding: 40px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 12px; color: #3b82f6;"></i>
+            <p>Retrieving shift logs...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoadingShifts && staffShifts.length === 0" class="empty-state" style="padding: 40px; text-align: center; color: var(--text-muted); border: 1.5px dashed var(--border-color); border-radius: 12px;">
+            <i class="fa-solid fa-business-time" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4;"></i>
+            <h4>No Shift History</h4>
+            <p>This staff member has not logged any shifts yet.</p>
+          </div>
+
+          <!-- Timeline -->
+          <div *ngIf="!isLoadingShifts && staffShifts.length > 0" class="shift-timeline" style="display: flex; flex-direction: column; gap: 16px; position: relative; padding-left: 20px; border-left: 2px solid var(--border-color); margin-left: 8px;">
+            <div class="timeline-item" *ngFor="let s of staffShifts" style="position: relative;">
+              <!-- Timeline node dot -->
+              <span class="timeline-dot" [style.background]="s.checkOutTime ? '#3b82f6' : '#22c55e'" style="position: absolute; left: -26px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-surface); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);"></span>
+              
+              <div class="shift-log-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+                <div class="card-header-row" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="shift-date" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">
+                    {{ s.checkInTime | date:'EEE, MMM dd, yyyy' }}
+                  </span>
+                  <span class="shift-status-badge" [style.background]="s.checkOutTime ? 'rgba(59, 130, 246, 0.12)' : 'rgba(34, 197, 94, 0.12)'" [style.color]="s.checkOutTime ? '#3b82f6' : '#22c55e'" style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">
+                    {{ s.checkOutTime ? 'Completed' : 'On-Duty' }}
+                  </span>
+                </div>
+                
+                <div class="time-range-row" style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-main); font-weight: 800;">
+                  <span><i class="fa-regular fa-clock" style="color: var(--text-muted);"></i> {{ s.checkInTime | date:'shortTime' }}</span>
+                  <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem; color: var(--text-muted);"></i>
+                  <span>{{ s.checkOutTime ? (s.checkOutTime | date:'shortTime') : 'Active' }}</span>
+                </div>
+
+                <div class="duration-and-notes" style="display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 4px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                    <span style="color: var(--text-muted);">Hours Worked:</span>
+                    <strong style="color: var(--text-main);">{{ s.checkOutTime ? (s.hoursWorked + ' hrs') : 'Active Shift' }}</strong>
+                  </div>
+                  <div *ngIf="s.notes" style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg-color); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                    <span style="display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; color: var(--text-muted);">Notes</span>
+                    "{{ s.notes }}"
+                  </div>
                 </div>
               </div>
             </div>

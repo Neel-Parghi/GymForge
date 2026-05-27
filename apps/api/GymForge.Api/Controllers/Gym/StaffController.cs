@@ -79,10 +79,17 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpPost("{id}/assign-member/{memberId}")]
-        public async Task<ActionResult> AssignTrainerToMember(Guid id, Guid memberId, [FromQuery] string? slot)
+        public async Task<ActionResult> AssignTrainerToMember(Guid id, Guid memberId, [FromQuery] string? slot, [FromQuery] int? durationDays)
         {
-            await _staffService.AssignTrainerToMemberAsync(id, memberId, slot);
+            await _staffService.AssignTrainerToMemberAsync(id, memberId, slot, durationDays);
             return Ok(new { message = "Trainer assigned successfully" });
+        }
+
+        [HttpPost("{id}/deallocate-member/{memberId}")]
+        public async Task<ActionResult> DeallocateTrainerFromMember(Guid id, Guid memberId)
+        {
+            await _staffService.DeallocateMemberFromTrainerAsync(id, memberId);
+            return Ok(new { message = "Member deallocated from trainer successfully" });
         }
 
         [HttpGet("{id}/members")]
@@ -102,6 +109,59 @@ namespace GymForge.Api.Controllers.Gym
         public async Task<ActionResult> GetMemberMeasurements(Guid memberId)
         {
             return Ok(await _staffService.GetMemberMeasurementsAsync(memberId));
+        }
+
+        [HttpPost("{id}/check-in")]
+        public async Task<ActionResult> CheckInStaff(Guid id, [FromBody] StaffCheckInRequest request)
+        {
+            if (GymId == null) return Unauthorized();
+            try
+            {
+                StaffResponse response = await _staffService.CheckInStaffAsync(id, GymId.Value, SecureBranchId, request.Notes);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/check-out")]
+        public async Task<ActionResult> CheckOutStaff(Guid id)
+        {
+            if (GymId == null) return Unauthorized();
+            try
+            {
+                StaffResponse response = await _staffService.CheckOutStaffAsync(id, GymId.Value, SecureBranchId);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("attendance-logs")]
+        public async Task<ActionResult> GetStaffAttendanceLogs([FromQuery] PaginationParams pagination)
+        {
+            if (GymId == null) return Unauthorized();
+            
+            if (pagination.BypassPagination == true)
+            {
+                IEnumerable<StaffAttendanceLogResponse> allLogs = await _staffService.GetStaffAttendanceLogsAsync(GymId.Value, SecureBranchId);
+                return Ok(allLogs);
+            }
+            
+            PagedResponse<StaffAttendanceLogResponse> pagedLogs = await _staffService.GetStaffAttendanceLogsPagedAsync(GymId.Value, pagination, SecureBranchId);
+            return Ok(pagedLogs);
         }
     }
 }

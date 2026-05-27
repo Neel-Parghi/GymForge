@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
 import { MemberInvoice, PlatformInvoice, StaffPayout, GymSubscriptionStatus } from '../../../shared/models/payment.model';
@@ -51,11 +51,14 @@ export class BillingComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private billingService = inject(BillingService);
   private memberService = inject(MemberService);
   private paymentService = inject(PaymentService);
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
+
+  prefillInvoiceData: any = null;
 
   subscriptionStatus: GymSubscriptionStatus | null = null;
   gymMembers: any[] = [];
@@ -141,6 +144,55 @@ export class BillingComponent implements OnInit {
     this.invoiceSearchControl.valueChanges.subscribe(val => {
       this.invoiceSearch = val || '';
       this.memberInvoicesCurrentPage = 1;
+    });
+
+    this.route.queryParams.subscribe(params => {
+      if (params['createInvoice'] === 'true') {
+        const memberId = params['memberId'];
+        const reason = params['reason'] || 'PT';
+        const duration = params['duration'] || 'ongoing';
+
+        this.activeTab = 'member';
+
+        this.memberService.getGymMembers(1, 100).subscribe({
+          next: (res) => {
+            if (res.data?.items) {
+              this.gymMembers = res.data.items;
+              this.memberDropdownOptions = this.gymMembers.map((m, index) => ({
+                label: `${m.firstName} ${m.lastName} (${m.email})`,
+                value: index
+              }));
+
+              const mIndex = this.gymMembers.findIndex(m => m.id === memberId);
+              const validIndex = mIndex > -1 ? mIndex : 0;
+
+              let desc = 'Personal Training (PT)';
+              if (duration === '30_days') { desc = 'Personal Training - 1 Month Package'; }
+              else if (duration === '90_days') { desc = 'Personal Training - 3 Months Package'; }
+              else if (duration === '180_days') { desc = 'Personal Training - 6 Months Package'; }
+              else if (duration === '365_days') { desc = 'Personal Training - 1 Year Package'; }
+              else { desc = 'Personal Training - Ongoing (Monthly)'; }
+
+              this.prefillInvoiceData = {
+                memberIndex: validIndex,
+                type: 'Personal Training',
+                itemName: desc,
+                amount: null,
+                status: 'Pending'
+              };
+
+              this.showCreateInvoiceModal = true;
+
+              this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { createInvoice: null, memberId: null, reason: null, duration: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+              });
+            }
+          }
+        });
+      }
     });
   }
 

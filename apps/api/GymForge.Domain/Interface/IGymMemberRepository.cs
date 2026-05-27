@@ -1,4 +1,5 @@
 using GymForge.Domain.Entities;
+using GymForge.Contracts.Members;
 
 namespace GymForge.Domain.Interface
 {
@@ -13,5 +14,6 @@ namespace GymForge.Domain.Interface
         Task UpdateAsync(GymMember member);
         Task DeactivateActiveSubscriptionsAsync(Guid memberId);
         Task DeleteAsync(Guid id);
+        Task<MemberDashboardResponse> GetMemberDashboardDataAsync(Guid gymId, Guid? branchId = null);
     }
 }

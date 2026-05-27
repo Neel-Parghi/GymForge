@@ -1,4 +1,6 @@
 using GymForge.Domain.Entities;
+using GymForge.Shared.Models;
+using GymForge.Contracts.Common;
 
 namespace GymForge.Domain.Interface
 {
@@ -16,9 +18,16 @@ namespace GymForge.Domain.Interface
         Task AddPTAssignmentAsync(PTAssignment assignment);
         Task<IEnumerable<PTAssignment>> GetAssignmentsByTrainerIdAsync(Guid trainerId);
         Task<IEnumerable<PTAssignment>> GetAssignmentsByMemberIdAsync(Guid memberId);
+        Task<PTAssignment?> GetActiveAssignmentAsync(Guid trainerId, Guid memberId);
         
         // Measurements
         Task AddMeasurementAsync(MemberMeasurement measurement);
         Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberId);
+
+        // Staff Attendance
+        Task AddStaffAttendanceLogAsync(StaffAttendanceLog log);
+        Task<StaffAttendanceLog?> GetActiveStaffAttendanceLogAsync(Guid staffId);
+        Task<IEnumerable<StaffAttendanceLog>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null);
+        Task<PagedResponse<StaffAttendanceLog>> GetStaffAttendanceLogsPagedAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null);
     }
 }

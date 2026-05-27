@@ -18,6 +18,8 @@ export interface StaffResponse {
   isActive: boolean;
   joiningDate: string;
   branchId?: string;
+  isCheckedIn?: boolean;
+  lastCheckInTime?: string;
 }
 
 export interface AddStaffRequest {
@@ -52,4 +54,16 @@ export interface AddMeasurementRequest {
   bodyFatPercentage?: number;
   bmi?: number;
   notes?: string;
+}
+
+export interface StaffAttendanceLogResponse {
+  id: string;
+  staffId: string;
+  staffName: string;
+  staffNumber: string;
+  roleName: string;
+  checkInTime: string;
+  checkOutTime?: string;
+  notes?: string;
+  hoursWorked?: number;
 }

@@ -58,6 +58,8 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<CustomInvoice> CustomInvoices { get; set; }
 
+        public DbSet<StaffAttendanceLog> StaffAttendanceLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -205,6 +207,29 @@ namespace GymForge.Infrastructure.Persistence
                 // Indexes for fast live-occupancy and log queries
                 entity.HasIndex(a => new { a.BranchId, a.CheckOutTime });
                 entity.HasIndex(a => a.MemberId);
+                entity.HasIndex(a => a.CheckInTime);
+            });
+
+            // StaffAttendanceLog configuration
+            modelBuilder.Entity<StaffAttendanceLog>(entity =>
+            {
+                entity.HasOne(a => a.Staff)
+                      .WithMany()
+                      .HasForeignKey(a => a.StaffId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(a => a.Branch)
+                      .WithMany()
+                      .HasForeignKey(a => a.BranchId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.Gym)
+                      .WithMany()
+                      .HasForeignKey(a => a.GymId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(a => a.GymId);
+                entity.HasIndex(a => a.StaffId);
                 entity.HasIndex(a => a.CheckInTime);
             });
 

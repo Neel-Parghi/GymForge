@@ -278,5 +278,10 @@ namespace GymForge.Application.Modules.Gym.Services
 
             return System.Text.Encoding.UTF8.GetBytes(sw.ToString());
         }
+
+        public Task<MemberDashboardResponse> GetMemberDashboardDataAsync(Guid gymId, Guid? branchId = null)
+        {
+            return _memberRepository.GetMemberDashboardDataAsync(gymId, branchId);
+        }
     }
 }

@@ -132,13 +132,21 @@ namespace GymForge.Application.Modules.Gym.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task AssignTrainerToMemberAsync(Guid trainerId, Guid memberId, string? slot = null)
+        public async Task AssignTrainerToMemberAsync(Guid trainerId, Guid memberId, string? slot = null, int? durationDays = null)
         {
+            PTAssignment? existing = await _staffRepository.GetActiveAssignmentAsync(trainerId, memberId);
+            if (existing != null)
+            {
+                existing.IsActive = false;
+                existing.EndDate = DateTime.UtcNow;
+            }
+
             PTAssignment assignment = new()
             {
                 TrainerId = trainerId,
                 MemberId = memberId,
                 StartDate = DateTime.UtcNow,
+                EndDate = durationDays.HasValue ? DateTime.UtcNow.AddDays(durationDays.Value) : null,
                 PreferredSlot = slot,
                 IsActive = true
             };
@@ -150,17 +158,44 @@ namespace GymForge.Application.Modules.Gym.Services
         public async Task<IEnumerable<TrainerMemberResponse>> GetAssignedMembersAsync(Guid trainerId)
         {
             IEnumerable<PTAssignment> assignments = await _staffRepository.GetAssignmentsByTrainerIdAsync(trainerId);
-            return assignments.Select(a => new TrainerMemberResponse
+            return assignments.Select(a => {
+                string status = "Active";
+                if (!a.IsActive)
+                {
+                    status = "Terminated";
+                }
+                else if (a.EndDate != null && a.EndDate <= DateTime.UtcNow)
+                {
+                    status = "Expired";
+                }
+
+                return new TrainerMemberResponse
+                {
+                    AssignmentId = a.Id,
+                    MemberId = a.MemberId,
+                    FirstName = a.Member.FirstName,
+                    LastName = a.Member.LastName,
+                    Email = a.Member.Email,
+                    PhoneNumber = a.Member.PhoneNumber,
+                    MembershipNumber = a.Member.MembershipNumber,
+                    AssignedSlot = a.PreferredSlot,
+                    AssignedDate = a.StartDate,
+                    EndDate = a.EndDate,
+                    IsActive = a.IsActive && (a.EndDate == null || a.EndDate > DateTime.UtcNow),
+                    Status = status
+                };
+            }).ToList();
+        }
+
+        public async Task DeallocateMemberFromTrainerAsync(Guid trainerId, Guid memberId)
+        {
+            PTAssignment? assignment = await _staffRepository.GetActiveAssignmentAsync(trainerId, memberId);
+            if (assignment != null)
             {
-                MemberId = a.MemberId,
-                FirstName = a.Member.FirstName,
-                LastName = a.Member.LastName,
-                Email = a.Member.Email,
-                PhoneNumber = a.Member.PhoneNumber,
-                MembershipNumber = a.Member.MembershipNumber,
-                AssignedSlot = a.PreferredSlot,
-                AssignedDate = a.StartDate
-            });
+                assignment.IsActive = false;
+                assignment.EndDate = DateTime.UtcNow;
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
 
         public async Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request)
@@ -185,6 +220,125 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             IEnumerable<MemberMeasurement> measurements = await _staffRepository.GetMeasurementsByMemberIdAsync(memberId);
             return _mapper.Map<IEnumerable<MeasurementResponse>>(measurements);
+        }
+
+        public async Task<StaffResponse> CheckInStaffAsync(Guid staffId, Guid gymId, Guid? branchId, string? notes)
+        {
+            Staff? staff = await _staffRepository.GetByIdAsync(staffId);
+            if (staff == null)
+            {
+                throw new KeyNotFoundException("Staff member not found.");
+            }
+
+            if (staff.IsCheckedIn)
+            {
+                throw new InvalidOperationException("Staff member is already checked in.");
+            }
+
+            staff.IsCheckedIn = true;
+            staff.LastCheckInTime = DateTime.UtcNow;
+
+            StaffAttendanceLog log = new()
+            {
+                StaffId = staffId,
+                GymId = gymId,
+                BranchId = branchId,
+                CheckInTime = DateTime.UtcNow,
+                Notes = notes
+            };
+
+            await _staffRepository.AddStaffAttendanceLogAsync(log);
+            await _staffRepository.UpdateAsync(staff);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<StaffResponse>(staff);
+        }
+
+        public async Task<StaffResponse> CheckOutStaffAsync(Guid staffId, Guid gymId, Guid? branchId)
+        {
+            Staff? staff = await _staffRepository.GetByIdAsync(staffId);
+            if (staff == null)
+            {
+                throw new KeyNotFoundException("Staff member not found.");
+            }
+
+            if (!staff.IsCheckedIn)
+            {
+                throw new InvalidOperationException("Staff member is not checked in.");
+            }
+
+            staff.IsCheckedIn = false;
+
+            StaffAttendanceLog? log = await _staffRepository.GetActiveStaffAttendanceLogAsync(staffId);
+            if (log != null)
+            {
+                log.CheckOutTime = DateTime.UtcNow;
+            }
+
+            await _staffRepository.UpdateAsync(staff);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<StaffResponse>(staff);
+        }
+
+        public async Task<IEnumerable<StaffAttendanceLogResponse>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null)
+        {
+            IEnumerable<StaffAttendanceLog> logs = await _staffRepository.GetStaffAttendanceLogsAsync(gymId, branchId);
+            return logs.Select(log => {
+                double? hours = log.CheckOutTime.HasValue 
+                    ? (log.CheckOutTime.Value - log.CheckInTime).TotalHours 
+                    : (double?)null;
+                
+                string roleStr = log.Staff != null ? log.Staff.Role.ToString() : string.Empty;
+                
+                return new StaffAttendanceLogResponse
+                {
+                    Id = log.Id,
+                    StaffId = log.StaffId,
+                    StaffName = log.Staff != null ? $"{log.Staff.FirstName} {log.Staff.LastName}" : "Unknown Staff",
+                    StaffNumber = log.Staff?.StaffNumber ?? string.Empty,
+                    RoleName = roleStr,
+                    CheckInTime = log.CheckInTime,
+                    CheckOutTime = log.CheckOutTime,
+                    Notes = log.Notes,
+                    HoursWorked = hours.HasValue ? Math.Round(hours.Value, 2) : (double?)null
+                };
+            }).ToList();
+        }
+
+        public async Task<PagedResponse<StaffAttendanceLogResponse>> GetStaffAttendanceLogsPagedAsync(
+            Guid gymId,
+            PaginationParams pagination,
+            Guid? branchId = null)
+        {
+            PagedResponse<StaffAttendanceLog> pagedLogs = await _staffRepository.GetStaffAttendanceLogsPagedAsync(gymId, pagination, branchId);
+            
+            IEnumerable<StaffAttendanceLogResponse> itemsResponse = pagedLogs.Items.Select(log => {
+                double? hours = log.CheckOutTime.HasValue 
+                    ? (log.CheckOutTime.Value - log.CheckInTime).TotalHours 
+                    : (double?)null;
+                
+                string roleStr = log.Staff != null ? log.Staff.Role.ToString() : string.Empty;
+                
+                return new StaffAttendanceLogResponse
+                {
+                    Id = log.Id,
+                    StaffId = log.StaffId,
+                    StaffName = log.Staff != null ? $"{log.Staff.FirstName} {log.Staff.LastName}" : "Unknown Staff",
+                    StaffNumber = log.Staff?.StaffNumber ?? string.Empty,
+                    RoleName = roleStr,
+                    CheckInTime = log.CheckInTime,
+                    CheckOutTime = log.CheckOutTime,
+                    Notes = log.Notes,
+                    HoursWorked = hours.HasValue ? Math.Round(hours.Value, 2) : (double?)null
+                };
+            }).ToList();
+
+            return new PagedResponse<StaffAttendanceLogResponse>(
+                itemsResponse,
+                pagedLogs.TotalCount,
+                pagedLogs.PageNumber,
+                pagedLogs.PageSize);
         }
     }
 }

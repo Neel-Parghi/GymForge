@@ -27,5 +27,7 @@ namespace GymForge.Contracts.Staff
         public bool IsActive { get; set; }
         public DateTime JoiningDate { get; set; }
         public Guid? BranchId { get; set; }
+        public bool IsCheckedIn { get; set; }
+        public DateTime? LastCheckInTime { get; set; }
     }
 }

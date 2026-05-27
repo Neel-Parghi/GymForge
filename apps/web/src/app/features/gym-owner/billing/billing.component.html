@@ -489,7 +489,7 @@
 
 <app-create-invoice-modal *ngIf="showCreateInvoiceModal" [gymMembers]="gymMembers"
   [memberDropdownOptions]="memberDropdownOptions" [categoryDropdownOptions]="categoryDropdownOptions"
-  [statusDropdownOptions]="statusDropdownOptions" (close)="closeCreateInvoiceModal()"
+  [statusDropdownOptions]="statusDropdownOptions" [prefillData]="prefillInvoiceData" (close)="closeCreateInvoiceModal()"
   (invoiceCreated)="loadMemberBillingOverview(selectedPayrollMonth)">
 </app-create-invoice-modal>
 

@@ -53,6 +53,36 @@ export class MembersListComponent implements OnInit {
   gymOwnerId: string | null = null;
   totalItems = 0;
 
+  // Overall dashboard stats counts
+  dashboardTotalCount = 0;
+  dashboardActiveCount = 0;
+  dashboardFrozenCount = 0;
+  dashboardExpiredCount = 0;
+
+  // Mock dashboard widgets data
+  atRiskMembers = [
+    { name: 'John Doe', plan: '12 Month Premium', lastActive: '12 days ago', initials: 'JD', severity: 'critical' },
+    { name: 'Sarah Smith', plan: '6 Month Plan', lastActive: '10 days ago', initials: 'SS', severity: 'critical' },
+    { name: 'Amit Patel', plan: '1 Month Plan', lastActive: '14 days ago', initials: 'AP', severity: 'danger' },
+    { name: 'Rohan Sharma', plan: '3 Month Plan', lastActive: '8 days ago', initials: 'RS', severity: 'warning' }
+  ];
+
+  funnelData = {
+    expired: 45,
+    reminded: 32,
+    renewed: 21,
+    conversionRate: 46.6
+  };
+
+  streakLeaderboard = [
+    { name: 'Raj Kumar', streak: '28 Days', plan: '12 Month Plan', rank: 1, initials: 'RK' },
+    { name: 'Sophia Loren', streak: '24 Days', plan: '6 Month Plan', rank: 2, initials: 'SL' },
+    { name: 'Vikram Singh', streak: '21 Days', plan: '12 Month Plan', rank: 3, initials: 'VS' },
+    { name: 'Elena Gilbert', streak: '19 Days', plan: '3 Month Plan', rank: 4, initials: 'EG' },
+    { name: 'Dev Patel', streak: '18 Days', plan: '1 Month Plan', rank: 5, initials: 'DP' }
+  ];
+
+
   // Filter Form
   filterForm!: FormGroup;
 
@@ -88,7 +118,7 @@ export class MembersListComponent implements OnInit {
   toggleViewMode(): void {
     this.viewMode = this.viewMode === 'list' ? 'dashboard' : 'list';
     this.currentPage = 1;
-    this.loadMembers();
+    this.loadMembers(false);
   }
 
   // Modal / Drawer state
@@ -98,10 +128,18 @@ export class MembersListComponent implements OnInit {
   selectedMember: GymMember | null = null;
 
   // Stats
-  get totalCount(): number { return this.members.length; }
-  get activeCount(): number { return this.members.filter(m => m.status === MemberStatus.Active).length; }
-  get frozenCount(): number { return this.members.filter(m => m.status === MemberStatus.Freeze).length; }
-  get expiredCount(): number { return this.members.filter(m => m.status === MemberStatus.Expired).length; }
+  get totalCount(): number { 
+    return this.viewMode === 'dashboard' ? this.dashboardTotalCount : this.totalItems; 
+  }
+  get activeCount(): number { 
+    return this.viewMode === 'dashboard' ? this.dashboardActiveCount : this.members.filter(m => m.status === MemberStatus.Active).length; 
+  }
+  get frozenCount(): number { 
+    return this.viewMode === 'dashboard' ? this.dashboardFrozenCount : this.members.filter(m => m.status === MemberStatus.Freeze).length; 
+  }
+  get expiredCount(): number { 
+    return this.viewMode === 'dashboard' ? this.dashboardExpiredCount : this.members.filter(m => m.status === MemberStatus.Expired).length; 
+  }
   get totalPages(): number { return Math.ceil(this.filteredMembers.length / this.pageSize); }
 
   readonly filterTabs = [
@@ -131,7 +169,7 @@ export class MembersListComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.currentPage = 1;
-      this.loadMembers();
+      this.loadMembers(false);
     });
   }
 
@@ -153,13 +191,19 @@ export class MembersListComponent implements OnInit {
   }
 
   // Data Loading
-  loadMembers(): void {
+  loadMembers(refresh = false): void {
     if (!this.gymId) return;
+
+    if (this.viewMode === 'dashboard') {
+      this.loadDashboardData(refresh);
+      return;
+    }
+
     this.loading = true;
     const { search } = this.filterForm.value;
-    const bypass = this.viewMode === 'dashboard';
+    const bypass = false;
 
-    this.memberService.getGymMembers(this.currentPage, this.pageSize, search, false, bypass)
+    this.memberService.getGymMembers(this.currentPage, this.pageSize, search, refresh, bypass)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (res) => {
@@ -175,6 +219,26 @@ export class MembersListComponent implements OnInit {
           this.applyLocalFilters();
         },
         error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.LOAD_ERROR)
+      });
+  }
+
+  loadDashboardData(refresh = false): void {
+    this.loading = true;
+    this.memberService.getMemberDashboardData(refresh)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: (res) => {
+          if (res.data) {
+            this.atRiskMembers = res.data.atRiskMembers || [];
+            this.funnelData = res.data.renewalFunnel || { expired: 0, reminded: 0, renewed: 0, conversionRate: 0 };
+            this.streakLeaderboard = res.data.streakLeaderboard || [];
+            this.dashboardTotalCount = res.data.totalCount || 0;
+            this.dashboardActiveCount = res.data.activeCount || 0;
+            this.dashboardFrozenCount = res.data.frozenCount || 0;
+            this.dashboardExpiredCount = res.data.expiredCount || 0;
+          }
+        },
+        error: () => { }
       });
   }
 

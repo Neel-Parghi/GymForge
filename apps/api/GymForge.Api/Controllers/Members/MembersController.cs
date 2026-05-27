@@ -50,6 +50,13 @@ namespace GymForge.Api.Controllers.Members
             return Ok(await _memberService.GetGymMembersAsync(GymId.Value, pagination, SecureBranchId));
         }
 
+        [HttpGet("dashboard")]
+        public async Task<ActionResult<MemberDashboardResponse>> GetMemberDashboardData()
+        {
+            if (GymId == null) return Unauthorized();
+            return Ok(await _memberService.GetMemberDashboardDataAsync(GymId.Value, SecureBranchId));
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetMemberById(Guid id)
         {
