@@ -9,6 +9,7 @@ import { GymList } from './features/super-admin/gym-management/gym-list/gym-list
 import { PricingList } from './features/super-admin/pricing/pricing-list/pricing-list.component';
 import { authGuard } from './core/guards/auth-guard';
 import { loggedInGuard } from './core/guards/logged-in.guard';
+import { subscriptionGuard } from './core/guards/subscription.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -41,7 +42,7 @@ export const routes: Routes = [
   {
     path: 'gym-owner',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, subscriptionGuard],
     children: [
       {
         path: 'dashboard',
@@ -80,5 +81,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/gym-owner/billing/billing.component').then(m => m.BillingComponent)
       }
     ]
+  },
+  {
+    path: 'subscription-expired',
+    loadComponent: () => import('./features/gym-owner/subscription-expired/subscription-expired.component').then(m => m.SubscriptionExpiredComponent),
+    canActivate: [authGuard]
   }
 ];

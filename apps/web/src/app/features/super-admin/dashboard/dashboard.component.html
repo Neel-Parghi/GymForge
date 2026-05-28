@@ -1,4 +1,4 @@
-<div class="standard-container">
+<div class="dashboard-viewport">
   <!-- Header Section -->
   <div class="page-header">
     <div class="header-info">
@@ -15,177 +15,243 @@
     </div>
   </div>
 
-  <!-- Report Selection Modal -->
-  <div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
-    <div class="report-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Export Platform Data</h3>
-        <button class="close-btn" (click)="closeReportModal()">&times;</button>
+  <!-- Export Report Modal -->
+  <div class="export-modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+    <div class="export-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header-section">
+        <h3><i class="fas fa-file-export"></i> Export Platform Telemetry</h3>
+        <button class="close-overlay-btn" (click)="closeReportModal()">&times;</button>
       </div>
-      <div class="modal-body">
-        <p>Select the type of report you wish to generate and download.</p>
 
-        <div class="report-options">
-          <div class="report-card" (click)="downloadReport('financial')">
-            <div class="report-icon financial"><i class="fas fa-file-invoice-dollar"></i></div>
-            <div class="report-info">
-              <h4>Financial Summary</h4>
-              <p>Full audit of all SaaS subscription transactions (CSV)</p>
+      <div class="modal-body-section">
+        <div class="export-options-grid">
+          <div class="export-option-row" (click)="downloadReport('financial')">
+            <div class="option-icon financial-icon-bg"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="option-details">
+              <h4>Financial Statements</h4>
+              <p>Chronological transaction history, tax logs, and subscription margins (CSV)</p>
             </div>
-            <i class="fas fa-chevron-right arrow"></i>
+            <i class="fas fa-chevron-right action-arrow"></i>
           </div>
 
-          <div class="report-card" (click)="downloadReport('gyms')">
-            <div class="report-icon gyms"><i class="fas fa-hospital"></i></div>
-            <div class="report-info">
-              <h4>Gym Directory</h4>
-              <p>Complete list of registered gyms and status (CSV)</p>
+          <div class="export-option-row" (click)="downloadReport('gyms')">
+            <div class="option-icon gyms-icon-bg"><i class="fas fa-building"></i></div>
+            <div class="option-details">
+              <h4>Gym Registry Directory</h4>
+              <p>Tenant identities, contract states, registration timelines, and capacities (CSV)</p>
             </div>
-            <i class="fas fa-chevron-right arrow"></i>
+            <i class="fas fa-chevron-right action-arrow"></i>
           </div>
 
-          <div class="report-card" (click)="downloadReport('snapshot')">
-            <div class="report-icon snapshot"><i class="fas fa-chart-line"></i></div>
-            <div class="report-info">
-              <h4>Performance Snapshot</h4>
-              <p>Executive summary of current growth targets (PDF)</p>
+          <div class="export-option-row" (click)="downloadReport('snapshot')">
+            <div class="option-icon snapshot-icon-bg"><i class="fas fa-chart-pie"></i></div>
+            <div class="option-details">
+              <h4>Growth Performance Snapshot</h4>
+              <p>Audited performance benchmarks and goal achievement rates (PDF)</p>
             </div>
-            <i class="fas fa-chevron-right arrow"></i>
+            <i class="fas fa-chevron-right action-arrow"></i>
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-ghost" (click)="closeReportModal()">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Metric Cards Row -->
-  <div class="metric-cards">
-
-    <!-- Total Revenue -->
-    <div class="card">
-      <div class="card-header-row">
-        <span class="label">TOTAL REVENUE</span>
-        <a [routerLink]="['/super-admin/settings']" [queryParams]="{tab: 'strategy'}" class="config-link">
-          <i class="fas fa-edit"></i>
+  <!-- Breathtaking KPI 5-Card Matrix Grid -->
+  <div class="kpi-dashboard-grid">
+    <!-- Card 1: Total Revenue -->
+    <div class="kpi-premium-card kpi-indigo">
+      <div class="kpi-header-row">
+        <span class="kpi-label">TOTAL REVENUE</span>
+        <a [routerLink]="['/super-admin/settings']" [queryParams]="{tab: 'strategy'}" class="kpi-config-shortcut"
+          title="Manage Goal">
+          <i class="fas fa-cog"></i>
         </a>
       </div>
-      <h3 class="value">{{ stats.totalRevenue.value }}</h3>
-      <div class="progress-container">
-        <div class="progress-bar" [style.width.%]="stats.totalRevenue.progress"></div>
-      </div>
-      <div class="subtext-row">
-        <span class="trend" [class.positive]="stats.totalRevenue.isPositive"
-          [class.negative]="!stats.totalRevenue.isPositive">
+      <div class="kpi-body-row">
+        <h3 class="kpi-value">{{ stats.totalRevenue.value }}</h3>
+        <div class="kpi-trend-pill" [class.trend-positive]="stats.totalRevenue.isPositive"
+          [class.trend-negative]="!stats.totalRevenue.isPositive">
+          <i class="fas" [class.fa-arrow-trend-up]="stats.totalRevenue.isPositive"
+            [class.fa-arrow-trend-down]="!stats.totalRevenue.isPositive"></i>
           {{ stats.totalRevenue.trend }}
-        </span>
+        </div>
+      </div>
+      <div class="kpi-gauge-track">
+        <div class="kpi-gauge-fill" [style.width.%]="stats.totalRevenue.progress"></div>
+      </div>
+      <div class="kpi-footer-row">
+        <span>Strategic Benchmark</span>
         <span>Goal: {{ stats.totalRevenue.progress }}%</span>
       </div>
     </div>
 
-    <!-- Active Subscriptions -->
-    <div class="card">
-      <div class="card-header-row">
-        <span class="label">ACTIVE SUBSCRIPTIONS</span>
-        <a [routerLink]="['/super-admin/settings']" [queryParams]="{tab: 'strategy'}" class="config-link">
-          <i class="fas fa-edit"></i>
+    <!-- Card 2: MRR (Monthly Recurring Revenue) -->
+    <div class="kpi-premium-card kpi-emerald">
+      <div class="kpi-header-row">
+        <span class="kpi-label">MONTHLY RECURRING</span>
+        <div class="kpi-icon-badge"><i class="fas fa-calendar-check"></i></div>
+      </div>
+      <div class="kpi-body-row">
+        <h3 class="kpi-value">{{ stats.monthlyRecurringRevenue.value }}</h3>
+        <div class="kpi-trend-pill" [class.trend-positive]="stats.monthlyRecurringRevenue.isPositive"
+          [class.trend-negative]="!stats.monthlyRecurringRevenue.isPositive">
+          <i class="fas" [class.fa-arrow-trend-up]="stats.monthlyRecurringRevenue.isPositive"
+            [class.fa-arrow-trend-down]="!stats.monthlyRecurringRevenue.isPositive"></i>
+          {{ stats.monthlyRecurringRevenue.trend }}
+        </div>
+      </div>
+      <div class="kpi-subtext-holder">
+        <p>SaaS Recurring Revenue Metric</p>
+      </div>
+    </div>
+
+    <!-- Card 3: ARR (Annual Recurring Revenue) -->
+    <div class="kpi-premium-card kpi-violet">
+      <div class="kpi-header-row">
+        <span class="kpi-label">ANNUAL RECURRING</span>
+        <div class="kpi-icon-badge"><i class="fas fa-chart-line"></i></div>
+      </div>
+      <div class="kpi-body-row">
+        <h3 class="kpi-value">{{ stats.annualRecurringRevenue.value }}</h3>
+        <div class="kpi-trend-pill" [class.trend-positive]="stats.annualRecurringRevenue.isPositive"
+          [class.trend-negative]="!stats.annualRecurringRevenue.isPositive">
+          <i class="fas" [class.fa-arrow-trend-up]="stats.annualRecurringRevenue.isPositive"
+            [class.fa-arrow-trend-down]="!stats.annualRecurringRevenue.isPositive"></i>
+          {{ stats.annualRecurringRevenue.trend }}
+        </div>
+      </div>
+      <div class="kpi-subtext-holder">
+        <p>Annualized SaaS Projections</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Active Subscriptions -->
+    <div class="kpi-premium-card kpi-teal">
+      <div class="kpi-header-row">
+        <span class="kpi-label">ACTIVE SUBSCRIPTIONS</span>
+        <a [routerLink]="['/super-admin/settings']" [queryParams]="{tab: 'strategy'}" class="kpi-config-shortcut"
+          title="Manage Goal">
+          <i class="fas fa-cog"></i>
         </a>
       </div>
-      <h3 class="value">{{ stats.subscriptions.value }}</h3>
-      <div class="progress-container">
-        <div class="progress-bar" [style.width.%]="stats.subscriptions.progress"></div>
-      </div>
-      <div class="subtext-row">
-        <span class="trend" [class.positive]="stats.subscriptions.isPositive"
-          [class.negative]="!stats.subscriptions.isPositive">
+      <div class="kpi-body-row">
+        <h3 class="kpi-value">{{ stats.subscriptions.value }}</h3>
+        <div class="kpi-trend-pill" [class.trend-positive]="stats.subscriptions.isPositive"
+          [class.trend-negative]="!stats.subscriptions.isPositive">
+          <i class="fas" [class.fa-arrow-trend-up]="stats.subscriptions.isPositive"
+            [class.fa-arrow-trend-down]="!stats.subscriptions.isPositive"></i>
           {{ stats.subscriptions.trend }}
-        </span>
-        <span>Target: {{ stats.subscriptions.progress }}%</span>
+        </div>
+      </div>
+      <div class="kpi-gauge-track">
+        <div class="kpi-gauge-fill" [style.width.%]="stats.subscriptions.progress"></div>
+      </div>
+      <div class="kpi-footer-row">
+        <span>Capacity Target</span>
+        <span>Goal: {{ stats.subscriptions.progress }}%</span>
       </div>
     </div>
 
-    <!-- Total Gyms -->
-    <div class="card">
-      <span class="label">TOTAL GYMS</span>
-      <h3 class="value">{{ stats.totalGyms.value }}</h3>
-      <div class="sparkline-container">
-        <span class="trend" [class.positive]="stats.totalGyms.isPositive"
-          [class.negative]="!stats.totalGyms.isPositive">
+    <!-- Card 5: Total Gyms -->
+    <div class="kpi-premium-card kpi-amber">
+      <div class="kpi-header-row">
+        <span class="kpi-label">TOTAL GYMS REGISTERED</span>
+        <div class="kpi-icon-badge"><i class="fas fa-dumbbell"></i></div>
+      </div>
+      <div class="kpi-body-row">
+        <h3 class="kpi-value">{{ stats.totalGyms.value }}</h3>
+        <div class="kpi-trend-pill" [class.trend-positive]="stats.totalGyms.isPositive"
+          [class.trend-negative]="!stats.totalGyms.isPositive">
+          <i class="fas" [class.fa-arrow-trend-up]="stats.totalGyms.isPositive"
+            [class.fa-arrow-trend-down]="!stats.totalGyms.isPositive"></i>
           {{ stats.totalGyms.trend }}
-        </span>
-      </div>
-      <p class="subtext">{{ stats.totalGyms.subtext }}</p>
-    </div>
-
-    <!-- Revenue Mix (Strategic) -->
-    <div class="card distribution-card">
-      <div class="card-header-row">
-        <span class="label">REVENUE MIX</span>
-        <span class="badge info">STRATEGIC</span>
-      </div>
-      <div class="distribution-list">
-        <div class="dist-item" *ngFor="let plan of planDistribution">
-          <div class="dist-info">
-            <span class="plan-name">{{ plan.planName }}</span>
-            <span class="plan-count">{{ plan.count }} Gyms</span>
-          </div>
-          <div class="progress-container mini">
-            <div class="progress-bar" [style.width.%]="plan.percentage" [style.background-color]="plan.color"></div>
-          </div>
-          <div class="dist-footer">
-            <span>{{ plan.percentage }}% of total</span>
-          </div>
         </div>
-        <div class="placeholder-text" *ngIf="planDistribution.length === 0">
-          No active subscriptions to analyze.
-        </div>
+      </div>
+      <div class="kpi-subtext-holder">
+        <p>{{ stats.totalGyms.subtext }}</p>
       </div>
     </div>
   </div>
 
-  <!-- Main Content Area -->
-  <div class="dashboard-grid">
-    <!-- Recently Registered Gyms -->
-    <div class="main-column full-width">
-      <div class="content-card">
-        <div class="card-header">
-          <h3>Recently Registered Gyms</h3>
-          <a href="#" [routerLink]="'/super-admin/gym-list'" class="view-all">View All Registeries</a>
+  <!-- Bottom Workspace Sections: Recently Registered & Strategic Mix -->
+  <div class="workspace-grid-split">
+    <!-- Left Hand Pane: Active Registers Table -->
+    <div class="workspace-table-container">
+      <div class="pane-action-header">
+        <div class="title-details">
+          <h3><i class="fas fa-history"></i> Recently Registered Gyms</h3>
         </div>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>GYM NAME</th>
-                <th>OWNER</th>
-                <th>DATE JOINED</th>
-                <th>TIER</th>
-                <th>STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (reg of recentRegistrations; track reg.id) {
-              <tr>
-                <td>
-                  <div class="gym-cell">
-                    <div class="gym-initials" [style.background-color]="reg.color">{{ reg.initials }}</div>
-                    <span class="gym-name">{{ reg.gymName }}</span>
-                  </div>
-                </td>
-                <td>{{ reg.ownerName }}</td>
-                <td>{{ reg.dateJoined | date:'MMM d, y' }}</td>
-                <td><span class="tier-badge">{{ reg.tier }}</span></td>
-                <td>
-                  <div class="status-cell">
-                    <span class="status-dot" [class.active]="reg.status === 'Active'"></span>
-                    {{ reg.status }}
-                  </div>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
+        <a [routerLink]="'/super-admin/gym-list'" class="pane-nav-anchor">
+          View Gym Directory <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+
+      <div class="scrollable-table-frame">
+        <table class="premium-data-table">
+          <thead>
+            <tr>
+              <th>GYM BRAND DETAILS</th>
+              <th>OWNER IDENTITY</th>
+              <th>REGISTRATION DATE</th>
+              <th>SERVICE TIER</th>
+              <th>SYSTEM STATE</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (reg of recentRegistrations; track reg.id) {
+            <tr class="table-hover-row">
+              <td>
+                <div class="gym-badge-cell">
+                  <div class="gym-icon-initials" [style.background-color]="reg.color">{{ reg.initials }}</div>
+                  <span class="gym-fullname">{{ reg.gymName }}</span>
+                </div>
+              </td>
+              <td class="owner-cell-value">{{ reg.ownerName }}</td>
+              <td class="date-cell-value">{{ reg.dateJoined | date:'MMM d, y' }}</td>
+              <td>
+                <span class="tier-pill-badge" [class.tier-pro]="reg.tier === 'Pro' || reg.tier === 'Elite'"
+                  [class.tier-starter]="reg.tier === 'Starter'">
+                  {{ reg.tier }}
+                </span>
+              </td>
+              <td>
+                <div class="status-indicator-capsule" [class.state-active]="reg.status === 'Active'">
+                  <span class="indicator-dot"></span>
+                  <span class="indicator-txt">{{ reg.status }}</span>
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Hand Pane: Strategic Revenue Mix -->
+    <div class="workspace-dist-container">
+      <div class="pane-action-header">
+        <div class="title-details">
+          <h3><i class="fas fa-pie-chart"></i> Revenue Mix</h3>
+        </div>
+        <span class="meta-dist-badge"><i class="fas fa-award"></i> STRATEGIC</span>
+      </div>
+
+      <div class="distribution-list-panel">
+        <div class="dist-card-row" *ngFor="let plan of planDistribution">
+          <div class="dist-labels-row">
+            <span class="plan-label-title">{{ plan.planName }}</span>
+            <span class="plan-count-badge">{{ plan.count }} {{plan.count > 1 ? 'Gyms' : 'Gym'}}</span>
+          </div>
+          <div class="dist-bar-frame">
+            <div class="dist-bar-fill" [style.width.%]="plan.percentage" [style.background-color]="plan.color"></div>
+          </div>
+          <div class="dist-meta-row">
+            <span>{{ plan.percentage }}% of SaaS registers</span>
+          </div>
+        </div>
+        <div class="dist-empty-state" *ngIf="planDistribution.length === 0">
+          <i class="fas fa-box-open"></i>
+          <p>No registers available to construct distribution charts.</p>
         </div>
       </div>
     </div>

@@ -168,14 +168,26 @@
           <h3>Membership Assignment</h3>
           <div class="form-grid">
             <div class="form-group lg">
-              <label>Choose a Membership Plan *</label>
+              <div class="plan-header">
 
+                <label>Choose a Membership Plan *</label>
+
+                <div class="archived-toggle-wrapper">
+                  <button type="button" class="btn-toggle-archived" (click)="toggleShowArchived()">
+                    <i class="fa-solid" [ngClass]="showArchived ? 'fa-eye-slash' : 'fa-eye'"></i>
+                    {{ showArchived ? 'Hide Expired/Promo Plans' : 'Show Expired/Promo Plans (Manager Override)' }}
+                  </button>
+                </div>
+              </div>
               <div class="plan-gallery">
-                <div class="plan-card" *ngFor="let plan of plans" [class.selected]="isPlanSelected(plan.id)"
-                  (click)="selectPlan(plan.id)">
+                <div class="plan-card" *ngFor="let plan of filteredPlans" [class.selected]="isPlanSelected(plan.id)"
+                  [class.archived]="!plan.isActive" (click)="selectPlan(plan.id)">
                   <div class="plan-header">
                     <span class="plan-name">{{ plan.name }}</span>
-                    <span class="plan-badge" *ngIf="plan.isOffer">Special Offer</span>
+                    <span class="plan-badge archived" *ngIf="!plan.isActive">
+                      <i class="fa-solid fa-box-archive"></i> Expired
+                    </span>
+                    <span class="plan-badge" *ngIf="plan.isActive && plan.isOffer">Special Offer</span>
                   </div>
                   <div class="plan-price">
                     <span class="currency">₹</span>{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice :

@@ -20,6 +20,7 @@ import { PayrollRulesModalComponent } from './components/payroll-rules-modal/pay
 import { MerchantSettingsComponent } from './components/merchant-settings/merchant-settings.component';
 import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
+import { ConfigurationService } from '../../../core/services/configuration.service';
 
 @Component({
   selector: 'app-gym-owner-billing',
@@ -58,11 +59,14 @@ export class BillingComponent implements OnInit {
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
 
+  private configService = inject(ConfigurationService);
+
   prefillInvoiceData: any = null;
 
   subscriptionStatus: GymSubscriptionStatus | null = null;
   gymMembers: any[] = [];
   gymDetails: any = null;
+  platformConfig: any = null;
 
   getTaxableAmount(amount: number, taxRate: number = 18): number {
     return amount / (1 + (taxRate / 100));
@@ -140,6 +144,7 @@ export class BillingComponent implements OnInit {
     this.loadSubscriptionStatus();
     this.loadPlatformInvoices();
     this.loadGymSettingsAndMonths();
+    this.loadPlatformConfig();
 
     this.invoiceSearchControl.valueChanges.subscribe(val => {
       this.invoiceSearch = val || '';
@@ -231,6 +236,16 @@ export class BillingComponent implements OnInit {
         this.periodForm.patchValue({ selectedPeriod: this.selectedPayrollMonth }, { emitEvent: false });
         this.loadMemberBillingOverview(this.selectedPayrollMonth);
         this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
+      }
+    });
+  }
+
+  loadPlatformConfig(): void {
+    this.configService.getConfig().subscribe({
+      next: (res) => {
+        if (res.data) {
+          this.platformConfig = res.data;
+        }
       }
     });
   }

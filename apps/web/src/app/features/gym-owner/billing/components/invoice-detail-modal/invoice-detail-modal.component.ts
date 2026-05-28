@@ -14,6 +14,7 @@ export class InvoiceDetailModalComponent {
 
   @Input() invoice!: any;
   @Input() gymDetails: any = null;
+  @Input() platformConfig: any = null;
   @Input() invoicePrefix: string = 'GF-';
 
   @Output() close = new EventEmitter<void>();

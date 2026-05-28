@@ -69,6 +69,8 @@ namespace GymForge.Infrastructure
                 {
                     options.AddInterceptors(auditableInterceptor);
                 }
+
+                options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
 
             services.AddSingleton<ICurrentUserService, CurrentUserService>();

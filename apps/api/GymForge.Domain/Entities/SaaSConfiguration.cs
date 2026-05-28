@@ -20,6 +20,8 @@ namespace GymForge.Domain.Entities
 
         public string? BillingAddress { get; set; }
         
+        public string? GstNo { get; set; }
+        
         public string? SupportPhone { get; set; }
         public string? SupportEmail { get; set; }
         public bool IsMaintenanceMode { get; set; } = false;

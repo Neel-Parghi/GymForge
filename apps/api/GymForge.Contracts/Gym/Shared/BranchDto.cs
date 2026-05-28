@@ -10,6 +10,7 @@ namespace GymForge.Contracts.Gym.Shared
         public string? OpenTime { get; set; }
         public string? CloseTime { get; set; }
         public string? ManagerName { get; set; }
+        public Guid? ManagerId { get; set; }
 
         public AddressDto Address { get; set; } = null!;
     }

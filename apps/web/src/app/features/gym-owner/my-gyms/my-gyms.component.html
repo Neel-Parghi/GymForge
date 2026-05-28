@@ -194,6 +194,16 @@
               <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
             </div>
 
+            <div class="form-group">
+              <label>Branch Manager</label>
+              <app-dropdown
+                [options]="managerDropdownOptions"
+                formControlName="managerId"
+                placeholder="No Manager Assigned (Pending Hire)"
+                [isSearchable]="true">
+              </app-dropdown>
+            </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label>Open Time</label>

@@ -13,11 +13,14 @@ import { PricingService } from '../../../core/services/pricing.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { PricingPlan } from '../../../shared/models/pricing.model';
+import { StaffService } from '../../../core/services/staff.service';
+import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../shared/models/dropdown.model';
 
 @Component({
   selector: 'app-my-gyms',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent],
+  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, DropdownComponent],
   templateUrl: './my-gyms.component.html',
   styleUrl: './my-gyms.component.scss',
 })
@@ -30,6 +33,7 @@ export class MyGymsComponent implements OnInit {
   private fileUploadService = inject(FileUploadService);
   private pricingService = inject(PricingService);
   private paymentService = inject(PaymentService);
+  private staffService = inject(StaffService);
 
   pricingPlans: PricingPlan[] = [];
   isUpgradeModalOpen = false;
@@ -48,6 +52,8 @@ export class MyGymsComponent implements OnInit {
   isSaving = false;
   isEditMode = false;
   gymData: GymListResponse | null = null;
+  availableManagers: any[] = [];
+  managerDropdownOptions: DropdownOption[] = [];
   branches: any[] = [];
   isLoadingBranches = false;
 
@@ -55,6 +61,7 @@ export class MyGymsComponent implements OnInit {
     this.initForm();
     this.loadGymData();
     this.loadPricingPlans();
+    this.loadAvailableManagers();
   }
 
   private initForm(): void {
@@ -76,6 +83,7 @@ export class MyGymsComponent implements OnInit {
       contactNumber: [''],
       openTime: [''],
       closeTime: [''],
+      managerId: [''],
       address: this.fb.group({
         line1: ['', Validators.required],
         line2: [''],
@@ -148,7 +156,7 @@ export class MyGymsComponent implements OnInit {
 
   private loadBranches(gymId: string): void {
     this.isLoadingBranches = true;
-    this.gymService.getMyBranches().subscribe({
+    this.gymService.getMyBranches(true).subscribe({
       next: (res) => {
         this.branches = res.data || [];
         this.isLoadingBranches = false;
@@ -186,6 +194,7 @@ export class MyGymsComponent implements OnInit {
   }
 
   openBranchDrawer(branch: any = null): void {
+    console.log('Opening branch drawer with branch:', branch);
     if (branch) {
       this.isEditingBranch = true;
       this.selectedBranchId = branch.id;
@@ -194,6 +203,7 @@ export class MyGymsComponent implements OnInit {
         contactNumber: branch.contactNumber,
         openTime: branch.openTime,
         closeTime: branch.closeTime,
+        managerId: branch.managerId ? String(branch.managerId).toLowerCase() : '',
         address: {
           line1: branch.address?.line1,
           line2: branch.address?.line2,
@@ -206,7 +216,7 @@ export class MyGymsComponent implements OnInit {
     } else {
       this.isEditingBranch = false;
       this.selectedBranchId = null;
-      this.branchForm.reset({ address: { country: 'India' } });
+      this.branchForm.reset({ address: { country: 'India' }, managerId: '' });
     }
     this.isBranchDrawerOpen = true;
   }
@@ -215,7 +225,7 @@ export class MyGymsComponent implements OnInit {
     this.isBranchDrawerOpen = false;
     this.isEditingBranch = false;
     this.selectedBranchId = null;
-    this.branchForm.reset({ address: { country: 'India' } });
+    this.branchForm.reset({ address: { country: 'India' }, managerId: '' });
   }
 
   onSubmitBranch(): void {
@@ -263,6 +273,25 @@ export class MyGymsComponent implements OnInit {
     this.pricingService.getAllPlans().subscribe({
       next: (res) => {
         this.pricingPlans = res.data || [];
+      }
+    });
+  }
+
+  loadAvailableManagers(): void {
+    this.staffService.getUnscopedGymStaff(1, 100).subscribe({
+      next: (res) => {
+        const staffList = res?.data?.items || [];
+        this.availableManagers = staffList.filter((s: any) => s.role === 3 && s.isActive);
+        this.managerDropdownOptions = [
+          { label: 'No Manager Assigned (Pending Hire)', value: '' },
+          ...this.availableManagers.map(m => ({
+            label: `${m.firstName} ${m.lastName} (${m.staffNumber})`,
+            value: String(m.id).toLowerCase()
+          }))
+        ];
+      },
+      error: () => {
+        this.toastService.error('Failed to load active managers for this gym.');
       }
     });
   }

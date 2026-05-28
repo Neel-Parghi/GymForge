@@ -387,10 +387,6 @@
         align-items: center;
         justify-content: center;
         font-size: 0.875rem;
-
-        &.pulse {
-          animation: pulse-red 2s infinite;
-        }
       }
 
       .badge-rate {
@@ -524,15 +520,28 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
         &:hover {
-          background: rgba(0, 0, 0, 0.05);
-          transform: scale(1.05);
+          background: rgba(234, 179, 8, 0.12);
+          border-color: rgba(234, 179, 8, 0.4);
+          transform: scale(1.12);
+
+          i {
+            color: #d97706 !important;
+            animation: bellRing 0.6s ease-in-out;
+          }
+        }
+
+        &:active {
+          transform: scale(0.92);
+          background: rgba(234, 179, 8, 0.2);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
         }
 
         i {
           font-size: 0.75rem;
+          transition: transform 0.2s;
         }
       }
     }
@@ -729,8 +738,27 @@
     transform: scale(1);
     filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.2));
   }
+
   100% {
     transform: scale(1.18) rotate(4deg);
     filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+  }
+}
+
+@keyframes bellRing {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  20%,
+  60% {
+    transform: rotate(15deg);
+  }
+
+  40%,
+  80% {
+    transform: rotate(-15deg);
   }
 }

@@ -28,6 +28,7 @@ export interface SaaSConfiguration {
     gracePeriodDays: number;
     currency: string;
     billingAddress?: string;
+    gstNo?: string;
     supportPhone?: string;
 }
 

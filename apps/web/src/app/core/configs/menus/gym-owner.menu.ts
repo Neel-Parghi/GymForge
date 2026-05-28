@@ -5,84 +5,84 @@ export const GymOwnerMenu: NavItem[] = [
         label: 'Dashboard',
         icon: 'fa-solid fa-house',
         route: '/gym-owner/dashboard',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'MANAGEMENT',
         icon: '',
-        roles: ['GymOwner'],
+        roles: ['GymOwner', 'Staff'],
         isHeading: true
     },
     {
         label: 'Members',
         icon: 'fa-solid fa-users',
         route: '/gym-owner/members',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'Attendance',
         icon: 'fa-solid fa-calendar-check',
         route: '/gym-owner/attendance',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'Staff & Trainers',
         icon: 'fa-solid fa-user-tie',
         route: '/gym-owner/staff',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'Gym Plans',
         icon: 'fa-solid fa-receipt',
         route: '/gym-owner/plans',
-        roles: ['GymOwner']
+        roles: ['GymOwner'] // Gym Plans creation is restricted to Owner only
     },
     {
         label: 'RESOURCES',
         icon: '',
-        roles: ['GymOwner'],
+        roles: ['GymOwner', 'Staff'],
         isHeading: true
     },
     {
         label: 'Inventory',
         icon: 'fa-solid fa-boxes-stacked',
         route: '/gym-owner/inventory',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'My Gyms',
         icon: 'fa-solid fa-building',
         route: '/gym-owner/my-gyms',
-        roles: ['GymOwner']
+        roles: ['GymOwner'] // Branch setup and settings are restricted to Owner only
     },
     {
         label: 'FINANCES',
         icon: '',
-        roles: ['GymOwner'],
+        roles: ['GymOwner', 'Staff'],
         isHeading: true
     },
     {
         label: 'Billing & Invoices',
         icon: 'fa-solid fa-file-invoice-dollar',
         route: '/gym-owner/billing',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'ACCOUNT',
         icon: '',
-        roles: ['GymOwner'],
+        roles: ['GymOwner', 'Staff'],
         isHeading: true
     },
     {
         label: 'My Profile',
         icon: 'fa-solid fa-user-circle',
         route: '/gym-owner/profile',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     },
     {
         label: 'Settings',
         icon: 'fa-solid fa-gear',
         route: '/gym-owner/settings',
-        roles: ['GymOwner']
+        roles: ['GymOwner', 'Staff']
     }
 ];
