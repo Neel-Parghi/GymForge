@@ -155,6 +155,14 @@
                     <app-validation-message [control]="branch.get('name')"
                       fieldName="Branch name"></app-validation-message>
                   </div>
+                  
+                  <div class="form-group lg checkbox-group same-address-option" *ngIf="i === 0">
+                    <label class="checkbox-label">
+                      <input type="checkbox" (change)="copyGymAddressToBranch($event, i)">
+                      Use same address and contact number as Gym HQ
+                    </label>
+                  </div>
+                  
                   <div class="form-grid lg" formGroupName="address">
                     <div class="form-group lg">
                       <label>Address Line 1 *</label>
@@ -241,15 +249,15 @@
                 placeholder="No Plan Selected (Trialing)">
               </app-dropdown>
             </div>
+            <div class="form-group lg required-plan-alert" *ngIf="!onboardingForm.get('plan.isTrial')?.value && !onboardingForm.get('plan.subscriptionId')?.value">
+              <span class="text-danger alert-text">
+                <i class="fa-solid fa-circle-exclamation"></i> A paid plan tier is required if free trial is disabled.
+              </span>
+            </div>
             <div class="form-group lg checkbox-group">
               <label>
                 <input type="checkbox" formControlName="isTrial"> Enable 14-day Free Trial
               </label>
-            </div>
-            <div class="form-group lg" *ngIf="!onboardingForm.get('plan.isTrial')?.value">
-              <label>Billing Cycle</label>
-              <app-dropdown [options]="billingCycleOptions" formControlName="billingCycle">
-              </app-dropdown>
             </div>
           </div>
         </div>

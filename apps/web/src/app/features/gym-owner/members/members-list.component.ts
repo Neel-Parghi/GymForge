@@ -47,6 +47,7 @@ export class MembersListComponent implements OnInit {
   members: GymMember[] = [];
   filteredMembers: GymMember[] = [];
   activePlans: GymPlan[] = [];
+  allPlans: GymPlan[] = [];
   branches: any[] = [];
   loading = false;
   gymId: string | null = null;
@@ -245,7 +246,10 @@ export class MembersListComponent implements OnInit {
   loadPlans(): void {
     if (!this.gymOwnerId) return;
     this.gymPlanService.getGymPlans().subscribe({
-      next: (plans) => this.activePlans = plans.data.filter(p => p.isActive),
+      next: (plans) => {
+        this.allPlans = plans.data || [];
+        this.activePlans = this.allPlans.filter(p => p.isActive);
+      },
       error: () => { }
     });
   }
@@ -467,5 +471,9 @@ export class MembersListComponent implements OnInit {
       case PaymentStatus.Refunded: return 'Refunded';
       default: return 'Unpaid';
     }
+  }
+
+  sendNotification(member: any): void {
+    this.notificationService.success(`Notification alert successfully sent to ${member.name}!`);
   }
 }

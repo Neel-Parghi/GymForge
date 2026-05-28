@@ -20,3 +20,6 @@ appsettings.Local.json
 *.db
 *.db-shm
 *.db-wal
+
+# SQL Backups
+*.sql

@@ -27,6 +27,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
                 GracePeriodDays = config.GracePeriodDays,
                 Currency = config.Currency,
                 BillingAddress = config.BillingAddress,
+                GstNo = config.GstNo,
                 SupportPhone = config.SupportPhone,
                 SupportEmail = config.SupportEmail,
                 IsMaintenanceMode = config.IsMaintenanceMode,
@@ -50,6 +51,7 @@ namespace GymForge.Application.Modules.SuperAdmin.Services
             config.GracePeriodDays = configDto.GracePeriodDays;
             config.Currency = configDto.Currency;
             config.BillingAddress = configDto.BillingAddress;
+            config.GstNo = configDto.GstNo;
             config.SupportPhone = configDto.SupportPhone;
             config.SupportEmail = configDto.SupportEmail;
             config.IsMaintenanceMode = configDto.IsMaintenanceMode;

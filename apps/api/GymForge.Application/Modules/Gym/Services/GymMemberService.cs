@@ -160,6 +160,53 @@ namespace GymForge.Application.Modules.Gym.Services
                 }
             }
 
+            if (request.GymPlanId != Guid.Empty)
+            {
+                MemberSubscription? activeSub = member.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
+                if (activeSub != null && activeSub.GymPlanId != request.GymPlanId)
+                {
+                    GymPlan? planTemplate = await _planRepository.GetPlanByIdAsync(request.GymPlanId);
+                    if (planTemplate != null)
+                    {
+                        activeSub.GymPlanId = planTemplate.Id;
+                        activeSub.PlanNameSnapshot = planTemplate.Name;
+                        activeSub.PricePaid = planTemplate.IsOffer && planTemplate.DiscountedPrice.HasValue
+                                    ? planTemplate.DiscountedPrice.Value
+                                    : planTemplate.Price;
+                        activeSub.DurationMonths = planTemplate.DurationMonths;
+                        activeSub.ExtendedMonths = planTemplate.ExtendedMonths ?? 0;
+                        activeSub.EndDate = activeSub.StartDate.AddMonths(planTemplate.DurationMonths + (planTemplate.ExtendedMonths ?? 0));
+                        activeSub.ModifiedBy = updatedBy;
+                        activeSub.ModifiedOn = DateTime.UtcNow;
+                    }
+                }
+                else if (activeSub == null)
+                {
+                    GymPlan? planTemplate = await _planRepository.GetPlanByIdAsync(request.GymPlanId);
+                    if (planTemplate != null)
+                    {
+                        MemberSubscription newSub = new()
+                        {
+                            MemberId = id,
+                            GymPlanId = planTemplate.Id,
+                            PlanNameSnapshot = planTemplate.Name,
+                            PricePaid = planTemplate.IsOffer && planTemplate.DiscountedPrice.HasValue
+                                        ? planTemplate.DiscountedPrice.Value
+                                        : planTemplate.Price,
+                            DurationMonths = planTemplate.DurationMonths,
+                            ExtendedMonths = planTemplate.ExtendedMonths ?? 0,
+                            StartDate = DateTime.UtcNow,
+                            EndDate = DateTime.UtcNow.AddMonths(planTemplate.DurationMonths + (planTemplate.ExtendedMonths ?? 0)),
+                            IsActive = true,
+                            PaymentStatus = request.PaymentStatus ?? PaymentStatus.Paid,
+                            CreatedBy = updatedBy,
+                            CreatedOn = DateTime.UtcNow
+                        };
+                        await _memberRepository.AddSubscriptionAsync(newSub);
+                    }
+                }
+            }
+
             await _memberRepository.UpdateAsync(member);
             await _unitOfWork.SaveChangesAsync();
 

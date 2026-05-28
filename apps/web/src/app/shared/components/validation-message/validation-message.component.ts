@@ -28,7 +28,11 @@ export class ValidationMessage {
       return `${this.fieldName} must be at most ${this.control.errors['maxlength'].requiredLength} characters long`;
     }
     if (this.control.errors['pattern']) {
-      return `${this.fieldName} must match the pattern ${this.control.errors['pattern'].pattern}`;
+      if (this.fieldName.toLowerCase().includes('phone')) {
+        return `${this.fieldName} must be at least 10 digits`;
+      }
+      const requiredPattern = this.control.errors['pattern'].requiredPattern;
+      return `${this.fieldName} must match the pattern ${requiredPattern}`;
     }
     if (this.control.errors['min']) {
       return `${this.fieldName} must be at least ${this.control.errors['min'].min}`;

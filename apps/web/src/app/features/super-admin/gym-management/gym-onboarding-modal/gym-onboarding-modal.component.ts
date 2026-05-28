@@ -68,11 +68,6 @@ export class GymOnboardingModalComponent implements OnInit {
     return options;
   }
 
-  readonly billingCycleOptions: DropdownOption[] = [
-    { label: 'Monthly', value: 'monthly', icon: 'fa-solid fa-calendar-day' },
-    { label: 'Yearly (-10%)', value: 'yearly', icon: 'fa-solid fa-calendar-check' }
-  ];
-
   constructor() { }
 
   ngOnInit(): void {
@@ -90,7 +85,7 @@ export class GymOnboardingModalComponent implements OnInit {
         establishedDate: [''],
         registrationNumber: [''],
         email: ['', [Validators.required, Validators.email]],
-        phone: ['', Validators.required],
+        phone: ['', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
         gstNumber: [''],
         websiteUrl: [''],
         logoUrl: [''],
@@ -108,12 +103,25 @@ export class GymOnboardingModalComponent implements OnInit {
       assignedOwnerId: ['', Validators.required],
       plan: this.fb.group({
         subscriptionId: [''],
-        billingCycle: ['monthly'],
         isTrial: [true]
       })
     });
 
     this.addBranch();
+
+    this.onboardingForm.get('plan.isTrial')?.valueChanges.subscribe(isTrial => {
+      if (isTrial) {
+        this.onboardingForm.get('plan.subscriptionId')?.setValue('', { emitEvent: false });
+      }
+    });
+
+    this.onboardingForm.get('plan.subscriptionId')?.valueChanges.subscribe(subId => {
+      if (subId) {
+        this.onboardingForm.get('plan.isTrial')?.setValue(false, { emitEvent: false });
+      } else {
+        this.onboardingForm.get('plan.isTrial')?.setValue(true, { emitEvent: false });
+      }
+    });
   }
 
   get branches(): FormArray {
@@ -137,7 +145,7 @@ export class GymOnboardingModalComponent implements OnInit {
         country: ['', Validators.required],
         postalCode: ['', Validators.required]
       }),
-      contactNumber: ['', Validators.required],
+      contactNumber: ['', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
       openTime: ['06:00'],
       closeTime: ['22:00']
     });
@@ -156,6 +164,37 @@ export class GymOnboardingModalComponent implements OnInit {
     this.collapsedBranches[index] = !this.collapsedBranches[index];
   }
 
+  copyGymAddressToBranch(event: any, index: number): void {
+    const isChecked = event.target.checked;
+    if (isChecked) {
+      const gymAddress = this.onboardingForm.get('gymInfo.address')?.value;
+      const gymPhone = this.onboardingForm.get('gymInfo.phone')?.value;
+      if (gymAddress) {
+        this.branches.at(index).get('address')?.patchValue({
+          line1: gymAddress.line1,
+          line2: gymAddress.line2,
+          city: gymAddress.city,
+          state: gymAddress.state,
+          country: gymAddress.country,
+          postalCode: gymAddress.postalCode
+        });
+      }
+      if (gymPhone) {
+        this.branches.at(index).get('contactNumber')?.setValue(gymPhone);
+      }
+    } else {
+      this.branches.at(index).get('address')?.patchValue({
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        country: '',
+        postalCode: ''
+      });
+      this.branches.at(index).get('contactNumber')?.setValue('');
+    }
+  }
+
   isCurrentStepValid(): boolean {
     if (this.currentStep === 1) {
       return this.onboardingForm.get('gymInfo')?.valid || false;
@@ -167,7 +206,13 @@ export class GymOnboardingModalComponent implements OnInit {
       return this.onboardingForm.get('assignedOwnerId')?.valid || false;
     }
     if (this.currentStep === 4) {
-      return this.onboardingForm.get('plan')?.valid || false;
+      const planGroup = this.onboardingForm.get('plan');
+      const isTrial = planGroup?.get('isTrial')?.value;
+      const subscriptionId = planGroup?.get('subscriptionId')?.value;
+      if (!isTrial && !subscriptionId) {
+        return false;
+      }
+      return planGroup?.valid || false;
     }
     return true;
   }

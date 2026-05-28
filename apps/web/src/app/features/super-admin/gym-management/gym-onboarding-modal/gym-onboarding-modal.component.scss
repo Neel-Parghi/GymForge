@@ -523,3 +523,41 @@ button {
     transform: translateY(0);
   }
 }
+
+.same-address-option {
+  margin-top: 4px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.875rem;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      margin: 0;
+    }
+  }
+}
+
+.required-plan-alert {
+  margin-top: -12px;
+  margin-bottom: 8px;
+
+  .alert-text {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}

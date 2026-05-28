@@ -22,7 +22,7 @@ export class SettingsComponent implements OnInit {
   private authService = inject(AuthApiService);
 
   settingsForm: FormGroup;
-  activeTab: 'general' | 'strategy' | 'financial' | 'legal' = 'general';
+  activeTab: 'general' | 'strategy' | 'financial' | 'legal' | 'status' = 'general';
   loading = true;
   saving = false;
   isAdmin = false;
@@ -44,7 +44,8 @@ export class SettingsComponent implements OnInit {
       maintenanceEndTime: [null],
       termsUrl: [''],
       privacyUrl: [''],
-      billingAddress: ['']
+      billingAddress: [''],
+      gstNo: ['']
     });
   }
 
@@ -61,18 +62,34 @@ export class SettingsComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
         const tab = params['tab'];
-        if (tab === 'strategy' || tab === 'legal' || tab === 'general') {
+        if (tab === 'strategy' || tab === 'legal' || tab === 'general' || tab === 'financial' || tab === 'status') {
           this.activeTab = tab as any;
         }
       }
     });
   }
 
+  formatDateForInput(dateString: any): string | null {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
   loadSettings() {
     this.configService.getConfig().subscribe({
       next: (res) => {
         if (res.data) {
-          this.settingsForm.patchValue(res.data);
+          const config = { ...res.data };
+          if (config.maintenanceStartTime) {
+            config.maintenanceStartTime = this.formatDateForInput(config.maintenanceStartTime);
+          }
+          if (config.maintenanceEndTime) {
+            config.maintenanceEndTime = this.formatDateForInput(config.maintenanceEndTime);
+          }
+          this.settingsForm.patchValue(config);
         }
         this.loading = false;
       }

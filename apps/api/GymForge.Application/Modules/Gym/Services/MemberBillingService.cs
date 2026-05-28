@@ -116,7 +116,6 @@ namespace GymForge.Application.Modules.Gym.Services
                     MembershipNumber = tx?.Member?.MembershipNumber ?? string.Empty,
                     RealRecordId = tx.Id,
 
-                    // Branch scoping details
                     BranchId = resolvedBranch?.Id,
                     BranchName = resolvedBranch?.Name ?? "Main Outlet",
                     BranchLine1 = resolvedBranch?.Address?.Address1 ?? string.Empty,
@@ -188,7 +187,6 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<bool> MarkAsPaidAsync(Guid gymId, Guid recordId)
         {
-            // 1. Try finding in MemberSubscriptions
             MemberSubscription? subscription = await _billingRepository.GetSubscriptionByIdAsync(recordId);
             if (subscription != null)
             {
@@ -199,7 +197,6 @@ namespace GymForge.Application.Modules.Gym.Services
                 return savedSub > 0;
             }
 
-            // 2. Try finding in SaleTransactions
             SaleTransaction? transaction = await _billingRepository.GetTransactionByIdAsync(recordId);
             if (transaction != null)
             {
@@ -212,7 +209,6 @@ namespace GymForge.Application.Modules.Gym.Services
                 return savedTx > 0;
             }
 
-            // 3. Try finding in CustomInvoices
             CustomInvoice? invoice = await _billingRepository.GetCustomInvoiceByIdAsync(recordId);
             if (invoice != null)
             {

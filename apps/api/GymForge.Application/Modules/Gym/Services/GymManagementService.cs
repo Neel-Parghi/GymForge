@@ -175,6 +175,18 @@ namespace GymForge.Application.Modules.Gym.Services
             branch.IsActive = true;
             
             await _gymManagementRepository.AddBranchAsync(branch);
+
+            // Reassign branch manager if provided
+            if (branchDto.ManagerId.HasValue && branchDto.ManagerId.Value != Guid.Empty)
+            {
+                List<Staff> existingManagers = await _gymManagementRepository.GetBranchManagersAsync(gymId);
+                Staff? selectedManager = existingManagers.FirstOrDefault(m => m.Id == branchDto.ManagerId.Value);
+                if (selectedManager != null)
+                {
+                    selectedManager.BranchId = branch.Id;
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -189,6 +201,7 @@ namespace GymForge.Application.Modules.Gym.Services
             {
                 Staff? manager = managers.FirstOrDefault(m => m.BranchId == dto.Id);
                 dto.ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : "Pending Hire";
+                dto.ManagerId = manager?.Id;
             }
 
             return dtos;
@@ -213,6 +226,27 @@ namespace GymForge.Application.Modules.Gym.Services
             }
 
             _gymManagementRepository.UpdateBranch(branch);
+
+            // Reassign branch manager
+            List<Staff> existingManagers = await _gymManagementRepository.GetBranchManagersAsync(branch.GymId);
+
+            // Unassign current managers of this branch to prevent duplicates
+            var currentBranchManagers = existingManagers.Where(m => m.BranchId == branchId);
+            foreach (var currentManager in currentBranchManagers)
+            {
+                currentManager.BranchId = null;
+            }
+
+            // Assign new manager
+            if (branchDto.ManagerId.HasValue && branchDto.ManagerId.Value != Guid.Empty)
+            {
+                Staff? selectedManager = existingManagers.FirstOrDefault(m => m.Id == branchDto.ManagerId.Value);
+                if (selectedManager != null)
+                {
+                    selectedManager.BranchId = branchId;
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync();
         }
 

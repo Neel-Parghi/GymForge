@@ -44,6 +44,10 @@ export class StaffService extends BaseApiService {
     return this.staffCache$;
   }
 
+  getUnscopedGymStaff(page: number = 1, pageSize: number = 100): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
+    return this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, { pageNumber: page, pageSize });
+  }
+
   getStaffById(id: string): Observable<ApiResponse<StaffResponse>> {
     return this.get<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${id}`);
   }

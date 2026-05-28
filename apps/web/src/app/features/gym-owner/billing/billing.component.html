@@ -483,6 +483,7 @@
 </div>
 
 <app-invoice-detail-modal *ngIf="selectedInvoice" [invoice]="selectedInvoice" [gymDetails]="gymDetails"
+  [platformConfig]="platformConfig"
   [invoicePrefix]="settingsForm?.get('invoicePrefix')?.value || gymDetails?.invoicePrefix || 'GF-'"
   (close)="closeInvoiceModal()">
 </app-invoice-detail-modal>

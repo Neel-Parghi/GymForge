@@ -141,6 +141,7 @@ export class AuthApiService extends BaseApiService {
         this.router.navigate(['/super-admin/dashboard']);
         break;
       case 'GymOwner':
+      case 'Staff':
         this.router.navigate(['/gym-owner/dashboard']);
         break;
       case 'Admin':

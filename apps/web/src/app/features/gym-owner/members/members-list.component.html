@@ -73,11 +73,8 @@
             <span class="member-sub">{{ member.plan }} &bull; Inactive {{ member.lastActive }}</span>
           </div>
           <div class="actions-group">
-            <button class="action-btn text" title="Send WhatsApp Message">
-              <i class="fa-brands fa-whatsapp text-success"></i>
-            </button>
-            <button class="action-btn text" title="Call Member">
-              <i class="fa-solid fa-phone text-muted"></i>
+            <button class="action-btn text" title="Send Notification" (click)="sendNotification(member)">
+              <i class="fa-solid fa-bell text-warning"></i>
             </button>
           </div>
         </div>
@@ -210,14 +207,14 @@
 
 
 <!-- Onboard / Manage Modal -->
-<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="activePlans" [branches]="branches" [isEdit]="isEditMode"
+<app-onboard-member-modal [isOpen]="isOnboardOpen" [plans]="allPlans" [branches]="branches" [isEdit]="isEditMode"
   [member]="selectedMember" (close)="isOnboardOpen = false"
   (submitted)="isEditMode ? handleUpdate($event) : handleOnboard($event)" (freeze)="handleFreeze($event)"
   (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)" (renew)="handleRenew($event)">
 </app-onboard-member-modal>
 
 <!-- Member Detail Drawer -->
-<app-member-detail-drawer [isOpen]="isDrawerOpen" [member]="selectedMember" [plans]="activePlans" [branches]="branches"
+<app-member-detail-drawer [isOpen]="isDrawerOpen" [member]="selectedMember" [plans]="allPlans" [branches]="branches"
   (drawerClose)="isDrawerOpen = false" (manage)="openEditModal($event)" (freeze)="handleFreeze($event)"
   (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)" (renew)="handleRenew($event)">
 </app-member-detail-drawer>

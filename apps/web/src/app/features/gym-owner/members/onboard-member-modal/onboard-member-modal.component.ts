@@ -75,6 +75,22 @@ export class OnboardMemberModal implements OnChanges, OnInit {
 
   submitting = false;
   apiError = '';
+  showArchived = false;
+
+  get filteredPlans(): GymPlan[] {
+    const selectedPlanId = this.form.get('gymPlanId')?.value;
+    return this.plans.filter(plan => {
+      if (plan.isActive) return true;
+      if (this.isEdit && selectedPlanId && plan.id?.toString().toLowerCase() === selectedPlanId.toString().toLowerCase()) {
+        return true;
+      }
+      return this.showArchived;
+    });
+  }
+
+  toggleShowArchived(): void {
+    this.showArchived = !this.showArchived;
+  }
 
   readonly genderOptions: DropdownOption[] = [
     { value: Gender.Male, label: 'Male', icon: 'fa-solid fa-mars' },
@@ -155,6 +171,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       this.submitting = false;
       this.currentStep = 1;
       this.isFitnessGoalsOpen = false;
+      this.showArchived = false;
 
       if (this.isEdit && this.member) {
         const planId = this.member.currentSubscription?.gymPlanId || '';
