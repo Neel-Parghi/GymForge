@@ -9,6 +9,7 @@ import { ProfileService } from '../../core/services/profile.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { BranchContextService } from '../../core/services/branch-context.service';
 import { GymService } from '../../core/services/gym.service';
+import { GymSettingsService } from '../../core/services/gym-settings.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -24,6 +25,7 @@ export class MainLayoutComponent implements OnInit {
   private router = inject(Router);
   private readonly navService = inject(NavigationService);
   private gymService = inject(GymService);
+  private gymSettingsService = inject(GymSettingsService);
 
   roleName: string = '';
   dashboardRoute: string = '/super-admin/dashboard';
@@ -47,6 +49,17 @@ export class MainLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.setRoleName();
     this.profileService.getProfile().subscribe();
+
+    // Preload gym settings and permissions matrix from backend
+    const currentRole = this.authApiService.getUserRole();
+    if (currentRole === 'GymOwner' || currentRole === 'Staff' || currentRole === 'Trainer') {
+      this.gymSettingsService.loadSettings().subscribe({
+        next: () => {
+          this.menuItems = this.navService.getMenuItems();
+        },
+        error: (err) => console.error('Failed to load dynamic gym settings', err)
+      });
+    }
     
     const assignedBranchId = this.authApiService.getAssignedBranchId();
     if (assignedBranchId) {

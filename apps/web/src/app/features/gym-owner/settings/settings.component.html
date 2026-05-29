@@ -1,0 +1,212 @@
+<div class="settings-container">
+  <!-- Fixed Header -->
+  <div class="settings-header">
+    <div class="header-content">
+      <h1>Gym Operations Settings</h1>
+      <p>Configure staff access rules, member check-in boundaries, notification schedules, and global closure calendars.
+      </p>
+    </div>
+    <!-- Hidden or disabled when activeTab is calendar, since calendar operates on its own button, but we let them save form values here -->
+    <button *ngIf="activeTab !== 'calendar'" class="save-btn"
+      [disabled]="settingsForm.invalid || saving || settingsForm.pristine" (click)="saveSettings()">
+      <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
+      {{ saving ? 'Saving Rules...' : 'Save' }}
+    </button>
+  </div>
+
+  <!-- Premium Navigation Tabs -->
+  <div class="settings-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'permissions'" (click)="activeTab = 'permissions'">
+      <span class="tab-icon-wrapper permissions-tab"><i class="fas fa-user-shield"></i></span>
+      <span class="tab-label">Staff Permissions</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
+      <span class="tab-icon-wrapper notifications-tab"><i class="fas fa-bell"></i></span>
+      <span class="tab-label">Automations</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'calendar'" (click)="activeTab = 'calendar'">
+      <span class="tab-icon-wrapper calendar-tab"><i class="fas fa-calendar-alt"></i></span>
+      <span class="tab-label">Holidays</span>
+    </button>
+  </div>
+
+  <!-- Scrollable Form Area -->
+  <div class="scroll-area">
+    <form [formGroup]="settingsForm" class="tab-content">
+
+      <!-- Tab 1: Staff & Permissions -->
+      <div class="settings-pane" *ngIf="activeTab === 'permissions'">
+        <div class="pane-header">
+          <div class="pane-icon permissions-icon"><i class="fas fa-user-shield"></i></div>
+          <div class="pane-title-group">
+            <h3>Staff Role Restrictions</h3>
+            <p>Customize what standard employees and trainers are authorized to access and modify within this platform.
+            </p>
+          </div>
+        </div>
+
+        <div class="pane-body">
+          <!-- Restriction Warning -->
+          <!-- <div class="info-alert-banner">
+            <div class="banner-icon"><i class="fas fa-info-circle"></i></div>
+            <div class="banner-text">
+              <strong>Admin Exemption:</strong> Designated Branch Managers will continue to have full operational rights
+              inside their assigned locations. These restrictions apply strictly to standard front-desk staff and
+              trainers.
+            </div>
+          </div> -->
+
+          <div class="matrix-table-container">
+            <table class="role-matrix-table">
+              <thead>
+                <tr>
+                  <th class="module-col">System Modules</th>
+                  <th *ngFor="let role of roles" class="role-col">
+                    <span class="role-badge">{{ role.label }}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let mod of modules">
+                  <td class="module-info-cell">
+                    <div class="mod-icon-wrapper">
+                      <i [class]="mod.icon"></i>
+                    </div>
+                    <div class="mod-details">
+                      <span class="mod-name">{{ mod.label }}</span>
+                    </div>
+                  </td>
+                  <td *ngFor="let role of roles" class="checkbox-cell">
+                    <label class="switch-premium">
+                      <input type="checkbox" [formControlName]="role.key + '_' + mod.key">
+                      <span class="slider round"></span>
+                    </label>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Tab 3: Notification Schedules & Alert Thresholds -->
+      <div class="settings-pane" *ngIf="activeTab === 'notifications'">
+        <div class="pane-header">
+          <div class="pane-icon notifications-icon"><i class="fas fa-bell"></i></div>
+          <div class="pane-title-group">
+            <h3>Alert Boundaries & Automations</h3>
+            <p>Manage membership renewal notification schedules and automation triggers.</p>
+          </div>
+        </div>
+
+        <div class="pane-body">
+          <div class="single-setting-container" style="max-width: 480px; padding: 16px 20px;">
+            <div class="form-group">
+              <label for="expiryWarningDays"><i class="fas fa-hourglass-half"></i> Plan Expiration Trigger
+                (Days)</label>
+              <div class="input-wrapper">
+                <app-dropdown [options]="expiryWarningOptions" formControlName="expiryWarningDays"
+                  placeholder="Select warning days..."></app-dropdown>
+              </div>
+              <span class="field-hint">Initiates renewal notifications before membership expires.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Holidays & Operating Closures -->
+      <div class="settings-pane" *ngIf="activeTab === 'calendar'">
+        <div class="pane-header">
+          <div class="pane-icon calendar-icon"><i class="fas fa-calendar-alt"></i></div>
+          <div class="pane-title-group">
+            <h3>Operating Calendar & Closures</h3>
+            <p>Schedule holidays, shutdowns, or maintenance days. Scheduled closures lock kiosk scanners and notify
+              members.</p>
+          </div>
+        </div>
+
+        <div class="pane-body">
+          <div class="calendar-layout-grid">
+            <!-- Left Side: Schedule a Closure Form -->
+            <div class="closure-form-card">
+              <h4>Schedule A Facility Closure</h4>
+
+              <form [formGroup]="holidayForm">
+                <div class="form-group">
+                  <label for="newHolidayName">Event / Closure Name</label>
+                  <input id="newHolidayName" type="text" formControlName="newHolidayName" placeholder="Add Holidays">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="newHolidayDate">Closure Date</label>
+                    <app-date-time-picker formControlName="newHolidayDate"
+                      placeholder="Select Closure Date..."></app-date-time-picker>
+                  </div>
+                  <div class="form-group">
+                    <label for="newHolidayBranch">Select Location</label>
+                    <app-dropdown [options]="branchOptions" formControlName="newHolidayBranch"
+                      placeholder="Select branch..."></app-dropdown>
+                  </div>
+                </div>
+
+                <button type="button" class="btn-add-holiday" [disabled]="holidayForm.invalid" (click)="addHoliday()">
+                  <i class="fas fa-calendar-plus"></i> Add Holiday
+                </button>
+              </form>
+            </div>
+
+            <!-- Right Side: Scheduled Closures List -->
+            <div class="holiday-list-card">
+              <h4>Scheduled Holiday Closures</h4>
+
+              <div class="table-container" *ngIf="holidays.length > 0">
+                <table class="premium-holiday-table">
+                  <thead>
+                    <tr>
+                      <th>Event</th>
+                      <th>Date</th>
+                      <th>Branches</th>
+                      <th class="actions-col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let holiday of holidays">
+                      <td>
+                        <span class="event-name">{{ holiday.name }}</span>
+                      </td>
+                      <td>
+                        <span class="event-date"><i class="far fa-calendar-alt"></i> {{ holiday.date | date:'mediumDate'
+                          }}</span>
+                      </td>
+                      <td>
+                        <span class="badge" [class.badge-all]="!holiday.branchName"
+                          [class.badge-branch]="holiday.branchName">
+                          {{ holiday.branchName || 'All Locations' }}
+                        </span>
+                      </td>
+                      <td class="actions-col">
+                        <button type="button" class="btn-delete-holiday" (click)="deleteHoliday(holiday.id)"
+                          title="Remove closure">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="empty-holidays" *ngIf="holidays.length === 0">
+                <i class="far fa-calendar-check"></i>
+                <p>No holiday closures currently scheduled.</p>
+                <span>The gym is operating on full regular schedules.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

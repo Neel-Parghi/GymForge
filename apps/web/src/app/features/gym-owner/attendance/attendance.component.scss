@@ -1062,6 +1062,7 @@
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 8px;
+  margin-left: 5px;
 
   .filter-tabs {
     display: flex;
@@ -1084,8 +1085,8 @@
       }
 
       &.active {
-        background: #1f2937;
-        border-color: #1f2937;
+        background: #0d3278;
+        border-color: #0d3278;
         color: white;
       }
     }
@@ -1225,11 +1226,11 @@
       color: white;
 
       &.member-toggle {
-        background: var(--accent-color);
+        background: #0d3278;
       }
 
       &.staff-toggle {
-        background: #3b82f6;
+        background: #0d3278;
       }
     }
   }

@@ -10,6 +10,7 @@ import { PricingList } from './features/super-admin/pricing/pricing-list/pricing
 import { authGuard } from './core/guards/auth-guard';
 import { loggedInGuard } from './core/guards/logged-in.guard';
 import { subscriptionGuard } from './core/guards/subscription.guard';
+import { roleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -46,7 +47,8 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/gym-owner/dashboard/dashboard.component').then(m => m.DashboardComponent)
+        loadComponent: () => import('./features/gym-owner/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'profile',
@@ -54,31 +56,43 @@ export const routes: Routes = [
       },
       {
         path: 'my-gyms',
-        loadComponent: () => import('./features/gym-owner/my-gyms/my-gyms.component').then(m => m.MyGymsComponent)
+        loadComponent: () => import('./features/gym-owner/my-gyms/my-gyms.component').then(m => m.MyGymsComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'plans',
-        loadComponent: () => import('./features/gym-owner/gym-plans/gym-plans.component').then(m => m.GymPlansComponent)
+        loadComponent: () => import('./features/gym-owner/gym-plans/gym-plans.component').then(m => m.GymPlansComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'members',
-        loadComponent: () => import('./features/gym-owner/members/members-list.component').then(m => m.MembersListComponent)
+        loadComponent: () => import('./features/gym-owner/members/members-list.component').then(m => m.MembersListComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'staff',
-        loadComponent: () => import('./features/gym-owner/staff/staff-list.component').then(m => m.StaffListComponent)
+        loadComponent: () => import('./features/gym-owner/staff/staff-list.component').then(m => m.StaffListComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'attendance',
-        loadComponent: () => import('./features/gym-owner/attendance/attendance.component').then(m => m.AttendanceComponent)
+        loadComponent: () => import('./features/gym-owner/attendance/attendance.component').then(m => m.AttendanceComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'inventory',
-        loadComponent: () => import('./features/gym-owner/inventory/inventory.component').then(m => m.InventoryComponent)
+        loadComponent: () => import('./features/gym-owner/inventory/inventory.component').then(m => m.InventoryComponent),
+        canActivate: [roleGuard]
       },
       {
         path: 'billing',
-        loadComponent: () => import('./features/gym-owner/billing/billing.component').then(m => m.BillingComponent)
+        loadComponent: () => import('./features/gym-owner/billing/billing.component').then(m => m.BillingComponent),
+        canActivate: [roleGuard]
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/gym-owner/settings/settings.component').then(m => m.SettingsComponent),
+        canActivate: [roleGuard]
       }
     ]
   },

@@ -85,6 +85,21 @@
     align-items: center;
     flex: 1;
 
+    &.clickable {
+      cursor: pointer;
+
+      &:hover:not(.active):not(.completed) {
+        .step-circle {
+          background: #d1d5db;
+          color: #1f2937;
+        }
+
+        .step-label {
+          color: #1f2937;
+        }
+      }
+    }
+
     .step-circle {
       width: 32px;
       height: 32px;
@@ -171,7 +186,7 @@
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 40px;
+  padding: 30px;
   background: var(--bg-surface);
 
   &::-webkit-scrollbar {
@@ -188,7 +203,7 @@
   }
 
   h3 {
-    margin: 0 0 32px 0;
+    margin: 0 0 8px 0;
     font-size: 1.5rem;
     color: var(--text-main);
     font-weight: 700;
@@ -501,7 +516,7 @@ button {
   background: white;
   border: 2px solid var(--border-color);
   border-radius: 20px;
-  padding: 24px;
+  padding: 20px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
@@ -552,7 +567,7 @@ button {
     font-size: 1.75rem;
     font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 12px;
+    // margin-bottom: 12px;
     display: flex;
     align-items: baseline;
 

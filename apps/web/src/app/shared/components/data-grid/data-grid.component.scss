@@ -236,6 +236,18 @@
         }
       }
 
+      &.badge-frozen {
+        background-color: #f0f9ff;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+
+        [data-theme="dark"] & {
+          background-color: #0c4a6e;
+          color: #e0f2fe;
+          border-color: #0284c7;
+        }
+      }
+
       &.badge-inactive {
         background-color: #fff5f5;
         color: #c53030;

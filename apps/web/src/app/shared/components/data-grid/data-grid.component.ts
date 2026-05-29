@@ -141,6 +141,9 @@ export class DataGrid {
       case 'card':
       case 'upi':
         return 'badge-active';
+      case 'frozen':
+      case 'freeze':
+        return 'badge-frozen';
       case 'pending':
       case 'partial':
       case 'low stock':
