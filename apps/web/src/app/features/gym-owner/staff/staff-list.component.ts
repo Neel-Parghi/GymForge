@@ -16,13 +16,12 @@ import { StaffDetailDrawerComponent } from './staff-detail-drawer/staff-detail-d
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { GymService } from '../../../core/services/gym.service';
 import { CONSTANTS } from '../../../core/constants/constants';
-import { DropdownComponent } from "../../../shared/components/dropdown/dropdown.component";
 import { FilterBarComponent } from "../../../shared/components/filter-bar/filter-bar.component";
 
 @Component({
   selector: 'app-staff-list',
   standalone: true,
-  imports: [CommonModule, DataGrid, GridCellDirective, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, DropdownComponent, FilterBarComponent],
+  imports: [CommonModule, DataGrid, GridCellDirective, OnboardStaffModalComponent, StaffDetailDrawerComponent, ConfirmationPopupComponent, FormsModule, ReactiveFormsModule, FilterBarComponent],
   templateUrl: './staff-list.component.html',
   styleUrl: './staff-list.component.scss'
 })

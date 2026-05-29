@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 import { PaymentService } from '../../../../../core/services/payment.service';
 import { GymSubscriptionStatus } from '../../../../../shared/models/payment.model';
 
@@ -53,7 +54,7 @@ export class UpiPaymentModalComponent implements OnInit, OnDestroy {
       if (totalSeconds <= 0) {
         this.clearUpiTimer();
         this.close.emit();
-        this.notification.error('UPI payment request timed out. Please try again.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.UPI_TIMEOUT);
         return;
       }
       const mins = Math.floor(totalSeconds / 60);
@@ -63,19 +64,19 @@ export class UpiPaymentModalComponent implements OnInit, OnDestroy {
   }
 
   simulateUpiPaymentSuccess(): void {
-    this.notification.info('Authorizing payment with bank UPI gateway...');
+    this.notification.info(CONSTANTS.BILLING_MODULE.UPI_AUTHORIZING);
 
     setTimeout(() => {
       this.paymentService.renewSubscription(this.checkoutPlanName, this.checkoutPrice).subscribe({
         next: (res: any) => {
           if (res.data) {
             this.paymentSuccess.emit(res.data);
-            this.notification.success(`Payment of ₹${this.checkoutPrice.toLocaleString('en-IN')}.00 processed successfully! Plan updated to ${this.checkoutPlanName}.`);
+            this.notification.success(CONSTANTS.BILLING_MODULE.UPI_SUCCESS.replace('{amount}', this.checkoutPrice.toLocaleString('en-IN')).replace('{plan}', this.checkoutPlanName));
           }
           this.close.emit();
         },
         error: () => {
-          this.notification.error('Failed to process payment verification on server.');
+          this.notification.error(CONSTANTS.BILLING_MODULE.UPI_ERROR);
           this.close.emit();
         }
       });

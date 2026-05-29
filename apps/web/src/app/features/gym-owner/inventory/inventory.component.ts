@@ -11,6 +11,7 @@ import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { MemberService } from '../../../core/services/member.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { ProductDrawerComponent } from './components/product-drawer/product-drawer.component';
 import { EquipmentDrawerComponent } from './components/equipment-drawer/equipment-drawer.component';
@@ -219,7 +220,7 @@ export class InventoryComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.notificationService.error('Failed to load products');
+        this.notificationService.error(CONSTANTS.INVENTORY_MODULE.LOAD_PRODUCTS_ERROR);
         this.loading = false;
       }
     });
@@ -292,7 +293,7 @@ export class InventoryComponent implements OnInit {
         }
       } else if (this.activeTab === 'maintenance') {
         if (event.row.status === 'Completed') {
-          this.notificationService.info('Completed logs cannot be edited for audit integrity.');
+          this.notificationService.info(CONSTANTS.INVENTORY_MODULE.EDIT_COMPLETED_LOGS_INFO);
           return;
         }
         this.selectedMaintenanceLog = event.row;
@@ -346,10 +347,10 @@ export class InventoryComponent implements OnInit {
   }
 
   deleteProduct(id: string) {
-    if (confirm('Are you sure you want to delete this product?')) {
+    if (confirm(CONSTANTS.CONFIRMATIONS.DELETE_PRODUCT_CONFIRM)) {
       this.inventoryService.deleteProduct(id).subscribe({
         next: () => {
-          this.notificationService.success('Product deleted successfully');
+          this.notificationService.success(CONSTANTS.INVENTORY_MODULE.PRODUCT_DELETE_SUCCESS);
           this.loadProducts();
         }
       });

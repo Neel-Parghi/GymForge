@@ -122,12 +122,12 @@ export class MyGymsComponent implements OnInit {
             }
             this.profileForm.patchValue({ logoUrl: res.data.url });
             this.profileForm.markAsDirty();
-            this.toastService.success('Logo uploaded successfully. Save profile changes to persist.');
+            this.toastService.success(CONSTANTS.GYM_MODULE.LOGO_UPLOAD_SUCCESS);
           }
           this.isLoading = false;
         },
         error: () => {
-          this.toastService.error('Failed to upload logo.');
+          this.toastService.error(CONSTANTS.GYM_MODULE.LOGO_UPLOAD_ERROR);
           this.isLoading = false;
         }
       });
@@ -148,7 +148,7 @@ export class MyGymsComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.toastService.error('Failed to load gym details');
+        this.toastService.error(CONSTANTS.GYM_MODULE.LOAD_DETAILS_ERROR);
         this.isLoading = false;
       }
     });
@@ -162,7 +162,7 @@ export class MyGymsComponent implements OnInit {
         this.isLoadingBranches = false;
       },
       error: () => {
-        this.toastService.error('Failed to load branches');
+        this.toastService.error(CONSTANTS.GYM_MODULE.LOAD_BRANCHES_ERROR);
         this.isLoadingBranches = false;
       }
     });
@@ -177,7 +177,7 @@ export class MyGymsComponent implements OnInit {
     this.isSaving = true;
     this.gymService.updateMyGym(this.profileForm.value).subscribe({
       next: () => {
-        this.toastService.success('Gym profile updated successfully');
+        this.toastService.success(CONSTANTS.GYM_MODULE.UPDATE_SUCCESS);
         this.isSaving = false;
         this.isEditMode = false;
         this.profileForm.disable();
@@ -187,14 +187,13 @@ export class MyGymsComponent implements OnInit {
         }
       },
       error: () => {
-        this.toastService.error('Failed to update gym profile');
+        this.toastService.error(CONSTANTS.GYM_MODULE.UPDATE_ERROR);
         this.isSaving = false;
       }
     });
   }
 
   openBranchDrawer(branch: any = null): void {
-    console.log('Opening branch drawer with branch:', branch);
     if (branch) {
       this.isEditingBranch = true;
       this.selectedBranchId = branch.id;
@@ -235,14 +234,14 @@ export class MyGymsComponent implements OnInit {
     }
 
     this.isSavingBranch = true;
-    
+
     const saveObservable = this.isEditingBranch && this.selectedBranchId
       ? this.gymService.updateMyBranch(this.selectedBranchId, this.branchForm.value)
       : this.gymService.addMyBranch(this.branchForm.value);
 
     saveObservable.subscribe({
       next: () => {
-        this.toastService.success(this.isEditingBranch ? 'Branch updated successfully' : 'Branch added successfully');
+        this.toastService.success(this.isEditingBranch ? CONSTANTS.GYM_MODULE.BRANCH_UPDATE_SUCCESS : CONSTANTS.GYM_MODULE.BRANCH_ADD_SUCCESS);
         this.isSavingBranch = false;
         this.closeBranchDrawer();
         if (this.gymData?.id) {
@@ -250,7 +249,7 @@ export class MyGymsComponent implements OnInit {
         }
       },
       error: () => {
-        this.toastService.error(this.isEditingBranch ? 'Failed to update branch' : 'Failed to add branch');
+        this.toastService.error(this.isEditingBranch ? CONSTANTS.GYM_MODULE.BRANCH_UPDATE_ERROR : CONSTANTS.GYM_MODULE.BRANCH_ADD_ERROR);
         this.isSavingBranch = false;
       }
     });
@@ -291,7 +290,7 @@ export class MyGymsComponent implements OnInit {
         ];
       },
       error: () => {
-        this.toastService.error('Failed to load active managers for this gym.');
+        this.toastService.error(CONSTANTS.GYM_MODULE.LOAD_MANAGERS_ERROR);
       }
     });
   }
@@ -306,7 +305,7 @@ export class MyGymsComponent implements OnInit {
 
   payForPlan(plan: PricingPlan): void {
     if (!this.gymData?.id) {
-      this.toastService.error('Gym details not loaded.');
+      this.toastService.error(CONSTANTS.GYM_MODULE.DETAILS_NOT_LOADED);
       return;
     }
 
@@ -345,7 +344,7 @@ export class MyGymsComponent implements OnInit {
         rzp.open();
       },
       error: () => {
-        this.toastService.error('Failed to initiate subscription order.');
+        this.toastService.error(CONSTANTS.GYM_MODULE.INIT_SUBSCRIPTION_ERROR);
         this.isProcessingPayment = false;
       }
     });
@@ -358,7 +357,7 @@ export class MyGymsComponent implements OnInit {
       signature
     }).subscribe({
       next: () => {
-        this.toastService.success('Payment verified! SaaS Subscription successfully upgraded.');
+        this.toastService.success(CONSTANTS.GYM_MODULE.PAYMENT_UPGRADE_SUCCESS);
         this.isUpgradeModalOpen = false;
         this.isProcessingPayment = false;
         this.loadGymData();

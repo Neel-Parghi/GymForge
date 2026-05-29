@@ -7,6 +7,7 @@ import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { FileUploadService } from '../../../../../core/services/file-upload.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-product-drawer',
@@ -109,7 +110,7 @@ export class ProductDrawerComponent implements OnInit, OnChanges {
           this.commitProduct();
         },
         error: () => {
-          this.notificationService.error('Failed to upload image');
+          this.notificationService.error(CONSTANTS.INVENTORY_MODULE.UPLOAD_IMAGE_ERROR);
           this.loading = false;
         }
       });
@@ -126,13 +127,13 @@ export class ProductDrawerComponent implements OnInit, OnChanges {
 
     action.subscribe({
       next: () => {
-        this.notificationService.success(`Product ${this.isEditingProduct ? 'updated' : 'added'} successfully`);
+        this.notificationService.success(CONSTANTS.INVENTORY_MODULE.PRODUCT_SAVE_SUCCESS.replace('{status}', this.isEditingProduct ? 'updated' : 'added'));
         this.productSaved.emit();
         this.closeDrawer.emit();
         this.loading = false;
       },
       error: () => {
-        this.notificationService.error('Operation failed');
+        this.notificationService.error(CONSTANTS.INVENTORY_MODULE.PRODUCT_SAVE_ERROR);
         this.loading = false;
       }
     });

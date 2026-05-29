@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 import { BillingService } from '../../../../../core/services/billing.service';
 import { StaffPayout } from '../../../../../shared/models/payment.model';
 
@@ -46,7 +47,7 @@ export class PayrollRulesModalComponent implements OnInit {
       this.selectedPayrollStaff.ptCommissionRate = formValues.ptCommissionRate;
       this.selectedPayrollStaff.rehabCommissionRate = formValues.rehabCommissionRate;
       this.selectedPayrollStaff.totalPayout = this.selectedPayrollStaff.baseSalary + this.selectedPayrollStaff.commissions;
-      this.notification.success(`Payroll rules updated successfully for ${this.selectedPayrollStaff.staffName}!`);
+      this.notification.success(CONSTANTS.BILLING_MODULE.PAYROLL_RULES_SUCCESS.replace('{name}', this.selectedPayrollStaff.staffName));
       this.rulesSaved.emit();
       this.close.emit();
       return;
@@ -61,12 +62,12 @@ export class PayrollRulesModalComponent implements OnInit {
 
     this.billingService.updateStaffPayrollRules(payload).subscribe({
       next: () => {
-        this.notification.success(`Payroll rules updated successfully for ${this.selectedPayrollStaff?.staffName}!`);
+        this.notification.success(CONSTANTS.BILLING_MODULE.PAYROLL_RULES_SUCCESS.replace('{name}', this.selectedPayrollStaff?.staffName || 'Staff'));
         this.rulesSaved.emit();
         this.close.emit();
       },
       error: () => {
-        this.notification.error('Failed to update payroll rules on the server.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.PAYROLL_RULES_ERROR);
       }
     });
   }

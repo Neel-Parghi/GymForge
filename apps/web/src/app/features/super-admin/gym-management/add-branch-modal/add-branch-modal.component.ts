@@ -48,7 +48,7 @@ export class AddBranchModalComponent {
     this.isSubmitting = true;
     this.gymService.addGymBranch(this.gymId, this.branchForm.value).subscribe({
       next: () => {
-        this.notification.success('Branch added successfully!');
+        this.notification.success(CONSTANTS.GYM_MODULE.BRANCH_ADD_SUCCESS);
         this.branchAdded.emit();
         this.isSubmitting = false;
         this.close.emit();

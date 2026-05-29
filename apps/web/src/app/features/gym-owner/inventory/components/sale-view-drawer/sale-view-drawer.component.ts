@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SlideDrawerComponent } from '../../../../../shared/components/slide-drawer/slide-drawer.component';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-sale-view-drawer',
@@ -24,7 +25,7 @@ export class SaleViewDrawerComponent {
 
   printReceipt() {
     if (!this.selectedSale) return;
-    this.notificationService.success('Sending receipt to printer...');
+    this.notificationService.success(CONSTANTS.INVENTORY_MODULE.RECEIPT_PRINTER_INFO);
     window.print();
   }
 
@@ -33,7 +34,7 @@ export class SaleViewDrawerComponent {
     this.loading = true;
     this.inventoryService.sendReceiptEmail(this.selectedSale.id).subscribe({
       next: () => {
-        this.notificationService.success(`Receipt emailed to ${this.selectedSale.memberName}`);
+        this.notificationService.success(CONSTANTS.INVENTORY_MODULE.RECEIPT_EMAIL_SUCCESS.replace('{name}', this.selectedSale.memberName));
         this.loading = false;
       },
       error: (err) => {

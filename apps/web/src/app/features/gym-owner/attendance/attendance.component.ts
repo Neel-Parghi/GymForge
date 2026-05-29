@@ -15,6 +15,7 @@ import { StaffService } from '../../../core/services/staff.service';
 import { StaffAttendanceLogResponse } from '../../../core/models/staff.model';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-attendance',
@@ -129,7 +130,7 @@ export class AttendanceComponent implements OnInit {
           this.currentlyCheckedIn = res.data ?? [];
         }
       },
-      error: () => this.notification.error('Failed to load occupancy data.')
+      error: () => this.notification.error(CONSTANTS.ATTENDANCE_MODULE.LOAD_OCCUPANCY_ERROR)
     });
 
     this.attendanceService.getOccupancyStats().subscribe({
@@ -186,7 +187,7 @@ export class AttendanceComponent implements OnInit {
           this.applyLogFilters();
         },
         error: () => {
-          this.notification.error('Failed to load staff shift logs.');
+          this.notification.error(CONSTANTS.ATTENDANCE_MODULE.LOAD_SHIFT_LOGS_ERROR);
         }
       });
       return;
@@ -219,7 +220,7 @@ export class AttendanceComponent implements OnInit {
         this.memberTotalItems = total;
         this.applyLogFilters();
       },
-      error: () => this.notification.error('Failed to load attendance logs.')
+      error: () => this.notification.error(CONSTANTS.ATTENDANCE_MODULE.LOAD_ATTENDANCE_LOGS_ERROR)
     });
   }
 
@@ -238,7 +239,7 @@ export class AttendanceComponent implements OnInit {
         this.isSearching = true;
         return this.memberService.getGymMembers(1, 10, q).pipe(
           catchError(() => {
-            this.notification.error('Failed to search members.');
+            this.notification.error(CONSTANTS.ATTENDANCE_MODULE.SEARCH_MEMBERS_ERROR);
             return of(null);
           })
         );
@@ -305,7 +306,7 @@ export class AttendanceComponent implements OnInit {
           this.lastScannedMember = this.selectedMember;
           this.scanTime = res.data?.checkInTime ? new Date(res.data.checkInTime) : new Date();
           this.verificationState = 'success';
-          this.notification.success(`Access Granted: ${this.selectedMember!.name}`);
+          this.notification.success(CONSTANTS.ATTENDANCE_MODULE.ACCESS_GRANTED_MEMBER.replace('{name}', this.selectedMember!.name));
           this.loadOccupancy();
         }
       },
@@ -337,7 +338,7 @@ export class AttendanceComponent implements OnInit {
           this.lastScannedMember = this.selectedMember;
           this.scanTime = res.data?.checkOutTime ? new Date(res.data.checkOutTime) : new Date();
           this.verificationState = 'checkedout';
-          this.notification.success(`${this.selectedMember!.name} checked out successfully.`);
+          this.notification.success(CONSTANTS.ATTENDANCE_MODULE.MEMBER_CHECKOUT_SUCCESS.replace('{name}', this.selectedMember!.name));
           this.loadOccupancy();
           this.logStatusFilter = 'all';
           this.loadLogs();
@@ -356,7 +357,7 @@ export class AttendanceComponent implements OnInit {
     ).subscribe({
       next: res => {
         if (res.success) {
-          this.notification.success(`${item.name} checked out successfully.`);
+          this.notification.success(CONSTANTS.ATTENDANCE_MODULE.MEMBER_CHECKOUT_SUCCESS.replace('{name}', item.name));
           this.loadOccupancy();
           this.logStatusFilter = 'all';
           this.loadLogs();
@@ -526,7 +527,7 @@ export class AttendanceComponent implements OnInit {
         this.isSearchingStaff = true;
         return this.staffService.getGymStaff(1, 10, q).pipe(
           catchError(() => {
-            this.notification.error('Failed to search staff.');
+            this.notification.error(CONSTANTS.ATTENDANCE_MODULE.SEARCH_STAFF_ERROR);
             return of(null);
           })
         );
@@ -551,7 +552,7 @@ export class AttendanceComponent implements OnInit {
           initials: `${s.firstName.charAt(0)}${s.lastName.charAt(0)}`.toUpperCase()
         }));
       },
-      error: () => this.notification.error('Failed to load on-duty staff.')
+      error: () => this.notification.error(CONSTANTS.ATTENDANCE_MODULE.LOAD_ON_DUTY_STAFF_ERROR)
     });
   }
 
@@ -584,7 +585,7 @@ export class AttendanceComponent implements OnInit {
         };
         this.staffScanTime = res.data.lastCheckInTime ? new Date(res.data.lastCheckInTime) : new Date();
         this.staffVerificationState = 'success';
-        this.notification.success(`Access Granted: ${this.selectedStaff!.fullName}`);
+        this.notification.success(CONSTANTS.ATTENDANCE_MODULE.ACCESS_GRANTED_STAFF.replace('{name}', this.selectedStaff!.fullName));
         this.loadStaffOccupancy();
       },
       error: err => {
@@ -612,7 +613,7 @@ export class AttendanceComponent implements OnInit {
         };
         this.staffScanTime = new Date();
         this.staffVerificationState = 'checkedout';
-        this.notification.success(`${staffName} checked out successfully.`);
+        this.notification.success(CONSTANTS.ATTENDANCE_MODULE.STAFF_CHECKOUT_SUCCESS.replace('{name}', staffName));
         this.loadStaffOccupancy();
       },
       error: err => {

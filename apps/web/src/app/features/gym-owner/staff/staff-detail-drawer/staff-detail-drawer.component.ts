@@ -9,6 +9,7 @@ import { SlideDrawerComponent } from '../../../../shared/components/slide-drawer
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../core/constants/constants';
 import { ConfirmationService } from '../../../../core/services/confirmation.service';
 
 @Component({
@@ -160,15 +161,15 @@ export class StaffDetailDrawerComponent {
       passDuration
     ).subscribe({
       next: () => {
-        this.notification.success('Member assigned to trainer successfully!');
+        this.notification.success(CONSTANTS.STAFF_MODULE.ASSIGN_MEMBER_SUCCESS);
         this.isSubmittingAssignment = false;
         this.closeAssignForm();
         this.loadMembers();
 
         this.confirmationService.confirm({
-          title: 'Generate PT Invoice?',
-          message: 'Member assigned successfully! Would you like to generate a billing invoice for this training contract now?',
-          confirmText: 'Yes, Create Invoice',
+          title: CONSTANTS.STAFF_MODULE.GENERATE_INVOICE_CONFIRM_TITLE,
+          message: CONSTANTS.STAFF_MODULE.GENERATE_INVOICE_CONFIRM_MSG,
+          confirmText: CONSTANTS.STAFF_MODULE.GENERATE_INVOICE_CONFIRM_TEXT,
           cancelText: 'Maybe Later',
           type: 'info'
         }).then(confirmed => {
@@ -195,16 +196,16 @@ export class StaffDetailDrawerComponent {
   deallocateMember(memberId: string) {
     if (!this.staff) return;
     this.confirmationService.confirm({
-      title: 'End PT Assignment?',
-      message: 'Are you sure you want to end this personal training assignment?',
-      confirmText: 'End Assignment',
+      title: CONSTANTS.STAFF_MODULE.END_PT_ASSIGNMENT_CONFIRM_TITLE,
+      message: CONSTANTS.STAFF_MODULE.END_PT_ASSIGNMENT_CONFIRM_MSG,
+      confirmText: CONSTANTS.STAFF_MODULE.END_PT_ASSIGNMENT_CONFIRM_TEXT,
       cancelText: 'Cancel',
       type: 'danger'
     }).then(confirmed => {
       if (confirmed) {
         this.staffService.deallocateTrainerFromMember(this.staff!.id, memberId).subscribe({
           next: () => {
-            this.notification.success('Member deallocated successfully!');
+            this.notification.success(CONSTANTS.STAFF_MODULE.DEALLOCATE_MEMBER_SUCCESS);
             this.loadMembers();
           },
           error: (err) => {
@@ -228,15 +229,15 @@ export class StaffDetailDrawerComponent {
   toggleStatus() {
     if (!this.staff) return;
 
-    this.notification.info('Status toggle functionality coming soon.');
+    this.notification.info(CONSTANTS.STAFF_MODULE.STATUS_TOGGLE_INFO);
   }
 
   checkInStaff() {
     if (!this.staff || this.isSubmittingShift) return;
 
     this.confirmationService.confirm({
-      title: 'Trainer Shift Check-In',
-      message: `Are you sure you want to Check-In ${this.staff.firstName} for their shift?`,
+      title: CONSTANTS.STAFF_MODULE.SHIFT_CHECKIN_CONFIRM_TITLE,
+      message: CONSTANTS.STAFF_MODULE.SHIFT_CHECKIN_CONFIRM_MSG.replace('{name}', this.staff.firstName),
       confirmText: 'Check-In',
       cancelText: 'Cancel',
       type: 'info'
@@ -245,7 +246,7 @@ export class StaffDetailDrawerComponent {
         this.isSubmittingShift = true;
         this.staffService.checkInStaff(this.staff!.id).subscribe({
           next: (res) => {
-            this.notification.success(`${this.staff!.firstName} is now On-Duty!`);
+            this.notification.success(CONSTANTS.STAFF_MODULE.DUTY_ON_SUCCESS.replace('{name}', this.staff!.firstName));
             this.staff = res.data;
             this.isSubmittingShift = false;
           },
@@ -262,8 +263,8 @@ export class StaffDetailDrawerComponent {
     if (!this.staff || this.isSubmittingShift) return;
 
     this.confirmationService.confirm({
-      title: 'Trainer Shift Check-Out',
-      message: `Are you sure you want to Check-Out ${this.staff.firstName} and end their shift?`,
+      title: CONSTANTS.STAFF_MODULE.SHIFT_CHECKOUT_CONFIRM_TITLE,
+      message: CONSTANTS.STAFF_MODULE.SHIFT_CHECKOUT_CONFIRM_MSG.replace('{name}', this.staff.firstName),
       confirmText: 'Check-Out',
       cancelText: 'Cancel',
       type: 'warning'
@@ -272,7 +273,7 @@ export class StaffDetailDrawerComponent {
         this.isSubmittingShift = true;
         this.staffService.checkOutStaff(this.staff!.id).subscribe({
           next: (res) => {
-            this.notification.success(`${this.staff!.firstName} is now Off-Duty.`);
+            this.notification.success(CONSTANTS.STAFF_MODULE.DUTY_OFF_SUCCESS.replace('{name}', this.staff!.firstName));
             this.staff = res.data;
             this.isSubmittingShift = false;
           },

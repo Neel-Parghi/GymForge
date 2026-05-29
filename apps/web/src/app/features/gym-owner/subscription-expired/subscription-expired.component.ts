@@ -6,6 +6,7 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { GymService } from '../../../core/services/gym.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 import { PricingPlan } from '../../../shared/models/pricing.model';
 import { GymListResponse } from '../../../shared/models/gym.model';
 
@@ -58,7 +59,7 @@ export class SubscriptionExpiredComponent implements OnInit {
     this.submittingPlanId = plan.id;
     this.paymentService.renewSubscription(plan.name, plan.price).subscribe({
       next: () => {
-        this.notification.success(`Access restored! Successfully subscribed to the ${plan.name}.`);
+        this.notification.success(CONSTANTS.SUBSCRIPTION_EXPIRED.ACCESS_RESTORED.replace('{name}', plan.name));
         this.gymService.clearMyGymCache();
         this.submittingPlanId = null;
         this.router.navigate(['/gym-owner/dashboard']);

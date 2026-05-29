@@ -8,6 +8,7 @@ import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { FileUploadService } from '../../../../../core/services/file-upload.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-equipment-drawer',
@@ -113,7 +114,7 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
           this.commitEquipment();
         },
         error: () => {
-          this.notificationService.error('Failed to upload image');
+          this.notificationService.error(CONSTANTS.INVENTORY_MODULE.UPLOAD_IMAGE_ERROR);
           this.loading = false;
         }
       });
@@ -130,13 +131,13 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
 
     action.subscribe({
       next: () => {
-        this.notificationService.success(`Equipment ${this.isEditingEquipment ? 'updated' : 'registered'} successfully`);
+        this.notificationService.success(CONSTANTS.INVENTORY_MODULE.EQUIPMENT_SAVE_SUCCESS.replace('{status}', this.isEditingEquipment ? 'updated' : 'registered'));
         this.equipmentSaved.emit();
         this.closeDrawer.emit();
         this.loading = false;
       },
       error: () => {
-        this.notificationService.error('Failed to save equipment');
+        this.notificationService.error(CONSTANTS.INVENTORY_MODULE.EQUIPMENT_SAVE_ERROR);
         this.loading = false;
       }
     });

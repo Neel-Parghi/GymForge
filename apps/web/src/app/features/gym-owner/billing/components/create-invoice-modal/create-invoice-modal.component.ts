@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 import { BillingService } from '../../../../../core/services/billing.service';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
@@ -45,7 +46,7 @@ export class CreateInvoiceModalComponent implements OnInit {
 
   submitCustomInvoice(): void {
     if (this.createInvoiceForm.invalid) {
-      this.notification.error('Please enter valid invoice details.');
+      this.notification.error(CONSTANTS.BILLING_MODULE.CREATE_INVOICE_VALIDATION_ERROR);
       return;
     }
 
@@ -53,7 +54,7 @@ export class CreateInvoiceModalComponent implements OnInit {
     const selectedMember = this.gymMembers[val.memberIndex];
 
     if (!selectedMember) {
-      this.notification.error('Selected member is invalid.');
+      this.notification.error(CONSTANTS.BILLING_MODULE.CREATE_INVOICE_INVALID_MEMBER);
       return;
     }
 
@@ -67,12 +68,12 @@ export class CreateInvoiceModalComponent implements OnInit {
 
     this.billingService.createCustomInvoice(payload).subscribe({
       next: () => {
-        this.notification.success('Custom invoice generated and recorded successfully!');
+        this.notification.success(CONSTANTS.BILLING_MODULE.CREATE_INVOICE_SUCCESS);
         this.invoiceCreated.emit();
         this.close.emit();
       },
       error: () => {
-        this.notification.error('Failed to register custom invoice.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.CREATE_INVOICE_ERROR);
       }
     });
   }

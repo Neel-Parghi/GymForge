@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GymOwnerStats } from '../../../core/models/dashboard.model';
 import { GymOwnerDashboardService } from '../../../core/services/gym-owner-dashboard.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 import { Router } from '@angular/router';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 
@@ -63,7 +64,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading dashboard stats:', err);
-        this.notification.error('Failed to load dashboard statistics.');
+        this.notification.error(CONSTANTS.DASHBOARD.LOAD_STATS_ERROR);
         this.isLoading = false;
       }
     });
@@ -92,7 +93,7 @@ export class DashboardComponent implements OnInit {
 
   sendRenewalReminder(renewal: any, event: Event): void {
     event.stopPropagation();
-    this.notification.success(`Renewal reminder sent to ${renewal.memberName} successfully!`);
+    this.notification.success(CONSTANTS.DASHBOARD.RENEWAL_REMINDER_SUCCESS.replace('{name}', renewal.memberName));
   }
 
   formatTotalMembers(): string {
@@ -174,7 +175,7 @@ export class DashboardComponent implements OnInit {
     const data = this.getBarChartData();
     const maxVal = Math.max(...data.map(d => d.occupancyCount), 1);
     const heightVal = (count / maxVal) * 120;
-    return heightVal > 15 ? heightVal : 15; // Minimum height for beautiful rounded rendering
+    return heightVal > 15 ? heightVal : 15;
   }
 
   getMemberTier(planName: string): string {

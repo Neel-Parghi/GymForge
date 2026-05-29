@@ -8,6 +8,7 @@ import { DateTimePickerComponent } from '../../../../../shared/components/date-t
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-maintenance-drawer',
@@ -135,13 +136,13 @@ export class MaintenanceDrawerComponent implements OnInit, OnChanges {
 
     action.subscribe({
       next: () => {
-        this.notificationService.success(`Maintenance log ${id ? 'updated' : 'recorded'} successfully`);
+        this.notificationService.success(CONSTANTS.INVENTORY_MODULE.MAINTENANCE_SAVE_SUCCESS.replace('{status}', id ? 'updated' : 'recorded'));
         this.maintenanceSaved.emit();
         this.closeDrawer.emit();
         this.loading = false;
       },
       error: () => {
-        this.notificationService.error(`Failed to ${id ? 'update' : 'record'} maintenance log`);
+        this.notificationService.error(CONSTANTS.INVENTORY_MODULE.MAINTENANCE_SAVE_ERROR.replace('{status}', id ? 'update' : 'record'));
         this.loading = false;
       }
     });

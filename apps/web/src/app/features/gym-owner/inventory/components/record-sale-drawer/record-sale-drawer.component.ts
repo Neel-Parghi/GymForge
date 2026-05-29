@@ -8,6 +8,7 @@ import { DateTimePickerComponent } from '../../../../../shared/components/date-t
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-record-sale-drawer',
@@ -110,7 +111,7 @@ export class RecordSaleDrawerComponent implements OnInit, OnChanges {
 
     this.inventoryService.recordSale(this.saleForm.value).subscribe({
       next: () => {
-        this.notificationService.success('Sale transaction recorded successfully');
+        this.notificationService.success(CONSTANTS.INVENTORY_MODULE.SALE_RECORD_SUCCESS);
         this.saleRecorded.emit();
         this.closeDrawer.emit();
         this.loading = false;

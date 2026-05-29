@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, Input, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../core/constants/constants';
 import { StaffService } from '../../../../core/services/staff.service';
 import { AuthApiService } from '../../../../core/services/auth-api.service';
 import { ConfirmationPopupComponent } from "../../../../shared/components/confirmation-popup/confirmation-popup.component";
@@ -47,7 +48,7 @@ export class OnboardStaffModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.isGymOwner = this.authService.getUserRole() === 'GymOwner';
-    const defaultBranchId = this.isEdit 
+    const defaultBranchId = this.isEdit
       ? (this.staff?.branchId || '')
       : (this.branchContextService.getActiveBranchId() || '');
 
@@ -83,14 +84,13 @@ export class OnboardStaffModalComponent implements OnInit {
     if (this.onboardForm.valid && !this.isSubmitting) {
       const gymId = this.authService.getGymId();
       if (!gymId) {
-        this.notification.error('Session expired. Please login again.');
+        this.notification.error(CONSTANTS.STAFF_MODULE.SESSION_EXPIRED);
         return;
       }
 
       this.isSubmitting = true;
 
       const formValue = { ...this.onboardForm.value };
-      // Convert comma-separated string back to array for API
       if (formValue.specializations) {
         formValue.specializations = formValue.specializations.split(',').map((s: string) => s.trim()).filter((s: string) => s !== '');
       } else {
@@ -101,7 +101,7 @@ export class OnboardStaffModalComponent implements OnInit {
         formValue.branchId = null;
       }
 
-      const request = this.isEdit 
+      const request = this.isEdit
         ? this.staffService.updateStaff(this.staff.id, formValue)
         : this.staffService.addStaff(formValue);
 

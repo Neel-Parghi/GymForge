@@ -308,7 +308,7 @@ export class MembersListComponent implements OnInit {
     this.confirmationService.confirm({
       title: CONSTANTS.MEMBERS_MODULE.DELETE_CONFIRM_TITLE,
       message: CONSTANTS.MEMBERS_MODULE.DELETE_CONFIRM_MSG.replace('{name}', `${member.firstName} ${member.lastName}`),
-      confirmText: 'Remove Member',
+      confirmText: CONSTANTS.MEMBERS_MODULE.REMOVE_MEMBER,
       type: 'danger'
     }).then(confirmed => {
       if (confirmed) {
@@ -474,6 +474,6 @@ export class MembersListComponent implements OnInit {
   }
 
   sendNotification(member: any): void {
-    this.notificationService.success(`Notification alert successfully sent to ${member.name}!`);
+    this.notificationService.success(CONSTANTS.MEMBERS_MODULE.ALERT_SUCCESS.replace('{name}', member.name));
   }
 }

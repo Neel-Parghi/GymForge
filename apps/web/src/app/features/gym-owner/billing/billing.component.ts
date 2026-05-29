@@ -21,6 +21,7 @@ import { MerchantSettingsComponent } from './components/merchant-settings/mercha
 import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { ConfigurationService } from '../../../core/services/configuration.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-gym-owner-billing',
@@ -231,7 +232,7 @@ export class BillingComponent implements OnInit {
         }
       },
       error: () => {
-        this.notification.error('Failed to load gym billing settings.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.LOAD_SETTINGS_ERROR);
         this.generatePayrollMonths();
         this.periodForm.patchValue({ selectedPeriod: this.selectedPayrollMonth }, { emitEvent: false });
         this.loadMemberBillingOverview(this.selectedPayrollMonth);
@@ -396,7 +397,7 @@ export class BillingComponent implements OnInit {
         });
       },
       error: () => {
-        this.notification.error('Failed to load live member billing logs.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.LOAD_MEMBER_LOGS_ERROR);
         this.memberInvoices = [];
       }
     });
@@ -447,7 +448,7 @@ export class BillingComponent implements OnInit {
         }
       },
       error: () => {
-        this.notification.error('Failed to load staff payroll overview.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.LOAD_PAYROLL_ERROR);
         this.staffPayouts = [];
       }
     });
@@ -580,7 +581,7 @@ export class BillingComponent implements OnInit {
       if (payout) {
         payout.status = 'Paid';
         payout.payoutDate = new Date();
-        this.notification.success(`Payout of ₹${payout.totalPayout.toLocaleString()} processed successfully for ${payout.staffName}!`);
+        this.notification.success(CONSTANTS.BILLING_MODULE.PAYOUT_SUCCESS.replace('{amount}', payout.totalPayout.toLocaleString()).replace('{name}', payout.staffName));
       }
       return;
     }
@@ -597,17 +598,17 @@ export class BillingComponent implements OnInit {
       next: () => {
         payout.status = 'Paid';
         payout.payoutDate = new Date();
-        this.notification.success(`Payout of ₹${payout.totalPayout.toLocaleString()} released successfully for ${payout.staffName}!`);
+        this.notification.success(CONSTANTS.BILLING_MODULE.PAYOUT_RELEASE_SUCCESS.replace('{amount}', payout.totalPayout.toLocaleString()).replace('{name}', payout.staffName));
         this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
       },
       error: () => {
-        this.notification.error('Failed to release staff payout.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.PAYOUT_RELEASE_ERROR);
       }
     });
   }
 
   downloadPayslip(payoutName: string): void {
-    this.notification.success(`Payslip PDF for ${payoutName} downloaded successfully!`);
+    this.notification.success(CONSTANTS.BILLING_MODULE.PAYSLIP_DOWNLOAD_SUCCESS.replace('{name}', payoutName));
   }
 
   openPayrollRulesModal(payout: StaffPayout, event: Event): void {
@@ -641,7 +642,7 @@ export class BillingComponent implements OnInit {
     if (this.availablePlans.length === 0) {
       this.pricingService.getAllPlans().subscribe({
         next: (res) => { if (res.data) this.availablePlans = res.data.filter(p => p.isActive && !p.isTrial); },
-        error: () => this.notification.error('Could not load subscription plans.')
+        error: () => this.notification.error(CONSTANTS.BILLING_MODULE.LOAD_PLANS_ERROR)
       });
     }
   }
@@ -660,7 +661,7 @@ export class BillingComponent implements OnInit {
     this.merchantUpiVpa = settings.merchantUpiVpa;
     this.razorpayKeyId = settings.razorpayKeyId;
     this.razorpaySecretKey = settings.razorpaySecretKey;
-    this.notification.success('Merchant gateway settings saved! Member online payments are fully verified.');
+    this.notification.success(CONSTANTS.BILLING_MODULE.MERCHANT_GATEWAY_SUCCESS);
   }
 
 
@@ -674,25 +675,25 @@ export class BillingComponent implements OnInit {
 
   sendInvoiceReminder(invoice: MemberInvoice, event: Event): void {
     event.stopPropagation();
-    this.notification.success(`WhatsApp & Email reminder dispatched to ${invoice.memberName} successfully.`);
+    this.notification.success(CONSTANTS.BILLING_MODULE.WHATSAPP_EMAIL_REMINDER_SUCCESS.replace('{name}', invoice.memberName));
   }
 
   markAsPaid(invoice: MemberInvoice, event: Event): void {
     event.stopPropagation();
     if (!invoice.realRecordId) {
       invoice.status = 'Paid';
-      this.notification.success(`Invoice ${invoice.id} marked as Paid!`);
+      this.notification.success(CONSTANTS.BILLING_MODULE.INVOICE_PAID_SUCCESS.replace('{id}', invoice.id));
       return;
     }
 
     this.billingService.payInvoice(invoice.realRecordId).subscribe({
       next: () => {
         invoice.status = 'Paid';
-        this.notification.success(`Invoice ${invoice.id} successfully marked as Paid!`);
+        this.notification.success(CONSTANTS.BILLING_MODULE.INVOICE_PAID_SUCCESS_FULL.replace('{id}', invoice.id));
         this.loadMemberBillingOverview(this.selectedPayrollMonth);
       },
       error: () => {
-        this.notification.error('Failed to update invoice payment status.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.INVOICE_PAID_ERROR);
       }
     });
   }
@@ -711,15 +712,15 @@ export class BillingComponent implements OnInit {
 
       this.gymService.updateMyGym(payload).subscribe({
         next: () => {
-          this.notification.success('Tax rules & legal billing configuration saved successfully.');
+          this.notification.success(CONSTANTS.BILLING_MODULE.TAX_CONFIG_SUCCESS);
           this.loadGymSettingsAndMonths();
         },
         error: () => {
-          this.notification.error('Failed to save billing configuration to server.');
+          this.notification.error(CONSTANTS.BILLING_MODULE.TAX_CONFIG_ERROR);
         }
       });
     } else {
-      this.notification.error('Please resolve validation errors in the settings form.');
+      this.notification.error(CONSTANTS.BILLING_MODULE.VALIDATION_ERROR);
     }
   }
 
@@ -751,7 +752,7 @@ export class BillingComponent implements OnInit {
     setTimeout(() => {
       const printableElement = document.getElementById('printable-receipt');
       if (!printableElement) {
-        this.notification.error('Failed to locate print receipt template.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.RECEIPT_TEMPLATE_ERROR);
         return;
       }
 
@@ -780,7 +781,7 @@ export class BillingComponent implements OnInit {
           if (!wasOpen) {
             this.selectedInvoice = null;
           }
-          this.notification.success(`PDF receipt generated for ${invoice.id || invoice.memberName || 'GymForge License'}.`);
+          this.notification.success(CONSTANTS.BILLING_MODULE.RECEIPT_PDF_SUCCESS.replace('{name}', invoice.id || invoice.memberName || 'GymForge License'));
         }
       };
 

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-invoice-detail-modal',
@@ -53,7 +54,7 @@ export class InvoiceDetailModalComponent {
     setTimeout(() => {
       const printableElement = document.getElementById('printable-receipt');
       if (!printableElement) {
-        this.notification.error('Failed to locate print receipt template.');
+        this.notification.error(CONSTANTS.BILLING_MODULE.RECEIPT_TEMPLATE_ERROR);
         return;
       }
 
@@ -74,11 +75,11 @@ export class InvoiceDetailModalComponent {
 
       const handlePrintComplete = (msgEvent: MessageEvent) => {
         if (msgEvent.data && msgEvent.data.type === 'PRINT_COMPLETE') {
-          if (printFrame.parentNode) {
+           if (printFrame.parentNode) {
             printFrame.parentNode.removeChild(printFrame);
           }
           window.removeEventListener('message', handlePrintComplete);
-          this.notification.success(`PDF receipt generated for ${invoice.id || invoice.memberName || 'GymForge License'}.`);
+          this.notification.success(CONSTANTS.BILLING_MODULE.RECEIPT_PDF_SUCCESS.replace('{name}', invoice.id || invoice.memberName || 'GymForge License'));
         }
       };
 

@@ -72,6 +72,7 @@ export const CONSTANTS = {
         DELETE_PLAN_MESSAGE: 'Are you sure you want to delete this plan? This action cannot be undone.',
         DELETE_OWNER_TITLE: 'Delete Gym Owner',
         DELETE_OWNER_MESSAGE: 'Are you sure you want to delete this gym owner? This action cannot be undone.',
+        DELETE_PRODUCT_CONFIRM: 'Are you sure you want to delete this product?',
     },
     //#endregion
 
@@ -121,7 +122,9 @@ export const CONSTANTS = {
             DEFAULT_POINTS: "0,30 100,30",
             HEIGHT: 30,
             RANGE_OFFSET: 25
-        }
+        },
+        LOAD_STATS_ERROR: 'Failed to load dashboard statistics.',
+        RENEWAL_REMINDER_SUCCESS: 'Renewal reminder sent to {name} successfully!'
     },
     //#endregion
 
@@ -205,6 +208,8 @@ export const CONSTANTS = {
         EXPORT_ERROR: 'Failed to export members',
         DELETE_CONFIRM_TITLE: 'Remove Member',
         DELETE_CONFIRM_MSG: 'Are you sure you want to remove {name}? This action cannot be undone.',
+        ALERT_SUCCESS: 'Notification alert successfully sent to {name}!',
+        REMOVE_MEMBER: 'Remove Member',
     },
     //#endregion
 
@@ -217,7 +222,127 @@ export const CONSTANTS = {
         EXPORT_INFO: 'Export functionality coming soon.',
         DELETE_CONFIRM_MSG: 'Are you sure you want to remove {name} from your gym? This action cannot be undone.',
         DELETE_CONFIRM_TITLE: 'Remove Staff Member?',
-
+        SESSION_EXPIRED: 'Session expired. Please login again.',
+        ASSIGN_MEMBER_SUCCESS: 'Member assigned to trainer successfully!',
+        DEALLOCATE_MEMBER_SUCCESS: 'Member deallocated successfully!',
+        STATUS_TOGGLE_INFO: 'Status toggle functionality coming soon.',
+        DUTY_ON_SUCCESS: '{name} is now On-Duty!',
+        DUTY_OFF_SUCCESS: '{name} is now Off-Duty.',
+        GENERATE_INVOICE_CONFIRM_TITLE: 'Generate PT Invoice?',
+        GENERATE_INVOICE_CONFIRM_MSG: 'Member assigned successfully! Would you like to generate a billing invoice for this training contract now?',
+        GENERATE_INVOICE_CONFIRM_TEXT: 'Yes, Create Invoice',
+        END_PT_ASSIGNMENT_CONFIRM_TITLE: 'End PT Assignment?',
+        END_PT_ASSIGNMENT_CONFIRM_MSG: 'Are you sure you want to end this personal training assignment?',
+        END_PT_ASSIGNMENT_CONFIRM_TEXT: 'End Assignment',
+        SHIFT_CHECKIN_CONFIRM_TITLE: 'Trainer Shift Check-In',
+        SHIFT_CHECKIN_CONFIRM_MSG: 'Are you sure you want to Check-In {name} for their shift?',
+        SHIFT_CHECKOUT_CONFIRM_TITLE: 'Trainer Shift Check-Out',
+        SHIFT_CHECKOUT_CONFIRM_MSG: 'Are you sure you want to Check-Out {name} and end their shift?',
     },
+    //#endregion
+
+    //#region Gym Owner Settings
+    GYM_OWNER_SETTINGS: {
+        LOAD_ERROR: 'Failed to load settings from backend.',
+        VALIDATION_ERROR: 'Please fix the validation errors before saving.',
+        UPDATE_SUCCESS: 'Operations & Role Rights settings updated successfully!',
+        UPDATE_ERROR: 'Failed to save settings to the backend.',
+        HOLIDAY_VALIDATION_ERROR: 'Please enter a holiday name and select a date.',
+        HOLIDAY_CREATE_SUCCESS: 'Holiday closure scheduled successfully!',
+        HOLIDAY_CREATE_ERROR: 'Failed to add holiday closure.',
+        HOLIDAY_DELETE_SUCCESS: 'Scheduled closure removed.',
+        HOLIDAY_DELETE_ERROR: 'Failed to remove scheduled closure.'
+    },
+    //#endregion
+
+    //#region Attendance
+    ATTENDANCE_MODULE: {
+        LOAD_OCCUPANCY_ERROR: 'Failed to load occupancy data.',
+        LOAD_SHIFT_LOGS_ERROR: 'Failed to load staff shift logs.',
+        LOAD_ATTENDANCE_LOGS_ERROR: 'Failed to load attendance logs.',
+        SEARCH_MEMBERS_ERROR: 'Failed to search members.',
+        SEARCH_STAFF_ERROR: 'Failed to search staff.',
+        LOAD_ON_DUTY_STAFF_ERROR: 'Failed to load on-duty staff.',
+        ACCESS_GRANTED_MEMBER: 'Access Granted: {name}',
+        MEMBER_CHECKOUT_SUCCESS: '{name} checked out successfully.',
+        ACCESS_GRANTED_STAFF: 'Access Granted: {name}',
+        STAFF_CHECKOUT_SUCCESS: '{name} checked out successfully.'
+    },
+    //#endregion
+
+    //#region Billing
+    BILLING_MODULE: {
+        LOAD_SETTINGS_ERROR: 'Failed to load gym billing settings.',
+        LOAD_MEMBER_LOGS_ERROR: 'Failed to load live member billing logs.',
+        LOAD_PAYROLL_ERROR: 'Failed to load staff payroll overview.',
+        PAYOUT_SUCCESS: 'Payout of ₹{amount} processed successfully for {name}!',
+        PAYOUT_RELEASE_SUCCESS: 'Payout of ₹{amount} released successfully for {name}!',
+        PAYOUT_RELEASE_ERROR: 'Failed to release staff payout.',
+        PAYSLIP_DOWNLOAD_SUCCESS: 'Payslip PDF for {name} downloaded successfully!',
+        LOAD_PLANS_ERROR: 'Could not load subscription plans.',
+        MERCHANT_GATEWAY_SUCCESS: 'Merchant gateway settings saved! Member online payments are fully verified.',
+        WHATSAPP_EMAIL_REMINDER_SUCCESS: 'WhatsApp & Email reminder dispatched to {name} successfully.',
+        INVOICE_PAID_SUCCESS: 'Invoice {id} marked as Paid!',
+        INVOICE_PAID_SUCCESS_FULL: 'Invoice {id} successfully marked as Paid!',
+        INVOICE_PAID_ERROR: 'Failed to update invoice payment status.',
+        TAX_CONFIG_SUCCESS: 'Tax rules & legal billing configuration saved successfully.',
+        TAX_CONFIG_ERROR: 'Failed to save billing configuration to server.',
+        VALIDATION_ERROR: 'Please resolve validation errors in the settings form.',
+        RECEIPT_TEMPLATE_ERROR: 'Failed to locate print receipt template.',
+        RECEIPT_PDF_SUCCESS: 'PDF receipt generated for {name}.',
+        CREATE_INVOICE_VALIDATION_ERROR: 'Please enter valid invoice details.',
+        CREATE_INVOICE_INVALID_MEMBER: 'Selected member is invalid.',
+        CREATE_INVOICE_SUCCESS: 'Custom invoice generated and recorded successfully!',
+        CREATE_INVOICE_ERROR: 'Failed to register custom invoice.',
+        PAYROLL_RULES_SUCCESS: 'Payroll rules updated successfully for {name}!',
+        PAYROLL_RULES_ERROR: 'Failed to update payroll rules on the server.',
+        UPI_TIMEOUT: 'UPI payment request timed out. Please try again.',
+        UPI_AUTHORIZING: 'Authorizing payment with bank UPI gateway...',
+        UPI_SUCCESS: 'Payment of ₹{amount} processed successfully! Plan updated to {plan}.',
+        UPI_ERROR: 'Failed to process payment verification on server.'
+    },
+    //#endregion
+
+    //#region Inventory
+    INVENTORY_MODULE: {
+        LOAD_PRODUCTS_ERROR: 'Failed to load products',
+        EDIT_COMPLETED_LOGS_INFO: 'Completed logs cannot be edited for audit integrity.',
+        PRODUCT_DELETE_SUCCESS: 'Product deleted successfully',
+        UPLOAD_IMAGE_ERROR: 'Failed to upload image',
+        EQUIPMENT_SAVE_SUCCESS: 'Equipment {status} successfully',
+        EQUIPMENT_SAVE_ERROR: 'Failed to save equipment',
+        MAINTENANCE_SAVE_SUCCESS: 'Maintenance log {status} successfully',
+        MAINTENANCE_SAVE_ERROR: 'Failed to {status} maintenance log',
+        PRODUCT_SAVE_SUCCESS: 'Product {status} successfully',
+        PRODUCT_SAVE_ERROR: 'Operation failed',
+        SALE_RECORD_SUCCESS: 'Sale transaction recorded successfully',
+        RECEIPT_PRINTER_INFO: 'Sending receipt to printer...',
+        RECEIPT_EMAIL_SUCCESS: 'Receipt emailed to {name}'
+    },
+    //#endregion
+
+    //#region Gym Module
+    GYM_MODULE: {
+        LOGO_UPLOAD_SUCCESS: 'Logo uploaded successfully. Save profile changes to persist.',
+        LOGO_UPLOAD_ERROR: 'Failed to upload logo.',
+        LOAD_DETAILS_ERROR: 'Failed to load gym details',
+        LOAD_BRANCHES_ERROR: 'Failed to load branches',
+        UPDATE_SUCCESS: 'Gym profile updated successfully',
+        UPDATE_ERROR: 'Failed to update gym profile',
+        LOAD_MANAGERS_ERROR: 'Failed to load active managers for this gym.',
+        DETAILS_NOT_LOADED: 'Gym details not loaded.',
+        INIT_SUBSCRIPTION_ERROR: 'Failed to initiate subscription order.',
+        PAYMENT_UPGRADE_SUCCESS: 'Payment verified! SaaS Subscription successfully upgraded.',
+        BRANCH_ADD_SUCCESS: 'Branch added successfully!',
+        BRANCH_UPDATE_SUCCESS: 'Branch updated successfully',
+        BRANCH_UPDATE_ERROR: 'Failed to update branch',
+        BRANCH_ADD_ERROR: 'Failed to add branch'
+    },
+    //#endregion
+
+    //#region Subscription Expired
+    SUBSCRIPTION_EXPIRED: {
+        ACCESS_RESTORED: 'Access restored! Successfully subscribed to the {name}.'
+    }
     //#endregion
 }
