@@ -436,7 +436,7 @@
         transition: all 0.2s ease;
 
         &:hover {
-          color: var(--accent-color);
+          color: #0d3278;
           transform: rotate(30deg);
         }
       }
@@ -910,7 +910,7 @@
       color: white;
     }
 
-     .plan-description {
+    .plan-description {
       margin: 0 0 20px 0;
       color: #94a3b8;
       font-size: 0.85rem;

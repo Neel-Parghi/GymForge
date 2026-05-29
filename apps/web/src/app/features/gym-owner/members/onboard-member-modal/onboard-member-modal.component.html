@@ -16,7 +16,7 @@
     <!-- Stepper Navigation -->
     <div class="stepper-container">
       <div class="step" *ngFor="let step of steps" [class.active]="currentStep === step.id"
-        [class.completed]="currentStep > step.id">
+        [class.completed]="currentStep > step.id" [class.clickable]="isEdit" (click)="jumpToStep(step.id)">
         <div class="step-circle">{{ step.id }}</div>
         <span class="step-label">{{ step.label }}</span>
         <div class="step-line" *ngIf="step.id < totalSteps"></div>
@@ -205,12 +205,12 @@
               <span class="error-msg" *ngIf="isInvalid('gymPlanId')">Please select a plan</span>
             </div>
 
-            <div class="form-group lg">
+            <div class="form-group">
               <label>Start Date (Defaults to today)</label>
               <app-date-time-picker formControlName="startDate" placeholder="Select start date"></app-date-time-picker>
             </div>
 
-            <div class="form-group lg">
+            <div class="form-group">
               <label>Initial Payment Status *</label>
               <app-dropdown [options]="paymentStatusOptions" formControlName="paymentStatus"
                 placeholder="Select Status">

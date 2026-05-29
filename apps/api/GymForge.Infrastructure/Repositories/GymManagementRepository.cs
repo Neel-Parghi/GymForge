@@ -302,5 +302,30 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(s => s.GymId == gymId && s.Role == StaffRole.Manager && s.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<List<GymHoliday>> GetHolidaysAsync(Guid gymId)
+        {
+            return await _dbContext.GymHolidays
+                .Include(h => h.Branch)
+                .Where(h => h.GymId == gymId)
+                .OrderBy(h => h.Date)
+                .ToListAsync();
+        }
+
+        public async Task AddHolidayAsync(GymHoliday holiday)
+        {
+            await _dbContext.GymHolidays.AddAsync(holiday);
+        }
+
+        public async Task DeleteHolidayAsync(Guid gymId, Guid holidayId)
+        {
+            GymHoliday? holiday = await _dbContext.GymHolidays
+                .FirstOrDefaultAsync(h => h.GymId == gymId && h.Id == holidayId);
+                
+            if (holiday != null)
+            {
+                _dbContext.GymHolidays.Remove(holiday);
+            }
+        }
     }
 }

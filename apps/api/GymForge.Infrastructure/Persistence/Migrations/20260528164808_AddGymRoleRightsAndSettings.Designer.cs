@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260528164808_AddGymRoleRightsAndSettings")]
+    partial class AddGymRoleRightsAndSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -395,46 +398,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasIndex("OwnerUserId");
 
                     b.ToTable("Gyms");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.GymHoliday", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("BranchId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("GymId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("GymId");
-
-                    b.ToTable("GymHolidays");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.GymMember", b =>
@@ -1652,23 +1615,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.GymHoliday", b =>
-                {
-                    b.HasOne("GymForge.Domain.Entities.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId");
-
-                    b.HasOne("GymForge.Domain.Entities.Gym", "Gym")
-                        .WithMany()
-                        .HasForeignKey("GymId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("Gym");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.GymMember", b =>

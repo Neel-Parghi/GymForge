@@ -23,5 +23,10 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         Task UpdateBranchAsync(Guid branchId, BranchDto branchDto);
         Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId);
         Task UpdateMyGymAsync(Guid ownerId, UpdateMyGymDto updateMyGymDto);
+        Task<GymSettingsDto> GetGymSettingsAsync(Guid gymId);
+        Task UpdateGymSettingsAsync(Guid gymId, GymSettingsDto dto);
+        Task<List<GymHolidayDto>> GetHolidaysAsync(Guid gymId);
+        Task AddHolidayAsync(Guid gymId, GymHolidayDto dto);
+        Task DeleteHolidayAsync(Guid gymId, Guid holidayId);
     }
 }

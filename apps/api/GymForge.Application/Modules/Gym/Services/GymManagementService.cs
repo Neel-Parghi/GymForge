@@ -227,12 +227,10 @@ namespace GymForge.Application.Modules.Gym.Services
 
             _gymManagementRepository.UpdateBranch(branch);
 
-            // Reassign branch manager
             List<Staff> existingManagers = await _gymManagementRepository.GetBranchManagersAsync(branch.GymId);
 
-            // Unassign current managers of this branch to prevent duplicates
-            var currentBranchManagers = existingManagers.Where(m => m.BranchId == branchId);
-            foreach (var currentManager in currentBranchManagers)
+            IEnumerable<Staff> currentBranchManagers = existingManagers.Where(m => m.BranchId == branchId);
+            foreach (Staff currentManager in currentBranchManagers)
             {
                 currentManager.BranchId = null;
             }
@@ -265,6 +263,71 @@ namespace GymForge.Application.Modules.Gym.Services
 
             _mapper.Map(updateMyGymDto, gym);
             _gymManagementRepository.UpdateGym(gym);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<GymSettingsDto> GetGymSettingsAsync(Guid gymId)
+        {
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(gymId);
+            if (gym == null)
+            {
+                throw new Exception("Gym not found.");
+            }
+
+            return new GymSettingsDto
+            {
+                RoleRightsMatrixJson = gym.RoleRightsMatrixJson,
+                OperationsSettingsJson = gym.OperationsSettingsJson
+            };
+        }
+
+        public async Task UpdateGymSettingsAsync(Guid gymId, GymSettingsDto dto)
+        {
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(gymId);
+            if (gym == null)
+            {
+                throw new Exception("Gym not found.");
+            }
+
+            gym.RoleRightsMatrixJson = dto.RoleRightsMatrixJson;
+            gym.OperationsSettingsJson = dto.OperationsSettingsJson;
+
+            _gymManagementRepository.UpdateGym(gym);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<GymHolidayDto>> GetHolidaysAsync(Guid gymId)
+        {
+            List<GymHoliday> holidays = await _gymManagementRepository.GetHolidaysAsync(gymId);
+            return holidays.Select(h => new GymHolidayDto
+            {
+                Id = h.Id,
+                Name = h.Name,
+                Date = h.Date,
+                BranchId = h.BranchId,
+                BranchName = h.BranchId == null ? "All Locations" : h.Branch?.Name
+            }).ToList();
+        }
+
+        public async Task AddHolidayAsync(Guid gymId, GymHolidayDto dto)
+        {
+            GymHoliday holiday = new GymHoliday
+            {
+                Id = Guid.NewGuid(),
+                GymId = gymId,
+                BranchId = dto.BranchId,
+                Name = dto.Name,
+                Date = dto.Date.ToUniversalTime(),
+                CreatedOn = DateTime.UtcNow
+            };
+
+            await _gymManagementRepository.AddHolidayAsync(holiday);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteHolidayAsync(Guid gymId, Guid holidayId)
+        {
+            await _gymManagementRepository.DeleteHolidayAsync(gymId, holidayId);
             await _unitOfWork.SaveChangesAsync();
         }
     }

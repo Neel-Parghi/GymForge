@@ -293,7 +293,8 @@
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
-        &:hover, &.open {
+        &:hover,
+        &.open {
           border-color: var(--accent-color);
           box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
           background: var(--bg-surface);
@@ -444,6 +445,7 @@
         opacity: 0;
         transform: translateY(-8px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -571,7 +573,7 @@
 
   .page-content {
     flex: 1;
-    padding: 8px 16px;
+    padding: 5px 16px;
     overflow-y: auto;
     background-color: var(--bg-color);
     position: relative;

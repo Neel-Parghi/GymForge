@@ -129,17 +129,17 @@ export class MembersListComponent implements OnInit {
   selectedMember: GymMember | null = null;
 
   // Stats
-  get totalCount(): number { 
-    return this.viewMode === 'dashboard' ? this.dashboardTotalCount : this.totalItems; 
+  get totalCount(): number {
+    return this.viewMode === 'dashboard' ? this.dashboardTotalCount : this.totalItems;
   }
-  get activeCount(): number { 
-    return this.viewMode === 'dashboard' ? this.dashboardActiveCount : this.members.filter(m => m.status === MemberStatus.Active).length; 
+  get activeCount(): number {
+    return this.viewMode === 'dashboard' ? this.dashboardActiveCount : this.members.filter(m => m.status === MemberStatus.Active).length;
   }
-  get frozenCount(): number { 
-    return this.viewMode === 'dashboard' ? this.dashboardFrozenCount : this.members.filter(m => m.status === MemberStatus.Freeze).length; 
+  get frozenCount(): number {
+    return this.viewMode === 'dashboard' ? this.dashboardFrozenCount : this.members.filter(m => m.status === MemberStatus.Freeze).length;
   }
-  get expiredCount(): number { 
-    return this.viewMode === 'dashboard' ? this.dashboardExpiredCount : this.members.filter(m => m.status === MemberStatus.Expired).length; 
+  get expiredCount(): number {
+    return this.viewMode === 'dashboard' ? this.dashboardExpiredCount : this.members.filter(m => m.status === MemberStatus.Expired).length;
   }
   get totalPages(): number { return Math.ceil(this.filteredMembers.length / this.pageSize); }
 

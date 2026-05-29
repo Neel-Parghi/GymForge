@@ -60,6 +60,8 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<StaffAttendanceLog> StaffAttendanceLogs { get; set; }
 
+        public DbSet<GymHoliday> GymHolidays { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -231,6 +233,12 @@ namespace GymForge.Infrastructure.Persistence
                 entity.HasIndex(a => a.GymId);
                 entity.HasIndex(a => a.StaffId);
                 entity.HasIndex(a => a.CheckInTime);
+            });
+
+            modelBuilder.Entity<GymHoliday>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
             });
 
             // Seed default settings

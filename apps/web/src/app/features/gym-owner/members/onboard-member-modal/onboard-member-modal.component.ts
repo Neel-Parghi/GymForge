@@ -79,13 +79,24 @@ export class OnboardMemberModal implements OnChanges, OnInit {
 
   get filteredPlans(): GymPlan[] {
     const selectedPlanId = this.form.get('gymPlanId')?.value;
-    return this.plans.filter(plan => {
-      if (plan.isActive) return true;
-      if (this.isEdit && selectedPlanId && plan.id?.toString().toLowerCase() === selectedPlanId.toString().toLowerCase()) {
-        return true;
-      }
-      return this.showArchived;
-    });
+    
+    if (this.showArchived) {
+      return this.plans.filter(plan => {
+        if (!plan.isActive) return true;
+        if (selectedPlanId && plan.id?.toString().toLowerCase() === selectedPlanId.toString().toLowerCase()) {
+          return true;
+        }
+        return false;
+      });
+    } else {
+      return this.plans.filter(plan => {
+        if (plan.isActive) return true;
+        if (selectedPlanId && plan.id?.toString().toLowerCase() === selectedPlanId.toString().toLowerCase()) {
+          return true;
+        }
+        return false;
+      });
+    }
   }
 
   toggleShowArchived(): void {
@@ -259,6 +270,13 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   prevStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  jumpToStep(stepId: number): void {
+    if (this.isEdit) {
+      this.currentStep = stepId;
       this.cdr.detectChanges();
     }
   }
