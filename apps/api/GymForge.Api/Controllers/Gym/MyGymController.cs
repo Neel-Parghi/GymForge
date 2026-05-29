@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/my-gym")]
-    [Authorize] // Allow all authenticated roles to query tenant configurations
+    [Authorize]
     [ApiController]
     public class MyGymController : BaseApiController
     {
