@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const platformId = inject(PLATFORM_ID);
 
   if (isPlatformServer(platformId)) {
-    return true; // Allow on server to prevent redirect loops during SSR
+    return true;
   }
 
   if (authService.isAuthenticated()) {

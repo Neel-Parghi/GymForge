@@ -12,7 +12,7 @@
     [class.fixed-position]="!insideDrawer" [class.absolute-position]="insideDrawer"
     [style.top]="insideDrawer ? null : dropdownTop" [style.bottom]="insideDrawer ? null : dropdownBottom"
     [style.left]="insideDrawer ? null : dropdownLeft" [style.width]="insideDrawer ? null : dropdownWidth"
-    [style.minWidth]="insideDrawer ? minWidth : null" style="max-width: 90vw;">
+    [style.minWidth]="insideDrawer ? minWidth : null">
 
     <div class="dropdown-search" *ngIf="isSearchable" (click)="onSearch($event)">
       <i class="fa-solid fa-magnifying-glass search-icon"></i>

@@ -58,7 +58,6 @@ export class MerchantSettingsComponent implements OnInit, OnChanges {
       razorpaySecretKey: new FormControl(this.razorpaySecretKey, [Validators.required])
     });
 
-    // Listen to changes to emit two-way binding changes up to parent
     this.merchantForm.get('enableOnlineMemberPayments')?.valueChanges.subscribe(val => {
       this.enableOnlineMemberPayments = val;
       this.enableOnlineMemberPaymentsChange.emit(val);

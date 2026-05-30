@@ -420,6 +420,17 @@
           margin-right: 8px;
         }
       }
+
+      .double-col {
+        grid-column: span 2;
+      }
+
+      .action-row {
+        grid-column: span 2;
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+      }
     }
   }
 }

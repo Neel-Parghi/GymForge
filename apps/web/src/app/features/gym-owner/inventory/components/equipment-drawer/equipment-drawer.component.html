@@ -6,7 +6,7 @@
 
     <!-- Image Upload Section for Equipment -->
     <div class="image-upload-section" (click)="fileInputEq.click()">
-      <input type="file" #fileInputEq (change)="onFileSelected($event)" accept="image/*" style="display: none">
+      <input type="file" #fileInputEq (change)="onFileSelected($event)" accept="image/*" class="hidden-file-input">
 
       <div class="image-placeholder" *ngIf="!imagePreview && !loading">
         <i class="fas fa-camera"></i>

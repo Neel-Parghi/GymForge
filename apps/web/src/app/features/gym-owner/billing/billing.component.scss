@@ -1218,3 +1218,26 @@ $color-info-bg: #f0f9ff;
 .modal-form-actions-margin-top {
   margin-top: 32px;
 }
+
+.empty-state-wrapper {
+  padding: 40px 0;
+  text-align: center;
+  color: #94a3b8;
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  p {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+.commission-amount {
+  color: $color-success !important;
+  font-weight: 600 !important;
+}

@@ -50,7 +50,6 @@ export class MainLayoutComponent implements OnInit {
     this.setRoleName();
     this.profileService.getProfile().subscribe();
 
-    // Preload gym settings and permissions matrix from backend
     const currentRole = this.authApiService.getUserRole();
     if (currentRole === 'GymOwner' || currentRole === 'Staff' || currentRole === 'Trainer') {
       this.gymSettingsService.loadSettings().subscribe({
@@ -60,7 +59,7 @@ export class MainLayoutComponent implements OnInit {
         error: (err) => console.error('Failed to load dynamic gym settings', err)
       });
     }
-    
+
     const assignedBranchId = this.authApiService.getAssignedBranchId();
     if (assignedBranchId) {
       this.isStaffLocked = true;

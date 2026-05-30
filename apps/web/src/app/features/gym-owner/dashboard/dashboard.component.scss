@@ -1089,6 +1089,7 @@
       border: none;
       border-radius: 16px;
       transition: background 0.2s, transform 0.2s;
+      cursor: pointer;
 
       &:hover {
         background: #e2e8f0;
@@ -1341,9 +1342,85 @@
   }
 }
 
+.clickable-split {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(13, 50, 120, 0.06);
+
+    .split-value {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+}
+
 .revenue-split-divider {
   width: 1px;
   height: 24px;
   background: #e2e8f0;
   margin: 0 16px;
+}
+
+.text-success {
+  color: #27ae60 !important;
+}
+
+.text-danger {
+  color: #eb5757 !important;
+}
+
+.card-header-premium {
+  position: relative;
+  z-index: 100;
+}
+
+.date-dropdown-pill {
+  cursor: pointer;
+  position: relative;
+}
+
+.dropdown-arrow {
+  font-size: 0.75rem;
+  margin-left: 6px;
+}
+
+.premium-dropdown-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+
+  .dropdown-item {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+    background: transparent;
+    color: #0f172a;
+    cursor: pointer;
+
+    &:hover {
+      background: #f8fafc;
+    }
+
+    &.active {
+      background: #f8fafc;
+      color: #2563eb;
+    }
+  }
 }

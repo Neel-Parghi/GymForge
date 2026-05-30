@@ -99,9 +99,6 @@ export class StaffListComponent implements OnInit {
           roleName: this.staffService.getRoleName(s.role)
         }));
 
-        // If we have a role filter active (from our local tabs or dropdown), we filter locally for now
-        // OR we could implement role filtering in backend too. 
-        // For now, let's assume the backend search handles name/email/staffNumber.
         this.applyLocalFilters();
 
         this.totalItems = res.data.totalCount;
@@ -137,7 +134,6 @@ export class StaffListComponent implements OnInit {
   }
 
   onPageChanged(page: any) {
-    console.log(page)
     this.currentPage = page;
     this.loadStaff();
   }

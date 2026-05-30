@@ -55,7 +55,7 @@
       <div class="revenue-split-container">
         <div class="revenue-split-item">
           <span class="split-label">Active</span>
-          <span class="split-value" style="color: #27ae60;">{{ stats?.activeMembers }}</span>
+          <span class="split-value text-success">{{ stats?.activeMembers }}</span>
         </div>
         <div class="revenue-split-divider"></div>
         <div class="revenue-split-item">
@@ -86,8 +86,7 @@
     </div>
 
     <!-- Card 4: Inventory Status -->
-    <div class="stat-card premium-stat-card inventory" [class.clickable]="true"
-      (click)="navigateToInventory('lowStock')">
+    <div class="stat-card premium-stat-card inventory">
       <div class="stat-card-top">
         <div class="stat-icon-badge color-inventory">
           <i class="fa-solid fa-box-open"></i>
@@ -104,14 +103,14 @@
         <h2 class="stat-card-value">{{ stats?.totalProductsCount || 0 }} <span class="unit-text">Products</span></h2>
       </div>
       <div class="revenue-split-container">
-        <div class="revenue-split-item">
+        <div class="revenue-split-item clickable-split" (click)="navigateToInventory('inStock')" title="View In Stock items">
           <span class="split-label">In Stock</span>
-          <span class="split-value">{{ (stats?.totalProductsCount || 0) - (stats?.lowStockItems || 0) }}</span>
+          <span class="split-value text-success">{{ (stats?.totalProductsCount || 0) - (stats?.lowStockItems || 0) }}</span>
         </div>
         <div class="revenue-split-divider"></div>
-        <div class="revenue-split-item">
+        <div class="revenue-split-item clickable-split" (click)="navigateToInventory('lowStock')" title="View Low Stock items">
           <span class="split-label">Low Stock</span>
-          <span class="split-value" [style.color]="(stats?.lowStockItems || 0) > 0 ? '#eb5757' : 'inherit'">{{
+          <span class="split-value" [class.text-danger]="(stats?.lowStockItems || 0) > 0">{{
             stats?.lowStockItems || 0 }}</span>
         </div>
       </div>
@@ -122,7 +121,7 @@
   <div class="charts-grid-premium">
     <!-- Check-in Density (Bar Chart) -->
     <div class="content-card check-in-density-card">
-      <div class="card-header" style="position: relative; z-index: 100;">
+      <div class="card-header card-header-premium">
         <div>
           <h3>Check-in Count</h3>
           <p class="subtitle">
@@ -130,24 +129,19 @@
             attendance throughout the week' }}
           </p>
         </div>
-        <div class="date-dropdown-pill" (click)="toggleDensityDropdown()" style="cursor: pointer; position: relative;">
+        <div class="date-dropdown-pill" (click)="toggleDensityDropdown()">
           <span>{{ selectedDensityRange === 'today' ? 'Today, ' + (todayDate | date:'MMM d') : 'Weekly Average'
             }}</span>
-          <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; margin-left: 6px;"></i>
-
+          <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+ 
           <!-- Dropdown List -->
-          <div class="premium-dropdown-list" *ngIf="showDensityDropdown"
-            style="position: absolute; top: calc(100% + 8px); right: 0; background: white; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); padding: 6px; width: 140px; display: flex; flex-direction: column; gap: 4px;">
+          <div class="premium-dropdown-list" *ngIf="showDensityDropdown">
             <div class="dropdown-item" (click)="selectDensityRange('today'); $event.stopPropagation()"
-              [style.background]="selectedDensityRange === 'today' ? '#f8fafc' : 'transparent'"
-              [style.color]="selectedDensityRange === 'today' ? '#2563eb' : '#0f172a'"
-              style="font-size: 0.8rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; transition: background 0.2s;">
+              [class.active]="selectedDensityRange === 'today'">
               Today
             </div>
             <div class="dropdown-item" (click)="selectDensityRange('week'); $event.stopPropagation()"
-              [style.background]="selectedDensityRange === 'week' ? '#f8fafc' : 'transparent'"
-              [style.color]="selectedDensityRange === 'week' ? '#2563eb' : '#0f172a'"
-              style="font-size: 0.8rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; transition: background 0.2s;">
+              [class.active]="selectedDensityRange === 'week'">
               Weekly Average
             </div>
           </div>
@@ -324,7 +318,7 @@
           <h3>Upcoming Renewals</h3>
         </div>
         <div class="renewal-list-premium">
-          <div class="renewal-item-premium" *ngFor="let renewal of stats?.upcomingRenewals" (click)="navigateToMembers()" style="cursor: pointer;">
+          <div class="renewal-item-premium" *ngFor="let renewal of stats?.upcomingRenewals" (click)="navigateToMembers()">
             <div class="renewal-left">
               <div class="renewal-details">
                 <span class="renewal-name">{{ renewal.memberName }}</span>

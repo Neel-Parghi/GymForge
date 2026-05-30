@@ -12,7 +12,8 @@
     <div class="plans-modal-body">
       <div class="plans-pitch-header">
         <h2>Unleash the Full Potential of GymForge</h2>
-        <p>Scale your fitness ecosystem with multisite branch tracking, unified staff payroll, and advanced member analytics.</p>
+        <p>Scale your fitness ecosystem with multisite branch tracking, unified staff payroll, and advanced member
+          analytics.</p>
       </div>
 
       <!-- Plan Cards Grid: Rendered from real saas-plans API -->
@@ -20,9 +21,9 @@
 
         <!-- Loading state -->
         <ng-container *ngIf="availablePlans.length === 0">
-          <div class="plan-upgrade-card loading-card" style="grid-column: span 3; text-align: center; padding: 48px;">
-            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: #0ea5e9; margin-bottom: 16px;"></i>
-            <p style="color: #64748b; font-weight: 600;">Fetching live subscription tiers from GymForge server...</p>
+          <div class="plan-upgrade-card loading-card">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <p>Fetching live subscription tiers from GymForge server...</p>
           </div>
         </ng-container>
 
@@ -45,7 +46,7 @@
                 <span class="period">/ {{ plan.durationInDays === 30 ? 'month' : plan.durationInDays + ' days' }}</span>
               </ng-container>
               <ng-template #freePlan>
-                <span class="rate" style="font-size:1.6rem;">Free</span>
+                <span class="rate free-rate">Free</span>
                 <span class="period">/ lifetime</span>
               </ng-template>
             </div>
@@ -54,7 +55,8 @@
               <li>
                 <i class="fa-solid fa-circle-check" [class.icon-blue]="i===0" [class.icon-green]="i===1"
                   [class.icon-purple]="i>=2"></i>
-                {{ plan.maxBranches ? plan.maxBranches + ' Outlet Branch' + (plan.maxBranches > 1 ? 'es' : '') : 'Unlimited Branches' }}
+                {{ plan.maxBranches ? plan.maxBranches + ' Outlet Branch' + (plan.maxBranches > 1 ? 'es' : '') :
+                'Unlimited Branches' }}
               </li>
               <li>
                 <i class="fa-solid fa-circle-check" [class.icon-blue]="i===0" [class.icon-green]="i===1"
@@ -64,17 +66,18 @@
               <li>
                 <i class="fa-solid fa-circle-check" [class.icon-blue]="i===0" [class.icon-green]="i===1"
                   [class.icon-purple]="i>=2"></i>
-                {{ i === 0 ? 'Basic Analytics & Reports' : i === 1 ? 'Premium Performance KPIs' : 'Enterprise Multi-site Custom Reports' }}
+                {{ i === 0 ? 'Basic Analytics & Reports' : i === 1 ? 'Premium Performance KPIs' : 'Enterprise Multi-site
+                Custom Reports' }}
               </li>
               <li>
                 <i class="fa-solid fa-circle-check" [class.icon-blue]="i===0" [class.icon-green]="i===1"
                   [class.icon-purple]="i>=2"></i>
-                {{ i === 0 ? 'Standard Email Support' : i === 1 ? 'Priority WhatsApp & Chat' : 'Dedicated Account Specialist 24/7' }}
+                {{ i === 0 ? 'Standard Email Support' : i === 1 ? 'Priority WhatsApp & Chat' : 'Dedicated Account
+                Specialist 24/7' }}
               </li>
             </ul>
 
-            <button class="btn-tier-select"
-              [disabled]="subscriptionStatus?.planName === plan.name"
+            <button class="btn-tier-select" [disabled]="subscriptionStatus?.planName === plan.name"
               (click)="selectPlan.emit({ planName: plan.name, price: plan.price })">
               {{ subscriptionStatus?.planName === plan.name ? 'Current Active License' : 'Upgrade & Renew Now' }}
             </button>

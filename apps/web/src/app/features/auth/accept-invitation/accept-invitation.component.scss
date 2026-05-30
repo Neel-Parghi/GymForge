@@ -13,6 +13,10 @@
 
   &.error {
     color: #ef4444;
+
+    .submit-btn {
+      margin-top: 1.5rem;
+    }
   }
 
   .loader {
@@ -56,6 +60,11 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

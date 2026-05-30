@@ -60,7 +60,7 @@
     [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onAction($event)"
     (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
     <ng-template [gridCell]="'fullName'" let-row>
-      <div class="staff-profile-cell">
+      <div class="staff-profile-cell clickable" (click)="onViewStaff(row)">
         <div class="avatar-container">
           <div class="avatar-circle">
             <img *ngIf="row.profilePictureUrl" [src]="row.profilePictureUrl" alt="avatar">

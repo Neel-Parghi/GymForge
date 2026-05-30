@@ -79,7 +79,6 @@ export class BillingService extends BaseApiService {
         return this.staffOverviewCache.get(cacheKey)!;
     }
 
-
     updateStaffPayrollRules(payload: UpdateStaffPayrollRuleRequest): Observable<ApiResponse<any>> {
         return this.post<ApiResponse<any>>(API_CONSTANTS.BILLING.UPDATE_STAFF_RULES, payload).pipe(
             tap(() => this.clearCache())

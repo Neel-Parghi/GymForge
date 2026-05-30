@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, shareReplay } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
 import { AuthApiService } from './auth-api.service';
+import { API_CONSTANTS } from '../constants/api-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ import { AuthApiService } from './auth-api.service';
 export class GymSettingsService extends BaseApiService {
   private authService = inject(AuthApiService);
   private settingsSubject = new BehaviorSubject<any>(null);
-  
+  private holidaysCache$: Observable<any> | null = null;
+
   public settings$ = this.settingsSubject.asObservable();
 
   constructor() {
@@ -18,6 +20,7 @@ export class GymSettingsService extends BaseApiService {
     this.authService.userProfile$.subscribe(user => {
       if (!user) {
         this.settingsSubject.next(null);
+        this.clearHolidaysCache();
       }
     });
   }
@@ -27,7 +30,7 @@ export class GymSettingsService extends BaseApiService {
   }
 
   loadSettings(): Observable<any> {
-    return this.get<any>('my-gym/settings').pipe(
+    return this.get<any>(API_CONSTANTS.GYM.SETTINGS).pipe(
       tap(res => {
         const data = res?.data || res;
         let roleRights: any = null;
@@ -37,15 +40,15 @@ export class GymSettingsService extends BaseApiService {
           try {
             roleRights = JSON.parse(data.roleRightsMatrixJson);
           } catch (e) {
-            console.error('Error parsing backend role rights matrix', e);
+            console.error('Error parsing role rights matrix', e);
           }
         }
-        
+
         if (data?.operationsSettingsJson) {
           try {
             operations = JSON.parse(data.operationsSettingsJson);
           } catch (e) {
-            console.error('Error parsing backend operations settings', e);
+            console.error('Error parsing settings', e);
           }
         }
 
@@ -60,22 +63,35 @@ export class GymSettingsService extends BaseApiService {
       operationsSettingsJson: JSON.stringify(operationsSettings)
     };
 
-    return this.put<any>('my-gym/settings', payload).pipe(
+    return this.put<any>(API_CONSTANTS.GYM.SETTINGS, payload).pipe(
       tap(() => {
         this.settingsSubject.next({ roleRights: roleRightsMatrix, operations: operationsSettings });
       })
     );
   }
 
-  getHolidays(): Observable<any> {
-    return this.get<any>('my-gym/holidays');
+  getHolidays(forceRefresh = false): Observable<any> {
+    if (forceRefresh || !this.holidaysCache$) {
+      this.holidaysCache$ = this.get<any>(API_CONSTANTS.GYM.HOLIDAYS).pipe(
+        shareReplay(1)
+      );
+    }
+    return this.holidaysCache$;
   }
 
   addHoliday(payload: any): Observable<any> {
-    return this.post<any>('my-gym/holidays', payload);
+    return this.post<any>(API_CONSTANTS.GYM.HOLIDAYS, payload).pipe(
+      tap(() => this.clearHolidaysCache())
+    );
   }
 
   deleteHoliday(holidayId: string): Observable<any> {
-    return this.delete<any>(`my-gym/holidays/${holidayId}`);
+    return this.delete<any>(`${API_CONSTANTS.GYM.HOLIDAYS}/${holidayId}`).pipe(
+      tap(() => this.clearHolidaysCache())
+    );
+  }
+
+  clearHolidaysCache(): void {
+    this.holidaysCache$ = null;
   }
 }

@@ -177,6 +177,50 @@
         }
       }
     }
+
+    .list-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .active-filter-pill {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 7px;
+      padding: 6px 12px 6px 10px;
+      background: rgba(13, 50, 120, 0.08);
+      border: 1.5px solid rgba(13, 50, 120, 0.2);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #0d3278;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      user-select: none;
+
+      i.fa-filter {
+        font-size: 0.65rem;
+        opacity: 0.7;
+      }
+
+      .filter-clear-icon {
+        font-size: 0.7rem;
+        opacity: 0.6;
+        margin-left: 2px;
+        transition: opacity 0.2s;
+      }
+
+      &:hover {
+        background: rgba(13, 50, 120, 0.14);
+        border-color: rgba(13, 50, 120, 0.4);
+
+        .filter-clear-icon {
+          opacity: 1;
+        }
+      }
+    }
   }
 
   app-data-grid {

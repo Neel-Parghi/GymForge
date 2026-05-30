@@ -243,10 +243,10 @@ export const CONSTANTS = {
 
     //#region Gym Owner Settings
     GYM_OWNER_SETTINGS: {
-        LOAD_ERROR: 'Failed to load settings from backend.',
+        LOAD_ERROR: 'Failed to load settings.',
         VALIDATION_ERROR: 'Please fix the validation errors before saving.',
         UPDATE_SUCCESS: 'Operations & Role Rights settings updated successfully!',
-        UPDATE_ERROR: 'Failed to save settings to the backend.',
+        UPDATE_ERROR: 'Failed to save settings.',
         HOLIDAY_VALIDATION_ERROR: 'Please enter a holiday name and select a date.',
         HOLIDAY_CREATE_SUCCESS: 'Holiday closure scheduled successfully!',
         HOLIDAY_CREATE_ERROR: 'Failed to add holiday closure.',

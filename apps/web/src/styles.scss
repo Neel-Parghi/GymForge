@@ -2,56 +2,100 @@
 @import 'ngx-toastr/toastr';
 
 :root {
-  // GYM FORGE Premium Design System - Colors
+  /* ==========================================================================
+     GYM FORGE DESIGN SYSTEM - COLOR PALETTE
+     ========================================================================== */
+
+  /* Brand Colors */
   --primary-navy: #0a1f44;
   --primary-navy-hover: #0d3278;
   --accent-color: #2563eb;
+  /* Royal Blue 600 */
   --accent-hover: #1d4ed8;
+  /* Royal Blue 700 */
   --accent-rgb: 37, 99, 235;
 
-  // Feedback Colors
-  --error-red: #ef4444;
-  --error-red-bg: #fef2f2;
-  --success-green: #10b981;
+  /* Premium Grays (Slate Neutral Scale) */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
 
-  // Gray Scale (Standardized)
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #9ca3af;
-  --gray-500: #64748b;
+  /* Semantic / Feedback Colors */
+  --success-color: #10b981;
+  /* Emerald 500 */
+  --success-bg: #ecfdf5;
+  /* Emerald 50 */
+  --success-border: #a7f3d0;
 
-  // Base Tokens
-  --bg-color: var(--gray-50);
+  --error-color: #ef4444;
+  /* Red 500 */
+  --error-bg: #fef2f2;
+  /* Red 50 */
+  --error-border: #fecaca;
+
+  --warning-color: #f59e0b;
+  /* Amber 500 */
+  --warning-bg: #fffbeb;
+  /* Amber 50 */
+  --warning-border: #fde68a;
+
+  --info-color: #3b82f6;
+  /* Blue 500 */
+  --info-bg: #eff6ff;
+  /* Blue 50 */
+  --info-border: #bfdbfe;
+
+  /* Backwards-Compatibility Aliases */
+  --gray-50: var(--slate-50);
+  --gray-100: var(--slate-100);
+  --gray-200: var(--slate-200);
+  --gray-300: var(--slate-300);
+  --gray-400: var(--slate-400);
+  --gray-500: var(--slate-500);
+  --error-red: var(--error-color);
+  --error-red-bg: var(--error-bg);
+  --success-green: var(--success-color);
+
+  /* Base Application Tokens */
+  --bg-color: var(--slate-50);
   --bg-surface: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: var(--gray-500);
-  --border-color: var(--gray-200);
+  --text-main: var(--slate-900);
+  --text-muted: var(--slate-500);
+  --border-color: var(--slate-200);
 
-  --glass-bg: rgba(255, 255, 255, 0.8);
+  /* Special Effects */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
   --glass-blur: blur(12px);
-  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --card-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+  --card-shadow-hover: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.03);
 
-  // Font Families
-  --font-body: 'Outfit', sans-serif;
-  --font-heading: 'Plus Jakarta Sans', sans-serif;
-
+  /* Component Layout Tokens */
   --sidebar-width: 260px;
   --topbar-height: 70px;
-
-  // Specific Button Themes
   --btn-add-bg: var(--primary-navy);
   --btn-add-text: #ffffff;
 
-  // New Design System Tokens (Standardized)
-  --primary-precision: #005bbc;
-  --primary-precision-gradient: linear-gradient(135deg, #005bbc 0%, #1473e6 100%);
-  --surface-precision: var(--gray-50);
-  --on-surface-precision: #1a1c1c;
-  --secondary-precision: #5e5e5e;
+  /* Fonts */
+  --font-body: 'Outfit', sans-serif;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+
+  /* Precision Tokens Legacy Mapping */
+  --primary-precision: var(--accent-color);
+  --primary-precision-gradient: linear-gradient(135deg, var(--accent-color) 0%, var(--info-color) 100%);
+  --surface-precision: var(--slate-50);
+  --on-surface-precision: var(--slate-900);
+  --secondary-precision: var(--slate-500);
   --outline-精密: rgba(193, 198, 214, 0.3);
-  --card-shadow-precision: 0 12px 40px rgba(26, 28, 28, 0.04);
+  --card-shadow-precision: var(--card-shadow);
 }
 
 [data-theme="dark"] {
@@ -100,6 +144,13 @@ h6 {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
 }
 
 .btn-add {
@@ -230,7 +281,7 @@ h6 {
   .secondary-btn,
   .btn-secondary,
   .btn-outline {
-    background-color: #e2e8f0;
+    background-color: var(--slate-200);
     color: var(--text-main);
     border: none;
     padding: 10px 20px;
@@ -244,7 +295,7 @@ h6 {
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: #e2e8f0;
+      background-color: var(--slate-300);
       transform: translateY(-1px);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
@@ -266,14 +317,14 @@ h6 {
   cursor: pointer;
   border: none;
   transition: all 0.2s;
-  background-color: #1e293b;
+  background-color: var(--slate-800);
   color: aliceblue;
 }
 
 .primary-btn:hover {
   background-color: var(--primary-navy-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow-precision);
 }
 
 .drawer-actions {
@@ -299,29 +350,29 @@ h6 {
   }
 
   .btn-outline {
-    background: #f1f5f9;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
+    background: var(--slate-100);
+    color: var(--slate-500);
+    border: 1px solid var(--slate-200);
 
     &:hover {
-      background: #e2e8f0;
-      color: #0f172a;
+      background: var(--slate-200);
+      color: var(--slate-900);
     }
   }
 
   .btn-primary {
-    background: #0f172a;
+    background: var(--slate-900);
     color: white;
 
     &:hover {
-      background: #1e293b;
+      background: var(--slate-800);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+      box-shadow: var(--card-shadow-precision);
     }
   }
 
   .btn-success {
-    background: #10b981;
+    background: var(--success-color);
     color: white;
 
     &:hover {
@@ -330,4 +381,8 @@ h6 {
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
     }
   }
+}
+
+.hidden-file-input {
+  display: none !important;
 }

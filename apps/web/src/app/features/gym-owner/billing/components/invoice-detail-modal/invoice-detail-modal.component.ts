@@ -58,7 +58,6 @@ export class InvoiceDetailModalComponent {
         return;
       }
 
-      // Create absolute hidden iframe
       const printFrame = document.createElement('iframe');
       printFrame.setAttribute('style', 'position: absolute; width: 1024px; height: 768px; top: -9999px; left: -9999px; visibility: hidden;');
 
@@ -75,7 +74,7 @@ export class InvoiceDetailModalComponent {
 
       const handlePrintComplete = (msgEvent: MessageEvent) => {
         if (msgEvent.data && msgEvent.data.type === 'PRINT_COMPLETE') {
-           if (printFrame.parentNode) {
+          if (printFrame.parentNode) {
             printFrame.parentNode.removeChild(printFrame);
           }
           window.removeEventListener('message', handlePrintComplete);

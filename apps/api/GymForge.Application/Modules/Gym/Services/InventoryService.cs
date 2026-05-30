@@ -63,7 +63,8 @@ namespace GymForge.Application.Modules.Gym.Services
                 pagination.PageNumber,
                 pagination.PageSize,
                 pagination.SearchTerm,
-                branchId);
+                branchId,
+                pagination.StockStatus);
 
             List<InventoryItemDto> dtos = _mapper.Map<List<InventoryItemDto>>(items);
 

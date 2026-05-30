@@ -98,7 +98,7 @@
         <ng-container *ngIf="funnelData.expired > 0; else emptyFunnel">
           <!-- Step 1: Expired -->
           <div class="funnel-step expired-step">
-            <div class="step-bar" style="width: 100%">
+            <div class="step-bar">
               <span class="step-label">Expired Plans</span>
               <span class="step-value">{{ funnelData.expired }}</span>
             </div>
@@ -178,10 +178,10 @@
       </div>
 
       <div class="dropdown-filters">
-        <app-dropdown [options]="planOptions" formControlName="plan" style="min-width: 160px;">
+        <app-dropdown [options]="planOptions" formControlName="plan">
         </app-dropdown>
 
-        <app-dropdown [options]="paymentOptions" formControlName="payment" style="min-width: 160px;">
+        <app-dropdown [options]="paymentOptions" formControlName="payment">
         </app-dropdown>
       </div>
     </div>

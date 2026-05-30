@@ -28,7 +28,9 @@ export const API_CONSTANTS = {
     DELETE: 'gyms',
     BRANCHES: 'gyms/{id}/branches',
     MY_GYM: 'my-gym',
-    MY_BRANCHES: 'my-gym/branches'
+    MY_BRANCHES: 'my-gym/branches',
+    SETTINGS: 'my-gym/settings',
+    HOLIDAYS: 'my-gym/holidays'
   },
   GYM_OWNER: {
     LIST: 'gym-owners',

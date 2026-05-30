@@ -52,24 +52,15 @@
       border-top-color: var(--accent-color);
 
       &.active {
-        border-top-color: #22c55e;
-        border-right-color: #22c55e;
-        border-left-color: #22c55e;
-        border-bottom-color: #22c55e;
+        border-color: var(--success-color);
       }
 
       &.frozen {
-        border-top-color: #3b82f6;
-        border-right-color: #3b82f6;
-        border-left-color: #3b82f6;
-        border-bottom-color: #3b82f6;
+        border-color: var(--info-color);
       }
 
       &.expired {
-        border-top-color: #ef4444;
-        border-right-color: #ef4444;
-        border-left-color: #ef4444;
-        border-bottom-color: #ef4444;
+        border-color: var(--error-color);
       }
     }
   }
@@ -355,7 +346,8 @@
     flex-direction: column;
     gap: 12px;
 
-    .history-loading, .no-history {
+    .history-loading,
+    .no-history {
       padding: 12px;
       text-align: center;
       font-size: 0.85rem;
@@ -372,9 +364,9 @@
       transition: all 0.2s ease;
 
       &.active-item {
-        border-color: #22c55e;
-        background: rgba(34, 197, 94, 0.02);
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.05);
+        border-color: var(--success-color);
+        background: rgba(16, 185, 129, 0.02);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.05);
       }
 
       .history-main {
@@ -415,39 +407,34 @@
           border-radius: 4px;
 
           &.paid {
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
           }
 
           &.pending {
             background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
+            color: var(--warning-color);
           }
 
           &.partial {
             background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
+            color: var(--info-color);
           }
 
           &.refunded {
-            background: rgba(107, 114, 128, 0.1);
-            color: #6b7280;
+            background: var(--slate-100);
+            color: var(--slate-500);
           }
 
           &.unpaid {
             background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
+            color: var(--error-color);
           }
         }
       }
     }
   }
 }
-
-
-
-
-
 
 // Helpers
 .no-data {
@@ -465,5 +452,18 @@
   span {
     font-size: 0.9rem;
     font-weight: 500;
+  }
+}
+
+.info-tile {
+  &.double-col {
+    grid-column: span 2;
+  }
+}
+
+.drawer-actions {
+  .actions-flex {
+    display: flex;
+    gap: 12px;
   }
 }

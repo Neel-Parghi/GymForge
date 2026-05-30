@@ -143,7 +143,7 @@
         <button class="icon-btn" title="Help">
           <i class="far fa-question-circle"></i>
         </button>
-        <div class="topbar-profile" [routerLink]="profileRoute" style="cursor: pointer;"
+        <div class="topbar-profile" [routerLink]="profileRoute"
           *ngIf="userProfile$ | async as profile">
           @if (profile.profilePictureUrl) {
           <img [src]="getImageUrl(profile.profilePictureUrl)" alt="Profile" class="profile-avatar">

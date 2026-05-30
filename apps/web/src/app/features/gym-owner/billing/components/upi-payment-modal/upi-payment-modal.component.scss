@@ -101,6 +101,12 @@
       color: #0f172a;
       margin: 4px 0 0 0;
     }
+
+    .checkout-subtitle {
+      color: #0369a1;
+      font-size: 0.72rem;
+      margin-top: 4px;
+    }
   }
 
   .checkout-payout-box {
@@ -114,6 +120,11 @@
       color: #0d3278;
       margin: 4px 0 0 0;
       letter-spacing: -0.01em;
+    }
+
+    .tax-lbl {
+      color: #64748b;
+      font-size: 0.65rem;
     }
   }
 

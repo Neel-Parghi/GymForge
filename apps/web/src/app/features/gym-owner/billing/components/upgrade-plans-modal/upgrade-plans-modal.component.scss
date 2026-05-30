@@ -67,6 +67,7 @@
     transform: scale(0.9) translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: scale(1) translateY(0);
     opacity: 1;
@@ -130,6 +131,26 @@
     border-color: #cbd5e1;
   }
 
+  &.loading-card {
+    grid-column: span 3;
+    text-align: center;
+    padding: 48px;
+    max-width: none;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 2.5rem;
+      color: #0ea5e9;
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: #64748b;
+      font-weight: 600;
+    }
+  }
+
   .card-badge {
     position: absolute;
     top: -12px;
@@ -179,6 +200,10 @@
       font-weight: 900;
       color: #0f172a;
       letter-spacing: -0.03em;
+
+      &.free-rate {
+        font-size: 1.6rem;
+      }
     }
 
     .period {

@@ -21,7 +21,7 @@
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: var(--slate-400);
     font-size: 0.9rem;
     pointer-events: none;
   }
@@ -29,22 +29,22 @@
   input {
     width: 100%;
     padding: 11px 40px 11px 42px;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background-color: var(--slate-50);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.875rem;
-    color: #1a1c1c;
+    color: var(--text-main);
     transition: all 0.2s ease;
 
     &::placeholder {
-      color: #94a3b8;
+      color: var(--slate-400);
     }
 
     &:focus {
       outline: none;
-      background-color: white;
-      border-color: var(--primary-precision, #005bbc);
-      box-shadow: 0 0 0 4px rgba(0, 91, 188, 0.08);
+      background-color: var(--bg-surface);
+      border-color: var(--primary-precision);
+      box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.08);
     }
   }
 
@@ -56,7 +56,7 @@
     background: none;
     border: none;
     padding: 4px;
-    color: #94a3b8;
+    color: var(--slate-400);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -65,8 +65,8 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: #e2e8f0;
-      color: #64748b;
+      background-color: var(--slate-200);
+      color: var(--slate-500);
     }
 
     i {
@@ -95,14 +95,18 @@
   }
 }
 
+.filter-dropdown {
+  min-width: 160px;
+}
+
 .btn-clear {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
   background: transparent;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  color: var(--slate-500);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -110,9 +114,9 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: #f8fafc;
-    color: #1e293b;
-    border-color: #cbd5e1;
+    background-color: var(--slate-50);
+    color: var(--slate-800);
+    border-color: var(--slate-300);
   }
 
   i {
@@ -123,7 +127,7 @@
 .filter-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--slate-400);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-right: 4px;

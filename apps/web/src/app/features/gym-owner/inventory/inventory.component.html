@@ -72,6 +72,10 @@
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" [formControl]="searchControl" placeholder="Search inventory...">
           </div>
+          <div class="active-filter-pill" *ngIf="activeStockFilter" (click)="clearStockFilter()">
+            <span>{{ activeStockFilter === 'lowStock' ? 'Low Stock' : 'In Stock' }}</span>
+            <i class="fa-solid fa-xmark filter-clear-icon"></i>
+          </div>
         </div>
       </nav>
 

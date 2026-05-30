@@ -1,6 +1,4 @@
-// Shared styles for Authentication Pages (Login, Register, etc.)
-// Based on the high-fidelity design provided by the user.
-
+// Shared styles for Authentication Pages (Login, Register)
 .auth-page-wrapper {
   height: 100vh;
   display: flex;
@@ -19,7 +17,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 12px 32px; // Reduced padding
+  padding: 12px 32px;
   background: transparent;
   flex-shrink: 0;
 
@@ -58,7 +56,7 @@
   }
 }
 
-// Left Section: Hero Visual
+// Hero Visual
 .hero-segment {
   display: none;
 
@@ -187,7 +185,7 @@
     .label-link {
       font-size: 10.5px;
       font-weight: 600;
-      color: #005bbc; // Fallback to literal if var fails
+      color: #005bbc;
       color: var(--primary-precision, #005bbc);
       text-decoration: none;
 
@@ -206,8 +204,6 @@
     position: relative;
 
     &:focus-within {
-      // border-color: #005bbc;
-      // border-color: var(--primary-precision, #005bbc);
       background-color: white;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
     }
@@ -276,9 +272,9 @@
 
   .submit-btn {
     width: 100%;
-    background: #005bbc; // Fallback
+    background: #005bbc;
     background: var(--primary-precision-gradient, linear-gradient(135deg, #005bbc 0%, #1473e6 100%));
-    color: white !important; // Enforce white text
+    color: white !important;
     padding: 13px;
     border-radius: 8px;
     font-weight: 700;
@@ -297,7 +293,7 @@
     }
 
     &:disabled {
-      opacity: 0.7; // Increased opacity for better visibility
+      opacity: 0.7;
       cursor: not-allowed;
     }
 
@@ -334,12 +330,10 @@
   }
 }
 
-
-
 // Bottom Bar
 .auth-footer {
   width: 100%;
-  padding: 12px 32px; // Reduced padding
+  padding: 12px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -388,7 +382,6 @@
   }
 }
 
-// Scroll Tweak for small viewports
 @media (max-height: 750px) {
   .auth-main {
     padding-top: 10px;

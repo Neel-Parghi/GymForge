@@ -156,7 +156,7 @@ export class MyGymsComponent implements OnInit {
 
   private loadBranches(gymId: string): void {
     this.isLoadingBranches = true;
-    this.gymService.getMyBranches(true).subscribe({
+    this.gymService.getMyBranches().subscribe({
       next: (res) => {
         this.branches = res.data || [];
         this.isLoadingBranches = false;

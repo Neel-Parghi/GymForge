@@ -5,9 +5,9 @@
     <div class="page-header profile-standard-header">
       <div class="header-main">
         <div class="avatar-box">
-          <input type="file" id="avatarInput" style="display: none;" (change)="onFileSelected($event)" accept="image/*">
-          <img *ngIf="previewUrl || profile?.profilePictureUrl" [src]="getImageUrl(profile?.profilePictureUrl)" alt="Profile Picture"
-            class="profile-img">
+          <input type="file" id="avatarInput" class="hidden-file-input" (change)="onFileSelected($event)" accept="image/*">
+          <img *ngIf="previewUrl || profile?.profilePictureUrl" [src]="getImageUrl(profile?.profilePictureUrl)"
+            alt="Profile Picture" class="profile-img">
           <div class="default-avatar" *ngIf="!previewUrl && !profile?.profilePictureUrl">
             <i class="fas fa-user-tie"></i>
           </div>
@@ -37,10 +37,12 @@
     <!-- Navigation Tabs -->
     <div class="profile-tabs">
       <button class="tab-btn" [class.active]="activeTab === 'personal'" (click)="activeTab = 'personal'">
-        <i class="fas fa-user"></i> Personal Information
+        <span class="tab-icon-wrapper personal-tab"><i class="fas fa-user"></i></span>
+        <span class="tab-label">Personal Information</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
-        <i class="fas fa-lock"></i> Account Security
+        <span class="tab-icon-wrapper security-tab"><i class="fas fa-lock"></i></span>
+        <span class="tab-label">Account Security</span>
       </button>
     </div>
   </div>

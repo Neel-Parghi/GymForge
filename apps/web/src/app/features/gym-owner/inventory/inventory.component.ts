@@ -4,13 +4,14 @@ import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { MemberService } from '../../../core/services/member.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { ProductDrawerComponent } from './components/product-drawer/product-drawer.component';
@@ -48,7 +49,9 @@ export class InventoryComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private memberService = inject(MemberService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private branchContextService = inject(BranchContextService);
+  private confirmationService = inject(ConfirmationService);
 
   activeTab: 'inventory' | 'equipment' | 'maintenance' | 'sales' = 'inventory';
   viewMode: 'list' | 'dashboard' = 'list';
@@ -57,6 +60,7 @@ export class InventoryComponent implements OnInit {
   currentPage: number = 1;
   totalItems: number = 0;
   loading = false;
+  activeStockFilter: 'lowStock' | 'inStock' | null = null;
 
   // Drawer Opening States
   isProductDrawerOpen = false;
@@ -154,15 +158,23 @@ export class InventoryComponent implements OnInit {
         this.activeTab = params['tab'];
       }
       if (params['filter'] === 'lowStock') {
-        this.searchControl.setValue('');
-        setTimeout(() => {
-          this.inventoryItems = this.allInventoryItems.filter(p => p.stockQuantity <= p.reorderLevel);
-        }, 500);
+        this.activeStockFilter = 'lowStock';
+        this.searchControl.setValue('', { emitEvent: false });
+        this.currentPage = 1;
+        this.loadProducts();
+      } else if (params['filter'] === 'inStock') {
+        this.activeStockFilter = 'inStock';
+        this.searchControl.setValue('', { emitEvent: false });
+        this.currentPage = 1;
+        this.loadProducts();
       } else if (params['filter'] === 'maintenance') {
+        this.activeStockFilter = null;
         this.equipmentViewMode = 'grid';
         setTimeout(() => {
           this.equipmentItems = this.allEquipmentItems.filter(e => e.health < 70 || e.status === 'Needs Repair');
         }, 500);
+      } else {
+        this.activeStockFilter = null;
       }
     });
 
@@ -208,7 +220,7 @@ export class InventoryComponent implements OnInit {
   loadProducts() {
     this.loading = true;
     const search = this.searchControl.value || '';
-    this.inventoryService.getProducts(this.currentPage, this.pageSize, search).subscribe({
+    this.inventoryService.getProducts(this.currentPage, this.pageSize, search, false, this.activeStockFilter ?? undefined).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.inventoryItems = res.data.items || [];
@@ -255,6 +267,17 @@ export class InventoryComponent implements OnInit {
   filterInventory() {
     this.currentPage = 1;
     this.loadProducts();
+  }
+
+  clearStockFilter() {
+    this.activeStockFilter = null;
+    this.currentPage = 1;
+    this.loadProducts();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { filter: null },
+      queryParamsHandling: 'merge'
+    });
   }
 
   onPageChange(page: number): void {
@@ -347,14 +370,22 @@ export class InventoryComponent implements OnInit {
   }
 
   deleteProduct(id: string) {
-    if (confirm(CONSTANTS.CONFIRMATIONS.DELETE_PRODUCT_CONFIRM)) {
-      this.inventoryService.deleteProduct(id).subscribe({
-        next: () => {
-          this.notificationService.success(CONSTANTS.INVENTORY_MODULE.PRODUCT_DELETE_SUCCESS);
-          this.loadProducts();
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      title: 'Delete Product',
+      message: 'Are you sure you want to delete this product? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.inventoryService.deleteProduct(id).subscribe({
+          next: () => {
+            this.notificationService.success(CONSTANTS.INVENTORY_MODULE.PRODUCT_DELETE_SUCCESS);
+            this.loadProducts();
+          }
+        });
+      }
+    });
   }
 
   onEditProductFromView(product: any) {

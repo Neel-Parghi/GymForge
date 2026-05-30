@@ -7,7 +7,7 @@ namespace GymForge.Domain.Interface
         // Inventory Items
         Task<InventoryItem?> GetProductByIdAsync(Guid id);
         Task<List<InventoryItem>> GetProductsByGymIdAsync(Guid gymId, Guid? branchId = null);
-        Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null);
+        Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null, string? stockStatus = null);
         Task AddProductAsync(InventoryItem item);
         InventoryItem UpdateProduct(InventoryItem item);
         Task DeleteProductAsync(Guid id);

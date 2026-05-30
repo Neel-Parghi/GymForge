@@ -3,7 +3,7 @@
   width="550px" (closeDrawer)="closeDrawer.emit()">
   <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="productForm">
     <div class="image-upload-section" (click)="fileInput.click()">
-      <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none">
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" class="hidden-file-input">
 
       <div class="image-placeholder" *ngIf="!imagePreview && !loading">
         <i class="fas fa-cloud-upload-alt"></i>

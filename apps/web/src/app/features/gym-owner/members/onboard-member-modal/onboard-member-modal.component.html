@@ -239,11 +239,11 @@
               <div><span>Email:</span> {{ form.get('email')?.value }}</div>
               <div><span>Phone:</span> {{ form.get('phoneNumber')?.value }}</div>
               <div *ngIf="isGymOwner && branches.length > 0"><span>Branch:</span> {{ getSelectedBranchName() }}</div>
-              <div *ngIf="form.get('emergencyContactName')?.value" style="grid-column: span 2;">
+              <div *ngIf="form.get('emergencyContactName')?.value" class="double-col">
                 <span>Emergency:</span> {{ form.get('emergencyContactName')?.value }} ({{
                 form.get('emergencyContactPhone')?.value }})
               </div>
-              <div *ngIf="form.get('address.line1')?.value" style="grid-column: span 2;">
+              <div *ngIf="form.get('address.line1')?.value" class="double-col">
                 <span>Address:</span> {{ form.get('address.line1')?.value }},
                 {{ form.get('address.city')?.value }},
                 {{ form.get('address.state')?.value }} {{ form.get('address.postalCode')?.value }},
@@ -259,7 +259,7 @@
               </div>
               <div *ngIf="form.get('fitnessGoals')?.value?.length"><span>Fitness Goals:</span> {{
                 form.get('fitnessGoals')?.value?.join(', ') }}</div>
-              <div *ngIf="form.get('medicalConditions')?.value" style="grid-column: span 2;">
+              <div *ngIf="form.get('medicalConditions')?.value" class="double-col">
                 <span>Medical Notes:</span> {{ form.get('medicalConditions')?.value }}
               </div>
             </div>
@@ -277,7 +277,7 @@
           <div class="summary-section" *ngIf="isEdit && member">
             <h4>4. Quick Actions</h4>
             <div class="summary-grid">
-              <div style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
+              <div class="action-row">
                 <!-- Freeze/Unfreeze: Status 3 is Freeze -->
                 <button class="secondary-btn" (click)="freeze.emit(member!.id)" *ngIf="member!.status !== 3">
                   <i class="fa-solid fa-snowflake"></i> Freeze Member

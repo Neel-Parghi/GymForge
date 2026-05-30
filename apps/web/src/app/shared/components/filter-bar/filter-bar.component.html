@@ -13,7 +13,7 @@
     <div class="filter-label">Filter by:</div>
     <div class="filter-select-wrapper" *ngFor="let filter of filterConfigs">
       <app-dropdown [options]="filter.options" [formControl]="filterControls[filter.key]" [placeholder]="filter.label"
-        (selectionChange)="onFilterChange()" style="min-width: 160px;">
+        (selectionChange)="onFilterChange()" class="filter-dropdown">
       </app-dropdown>
     </div>
   </div>

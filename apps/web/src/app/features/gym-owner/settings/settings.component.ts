@@ -7,6 +7,7 @@ import { DropdownOption } from '../../../shared/models/dropdown.model';
 import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
 import { GymSettingsService } from '../../../core/services/gym-settings.service';
 import { GymService } from '../../../core/services/gym.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 interface Holiday {
   id: string;
@@ -65,9 +66,9 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.loadBackendSettings();
+    this.loadSettings();
     this.loadBranches();
-    this.loadBackendHolidays();
+    this.loadHolidays();
   }
 
   private initForm(savedRights: any = {}, savedSettings: any = {}) {
@@ -105,7 +106,7 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  private loadBackendSettings() {
+  private loadSettings() {
     // 1. Check if settings are already preloaded in cache
     const cache = this.settingsService.getSettingsSync();
     if (cache) {
@@ -113,7 +114,6 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
-    // 2. Fetch fresh from backend HTTP API
     this.settingsService.loadSettings().subscribe({
       next: () => {
         const data = this.settingsService.getSettingsSync();
@@ -121,13 +121,13 @@ export class SettingsComponent implements OnInit {
           this.initForm(data.roleRights || {}, data.operations || {});
         }
       },
-      error: () => this.notification.error('Failed to load settings from backend.')
+      error: () => this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.LOAD_ERROR)
     });
   }
 
   saveSettings() {
     if (this.settingsForm.invalid) {
-      this.notification.error('Please fix the validation errors before saving.');
+      this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.VALIDATION_ERROR);
       return;
     }
 
@@ -147,16 +147,15 @@ export class SettingsComponent implements OnInit {
       expiryWarningDays: this.settingsForm.value.expiryWarningDays
     };
 
-    // Save to PostgreSQL backend DB via HTTP PUT request
     this.settingsService.updateSettings(rightsMatrix, automationsSettings).subscribe({
       next: () => {
         this.saving = false;
-        this.notification.success('Operations & Role Rights settings updated successfully!');
+        this.notification.success(CONSTANTS.GYM_OWNER_SETTINGS.UPDATE_SUCCESS);
         this.settingsForm.markAsPristine();
       },
       error: (err) => {
         this.saving = false;
-        this.notification.error('Failed to save settings to the backend.');
+        this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.UPDATE_ERROR);
         console.error('Error saving settings', err);
       }
     });
@@ -176,7 +175,7 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  loadBackendHolidays() {
+  loadHolidays() {
     this.settingsService.getHolidays().subscribe({
       next: (res) => {
         this.holidays = res.data || res || [];
@@ -187,7 +186,7 @@ export class SettingsComponent implements OnInit {
 
   addHoliday() {
     if (this.holidayForm.invalid) {
-      this.notification.error('Please enter a holiday name and select a date.');
+      this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_VALIDATION_ERROR);
       return;
     }
 
@@ -204,25 +203,25 @@ export class SettingsComponent implements OnInit {
 
     this.settingsService.addHoliday(payload).subscribe({
       next: () => {
-        this.notification.success('Holiday closure scheduled successfully!');
+        this.notification.success(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_CREATE_SUCCESS);
         this.holidayForm.reset({
           newHolidayName: '',
           newHolidayDate: '',
           newHolidayBranch: 'All Locations'
         });
-        this.loadBackendHolidays();
+        this.loadHolidays();
       },
-      error: () => this.notification.error('Failed to add holiday closure.')
+      error: () => this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_CREATE_ERROR)
     });
   }
 
   deleteHoliday(id: string) {
     this.settingsService.deleteHoliday(id).subscribe({
       next: () => {
-        this.notification.success('Scheduled closure removed.');
-        this.loadBackendHolidays();
+        this.notification.success(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_DELETE_SUCCESS);
+        this.loadHolidays();
       },
-      error: () => this.notification.error('Failed to remove scheduled closure.')
+      error: () => this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_DELETE_ERROR)
     });
   }
 }

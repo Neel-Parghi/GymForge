@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
@@ -16,7 +16,6 @@ import { CONSTANTS } from '../../../core/constants/constants';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private notification = inject(NotificationService);
 

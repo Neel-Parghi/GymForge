@@ -30,12 +30,14 @@ export class InventoryService extends BaseApiService {
     });
   }
 
-  getProducts(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<InventoryItem>>> {
+  getProducts(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false, stockStatus?: 'lowStock' | 'inStock'): Observable<ApiResponse<PagedResponse<InventoryItem>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
+    if (search || page !== 1 || pageSize !== 10 || forceRefresh || stockStatus) {
       const params: any = { pageNumber: page, pageSize };
       if (search) params.searchTerm = search;
       if (branchId) params.branchId = branchId;
+      if (stockStatus === 'lowStock') params.stockStatus = 'LowStock';
+      if (stockStatus === 'inStock') params.stockStatus = 'InStock';
       return this.get<ApiResponse<PagedResponse<InventoryItem>>>(API_CONSTANTS.INVENTORY.PRODUCTS, params);
     }
 

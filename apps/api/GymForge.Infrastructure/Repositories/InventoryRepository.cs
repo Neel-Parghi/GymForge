@@ -49,7 +49,7 @@ namespace GymForge.Infrastructure.Repositories
             return await query.OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn).ToListAsync();
         }
 
-        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null, string? stockStatus = null)
         {
             IQueryable<InventoryItem> query = _context.InventoryItems
                 .AsNoTracking()
@@ -62,6 +62,11 @@ namespace GymForge.Infrastructure.Repositories
                 searchTerm = searchTerm.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.SKU.ToLower().Contains(searchTerm));
             }
+
+            if (stockStatus == "LowStock")
+                query = query.Where(x => x.StockQuantity <= x.ReorderLevel);
+            else if (stockStatus == "InStock")
+                query = query.Where(x => x.StockQuantity > x.ReorderLevel);
 
             int totalCount = await query.CountAsync();
 

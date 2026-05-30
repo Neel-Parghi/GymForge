@@ -178,9 +178,9 @@
 
         <!-- Custom Template for Empty State -->
         <ng-template #emptyState>
-          <div class="empty-state-wrapper" style="padding: 40px 0; text-align: center; color: #94a3b8;">
-            <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i>
-            <p style="font-weight: 500; font-size: 0.95rem;">No invoices found matching your criteria.</p>
+          <div class="empty-state-wrapper">
+            <i class="fa-solid fa-folder-open"></i>
+            <p>No invoices found matching your criteria.</p>
           </div>
         </ng-template>
       </app-data-grid>
@@ -278,9 +278,9 @@
 
         <!-- Custom Template for Empty State -->
         <ng-template #emptyState>
-          <div class="empty-state-wrapper" style="padding: 40px 0; text-align: center; color: #94a3b8;">
-            <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i>
-            <p style="font-weight: 500; font-size: 0.95rem;">No platform subscription invoices found.</p>
+          <div class="empty-state-wrapper">
+            <i class="fa-solid fa-folder-open"></i>
+            <p>No platform subscription invoices found.</p>
           </div>
         </ng-template>
       </app-data-grid>
@@ -441,7 +441,7 @@
 
       <!-- Custom Template for Commissions -->
       <ng-template gridCell="commissions" let-payout>
-        <span class="amount-cell date-cell" style="color: #2ec4b6; font-weight: 600;">
+        <span class="amount-cell date-cell commission-amount">
           +₹{{ payout.commissions | number:'1.2-2' }}
         </span>
       </ng-template>
@@ -473,9 +473,9 @@
 
       <!-- Custom Template for Empty State -->
       <ng-template #emptyState>
-        <div class="empty-state-wrapper" style="padding: 40px 0; text-align: center; color: #94a3b8;">
-          <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i>
-          <p style="font-weight: 500; font-size: 0.95rem;">No staff payroll records found.</p>
+        <div class="empty-state-wrapper">
+          <i class="fa-solid fa-folder-open"></i>
+          <p>No staff payroll records found.</p>
         </div>
       </ng-template>
     </app-data-grid>

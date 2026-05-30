@@ -78,7 +78,8 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'isActive', label: 'Status', type: 'bool' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
-    selectable: true
+    selectable: false,
+    excludeActions: ['delete']
   },
   InventoryItems: {
     columns: [
@@ -100,6 +101,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
+    excludeActions: ['delete']
   },
   MaintenanceTasks: {
     columns: [
@@ -110,6 +112,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Record Service', type: 'action' }
     ],
     selectable: false,
+    excludeActions: ['delete', 'view']
   },
   SalesHistory: {
     columns: [
@@ -122,7 +125,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    excludeActions: ['edit']
+    excludeActions: ['edit', 'delete']
   },
   ServiceHistory: {
     columns: [
@@ -135,6 +138,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
+    excludeActions: ['delete']
   },
   MemberInvoices: {
     columns: [
@@ -147,7 +151,8 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'status', label: 'Status', type: 'badge' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
-    selectable: false
+    selectable: false,
+    excludeActions: ['delete']
   },
   PlatformInvoices: {
     columns: [

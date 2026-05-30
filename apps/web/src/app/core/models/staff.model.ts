@@ -3,7 +3,7 @@ export interface StaffResponse {
   staffNumber: string;
   firstName: string;
   lastName: string;
-  fullName?: string; // Virtual field for UI
+  fullName?: string;
   email: string;
   phoneNumber: string;
   role: number;
