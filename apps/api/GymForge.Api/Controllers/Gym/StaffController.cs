@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/staff")]
-    [Authorize(Roles = "GymOwner,Staff")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer")]
     public class StaffController : BaseApiController
     {
         private readonly IStaffService _staffService;

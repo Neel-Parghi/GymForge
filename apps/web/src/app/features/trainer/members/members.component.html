@@ -1,0 +1,73 @@
+<div class="trainer-members-container">
+  <header class="page-header">
+    <div class="header-info">
+      <h1>My PT Clients</h1>
+      <p class="subtitle">View and manage members assigned to you for Personal Training</p>
+    </div>
+    <button class="btn-refresh" (click)="loadMembers()">
+      <i class="fa-solid fa-arrows-rotate"></i> Sync Clients
+    </button>
+  </header>
+
+  <!-- Client Grid/Table Glass Card -->
+  <div class="glass-card table-wrapper">
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Synchronizing assigned client roster...</p>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && assignedMembers.length === 0">
+      <i class="fa-solid fa-user-ninja empty-icon"></i>
+      <h3>No Assigned PT Clients</h3>
+      <p>You don't have any personal training clients assigned to you yet.</p>
+    </div>
+
+    <table class="premium-table" *ngIf="!isLoading && assignedMembers.length > 0">
+      <thead>
+        <tr>
+          <th>Client Name</th>
+          <th>Membership No.</th>
+          <th>Preferred Slot</th>
+          <th>Assigned Date</th>
+          <th>Expiration</th>
+          <th>Status</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let member of assignedMembers">
+          <td>
+            <div class="client-cell clickable-cell" (click)="navigateToMemberDetail(member.memberId)" title="Open Client Workspace">
+              <div class="client-avatar">
+                {{ member.firstName.charAt(0) }}{{ member.lastName.charAt(0) }}
+              </div>
+              <div class="client-info">
+                <span class="name">{{ member.firstName }} {{ member.lastName }}</span>
+                <span class="email">{{ member.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td><code class="membership-number">{{ member.membershipNumber || 'N/A' }}</code></td>
+          <td><span class="slot-tag">{{ member.assignedSlot || 'Anytime' }}</span></td>
+          <td>{{ member.assignedDate | date:'mediumDate' }}</td>
+          <td>{{ member.endDate ? (member.endDate | date:'mediumDate') : 'Continuous' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="member.status?.toLowerCase()">
+              {{ member.status }}
+            </span>
+          </td>
+          <td class="actions-col">
+            <div class="actions-group">
+              <button class="action-btn view-health" (click)="navigateToMemberDetail(member.memberId)" title="Open Client Workspace">
+                <i class="fa-solid fa-folder-open"></i>
+              </button>
+              <button class="action-btn deallocate" (click)="deallocateMember(member)" title="Deallocate Client">
+                <i class="fa-solid fa-user-minus"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

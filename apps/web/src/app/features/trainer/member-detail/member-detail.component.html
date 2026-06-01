@@ -1,0 +1,369 @@
+<div class="member-detail-container" *ngIf="memberInfo">
+  <!-- Back Button & Header -->
+  <header class="detail-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left"></i> Back to Clients
+    </button>
+    
+    <div class="client-hero-card glass-card">
+      <div class="client-avatar">
+        {{ memberInfo.firstName.charAt(0) }}{{ memberInfo.lastName.charAt(0) }}
+      </div>
+      <div class="client-meta">
+        <h2>{{ memberInfo.firstName }} {{ memberInfo.lastName }}</h2>
+        <p class="email"><i class="fa-solid fa-envelope"></i> {{ memberInfo.email }}</p>
+        <div class="tags-row">
+          <span class="status-badge" [ngClass]="memberInfo.status?.toLowerCase()">{{ memberInfo.status }}</span>
+          <span class="slot-tag"><i class="fa-solid fa-clock"></i> {{ memberInfo.assignedSlot || 'Anytime' }}</span>
+          <span class="no-tag"><i class="fa-solid fa-hashtag"></i> {{ memberInfo.membershipNumber || 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Workspace Sub Tabs -->
+  <div class="workspace-tabs-bar">
+    <div class="tabs-list">
+      <button class="tab-item" [class.active]="activeTab === 'workout-track'" (click)="setTab('workout-track')">
+        <i class="fa-solid fa-circle-check tab-icon"></i> Today's Workout Log
+      </button>
+      <button class="tab-item" [class.active]="activeTab === 'workout-split'" (click)="setTab('workout-split')">
+        <i class="fa-solid fa-dumbbell tab-icon"></i> Workout Split Plan
+      </button>
+      <button class="tab-item" [class.active]="activeTab === 'diet-chart'" (click)="setTab('diet-chart')">
+        <i class="fa-solid fa-apple-whole tab-icon"></i> Nutrition Diet Plan
+      </button>
+      <button class="tab-item" [class.active]="activeTab === 'progress'" (click)="setTab('progress')">
+        <i class="fa-solid fa-heart-pulse tab-icon"></i> Health Tracker
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB CONTENT AREA -->
+  <div class="workspace-content">
+    
+    <!-- TAB 1: DAILY WORKOUT SET PERFORMANCE LOG -->
+    <div class="tab-pane" *ngIf="activeTab === 'workout-track'">
+      <div class="workout-tracker-panel glass-card">
+        <div class="panel-header">
+          <div class="header-left">
+            <h3>Active Workout Tracker</h3>
+            <p class="subtitle">Live workout log for today: <strong>{{ todayWorkout.dayName }}</strong></p>
+          </div>
+          <div class="header-actions">
+            <button class="btn-outline btn-small" (click)="addExerciseToWorkout()">
+              <i class="fa-solid fa-plus"></i> Add Exercise
+            </button>
+            <button class="btn-primary" (click)="saveWorkoutSession()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Log Completed Session
+            </button>
+          </div>
+        </div>
+
+        <!-- Exercise Logs Grid -->
+        <div class="exercises-log-list">
+          <div class="exercise-log-card" *ngFor="let ex of todayWorkout.exercises">
+            <div class="ex-card-header">
+              <h4>{{ ex.name }}</h4>
+              <button class="btn-text btn-small" (click)="addSetToExercise(ex)">
+                <i class="fa-solid fa-plus"></i> Add Set
+              </button>
+            </div>
+
+            <!-- Set Logger Table -->
+            <table class="sets-logger-table">
+              <thead>
+                <tr>
+                  <th class="col-set">SET</th>
+                  <th class="col-target">TARGET</th>
+                  <th class="col-weight">WEIGHT (KG)</th>
+                  <th class="col-reps">REPS COMPLETED</th>
+                  <th class="col-check">CHECK IN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of ex.sets" [class.set-completed]="s.completed">
+                  <td><strong>Set {{ s.setNo }}</strong></td>
+                  <td><span class="target-badge">{{ s.target }}</span></td>
+                  <td>
+                    <input type="number" [(ngModel)]="s.weight" class="set-input-num" min="0" [disabled]="s.completed">
+                  </td>
+                  <td>
+                    <input type="number" [(ngModel)]="s.reps" class="set-input-num" min="0" [disabled]="s.completed">
+                  </td>
+                  <td>
+                    <button class="btn-checkbox" [class.checked]="s.completed" (click)="toggleSetCompletion(s)">
+                      <i class="fa-solid" [ngClass]="s.completed ? 'fa-circle-check' : 'fa-circle'"></i>
+                      {{ s.completed ? 'Done' : 'Mark Done' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ACTIVE WORKOUT SPLIT -->
+    <div class="tab-pane" *ngIf="activeTab === 'workout-split'">
+      <div class="workout-split-panel glass-card">
+        <div class="panel-header">
+          <div class="header-left">
+            <h3>Active Workout Routine</h3>
+            <p class="subtitle">Prescribed Program: <span class="accent-text font-bold">{{ activeSplit.planName }}</span></p>
+          </div>
+          <button class="btn-primary" (click)="openAssignSplitModal()">
+            <i class="fa-solid fa-exchange-alt"></i> Assign Plan Template
+          </button>
+        </div>
+
+        <div class="split-schedule-grid">
+          <div class="split-day-card" *ngFor="let day of activeSplit.days">
+            <div class="day-header-badge">
+              <i class="fa-solid fa-calendar-day"></i> {{ day.dayName }}
+            </div>
+            
+            <div class="exercise-prescribed-list">
+              <div class="ex-prescribed-item" *ngFor="let ex of day.exercises">
+                <div class="ex-meta">
+                  <span class="ex-name">{{ ex.name }}</span>
+                  <span class="ex-targets">{{ ex.sets }} sets &times; {{ ex.reps }}</span>
+                </div>
+                <p class="ex-notes" *ngIf="ex.notes"><i class="fa-solid fa-info-circle"></i> {{ ex.notes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: DIET CHART & MACROS -->
+    <div class="tab-pane" *ngIf="activeTab === 'diet-chart'">
+      <div class="diet-chart-panel glass-card">
+        <div class="panel-header">
+          <div class="header-left">
+            <h3>Nutrition & Diet Plan</h3>
+            <p class="subtitle">Active Prescribed Diet: <span class="accent-text font-bold">{{ activeDiet.planName }}</span></p>
+          </div>
+          <button class="btn-primary" (click)="openAssignDietModal()">
+            <i class="fa-solid fa-exchange-alt"></i> Assign Diet Template
+          </button>
+        </div>
+
+        <div class="diet-detail-layout">
+          <!-- Left side: Meals list -->
+          <div class="meals-list-panel">
+            <div class="meal-plan-card" *ngFor="let m of activeDiet.meals">
+              <div class="meal-card-top">
+                <h4>{{ m.name }}</h4>
+                <span class="meal-cal-badge">{{ m.calories }} kcal</span>
+              </div>
+              <p class="meal-items-text">{{ m.items }}</p>
+            </div>
+          </div>
+
+          <!-- Right side: Macros dashboard -->
+          <div class="macros-summary-panel">
+            <div class="macros-summary-card">
+              <div class="macro-donut-wrapper">
+                <svg viewBox="0 0 160 160" class="donut-svg">
+                  <!-- Base ring -->
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
+                  <!-- Accent carbs ring -->
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="#3b82f6" stroke-width="12" stroke-dasharray="376" stroke-dashoffset="180" stroke-linecap="round"></circle>
+                  <!-- Accent protein ring -->
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="376" stroke-dashoffset="260" stroke-linecap="round"></circle>
+                </svg>
+                <div class="donut-content">
+                  <span class="val">{{ activeDiet.calories }}</span>
+                  <span class="lbl">TOTAL KCAL</span>
+                </div>
+              </div>
+
+              <!-- Macros list details -->
+              <div class="macro-bars-list">
+                <div class="macro-bar-item protein">
+                  <div class="bar-header">
+                    <span>Protein</span>
+                    <strong>{{ activeDiet.macros.protein }}g</strong>
+                  </div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 35%"></div></div>
+                </div>
+
+                <div class="macro-bar-item carbs">
+                  <div class="bar-header">
+                    <span>Carbohydrates</span>
+                    <strong>{{ activeDiet.macros.carbs }}g</strong>
+                  </div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
+                </div>
+
+                <div class="macro-bar-item fats">
+                  <div class="bar-header">
+                    <span>Fats</span>
+                    <strong>{{ activeDiet.macros.fats }}g</strong>
+                  </div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 25%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: HEALTH TRACKER (MEASUREMENTS) -->
+    <div class="tab-pane" *ngIf="activeTab === 'progress'">
+      <div class="progress-tab-layout">
+        <!-- Measurement logging form -->
+        <div class="form-panel glass-card">
+          <h3>Record Health Measurement</h3>
+          <form [formGroup]="measurementForm" (ngSubmit)="submitProgress()" class="premium-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Weight (kg) <span class="required">*</span></label>
+                <input type="number" formControlName="weight" class="form-input" placeholder="e.g. 75.4" step="0.1">
+                <span class="error-msg" *ngIf="measurementForm.get('weight')?.touched && measurementForm.get('weight')?.invalid">Provide weight between 20-300kg.</span>
+              </div>
+
+              <div class="form-group">
+                <label>Height (cm) <span class="required">*</span></label>
+                <input type="number" formControlName="height" class="form-input" placeholder="e.g. 175">
+                <span class="error-msg" *ngIf="measurementForm.get('height')?.touched && measurementForm.get('height')?.invalid">Provide height between 50-250cm.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Body Fat Percentage (%)</label>
+                <input type="number" formControlName="bodyFatPercentage" class="form-input" placeholder="e.g. 14.2" step="0.1">
+                <span class="error-msg" *ngIf="measurementForm.get('bodyFatPercentage')?.touched && measurementForm.get('bodyFatPercentage')?.invalid">Provide fat % between 1-80.</span>
+              </div>
+
+              <div class="form-group">
+                <label>Calculated BMI</label>
+                <input type="number" formControlName="bmi" class="form-input disabled">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Trainer Notes / Directives</label>
+              <textarea formControlName="notes" class="form-input textarea" placeholder="Add specific guidance or feedback on client posture/progress..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="isSubmittingProgress">
+              <i class="fa-solid fa-save" *ngIf="!isSubmittingProgress"></i>
+              <div class="small-spinner" *ngIf="isSubmittingProgress"></div>
+              Log Measurement
+            </button>
+          </form>
+        </div>
+
+        <!-- History log details -->
+        <div class="logs-panel glass-card">
+          <h3>Measurement History Logs</h3>
+          <div class="logs-timeline" *ngIf="measurements.length > 0">
+            <div class="log-card" *ngFor="let log of measurements">
+              <div class="log-header">
+                <span class="log-date"><i class="fa-solid fa-calendar-check"></i> {{ log.date | date:'mediumDate' }}</span>
+                <span class="bmi-badge">BMI: {{ log.bmi }}</span>
+              </div>
+
+              <div class="metrics-grid">
+                <div class="metric-item">
+                  <span class="label">Weight</span>
+                  <span class="value">{{ log.weight }} kg</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Height</span>
+                  <span class="value">{{ log.height }} cm</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Body Fat</span>
+                  <span class="value">{{ log.bodyFatPercentage }}%</span>
+                </div>
+              </div>
+
+              <p class="log-notes" *ngIf="log.notes">{{ log.notes }}</p>
+            </div>
+          </div>
+          
+          <div class="empty-state" *ngIf="measurements.length === 0">
+            <p>No measurement history logs found for this client.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WORKOUT ASSIGNMENT MODAL OVERLAY -->
+  <div class="modal-overlay" *ngIf="showAssignSplitModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Assign Workout Template</h2>
+        <button class="btn-close" (click)="closeAssignSplitModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body-list">
+        <p class="modal-desc">Select a standard workout split from your catalog to assign to {{ memberInfo.firstName }}</p>
+        <div class="assign-template-item" (click)="assignWorkoutSplit('3-Day Push-Pull-Legs (PPL)')">
+          <div class="item-left">
+            <strong>3-Day Push-Pull-Legs (PPL)</strong>
+            <span>3 Days/Week • Intermediate • Hypertrophy</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </div>
+        <div class="assign-template-item" (click)="assignWorkoutSplit('4-Day Strength & Power Split')">
+          <div class="item-left">
+            <strong>4-Day Strength & Power Split</strong>
+            <span>4 Days/Week • Advanced • Strength</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </div>
+        <div class="assign-template-item" (click)="assignWorkoutSplit('Kettlebell Shred & Condition')">
+          <div class="item-left">
+            <strong>Kettlebell Shred & Condition</strong>
+            <span>2 Days/Week • Beginner • Fat Loss</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIET ASSIGNMENT MODAL OVERLAY -->
+  <div class="modal-overlay" *ngIf="showAssignDietModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Assign Nutrition Template</h2>
+        <button class="btn-close" (click)="closeAssignDietModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body-list">
+        <p class="modal-desc">Select a nutrition meal guide template to assign to {{ memberInfo.firstName }}</p>
+        <div class="assign-template-item" (click)="assignDietPlan('Lean Bulking 3000 kcal Plan', 3000, 180, 360, 80)">
+          <div class="item-left">
+            <strong>Lean Bulking 3000 kcal Plan</strong>
+            <span>3000 kcal • Macros: 180g P / 360g C / 80g F • Muscle Gain</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </div>
+        <div class="assign-template-item" (click)="assignDietPlan('Keto Cut & Shred 1800 kcal', 1800, 140, 20, 125)">
+          <div class="item-left">
+            <strong>Keto Cut & Shred 1800 kcal</strong>
+            <span>1800 kcal • Macros: 140g P / 20g C / 125g F • Fat Loss</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </div>
+        <div class="assign-template-item" (click)="assignDietPlan('Vegetarian High Protein 2200 kcal', 2200, 130, 250, 65)">
+          <div class="item-left">
+            <strong>Vegetarian High Protein 2200 kcal</strong>
+            <span>2200 kcal • Macros: 130g P / 250g C / 65g F • Wellness</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

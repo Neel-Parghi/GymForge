@@ -97,6 +97,45 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'trainer',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/trainer/dashboard/dashboard.component').then(m => m.TrainerDashboardComponent)
+      },
+      {
+        path: 'members',
+        loadComponent: () => import('./features/trainer/members/members.component').then(m => m.PTMembersTrackComponent)
+      },
+      {
+        path: 'members/:memberId',
+        loadComponent: () => import('./features/trainer/member-detail/member-detail.component').then(m => m.PTMemberDetailComponent)
+      },
+      {
+        path: 'plan-library',
+        loadComponent: () => import('./features/trainer/plan-library/plan-library.component').then(m => m.PlanLibraryComponent)
+      },
+      {
+        path: 'workout-planner',
+        loadComponent: () => import('./features/trainer/workout-planner/workout-planner.component').then(m => m.WorkoutPlannerComponent)
+      },
+      {
+        path: 'health-track',
+        loadComponent: () => import('./features/trainer/health-track/health-track.component').then(m => m.HealthTrackerComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/trainer/settings/settings.component').then(m => m.TrainerSettingsComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
+      }
+    ]
+  },
+  {
     path: 'subscription-expired',
     loadComponent: () => import('./features/gym-owner/subscription-expired/subscription-expired.component').then(m => m.SubscriptionExpiredComponent),
     canActivate: [authGuard]

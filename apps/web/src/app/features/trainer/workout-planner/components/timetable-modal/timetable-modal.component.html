@@ -1,0 +1,103 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-card wide-card timetable-popup-modal animate-scale-in" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="header-title-group">
+        <i class="fa-solid" [ngClass]="type === 'split' ? 'fa-cubes' : (type === 'daily' ? 'fa-dumbbell' : 'fa-calendar-days')"></i>
+        <div class="header-text-block">
+          <h2>{{ planner?.name }}</h2>
+          <p class="header-subtitle">{{ planner?.description }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-header-edit" (click)="onEdit()">
+          <i class="fa-solid fa-pen-to-square"></i> Edit Plan
+        </button>
+        <button class="btn-close" (click)="onClose()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+
+    <div class="timetable-modal-body">
+      <!-- Horizontal Tabs Day Switcher -->
+      <div class="timetable-days-navigator">
+        <button 
+          type="button" 
+          class="timetable-day-tab-btn" 
+          *ngFor="let tab of (type === 'split' || type === 'daily' ? planner?.days : planner?.calendar); let idx = index"
+          [class.active]="activeDetailDayName === (type === 'split' || type === 'daily' ? tab.name : tab.dayName)"
+          (click)="setDetailActiveDay(type === 'split' || type === 'daily' ? tab.name : tab.dayName)"
+          draggable="true"
+          (dragstart)="onDayDragStart(idx, $event)"
+          (dragover)="onDayDragOver(idx, $event)"
+          (drop)="onDayDrop(idx, $event)"
+        >
+          <div class="tab-drag-grip">
+            <i class="fa-solid fa-grip-vertical"></i>
+          </div>
+          <div class="tab-content-text">
+            <span class="tab-title">{{ type === 'split' || type === 'daily' ? tab.name : tab.dayName }}</span>
+            <span class="tab-subtitle-target" [ngClass]="tab.type === 'rest' ? 'rest' : 'workout'">
+              {{ type === 'split' || type === 'daily' ? tab.category : (tab.type === 'workout' ? tab.targetCategory : 'Rest Day') }}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Timetable Selected Pane -->
+      <div class="timetable-selected-pane">
+        <div class="timetable-pane-header" *ngIf="getSelectedDayDetails()?.type !== 'rest'">
+          <div class="pane-target-meta">
+            <div class="pane-icon-bullet">
+              <i class="fa-solid" [ngClass]="getCategoryIcon(type === 'split' || type === 'daily' ? getSelectedDayDetails()?.category : getSelectedDayDetails()?.targetCategory)"></i>
+            </div>
+            <div class="pane-text">
+              <h3>{{ type === 'split' || type === 'daily' ? getSelectedDayDetails()?.name : getSelectedDayDetails()?.splitDayName }}</h3>
+              <p>Target Category Focus: <strong>{{ type === 'split' || type === 'daily' ? getSelectedDayDetails()?.category : getSelectedDayDetails()?.targetCategory }}</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Workout List Table -->
+        <div class="timetable-exercises-wrapper" *ngIf="type === 'split' || type === 'daily' || getSelectedDayDetails()?.type === 'workout'">
+          <table class="timetable-records-table">
+            <thead>
+              <tr>
+                <th class="col-drag-header"></th>
+                <th class="col-exercise-details">Exercise Name</th>
+                <th class="col-sets-details">Sets</th>
+                <th class="col-reps-details">Reps Target</th>
+                <th class="col-cues-details">Coaching Notes & Cues</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ex of getSelectedDayDetails()?.exercises; let idx = index" 
+                class="exercise-timetable-row"
+                draggable="true"
+                (dragstart)="onExDragStart(idx, $event)"
+                (dragover)="onExDragOver(idx, $event)"
+                (drop)="onExDrop(idx, $event)">
+                <td class="col-drag-cell">
+                  <i class="fa-solid fa-grip-vertical drag-grip-icon" title="Drag to reorder"></i>
+                </td>
+                <td class="ex-name-val">{{ ex.name }}</td>
+                <td class="ex-sets-val"><strong>{{ ex.sets }}</strong></td>
+                <td class="ex-reps-val"><span class="reps-badge-val">{{ ex.reps }}</span></td>
+                <td class="ex-notes-val"><em>{{ ex.notes || 'None' }}</em></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Rest Day Screen -->
+        <div class="timetable-rest-day-pane" *ngIf="type === 'weekly' && getSelectedDayDetails()?.type === 'rest'">
+          <div class="rest-graphic-element">
+            <i class="fa-solid fa-moon"></i>
+          </div>
+          <h3>Muscle Recovery Rest Day</h3>
+          <p>No training sessions scheduled. Focus on hydration, core mobility stretching, and restorative recovery.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

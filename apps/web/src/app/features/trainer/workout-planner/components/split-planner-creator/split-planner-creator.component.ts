@@ -1,0 +1,319 @@
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Exercise } from '../../../../../shared/models/exercise.model';
+import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../../../shared/models/dropdown.model';
+import { NotificationService } from '../../../../../core/services/notification.service';
+
+@Component({
+  selector: 'app-split-planner-creator',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DropdownComponent],
+  templateUrl: './split-planner-creator.component.html',
+  styleUrl: './split-planner-creator.component.scss'
+})
+export class SplitPlannerCreatorComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private notification = inject(NotificationService);
+
+  @Input() categories: string[] = [];
+  @Input() exercisesMap: { [category: string]: Exercise[] } = {};
+  @Input() editData: any = null;
+
+  @Output() save = new EventEmitter<any>();
+  @Output() close = new EventEmitter<void>();
+
+  createSplitForm!: FormGroup;
+  activeStep: 'details' | 'plan' = 'details';
+  activeDayTab = 0;
+  copiedWorkout: any = null;
+
+  levelOptions: DropdownOption[] = [
+    { label: 'Beginner', value: 'Beginner' },
+    { label: 'Intermediate', value: 'Intermediate' },
+    { label: 'Advanced', value: 'Advanced' }
+  ];
+
+  goalOptions: DropdownOption[] = [
+    { label: 'Hypertrophy', value: 'Hypertrophy' },
+    { label: 'Strength & Power', value: 'Strength & Power' },
+    { label: 'Fat Loss', value: 'Fat Loss' }
+  ];
+
+  getCategoryDropdownOptions(): DropdownOption[] {
+    return this.categories.map(c => ({ label: c, value: c }));
+  }
+
+  getExercisesDropdownOptions(dayIdx: number, currentExIdx?: number): DropdownOption[] {
+    const day = this.splitDays.at(dayIdx);
+    const targetCats = day?.get('targetCategories')?.value || ['Back'];
+    const exercises = this.getExercisesForCategories(targetCats);
+
+    const usedNames = new Set<string>();
+    const exercisesFormArray = this.getSplitExercises(dayIdx);
+    exercisesFormArray.controls.forEach((ctrl, idx) => {
+      if (idx !== currentExIdx) {
+        const name = ctrl.get('exerciseName')?.value;
+        if (name) usedNames.add(name);
+      }
+    });
+
+    return exercises
+      .filter(e => !usedNames.has(e.name))
+      .map(e => ({
+        label: `${e.name} (${e.equipment})`,
+        value: e.name
+      }));
+  }
+
+  nextStep(): void {
+    if (this.createSplitForm.get('name')?.invalid) {
+      this.createSplitForm.get('name')?.markAsTouched();
+      this.notification.warning('Please enter a valid split name (min 3 characters).');
+      return;
+    }
+    if (this.createSplitForm.get('description')?.invalid) {
+      this.createSplitForm.get('description')?.markAsTouched();
+      this.notification.warning('Description is required.');
+      return;
+    }
+    this.activeStep = 'plan';
+  }
+
+  prevStep(): void {
+    this.activeStep = 'details';
+  }
+
+  copyWorkout(dayIdx: number): void {
+    const dayGroup = this.splitDays.at(dayIdx);
+    const categories = dayGroup.get('targetCategories')?.value || ['Back'];
+    const exercisesData = this.getSplitExercises(dayIdx).value.map((ex: any) => ({
+      name: ex.exerciseName,
+      sets: ex.targetSets,
+      reps: ex.targetReps,
+      notes: ex.notes
+    }));
+
+    this.copiedWorkout = {
+      categories: [...categories],
+      exercises: exercisesData
+    };
+
+    localStorage.setItem('gymforge_copied_workout_split', JSON.stringify(this.copiedWorkout));
+    this.notification.success('Workout split copied to clipboard!');
+  }
+
+  pasteWorkout(dayIdx: number): void {
+    const raw = localStorage.getItem('gymforge_copied_workout_split');
+    if (!raw) {
+      this.notification.warning('No copied workout split found on clipboard.');
+      return;
+    }
+
+    try {
+      const data = JSON.parse(raw);
+      if (!data.exercises || data.exercises.length === 0) return;
+
+      const dayGroup = this.splitDays.at(dayIdx);
+      dayGroup.patchValue({
+        targetCategories: data.categories || data.category ? (data.category.split(' + ')) : ['Back']
+      });
+
+      const exArray = this.getSplitExercises(dayIdx);
+      exArray.clear();
+
+      data.exercises.forEach((ex: any) => {
+        exArray.push(this.fb.group({
+          exerciseName: [ex.name || '', [Validators.required]],
+          targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(10)]],
+          targetReps: [ex.reps || '10-12 reps', [Validators.required]],
+          notes: [ex.notes || '']
+        }));
+      });
+
+      this.notification.success('Workout split pasted successfully!');
+    } catch (e) {
+      console.error(e);
+      this.notification.error('Error pasting workout split.');
+    }
+  }
+
+  ngOnInit(): void {
+    this.initSplitForm();
+    if (this.editData) {
+      this.populateFormWithEditData(this.editData);
+    }
+  }
+
+  get splitDays(): FormArray {
+    return this.createSplitForm.get('days') as FormArray;
+  }
+
+  getSplitExercises(dayIndex: number): FormArray {
+    return this.splitDays.at(dayIndex).get('exercises') as FormArray;
+  }
+
+  private initSplitForm(): void {
+    this.createSplitForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required]],
+      level: ['Beginner'],
+      goal: ['Hypertrophy'],
+      days: this.fb.array([])
+    });
+
+    if (!this.editData) {
+      this.addSplitDay();
+    }
+  }
+
+  private populateFormWithEditData(data: any): void {
+    this.createSplitForm.patchValue({
+      name: data.name,
+      description: data.description,
+      level: data.level,
+      goal: data.goal
+    });
+
+    const daysArray = this.splitDays;
+    daysArray.clear();
+
+    (data.days || []).forEach((day: any) => {
+      const categoriesList = day.category ? day.category.split(' + ') : [this.categories[0] || 'Back'];
+      const dayGroup = this.fb.group({
+        name: [day.name, [Validators.required]],
+        targetCategories: [categoriesList],
+        exercises: this.fb.array(
+          (day.exercises || []).map((ex: any) => this.fb.group({
+            exerciseName: [ex.name || '', [Validators.required]],
+            targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(10)]],
+            targetReps: [ex.reps || '10-12 reps', [Validators.required]],
+            notes: [ex.notes || '']
+          }))
+        )
+      });
+
+      daysArray.push(dayGroup);
+    });
+  }
+
+  addSplitDay(): void {
+    const defaultCat = this.categories[0] || 'Back';
+    const dayGroup = this.fb.group({
+      name: [`Day ${this.splitDays.length + 1} Split`, [Validators.required]],
+      targetCategories: [[defaultCat]],
+      exercises: this.fb.array([])
+    });
+
+    this.splitDays.push(dayGroup);
+    const newDayIndex = this.splitDays.length - 1;
+    this.addSplitExercise(newDayIndex);
+  }
+
+  removeSplitDay(index: number): void {
+    if (this.splitDays.length > 1) {
+      this.splitDays.removeAt(index);
+      if (this.activeDayTab >= this.splitDays.length) {
+        this.activeDayTab = this.splitDays.length - 1;
+      }
+    }
+  }
+
+  addSplitExercise(dayIndex: number): void {
+    const exGroup = this.fb.group({
+      exerciseName: ['', [Validators.required]],
+      targetSets: [3, [Validators.required, Validators.min(1), Validators.max(10)]],
+      targetReps: ['10-12 reps', [Validators.required]],
+      notes: ['']
+    });
+
+    this.getSplitExercises(dayIndex).push(exGroup);
+  }
+
+  removeSplitExercise(dayIndex: number, exIndex: number): void {
+    const exArray = this.getSplitExercises(dayIndex);
+    if (exArray.length > 1) {
+      exArray.removeAt(exIndex);
+    }
+  }
+
+  toggleCategory(dayIdx: number, cat: string): void {
+    const dayGroup = this.splitDays.at(dayIdx);
+    const ctrl = dayGroup.get('targetCategories');
+    if (!ctrl) return;
+    const current = [...(ctrl.value || [])];
+    const idx = current.indexOf(cat);
+    if (idx > -1) {
+      if (current.length > 1) {
+        current.splice(idx, 1);
+      } else {
+        this.notification.warning('At least one target muscle category must be selected.');
+        return;
+      }
+    } else {
+      current.push(cat);
+    }
+    ctrl.setValue(current);
+  }
+
+  isCategorySelected(dayIdx: number, cat: string): boolean {
+    const dayGroup = this.splitDays.at(dayIdx);
+    const current = dayGroup?.get('targetCategories')?.value || [];
+    return current.includes(cat);
+  }
+
+  getExercisesForCategory(category: string): Exercise[] {
+    if (!category) return [];
+    if (this.exercisesMap[category]) {
+      return this.exercisesMap[category];
+    }
+    const key = Object.keys(this.exercisesMap).find(k => k.toLowerCase() === category.toLowerCase());
+    return key ? this.exercisesMap[key] : [];
+  }
+
+  getExercisesForCategories(categories: string[]): Exercise[] {
+    let list: Exercise[] = [];
+    categories.forEach(cat => {
+      const exs = this.getExercisesForCategory(cat);
+      list = [...list, ...exs];
+    });
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  onSubmitSplit(): void {
+    if (this.createSplitForm.invalid) {
+      this.createSplitForm.markAllAsTouched();
+      return;
+    }
+
+    const val = this.createSplitForm.getRawValue();
+    const totalExs = val.days.reduce((sum: number, d: any) => sum + d.exercises.length, 0);
+
+    const splitData = {
+      ...(this.editData ? { id: this.editData.id } : {}),
+      name: val.name,
+      description: val.description,
+      level: val.level,
+      goal: val.goal,
+      daysCount: val.days.length,
+      exercisesCount: totalExs,
+      days: val.days.map((d: any) => ({
+        name: d.name,
+        category: (d.targetCategories || []).join(' + '),
+        exercises: d.exercises.map((e: any) => ({
+          name: e.exerciseName,
+          sets: e.targetSets,
+          reps: e.targetReps,
+          notes: e.notes
+        }))
+      }))
+    };
+
+    this.save.emit(splitData);
+  }
+
+  onClose(): void {
+    this.close.emit();
+  }
+}

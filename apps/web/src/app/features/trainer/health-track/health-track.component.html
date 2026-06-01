@@ -1,0 +1,129 @@
+<div class="trainer-health-container">
+  <header class="page-header">
+    <div class="header-info">
+      <h1>Health & Progress Tracker</h1>
+      <p class="subtitle">Log and monitor fitness metrics, BMI, and body stats for your clients</p>
+    </div>
+  </header>
+
+  <div class="tracker-layout">
+    <!-- Left Panel: Client Selector -->
+    <aside class="client-sidebar glass-card">
+      <h3>Active PT Clients</h3>
+      <div class="loading-state" *ngIf="isLoadingMembers">
+        <div class="small-spinner"></div>
+      </div>
+      <div class="empty-state" *ngIf="!isLoadingMembers && assignedMembers.length === 0">
+        <p>No clients assigned</p>
+      </div>
+      <ul class="client-list" *ngIf="!isLoadingMembers && assignedMembers.length > 0">
+        <li *ngFor="let member of assignedMembers" 
+            [class.active]="member.memberId === selectedMemberId"
+            (click)="selectMember(member.memberId)">
+          <div class="client-avatar">
+            {{ member.firstName.charAt(0) }}{{ member.lastName.charAt(0) }}
+          </div>
+          <div class="client-details">
+            <span class="name">{{ member.firstName }} {{ member.lastName }}</span>
+            <span class="badge" [ngClass]="member.status?.toLowerCase()">{{ member.status }}</span>
+          </div>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Center/Right: Details and Logs -->
+    <main class="main-progress-view" *ngIf="selectedMemberId">
+      <div class="progress-header glass-card">
+        <h2>Progress Profile: <span class="accent-text">{{ selectedMemberName }}</span></h2>
+      </div>
+
+      <div class="progress-panels">
+        <!-- New Entry Form -->
+        <section class="form-panel glass-card">
+          <h3>Record New Stats</h3>
+          <form [formGroup]="measurementForm" (ngSubmit)="onSubmit()" class="premium-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="weight">Weight (kg) <span class="required">*</span></label>
+                <input type="number" id="weight" formControlName="weight" class="form-input" placeholder="e.g. 72.5">
+                <span class="error-msg" *ngIf="measurementForm.get('weight')?.touched && measurementForm.get('weight')?.invalid">
+                  Valid weight required (20-300kg)
+                </span>
+              </div>
+              <div class="form-group">
+                <label for="height">Height (cm) <span class="required">*</span></label>
+                <input type="number" id="height" formControlName="height" class="form-input" placeholder="e.g. 175">
+                <span class="error-msg" *ngIf="measurementForm.get('height')?.touched && measurementForm.get('height')?.invalid">
+                  Valid height required (50-250cm)
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="bodyFatPercentage">Body Fat (%)</label>
+                <input type="number" id="bodyFatPercentage" formControlName="bodyFatPercentage" class="form-input" placeholder="e.g. 14.5">
+              </div>
+              <div class="form-group">
+                <label for="bmi">Calculated BMI</label>
+                <input type="number" id="bmi" formControlName="bmi" class="form-input disabled" readonly>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="notes">Progress / Session Notes</label>
+              <textarea id="notes" formControlName="notes" class="form-input textarea" placeholder="e.g. Completed a high intensity lower body circuit. Target weight goal progress on track..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+              <i class="fa-solid fa-plus-circle"></i> {{ isSubmitting ? 'Recording Log...' : 'Record Measurements' }}
+            </button>
+          </form>
+        </section>
+
+        <!-- Measurement Logs History -->
+        <section class="logs-panel glass-card">
+          <h3>Measurement History</h3>
+          <div class="loading-state" *ngIf="isLoadingLogs">
+            <div class="spinner"></div>
+          </div>
+          <div class="empty-state" *ngIf="!isLoadingLogs && measurements.length === 0">
+            <i class="fa-solid fa-file-waveform empty-icon"></i>
+            <p>No health logs recorded yet. Create the first entry above!</p>
+          </div>
+
+          <div class="logs-timeline" *ngIf="!isLoadingLogs && measurements.length > 0">
+            <div class="log-card" *ngFor="let log of measurements">
+              <div class="log-header">
+                <span class="log-date"><i class="fa-regular fa-clock"></i> {{ log.date | date:'mediumDate' }}</span>
+                <span class="bmi-badge" *ngIf="log.bmi">BMI: {{ log.bmi }}</span>
+              </div>
+              <div class="metrics-grid">
+                <div class="metric-item">
+                  <span class="label">Weight</span>
+                  <span class="value">{{ log.weight }} kg</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">Height</span>
+                  <span class="value">{{ log.height }} cm</span>
+                </div>
+                <div class="metric-item" *ngIf="log.bodyFatPercentage">
+                  <span class="label">Body Fat</span>
+                  <span class="value">{{ log.bodyFatPercentage }}%</span>
+                </div>
+              </div>
+              <p class="log-notes" *ngIf="log.notes"><strong>Notes:</strong> {{ log.notes }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Empty/Prompt State -->
+    <main class="main-prompt-view glass-card" *ngIf="!selectedMemberId">
+      <i class="fa-solid fa-user-check prompt-icon"></i>
+      <h3>Select a PT Client</h3>
+      <p>Choose a member from your client list on the left to track their workout progress and health logs.</p>
+    </main>
+  </div>
+</div>
