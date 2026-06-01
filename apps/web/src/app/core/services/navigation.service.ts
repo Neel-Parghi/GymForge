@@ -4,6 +4,7 @@ import { GymSettingsService } from "./gym-settings.service";
 import { NavItem } from "../models/nav-Item.model";
 import { SuperAdminMenu } from "../configs/menus/super-admin.menu";
 import { GymOwnerMenu } from "../configs/menus/gym-owner.menu";
+import { TrainerMenu } from "../configs/menus/trainer.menu";
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
@@ -21,8 +22,10 @@ export class NavigationService {
                 break;
             case 'GymOwner':
             case 'Staff':
-            case 'Trainer':
                 config = GymOwnerMenu;
+                break;
+            case 'Trainer':
+                config = TrainerMenu;
                 break;
             default:
                 config = [];
