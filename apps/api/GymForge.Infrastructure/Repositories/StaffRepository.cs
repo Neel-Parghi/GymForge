@@ -30,6 +30,14 @@ namespace GymForge.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<Staff?> GetByUserIdAsync(Guid userId)
+        {
+            return await _dbContext.Staff
+                .Include(x => x.PTAssignments)
+                .ThenInclude(a => a.Member)
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
         public async Task<IEnumerable<Staff>> GetAllByGymIdAsync(Guid gymId, Guid? branchId = null)
         {
             IQueryable<Staff> query = _dbContext.Staff

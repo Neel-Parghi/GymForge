@@ -62,6 +62,10 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<GymHoliday> GymHolidays { get; set; }
 
+        public DbSet<Exercise> Exercises { get; set; }
+
+        public DbSet<MasterExercise> MasterExercises { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -167,6 +171,22 @@ namespace GymForge.Infrastructure.Persistence
             modelBuilder.Entity<Staff>().HasIndex(x => x.GymId);
             modelBuilder.Entity<StaffPayrollRule>().HasIndex(x => x.GymId);
             modelBuilder.Entity<StaffPayoutLog>().HasIndex(x => x.GymId);
+
+            // Exercise indexes
+            modelBuilder.Entity<Exercise>(entity =>
+            {
+                entity.HasIndex(x => x.Category);
+                entity.HasIndex(x => x.Equipment);
+                entity.HasIndex(x => x.Slug).IsUnique();
+            });
+
+            // MasterExercise indexes
+            modelBuilder.Entity<MasterExercise>(entity =>
+            {
+                entity.HasIndex(x => x.Category);
+                entity.HasIndex(x => x.Equipment);
+                entity.HasIndex(x => x.Slug).IsUnique();
+            });
 
             // Precision for payroll entities
             modelBuilder.Entity<StaffPayrollRule>()

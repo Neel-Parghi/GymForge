@@ -1,0 +1,180 @@
+<div class="modal-overlay">
+  <div class="modal-card wide-card animate-scale-in">
+
+    <div class="modal-header">
+      <div class="header-title-group">
+        <i class="fa-solid fa-dumbbell"></i>
+        <h2>{{ editData ? 'Edit Standalone Workout' : 'New Standalone Workout' }}</h2>
+      </div>
+      <button class="btn-close" (click)="onClose()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Wizard Progress Tabs Bar -->
+    <div class="wizard-progress-bar">
+      <button type="button" class="wizard-step-btn" [class.active]="activeStep === 'details'"
+        (click)="activeStep = 'details'">
+        <span class="step-num">1</span>
+        <span class="step-label">Basic Info</span>
+      </button>
+      <div class="wizard-step-line"></div>
+      <button type="button" class="wizard-step-btn" [class.active]="activeStep === 'plan'" (click)="nextStep()">
+        <span class="step-num">2</span>
+        <span class="step-label">Workout Plan Setup</span>
+      </button>
+    </div>
+
+    <form [formGroup]="createDailyForm" (ngSubmit)="onSubmitDaily()" class="premium-form">
+      <div class="form-scroll-content" [class.no-scroll]="activeStep === 'plan'">
+
+        <!-- STEP 1: Basic Details -->
+        <div class="wizard-step-content animate-scale-in" *ngIf="activeStep === 'details'">
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label><i class="fa-solid fa-tag"></i> Workout Session Name <span class="required">*</span></label>
+              <input type="text" formControlName="name" class="form-input" placeholder="e.g. Heavy Pull Day / Arms Hypertrophy">
+              <span class="error-msg"
+                *ngIf="createDailyForm.get('name')?.touched && createDailyForm.get('name')?.invalid">Workout
+                name is required.</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fa-solid fa-gauge-high"></i> Difficulty Level</label>
+              <app-dropdown [options]="levelOptions" formControlName="level" placeholder="Select Level"
+                [isSearchable]="false" minWidth="100%"></app-dropdown>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fa-solid fa-bullseye"></i> Goal</label>
+              <app-dropdown [options]="goalOptions" formControlName="goal" placeholder="Select Goal"
+                [isSearchable]="false" minWidth="100%"></app-dropdown>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-align-left"></i> Short Description</label>
+            <textarea formControlName="description" class="form-input textarea-short"
+              placeholder="Explain the focus of this standalone workout... (Optional)"></textarea>
+          </div>
+
+          <!-- Quick Tip Graphic -->
+          <div class="details-tip-panel">
+            <div class="tip-icon"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="tip-body">
+              <strong>Tip from Designer:</strong> In the next step, you can assemble the spreadsheet list of exercises, select muscle focuses, and add coaching cues or notes.
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Exercises Configuration -->
+        <div class="wizard-step-content animate-scale-in" *ngIf="activeStep === 'plan'">
+          
+          <!-- Standalone Workout Day Config Tab -->
+          <div class="calendar-tabs">
+            <button type="button" class="tab-btn active">
+              <span class="tab-day-short">Workout</span>
+            </button>
+          </div>
+
+          <div class="section-panel">
+            <div class="panel-header">
+              <div class="category-select-wrapper font-bold-text">
+                <span class="panel-badge">Workout Session</span>
+                <input type="text" formControlName="name" class="day-title-input compact-input" placeholder="e.g. Back Day">
+              </div>
+
+              <!-- Muscle Focus Selector Pills inside panel-header -->
+              <div class="panel-category-selector animate-scale-in">
+                <div class="muscle-pills-container">
+                  <button type="button" *ngFor="let cat of categories" class="pill-btn"
+                    [class.active]="isCategorySelected(cat)" (click)="toggleCategory(cat)">
+                    <i class="fa-solid fa-check check-pill-icon" *ngIf="isCategorySelected(cat)"></i>
+                    {{ cat }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div class="exercise-table-scroll-wrapper">
+                <table class="panel-table">
+                  <thead>
+                    <tr>
+                      <th class="col-exercise">Select Exercise</th>
+                      <th class="col-sets">Sets</th>
+                      <th class="col-reps">Reps Target</th>
+                      <th class="col-notes">Notes / Coaching Cues</th>
+                      <th class="col-action"></th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="exercises">
+                    <tr *ngFor="let ex of dailyExercises.controls; let exIdx = index" [formGroupName]="exIdx">
+                      <td>
+                        <app-dropdown [options]="getExercisesDropdownOptions(exIdx)" formControlName="exerciseName"
+                          placeholder="Select Exercise" [isSearchable]="true" minWidth="100%"
+                          direction="auto"></app-dropdown>
+                      </td>
+                      <td>
+                        <input type="number" formControlName="targetSets" class="table-input col-sets-input" min="1"
+                          max="10">
+                      </td>
+                      <td>
+                        <input type="text" formControlName="targetReps" class="table-input"
+                          placeholder="e.g. 10-12 reps">
+                      </td>
+                      <td>
+                        <input type="text" formControlName="notes" class="table-input" placeholder="Coaching cues...">
+                      </td>
+                      <td>
+                        <button type="button" class="row-btn-delete" (click)="removeDailyExercise(exIdx)"
+                          title="Remove Exercise">
+                          <i class="fa-solid fa-xmark"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="panel-footer">
+                <button type="button" class="btn-link" (click)="addDailyExercise()">
+                  <i class="fa-solid fa-circle-plus"></i> Add Exercise Row
+                </button>
+                <div class="panel-copy-paste-actions">
+                  <button type="button" class="btn-secondary-action btn-copy" (click)="copyWorkout()" title="Copy Workout">
+                    <i class="fa-solid fa-copy"></i> Copy Workout
+                  </button>
+                  <button type="button" class="btn-secondary-action btn-paste" (click)="pasteWorkout()" title="Paste Workout">
+                    <i class="fa-solid fa-paste"></i> Paste Workout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Static Wizard Footer Navigation -->
+      <div class="drawer-actions">
+        <!-- Step 1 Actions -->
+        <ng-container *ngIf="activeStep === 'details'">
+          <button type="button" class="btn-outline" (click)="onClose()">Cancel</button>
+          <button type="button" class="btn-primary" (click)="nextStep()">
+            Configure Exercises <i class="fa-solid fa-arrow-right icon-right"></i>
+          </button>
+        </ng-container>
+
+        <!-- Step 2 Actions -->
+        <ng-container *ngIf="activeStep === 'plan'">
+          <button type="button" class="btn-outline" (click)="prevStep()">
+            <i class="fa-solid fa-arrow-left icon-left"></i> Back to Details
+          </button>
+          <button type="submit" class="btn-primary">
+            {{ editData ? 'Save Changes' : 'Create Standalone Workout' }}
+          </button>
+        </ng-container>
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -113,5 +113,10 @@ export const API_CONSTANTS = {
   },
   COMMON: {
     UPLOAD: 'fileupload'
+  },
+  WORKOUT_MASTER: {
+    CATEGORIES: 'workout-master/categories',
+    EXERCISES: 'workout-master/exercises',
+    BY_CATEGORY: 'workout-master/exercises/{category}'
   }
 };

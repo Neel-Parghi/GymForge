@@ -37,10 +37,20 @@ namespace GymForge.Api.Controllers.Gym
         [HttpGet("branches")]
         public async Task<IActionResult> GetMyBranches()
         {
+            Guid gymId = Guid.Empty;
             GymListResponseDto? gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
-            if (gym == null) return NotFound("Gym not found for this owner.");
+            if (gym != null)
+            {
+                gymId = gym.Id;
+            }
+            else if (GymId != null)
+            {
+                gymId = GymId.Value;
+            }
 
-            List<BranchDto> branches = await _gymManagementService.GetBranchesByGymIdAsync(gym.Id);
+            if (gymId == Guid.Empty) return NotFound("Gym not found.");
+
+            List<BranchDto> branches = await _gymManagementService.GetBranchesByGymIdAsync(gymId);
             return Ok(branches);
         }
 

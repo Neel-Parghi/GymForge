@@ -1,0 +1,513 @@
+/* Modals styles overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .modal-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 540px;
+    box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &.wide-card {
+      max-width: 1000px;
+      max-height: 94vh;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-surface);
+
+    .header-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      i {
+        color: var(--accent-color);
+        font-size: 1.2rem;
+      }
+
+      .header-text-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        h2 {
+          font-size: 1.3rem;
+          font-weight: 800;
+          color: var(--text-main);
+          margin: 0;
+          letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+          font-size: 0.88rem;
+          color: var(--text-muted);
+          margin: 0;
+        }
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .btn-header-edit {
+        background: var(--primary-navy);
+        border: var(--primary-navy);
+        color: #ffffff;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.25s ease;
+
+        i {
+          font-size: 0.85rem;
+        }
+
+        &:hover {
+          background: var(--primary-navy-hover);
+          color: #ffffff;
+          border-color: var(--accent-color);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+        }
+      }
+    }
+
+    .btn-close {
+      background: var(--slate-100);
+      border: none;
+      color: var(--slate-500);
+      cursor: pointer;
+      font-size: 0.95rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--error-bg);
+        color: var(--error-color);
+      }
+    }
+  }
+}
+
+.timetable-modal-body {
+  display: flex;
+  padding: 0;
+  height: 64vh;
+  background: var(--bg-surface);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: auto;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}
+
+/* Timetable Days Navigator Left-Bar */
+.timetable-days-navigator {
+  width: 260px;
+  background: var(--slate-50);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 16px;
+  gap: 10px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+    overflow-x: auto;
+  }
+
+  .timetable-day-tab-btn {
+    background: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    cursor: grab;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    .tab-drag-grip {
+      color: var(--slate-300);
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s ease;
+    }
+
+    .tab-content-text {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      min-width: 120px;
+    }
+
+    .tab-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .tab-subtitle-target {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 4px;
+
+      &.workout {
+        background: rgba(var(--accent-rgb), 0.05);
+        color: var(--accent-color);
+      }
+
+      &.rest {
+        background: var(--slate-100);
+        color: var(--slate-400);
+      }
+    }
+
+    &:hover {
+      border-color: rgba(var(--accent-rgb), 0.25);
+      background: rgba(var(--accent-rgb), 0.01);
+      transform: translateY(-1px);
+
+      .tab-drag-grip {
+        color: var(--accent-color);
+      }
+    }
+
+    &.active {
+      background: var(--primary-navy);
+      border-color: var(--primary-navy);
+      box-shadow: 0 4px 12px rgba(10, 31, 68, 0.15);
+
+      .tab-drag-grip {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .tab-title {
+        color: #ffffff;
+      }
+
+      .tab-subtitle-target {
+        &.workout {
+          background: rgba(255, 255, 255, 0.15);
+          color: #ffffff;
+        }
+
+        &.rest {
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.6);
+        }
+      }
+    }
+  }
+}
+
+/* Selected Timetable Day Pane */
+.timetable-selected-pane {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #ffffff;
+
+  .timetable-pane-header {
+    border-bottom: 1px dashed var(--slate-200);
+    padding-bottom: 18px;
+
+    .pane-target-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pane-icon-bullet {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(var(--accent-rgb), 0.06);
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.1);
+    }
+
+    .pane-text {
+      h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0 0 4px 0;
+        letter-spacing: -0.4px;
+      }
+
+      p {
+        font-size: 0.86rem;
+        color: var(--text-muted);
+        margin: 0;
+
+        strong {
+          color: var(--text-main);
+        }
+      }
+    }
+  }
+}
+
+/* Interactive Timetable Records Table */
+.timetable-exercises-wrapper {
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 20px;
+  max-height: 380px;
+  overflow-y: auto;
+
+  /* Custom smooth scrollbars */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--slate-300);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--slate-400);
+  }
+}
+
+.timetable-records-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th {
+    text-align: left;
+    font-weight: 700;
+    color: var(--slate-500);
+    padding: 14px 10px;
+    background: var(--slate-100);
+    border-bottom: 1px solid var(--slate-200);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 16px 10px;
+    border-bottom: 1px solid var(--slate-200);
+    vertical-align: middle;
+  }
+
+  .col-drag-header {
+    width: 5%;
+    text-align: center;
+  }
+
+  .col-exercise-details {
+    width: 38%;
+  }
+
+  .col-sets-details {
+    width: 12%;
+  }
+
+  .col-reps-details {
+    width: 16%;
+  }
+
+  .col-cues-details {
+    width: 29%;
+  }
+
+  .col-drag-cell {
+    width: 5%;
+    text-align: center;
+    padding: 16px 10px !important;
+  }
+
+  .drag-grip-icon {
+    color: var(--slate-300);
+    font-size: 0.95rem;
+    cursor: grab;
+    transition: color 0.2s ease;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .exercise-timetable-row {
+    transition: background 0.2s;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &:hover {
+      background: #ffffff;
+
+      .drag-grip-icon {
+        color: var(--accent-color);
+      }
+    }
+
+    .ex-name-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .ex-sets-val {
+      color: var(--text-main);
+    }
+
+    .reps-badge-val {
+      background: var(--slate-200);
+      color: var(--slate-700);
+      font-weight: 700;
+      font-size: 0.76rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .ex-notes-val {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+  }
+}
+
+/* Recovery Rest Day Pane */
+.timetable-rest-day-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  flex-grow: 1;
+
+  .rest-graphic-element {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #fef3c7;
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(217, 119, 6, 0.1);
+  }
+
+  h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0 0 10px 0;
+  }
+
+  p {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    max-width: 440px;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}

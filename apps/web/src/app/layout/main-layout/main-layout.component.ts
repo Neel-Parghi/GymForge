@@ -86,9 +86,12 @@ export class MainLayoutComponent implements OnInit {
     this.roleName = role.replace(/([A-Z])/g, ' $1').trim();
     this.isGymOwner = role === 'GymOwner';
 
-    if (role === 'GymOwner') {
+    if (role === 'GymOwner' || role === 'Staff') {
       this.dashboardRoute = '/gym-owner/dashboard';
       this.profileRoute = '/gym-owner/profile';
+    } else if (role === 'Trainer') {
+      this.dashboardRoute = '/trainer/dashboard';
+      this.profileRoute = '/trainer/profile';
     } else {
       this.dashboardRoute = '/super-admin/dashboard';
       this.profileRoute = '/super-admin/profile';

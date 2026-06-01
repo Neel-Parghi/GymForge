@@ -79,7 +79,7 @@ export class DropdownComponent implements ControlValueAccessor, OnInit {
       let spaceBelow = windowHeight - rect.bottom;
       let spaceAbove = rect.top;
 
-      const scrollParent = this.el.nativeElement.closest('.modal-body, .drawer-body, .drawer-container, .form-container');
+      const scrollParent = this.el.nativeElement.closest('.modal-body, .drawer-body, .drawer-container, .form-container, .form-scroll-content, .modal-card');
       if (scrollParent) {
         const parentRect = scrollParent.getBoundingClientRect();
         const parentSpaceBelow = parentRect.bottom - rect.bottom;

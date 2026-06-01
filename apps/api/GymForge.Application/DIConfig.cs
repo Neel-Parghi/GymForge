@@ -9,6 +9,8 @@ using GymForge.Application.Modules.SuperAdmin.Services;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Application.Modules.Users.Services;
 using GymForge.Application.Modules.Common.Interfaces;
+using GymForge.Application.Modules.Workout.Interface;
+using GymForge.Application.Modules.Workout.Services;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +60,8 @@ namespace GymForge.Application
             services.AddScoped<IMemberBillingService, MemberBillingService>();
             
             services.AddScoped<IStaffPayrollService, StaffPayrollService>();
+
+            services.AddScoped<IWorkoutService, WorkoutService>();
 
             return services;
         }

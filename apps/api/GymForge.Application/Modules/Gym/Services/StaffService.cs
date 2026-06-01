@@ -157,7 +157,18 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<IEnumerable<TrainerMemberResponse>> GetAssignedMembersAsync(Guid trainerId)
         {
-            IEnumerable<PTAssignment> assignments = await _staffRepository.GetAssignmentsByTrainerIdAsync(trainerId);
+            Staff? staff = await _staffRepository.GetByIdAsync(trainerId);
+            if (staff == null)
+            {
+                staff = await _staffRepository.GetByUserIdAsync(trainerId);
+            }
+
+            if (staff == null)
+            {
+                return [];
+            }
+
+            IEnumerable<PTAssignment> assignments = await _staffRepository.GetAssignmentsByTrainerIdAsync(staff.Id);
             return assignments.Select(a => {
                 string status = "Active";
                 if (!a.IsActive)
