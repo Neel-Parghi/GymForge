@@ -66,6 +66,12 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<MasterExercise> MasterExercises { get; set; }
 
+        public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
+
+        public DbSet<WorkoutPlanDay> WorkoutPlanDays { get; set; }
+
+        public DbSet<WorkoutPlanExercise> WorkoutPlanExercises { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -259,6 +265,40 @@ namespace GymForge.Infrastructure.Persistence
             {
                 entity.HasIndex(x => x.GymId);
                 entity.HasIndex(x => x.BranchId);
+            });
+
+            // WorkoutPlan configurations
+            modelBuilder.Entity<WorkoutPlan>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => new { x.CreatedBy, x.Type, x.IsDeleted });
+                entity.HasQueryFilter(p => !p.IsDeleted);
+                
+                entity.HasMany(wp => wp.Days)
+                      .WithOne(d => d.WorkoutPlan)
+                      .HasForeignKey(d => d.WorkoutPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<WorkoutPlanDay>(entity =>
+            {
+                entity.HasIndex(x => x.WorkoutPlanId);
+                
+                entity.HasMany(d => d.Exercises)
+                      .WithOne(e => e.WorkoutPlanDay)
+                      .HasForeignKey(e => e.WorkoutPlanDayId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<WorkoutPlanExercise>(entity =>
+            {
+                entity.HasIndex(x => x.WorkoutPlanDayId);
+                entity.HasIndex(x => x.ExerciseId);
+
+                entity.HasOne(e => e.Exercise)
+                      .WithMany()
+                      .HasForeignKey(e => e.ExerciseId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Seed default settings

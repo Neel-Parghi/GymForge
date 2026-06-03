@@ -120,5 +120,9 @@ export const API_CONSTANTS = {
     CATEGORIES: 'workout-master/categories',
     EXERCISES: 'workout-master/exercises',
     BY_CATEGORY: 'workout-master/exercises/{category}'
+  },
+  WORKOUT_PLAN: {
+    BASE: 'workout-plan',
+    BY_ID: 'workout-plan/{id}'
   }
 };

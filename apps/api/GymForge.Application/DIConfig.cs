@@ -62,6 +62,8 @@ namespace GymForge.Application
             services.AddScoped<IStaffPayrollService, StaffPayrollService>();
 
             services.AddScoped<IWorkoutService, WorkoutService>();
+           
+            services.AddScoped<IWorkoutPlanService, WorkoutPlanService>();
 
             return services;
         }

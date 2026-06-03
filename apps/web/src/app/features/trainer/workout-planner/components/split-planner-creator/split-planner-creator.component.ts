@@ -5,6 +5,9 @@ import { Exercise } from '../../../../../shared/models/exercise.model';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { SplitPlanner } from '../../../../../shared/models/workout-plan.model';
+import { CONSTANTS } from '../../../../../core/constants/constants';
+
 
 @Component({
   selector: 'app-split-planner-creator',
@@ -19,9 +22,9 @@ export class SplitPlannerCreatorComponent implements OnInit {
 
   @Input() categories: string[] = [];
   @Input() exercisesMap: { [category: string]: Exercise[] } = {};
-  @Input() editData: any = null;
+  @Input() editData: SplitPlanner | null = null;
 
-  @Output() save = new EventEmitter<any>();
+  @Output() save = new EventEmitter<SplitPlanner>();
   @Output() close = new EventEmitter<void>();
 
   createSplitForm!: FormGroup;
@@ -70,12 +73,12 @@ export class SplitPlannerCreatorComponent implements OnInit {
   nextStep(): void {
     if (this.createSplitForm.get('name')?.invalid) {
       this.createSplitForm.get('name')?.markAsTouched();
-      this.notification.warning('Please enter a valid split name (min 3 characters).');
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_INVALID_NAME);
       return;
     }
     if (this.createSplitForm.get('description')?.invalid) {
       this.createSplitForm.get('description')?.markAsTouched();
-      this.notification.warning('Description is required.');
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_DESCRIPTION_REQUIRED);
       return;
     }
     this.activeStep = 'plan';
@@ -101,13 +104,13 @@ export class SplitPlannerCreatorComponent implements OnInit {
     };
 
     localStorage.setItem('gymforge_copied_workout_split', JSON.stringify(this.copiedWorkout));
-    this.notification.success('Workout split copied to clipboard!');
+    this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_COPY_SUCCESS);
   }
 
   pasteWorkout(dayIdx: number): void {
     const raw = localStorage.getItem('gymforge_copied_workout_split');
     if (!raw) {
-      this.notification.warning('No copied workout split found on clipboard.');
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_NO_CLIPBOARD);
       return;
     }
 
@@ -132,10 +135,10 @@ export class SplitPlannerCreatorComponent implements OnInit {
         }));
       });
 
-      this.notification.success('Workout split pasted successfully!');
+      this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_PASTE_SUCCESS);
     } catch (e) {
       console.error(e);
-      this.notification.error('Error pasting workout split.');
+      this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_PASTE_ERROR);
     }
   }
 
@@ -160,6 +163,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
       description: ['', [Validators.required]],
       level: ['Beginner'],
       goal: ['Hypertrophy'],
+      isCustom: [false],
       days: this.fb.array([])
     });
 
@@ -173,7 +177,8 @@ export class SplitPlannerCreatorComponent implements OnInit {
       name: data.name,
       description: data.description,
       level: data.level,
-      goal: data.goal
+      goal: data.goal,
+      isCustom: data.isCustom ?? false
     });
 
     const daysArray = this.splitDays;
@@ -248,7 +253,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
       if (current.length > 1) {
         current.splice(idx, 1);
       } else {
-        this.notification.warning('At least one target muscle category must be selected.');
+        this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_MIN_CATEGORY);
         return;
       }
     } else {
@@ -283,6 +288,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
 
   onSubmitSplit(): void {
     if (this.createSplitForm.invalid) {
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_INVALID_FORM);
       this.createSplitForm.markAllAsTouched();
       return;
     }
@@ -290,12 +296,14 @@ export class SplitPlannerCreatorComponent implements OnInit {
     const val = this.createSplitForm.getRawValue();
     const totalExs = val.days.reduce((sum: number, d: any) => sum + d.exercises.length, 0);
 
-    const splitData = {
+    const splitData: SplitPlanner = {
       ...(this.editData ? { id: this.editData.id } : {}),
       name: val.name,
       description: val.description,
       level: val.level,
       goal: val.goal,
+      type: 'Split',
+      isCustom: val.isCustom ?? false,
       daysCount: val.days.length,
       exercisesCount: totalExs,
       days: val.days.map((d: any) => ({

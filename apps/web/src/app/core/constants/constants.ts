@@ -343,6 +343,57 @@ export const CONSTANTS = {
     //#region Subscription Expired
     SUBSCRIPTION_EXPIRED: {
         ACCESS_RESTORED: 'Access restored! Successfully subscribed to the {name}.'
+    },
+    //#endregion
+
+    //#region Workout Planner
+    WORKOUT_PLANNER_MODULE: {
+
+        LOAD_ERROR: 'Failed to load workout plans.',
+
+        // Split Planner Creator
+        SPLIT_INVALID_NAME: 'Please enter a valid split name (min 3 characters).',
+        SPLIT_DESCRIPTION_REQUIRED: 'Description is required.',
+        SPLIT_INVALID_FORM: 'Please fill in all required fields (e.g. Split Name and Exercise choices) before saving.',
+        SPLIT_COPY_SUCCESS: 'Workout split copied to clipboard!',
+        SPLIT_PASTE_SUCCESS: 'Workout split pasted successfully!',
+        SPLIT_PASTE_ERROR: 'Error pasting workout split.',
+        SPLIT_NO_CLIPBOARD: 'No copied workout split found on clipboard.',
+        SPLIT_MIN_CATEGORY: 'At least one target muscle category must be selected.',
+        SPLIT_CREATE_SUCCESS: 'Workout Split Planner template created successfully!',
+        SPLIT_CREATE_ERROR: 'Failed to create Workout Split Planner.',
+        SPLIT_UPDATE_SUCCESS: 'Workout Split Planner template updated successfully!',
+        SPLIT_UPDATE_ERROR: 'Failed to update Workout Split Planner.',
+
+        // Weekly Planner Creator
+        WEEKLY_INVALID_FORM: 'Please fill in all required fields (e.g. Schedule Name and Exercise choices) before saving.',
+        WEEKLY_PENDING_CONFIRM: 'You have pending workouts on the following days: {days}. Are you sure you want to save?',
+        WEEKLY_COPY_SUCCESS: 'Workout plan from {day} copied!',
+        WEEKLY_PASTE_SUCCESS: 'Workout plan pasted to {day}!',
+        WEEKLY_CREATE_SUCCESS: 'Weekly Calendar Planner template created successfully!',
+        WEEKLY_CREATE_ERROR: 'Failed to create Weekly Calendar Planner.',
+        WEEKLY_UPDATE_SUCCESS: 'Weekly Calendar Planner template updated successfully!',
+        WEEKLY_UPDATE_ERROR: 'Failed to update Weekly Calendar Planner.',
+
+        // Daily Planner Creator
+        DAILY_INVALID_NAME: 'Please enter a valid workout planner name (min 3 characters).',
+        DAILY_INVALID_FORM: 'Form is invalid. Please check all fields.',
+        DAILY_COPY_SUCCESS: 'Workout copied to clipboard!',
+        DAILY_PASTE_SUCCESS: 'Workout split pasted successfully!',
+        DAILY_PASTE_ERROR: 'Error pasting workout.',
+        DAILY_NO_CLIPBOARD: 'No copied workout split found on clipboard.',
+        DAILY_MIN_CATEGORY: 'At least one target muscle category must be selected.',
+        DAILY_MIN_EXERCISE: 'Workout split must have at least one exercise.',
+        DAILY_CREATE_SUCCESS: 'Standalone Workout template created successfully!',
+        DAILY_CREATE_ERROR: 'Failed to create Standalone Workout template.',
+        DAILY_UPDATE_SUCCESS: 'Standalone Workout template updated successfully!',
+        DAILY_UPDATE_ERROR: 'Failed to update Standalone Workout template.',
+
+        // Shared / Timetable
+        DELETE_SUCCESS: 'Planner template deleted.',
+        DELETE_ERROR: 'Failed to delete planner template.',
+        DELETE_CONFIRM: 'Are you sure you want to delete this workout planner template?',
+        PLAN_SAVE_ERROR: 'Failed to save updated plan order.',
     }
     //#endregion
 }

@@ -23,7 +23,7 @@
         <button 
           type="button" 
           class="timetable-day-tab-btn" 
-          *ngFor="let tab of (type === 'split' || type === 'daily' ? planner?.days : planner?.calendar); let idx = index"
+          *ngFor="let tab of tabs; let idx = index"
           [class.active]="activeDetailDayName === (type === 'split' || type === 'daily' ? tab.name : tab.dayName)"
           (click)="setDetailActiveDay(type === 'split' || type === 'daily' ? tab.name : tab.dayName)"
           draggable="true"

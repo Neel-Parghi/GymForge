@@ -57,6 +57,23 @@
               placeholder="Explain the focus of this weekly schedule... (Optional)"></textarea>
           </div>
 
+          <!-- Visibility Toggle -->
+          <div class="visibility-toggle-row">
+            <div class="visibility-toggle-info">
+              <i class="fa-solid fa-eye"></i>
+              <div>
+                <span class="toggle-label">Plan Visibility</span>
+                <span class="toggle-sublabel">
+                  {{ createWeeklyForm.get('isCustom')?.value ? 'Personal PT Plan — visible only to your assigned members' : 'Public — all gym members can access this plan' }}
+                </span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="isCustom">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
           <!-- Quick Tip Graphic -->
           <div class="details-tip-panel">
             <div class="tip-icon"><i class="fa-solid fa-circle-info"></i></div>
