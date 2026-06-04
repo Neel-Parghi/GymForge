@@ -145,9 +145,18 @@
       <!-- Members View -->
       <div class="tab-content" *ngIf="activeTab === 'members'">
         <div class="members-list-container">
-          <!-- Assign Member Trigger -->
-          <div class="assign-trigger-container" *ngIf="!isLoadingMembers">
-            <button class="btn-assign-trigger" *ngIf="!isAssignFormOpen" (click)="openAssignForm()">
+          <!-- Action row with Toggle & Assign Member Button -->
+          <div class="assign-trigger-container" *ngIf="!isLoadingMembers && !isAssignFormOpen">
+            <!-- Custom Styled Toggle Switch -->
+            <div class="history-toggle">
+              <label class="switch-label">
+                <input type="checkbox" [(ngModel)]="showPastAssignments">
+                <span class="switch-slider"></span>
+              </label>
+              <span class="toggle-text">Show PT History</span>
+            </div>
+
+            <button class="btn-assign-trigger" (click)="openAssignForm()">
               <i class="fa-solid fa-plus"></i> Assign Member
             </button>
           </div>
@@ -197,13 +206,13 @@
             <p>Fetching assigned members...</p>
           </div>
 
-          <div *ngIf="!isLoadingMembers && assignedMembers.length === 0 && !isAssignFormOpen" class="no-data-state">
+          <div *ngIf="!isLoadingMembers && displayedMembers.length === 0 && !isAssignFormOpen" class="no-data-state">
             <i class="fa-solid fa-user-group"></i>
-            <p>No members assigned to this trainer yet.</p>
+            <p>{{ showPastAssignments ? 'No past PT assignments found.' : 'No active members assigned to this trainer yet.' }}</p>
           </div>
 
-          <div *ngIf="!isLoadingMembers && assignedMembers.length > 0 && !isAssignFormOpen" class="member-cards">
-            <div class="member-mini-card" *ngFor="let m of assignedMembers" [class.completed]="m.status !== 'Active'">
+          <div *ngIf="!isLoadingMembers && displayedMembers.length > 0 && !isAssignFormOpen" class="member-cards">
+            <div class="member-mini-card" *ngFor="let m of displayedMembers" [class.completed]="m.status !== 'Active'">
               <div class="member-avatar">
                 {{ m.firstName[0] }}{{ m.lastName[0] }}
               </div>

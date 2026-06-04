@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -22,6 +23,7 @@ import { DataGrid, GridCellDirective } from '../../../shared/components/data-gri
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { CONSTANTS } from '../../../core/constants/constants';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 
 @Component({
   selector: 'app-gym-owner-billing',
@@ -59,8 +61,11 @@ export class BillingComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
-
   private configService = inject(ConfigurationService);
+  private branchContextService = inject(BranchContextService);
+  private destroyRef = inject(DestroyRef);
+
+  private isInitialBranchLoad = true;
 
   prefillInvoiceData: any = null;
 
@@ -146,6 +151,18 @@ export class BillingComponent implements OnInit {
     this.loadPlatformInvoices();
     this.loadGymSettingsAndMonths();
     this.loadPlatformConfig();
+
+    this.branchContextService.activeBranch$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      if (this.isInitialBranchLoad) {
+        this.isInitialBranchLoad = false;
+        return;
+      }
+      this.loadGymMembers();
+      this.loadMemberBillingOverview(this.selectedPayrollMonth);
+      this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
+    });
 
     this.invoiceSearchControl.valueChanges.subscribe(val => {
       this.invoiceSearch = val || '';

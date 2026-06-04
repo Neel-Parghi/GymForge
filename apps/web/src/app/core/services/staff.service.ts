@@ -18,6 +18,7 @@ export class StaffService extends BaseApiService {
   private unscopedStaffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
   private staffLogsCache$: Observable<ApiResponse<any>> | null = null;
+  private staffBypassedLogsCache$: Observable<ApiResponse<any>> | null = null;
 
   constructor() {
     super();
@@ -200,6 +201,15 @@ export class StaffService extends BaseApiService {
       return this.staffLogsCache$;
     }
 
+    if (params?.bypassPagination) {
+      if (!this.staffBypassedLogsCache$) {
+        this.staffBypassedLogsCache$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
+          shareReplay(1)
+        );
+      }
+      return this.staffBypassedLogsCache$;
+    }
+
     return this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params);
   }
 
@@ -209,5 +219,6 @@ export class StaffService extends BaseApiService {
     this.unscopedStaffCache$ = null;
     this.membersCache.clear();
     this.staffLogsCache$ = null;
+    this.staffBypassedLogsCache$ = null;
   }
 }

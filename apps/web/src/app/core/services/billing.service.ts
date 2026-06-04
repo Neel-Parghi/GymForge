@@ -19,9 +19,6 @@ export class BillingService extends BaseApiService {
 
     constructor() {
         super();
-        this.branchContextService.activeBranch$.subscribe(() => {
-            this.clearCache();
-        });
     }
 
     clearCache(): void {
