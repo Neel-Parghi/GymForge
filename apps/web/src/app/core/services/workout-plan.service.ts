@@ -1,28 +1,51 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { WorkoutPlan, WorkoutPlanType, SplitPlanner, WeeklyPlanner, DailyPlanner } from '../../shared/models/workout-plan.model';
+import { BranchContextService } from './branch-context.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorkoutPlanService extends BaseApiService {
+  private branchContextService = inject(BranchContextService);
+  private plansCache$: Observable<WorkoutPlan[]> | null = null;
 
   constructor() {
     super();
+    this.branchContextService.activeBranch$.subscribe(() => {
+      this.clearCache();
+    });
   }
 
-  getPlans(type?: string): Observable<WorkoutPlan[]> {
-    const params = type ? { type } : {};
-    return this.get<ApiResponse<any[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE, params).pipe(
-      map(res => {
-        const plans = res?.data || [];
-        return plans.map((p: any) => this.adaptFromApi(p));
-      })
-    );
+  getPlans(type?: string, forceRefresh = false): Observable<WorkoutPlan[]> {
+    if (forceRefresh) {
+      this.clearCache();
+    }
+
+    if (type) {
+      const params = { type };
+      return this.get<ApiResponse<any[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE, params).pipe(
+        map(res => {
+          const plans = res?.data || [];
+          return plans.map((p: any) => this.adaptFromApi(p));
+        })
+      );
+    }
+
+    if (!this.plansCache$) {
+      this.plansCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE).pipe(
+        map(res => {
+          const plans = res?.data || [];
+          return plans.map((p: any) => this.adaptFromApi(p));
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.plansCache$;
   }
 
   getPlanById(id: string): Observable<WorkoutPlan> {
@@ -35,6 +58,7 @@ export class WorkoutPlanService extends BaseApiService {
   createPlan(plan: WorkoutPlan): Observable<WorkoutPlan> {
     const payload = this.adaptToApi(plan);
     return this.post<ApiResponse<any>>(API_CONSTANTS.WORKOUT_PLAN.BASE, payload).pipe(
+      tap(() => this.clearCache()),
       map(res => this.adaptFromApi(res?.data))
     );
   }
@@ -43,13 +67,20 @@ export class WorkoutPlanService extends BaseApiService {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
     const payload = this.adaptToApi(plan);
     return this.put<ApiResponse<any>>(url, payload).pipe(
+      tap(() => this.clearCache()),
       map(res => this.adaptFromApi(res?.data))
     );
   }
 
   deletePlan(id: string): Observable<ApiResponse<any>> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
-    return this.delete<ApiResponse<any>>(url);
+    return this.delete<ApiResponse<any>>(url).pipe(
+      tap(() => this.clearCache())
+    );
+  }
+
+  clearCache(): void {
+    this.plansCache$ = null;
   }
 
   private adaptFromApi(apiPlan: any): WorkoutPlan {

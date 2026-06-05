@@ -200,5 +200,18 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'notes', label: 'Shift Notes', type: 'text' }
     ],
     selectable: false
+  },
+  PTClients: {
+    columns: [
+      { key: 'firstName', label: 'Client Name', type: 'profile', subKey: 'email' },
+      { key: 'membershipNumber', label: 'Membership No.', type: 'text' },
+      { key: 'assignedSlot', label: 'Preferred Slot', type: 'text' },
+      { key: 'assignedDate', label: 'Assigned Date', type: 'date' },
+      { key: 'endDate', label: 'Expiration', type: 'date' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    excludeActions: ['edit']
   }
 };

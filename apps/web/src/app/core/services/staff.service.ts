@@ -19,6 +19,7 @@ export class StaffService extends BaseApiService {
   private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
   private staffLogsCache$: Observable<ApiResponse<any>> | null = null;
   private staffBypassedLogsCache$: Observable<ApiResponse<any>> | null = null;
+  private measurementsCache = new Map<string, Observable<ApiResponse<MeasurementResponse[]>>>();
 
   constructor() {
     super();
@@ -142,12 +143,18 @@ export class StaffService extends BaseApiService {
 
   recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<any>> {
     const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
-    return this.post<ApiResponse<any>>(url, payload);
+    return this.post<ApiResponse<any>>(url, payload).pipe(
+      tap(() => this.measurementsCache.delete(memberId))
+    );
   }
 
-  getMemberMeasurements(memberId: string): Observable<ApiResponse<MeasurementResponse[]>> {
-    const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
-    return this.get<ApiResponse<MeasurementResponse[]>>(url);
+  getMemberMeasurements(memberId: string, forceRefresh = false): Observable<ApiResponse<MeasurementResponse[]>> {
+    if (forceRefresh || !this.measurementsCache.has(memberId)) {
+      const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
+      const obs = this.get<ApiResponse<MeasurementResponse[]>>(url).pipe(shareReplay(1));
+      this.measurementsCache.set(memberId, obs);
+    }
+    return this.measurementsCache.get(memberId)!;
   }
 
   checkInStaff(staffId: string, notes?: string): Observable<ApiResponse<StaffResponse>> {
@@ -218,6 +225,7 @@ export class StaffService extends BaseApiService {
     this.staffCacheLarge$ = null;
     this.unscopedStaffCache$ = null;
     this.membersCache.clear();
+    this.measurementsCache.clear();
     this.staffLogsCache$ = null;
     this.staffBypassedLogsCache$ = null;
   }

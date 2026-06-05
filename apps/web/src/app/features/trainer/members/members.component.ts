@@ -5,11 +5,13 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { Router } from '@angular/router';
+import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
+import { AppGridConfig } from '../../../shared/constants/grid-config';
 
 @Component({
   selector: 'app-trainer-members',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DataGrid, GridCellDirective],
   templateUrl: './members.component.html',
   styleUrl: './members.component.scss'
 })
@@ -23,6 +25,7 @@ export class PTMembersTrackComponent implements OnInit {
   assignedMembers: any[] = [];
   isLoading = true;
   trainerId = '';
+  gridConfig = AppGridConfig['PTClients'];
 
   ngOnInit(): void {
     this.authService.userProfile$.subscribe(profile => {
@@ -33,9 +36,9 @@ export class PTMembersTrackComponent implements OnInit {
     });
   }
 
-  loadMembers(): void {
+  loadMembers(forceRefresh = false): void {
     this.isLoading = true;
-    this.staffService.getAssignedMembers(this.trainerId, true).subscribe({
+    this.staffService.getAssignedMembers(this.trainerId, forceRefresh).subscribe({
       next: (res: any) => {
         this.assignedMembers = res?.data || [];
         
@@ -86,5 +89,13 @@ export class PTMembersTrackComponent implements OnInit {
         });
       }
     });
+  }
+
+  onGridAction(event: { action: string; row: any }): void {
+    if (event.action === 'view') {
+      this.navigateToMemberDetail(event.row.memberId);
+    } else if (event.action === 'delete') {
+      this.deallocateMember(event.row);
+    }
   }
 }
