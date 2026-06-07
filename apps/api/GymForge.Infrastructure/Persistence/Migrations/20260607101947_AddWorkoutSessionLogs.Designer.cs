@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607101947_AddWorkoutSessionLogs")]
+    partial class AddWorkoutSessionLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1073,47 +1076,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("MemberSubscriptions");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.MemberWorkoutScheduleDay", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DayOfWeek")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRestDay")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("MemberPlanAssignmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("WorkoutPlanDayId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WorkoutPlanDayId");
-
-                    b.HasIndex("MemberPlanAssignmentId", "DayOfWeek")
-                        .IsUnique();
-
-                    b.ToTable("MemberWorkoutScheduleDays");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.PTAssignment", b =>
@@ -2297,24 +2259,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Member");
                 });
 
-            modelBuilder.Entity("GymForge.Domain.Entities.MemberWorkoutScheduleDay", b =>
-                {
-                    b.HasOne("GymForge.Domain.Entities.MemberPlanAssignment", "MemberPlanAssignment")
-                        .WithMany("CustomScheduleDays")
-                        .HasForeignKey("MemberPlanAssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GymForge.Domain.Entities.WorkoutPlanDay", "WorkoutPlanDay")
-                        .WithMany()
-                        .HasForeignKey("WorkoutPlanDayId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("MemberPlanAssignment");
-
-                    b.Navigation("WorkoutPlanDay");
-                });
-
             modelBuilder.Entity("GymForge.Domain.Entities.PTAssignment", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
@@ -2556,11 +2500,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("GymForge.Domain.Entities.LoggedExercise", b =>
                 {
                     b.Navigation("LoggedSets");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.MemberPlanAssignment", b =>
-                {
-                    b.Navigation("CustomScheduleDays");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Plan", b =>

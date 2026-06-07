@@ -92,7 +92,7 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(s => s.MemberId == memberId && s.IsActive)
                 .ToListAsync();
 
-            foreach (var sub in active)
+            foreach (MemberSubscription sub in active)
                 sub.IsActive = false;
         }
 

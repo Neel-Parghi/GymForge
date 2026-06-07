@@ -45,6 +45,12 @@ namespace GymForge.Application.Mappings
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedOn, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore());
+
+            CreateMap<WorkoutSessionLog, WorkoutSessionLogDto>();
+            CreateMap<LoggedExercise, LoggedExerciseDto>()
+                .ForMember(dest => dest.LoggedSets, opt => opt.MapFrom(src => src.LoggedSets.OrderBy(s => s.SetNo)));
+            CreateMap<LoggedSet, LoggedSetDto>();
+            CreateMap<MemberPlanAssignment, MemberPlanAssignmentDto>();
         }
     }
 }
