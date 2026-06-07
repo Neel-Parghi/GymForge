@@ -1,6 +1,6 @@
 export const API_CONSTANTS = {
-  BASE_URL: 'https://localhost:7184/api/',
-  // BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
+  // BASE_URL: 'https://localhost:7184/api/',
+  BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
 
 
   AUTH: {
