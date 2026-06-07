@@ -723,6 +723,78 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.ToTable("InventoryItems");
                 });
 
+            modelBuilder.Entity("GymForge.Domain.Entities.LoggedExercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("WorkoutSessionLogId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutSessionLogId");
+
+                    b.ToTable("LoggedExercises");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.LoggedSet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LoggedExerciseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Reps")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SetNo")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("Weight")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoggedExerciseId");
+
+                    b.ToTable("LoggedSets");
+                });
+
             modelBuilder.Entity("GymForge.Domain.Entities.MaintenanceLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -903,6 +975,45 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.ToTable("MemberMeasurements");
                 });
 
+            modelBuilder.Entity("GymForge.Domain.Entities.MemberPlanAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("WorkoutPlanId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("WorkoutPlanId");
+
+                    b.ToTable("MemberPlanAssignments");
+                });
+
             modelBuilder.Entity("GymForge.Domain.Entities.MemberSubscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -962,6 +1073,47 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("MemberSubscriptions");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.MemberWorkoutScheduleDay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsRestDay")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MemberPlanAssignmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("WorkoutPlanDayId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutPlanDayId");
+
+                    b.HasIndex("MemberPlanAssignmentId", "DayOfWeek")
+                        .IsUnique();
+
+                    b.ToTable("MemberWorkoutScheduleDays");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.PTAssignment", b =>
@@ -1849,6 +2001,54 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.ToTable("WorkoutPlanExercises");
                 });
 
+            modelBuilder.Entity("GymForge.Domain.Entities.WorkoutSessionLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ExercisesCompleted")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TotalSets")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("WorkoutSessionLogs");
+                });
+
             modelBuilder.Entity("GymForge.Domain.Entities.AttendanceLog", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.Branch", "Branch")
@@ -2008,6 +2208,28 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Gym");
                 });
 
+            modelBuilder.Entity("GymForge.Domain.Entities.LoggedExercise", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.WorkoutSessionLog", "WorkoutSessionLog")
+                        .WithMany("LoggedExercises")
+                        .HasForeignKey("WorkoutSessionLogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkoutSessionLog");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.LoggedSet", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.LoggedExercise", "LoggedExercise")
+                        .WithMany("LoggedSets")
+                        .HasForeignKey("LoggedExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LoggedExercise");
+                });
+
             modelBuilder.Entity("GymForge.Domain.Entities.MaintenanceLog", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.Equipment", "Equipment")
@@ -2037,6 +2259,25 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("RecordedBy");
                 });
 
+            modelBuilder.Entity("GymForge.Domain.Entities.MemberPlanAssignment", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymForge.Domain.Entities.WorkoutPlan", "WorkoutPlan")
+                        .WithMany()
+                        .HasForeignKey("WorkoutPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("WorkoutPlan");
+                });
+
             modelBuilder.Entity("GymForge.Domain.Entities.MemberSubscription", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.GymPlan", "GymPlan")
@@ -2054,6 +2295,24 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("GymPlan");
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.MemberWorkoutScheduleDay", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.MemberPlanAssignment", "MemberPlanAssignment")
+                        .WithMany("CustomScheduleDays")
+                        .HasForeignKey("MemberPlanAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymForge.Domain.Entities.WorkoutPlanDay", "WorkoutPlanDay")
+                        .WithMany()
+                        .HasForeignKey("WorkoutPlanDayId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("MemberPlanAssignment");
+
+                    b.Navigation("WorkoutPlanDay");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.PTAssignment", b =>
@@ -2266,6 +2525,17 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("WorkoutPlanDay");
                 });
 
+            modelBuilder.Entity("GymForge.Domain.Entities.WorkoutSessionLog", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("GymForge.Domain.Entities.Equipment", b =>
                 {
                     b.Navigation("MaintenanceLogs");
@@ -2281,6 +2551,16 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Measurements");
 
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.LoggedExercise", b =>
+                {
+                    b.Navigation("LoggedSets");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.MemberPlanAssignment", b =>
+                {
+                    b.Navigation("CustomScheduleDays");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.Plan", b =>
@@ -2308,6 +2588,11 @@ namespace GymForge.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("GymForge.Domain.Entities.WorkoutPlanDay", b =>
                 {
                     b.Navigation("Exercises");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.WorkoutSessionLog", b =>
+                {
+                    b.Navigation("LoggedExercises");
                 });
 #pragma warning restore 612, 618
         }

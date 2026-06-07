@@ -1,6 +1,6 @@
 export const API_CONSTANTS = {
-  // BASE_URL: 'https://localhost:7184/api/',
-  BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
+  BASE_URL: 'https://localhost:7184/api/',
+  // BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
 
 
   AUTH: {
@@ -67,6 +67,11 @@ export const API_CONSTANTS = {
     EXPORT: 'members/export',
     MEASUREMENTS: 'members/{memberId}/measurements',
     DASHBOARD: 'members/dashboard',
+    ACTIVE_PLAN: 'members/{memberId}/active-plan',
+    ASSIGN_PLAN: 'members/{memberId}/assign-plan',
+    WORKOUT_LOGS: 'members/{memberId}/workout-logs',
+    RECURRING_OVERRIDE: 'members/{memberId}/recurring-override',
+    PLAN_ASSIGNMENTS: 'members/{memberId}/plan-assignments',
   },
   STAFF: {
     BASE: 'staff',

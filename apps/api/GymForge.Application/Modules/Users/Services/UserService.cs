@@ -211,7 +211,7 @@ namespace GymForge.Application.Modules.Users.Services
             if (file == null || file.Length == 0)
                 throw new ArgumentException("File is empty");
 
-            using (var stream = file.OpenReadStream())
+            using (Stream stream = file.OpenReadStream())
             {
                 return await _fileStorageService.SaveFileAsync(stream, file.FileName, "avatars");
             }

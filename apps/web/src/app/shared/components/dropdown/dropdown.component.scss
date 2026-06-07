@@ -1,6 +1,17 @@
 :host {
   display: block;
   width: 100%;
+
+  &.ng-invalid.ng-touched {
+    .select-trigger {
+      border-color: var(--error-color, #ef4444) !important;
+      background-color: var(--error-bg, rgba(239, 68, 68, 0.03)) !important;
+
+      &:hover {
+        border-color: #dc2626 !important;
+      }
+    }
+  }
 }
 
 .custom-select {
@@ -47,16 +58,43 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex: 1;
+      min-width: 0;
 
-      span {
-        font-size: 0.875rem;
-        font-weight: 700;
-        color: var(--text-main);
+      .text-grid {
+        display: inline-grid;
+        grid-template-areas: "content";
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        min-width: 0;
+
+        .selected-text {
+          grid-area: content;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: var(--text-main);
+        }
+
+        .sizer-hidden {
+          grid-area: content;
+          visibility: hidden;
+          height: 0;
+          overflow: hidden;
+          pointer-events: none;
+          white-space: nowrap;
+          font-size: 0.875rem;
+          font-weight: 700;
+        }
       }
 
       i {
         font-size: 0.9rem;
         color: var(--accent-color);
+        flex-shrink: 0;
       }
     }
 

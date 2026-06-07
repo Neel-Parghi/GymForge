@@ -143,6 +143,30 @@ export class MemberService extends BaseApiService {
     return this.dashboardCache$;
   }
 
+  getActivePlan(memberId: string): Observable<ApiResponse<any>> {
+    return this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_PLAN.replace('{memberId}', memberId));
+  }
+
+  assignPlan(memberId: string, planId: string): Observable<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ASSIGN_PLAN.replace('{memberId}', memberId), { workoutPlanId: planId });
+  }
+
+  getPlanAssignments(memberId: string): Observable<ApiResponse<any[]>> {
+    return this.get<ApiResponse<any[]>>(API_CONSTANTS.MEMBERS.PLAN_ASSIGNMENTS.replace('{memberId}', memberId));
+  }
+
+  getWorkoutLogs(memberId: string): Observable<ApiResponse<any[]>> {
+    return this.get<ApiResponse<any[]>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId));
+  }
+
+  logWorkoutSession(memberId: string, payload: any): Observable<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId), payload);
+  }
+
+  saveRecurringOverride(memberId: string, payload: { dayOfWeek: string, workoutPlanDayId: string | null, isRestDay: boolean }): Observable<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.RECURRING_OVERRIDE.replace('{memberId}', memberId), payload);
+  }
+
   clearCache(): void {
     this.membersListCache.clear();
     this.memberCache.clear();

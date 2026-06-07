@@ -26,7 +26,7 @@
     flex-direction: column;
 
     &.wide-card {
-      max-width: 960px;
+      max-width: 1000px;
       max-height: 92vh;
       height: 92vh;
       display: flex;
@@ -486,10 +486,15 @@
 /* Panel Spreadsheet Table Customization */
 .panel-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.86rem;
 
   th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
     text-align: left;
     font-weight: 700;
     color: var(--slate-500);
@@ -544,6 +549,16 @@
       border-color: var(--accent-color);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
       background: #ffffff;
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: var(--error-color, #ef4444) !important;
+      background-color: var(--error-bg, rgba(239, 68, 68, 0.03)) !important;
+
+      &:focus {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+      }
     }
   }
 
@@ -874,7 +889,7 @@
 
   .muscle-pills-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
 
     .pill-btn {
@@ -884,7 +899,7 @@
       padding: 6px 10px;
       border-radius: 20px;
       font-size: 0.72rem;
-      font-weight: 700;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -984,5 +999,3 @@
     }
   }
 }
-
-

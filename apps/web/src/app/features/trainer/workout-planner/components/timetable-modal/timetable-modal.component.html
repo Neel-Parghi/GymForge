@@ -1,9 +1,10 @@
 <div class="modal-overlay" (click)="onClose()">
   <div class="modal-card wide-card timetable-popup-modal animate-scale-in" (click)="$event.stopPropagation()">
-    
+
     <div class="modal-header">
       <div class="header-title-group">
-        <i class="fa-solid" [ngClass]="type === 'split' ? 'fa-cubes' : (type === 'daily' ? 'fa-dumbbell' : 'fa-calendar-days')"></i>
+        <i class="fa-solid"
+          [ngClass]="type === 'split' ? 'fa-cubes' : (type === 'daily' ? 'fa-dumbbell' : 'fa-calendar-days')"></i>
         <div class="header-text-block">
           <h2>{{ planner?.name }}</h2>
           <p class="header-subtitle">{{ planner?.description }}</p>
@@ -20,24 +21,19 @@
     <div class="timetable-modal-body">
       <!-- Horizontal Tabs Day Switcher -->
       <div class="timetable-days-navigator">
-        <button 
-          type="button" 
-          class="timetable-day-tab-btn" 
-          *ngFor="let tab of tabs; let idx = index"
+        <button type="button" class="timetable-day-tab-btn" *ngFor="let tab of tabs; let idx = index"
           [class.active]="activeDetailDayName === (type === 'split' || type === 'daily' ? tab.name : tab.dayName)"
-          (click)="setDetailActiveDay(type === 'split' || type === 'daily' ? tab.name : tab.dayName)"
-          draggable="true"
-          (dragstart)="onDayDragStart(idx, $event)"
-          (dragover)="onDayDragOver(idx, $event)"
-          (drop)="onDayDrop(idx, $event)"
-        >
+          (click)="setDetailActiveDay(type === 'split' || type === 'daily' ? tab.name : tab.dayName)" draggable="true"
+          (dragstart)="onDayDragStart(idx, $event)" (dragover)="onDayDragOver(idx, $event)"
+          (drop)="onDayDrop(idx, $event)">
           <div class="tab-drag-grip">
-            <i class="fa-solid fa-grip-vertical"></i>
+            <!-- <i class="fa-solid fa-grip-vertical"></i> -->
           </div>
           <div class="tab-content-text">
             <span class="tab-title">{{ type === 'split' || type === 'daily' ? tab.name : tab.dayName }}</span>
             <span class="tab-subtitle-target" [ngClass]="tab.type === 'rest' ? 'rest' : 'workout'">
-              {{ type === 'split' || type === 'daily' ? tab.category : (tab.type === 'workout' ? tab.targetCategory : 'Rest Day') }}
+              {{ type === 'split' || type === 'daily' ? tab.category : (tab.type === 'workout' ? tab.targetCategory :
+              'Rest Day') }}
             </span>
           </div>
         </button>
@@ -45,20 +41,24 @@
 
       <!-- Timetable Selected Pane -->
       <div class="timetable-selected-pane">
-        <div class="timetable-pane-header" *ngIf="getSelectedDayDetails()?.type !== 'rest'">
+        <!-- <div class="timetable-pane-header" *ngIf="getSelectedDayDetails()?.type !== 'rest'">
           <div class="pane-target-meta">
             <div class="pane-icon-bullet">
-              <i class="fa-solid" [ngClass]="getCategoryIcon(type === 'split' || type === 'daily' ? getSelectedDayDetails()?.category : getSelectedDayDetails()?.targetCategory)"></i>
+              <i class="fa-solid"
+                [ngClass]="getCategoryIcon(type === 'split' || type === 'daily' ? getSelectedDayDetails()?.category : getSelectedDayDetails()?.targetCategory)"></i>
             </div>
             <div class="pane-text">
-              <h3>{{ type === 'split' || type === 'daily' ? getSelectedDayDetails()?.name : getSelectedDayDetails()?.splitDayName }}</h3>
-              <p>Target Category Focus: <strong>{{ type === 'split' || type === 'daily' ? getSelectedDayDetails()?.category : getSelectedDayDetails()?.targetCategory }}</strong></p>
+              <h3>{{ type === 'split' || type === 'daily' ? getSelectedDayDetails()?.name :
+                getSelectedDayDetails()?.splitDayName }}</h3>
+              <p>Target Category Focus: <strong>{{ type === 'split' || type === 'daily' ?
+                  getSelectedDayDetails()?.category : getSelectedDayDetails()?.targetCategory }}</strong></p>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Active Workout List Table -->
-        <div class="timetable-exercises-wrapper" *ngIf="type === 'split' || type === 'daily' || getSelectedDayDetails()?.type === 'workout'">
+        <div class="timetable-exercises-wrapper"
+          *ngIf="type === 'split' || type === 'daily' || getSelectedDayDetails()?.type === 'workout'">
           <table class="timetable-records-table">
             <thead>
               <tr>
@@ -70,11 +70,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let ex of getSelectedDayDetails()?.exercises; let idx = index" 
-                class="exercise-timetable-row"
-                draggable="true"
-                (dragstart)="onExDragStart(idx, $event)"
-                (dragover)="onExDragOver(idx, $event)"
+              <tr *ngFor="let ex of getSelectedDayDetails()?.exercises; let idx = index" class="exercise-timetable-row"
+                draggable="true" (dragstart)="onExDragStart(idx, $event)" (dragover)="onExDragOver(idx, $event)"
                 (drop)="onExDrop(idx, $event)">
                 <td class="col-drag-cell">
                   <i class="fa-solid fa-grip-vertical drag-grip-icon" title="Drag to reorder"></i>

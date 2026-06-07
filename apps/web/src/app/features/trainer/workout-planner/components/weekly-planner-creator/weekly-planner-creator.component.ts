@@ -52,6 +52,15 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     { label: 'Rest', value: 'rest' }
   ];
 
+  getCategoryForExercise(exerciseName: string): string | null {
+    if (!exerciseName) return null;
+    for (const cat of Object.keys(this.exercisesMap)) {
+      const found = this.exercisesMap[cat].some(e => e.name === exerciseName);
+      if (found) return cat;
+    }
+    return null;
+  }
+
   getExercisesDropdownOptions(dayIdx: number, currentExIdx?: number): DropdownOption[] {
     const dayGroup = this.weeklyCalendarDays.at(dayIdx);
     const categories = dayGroup.get('targetCategories')?.value || ['Back'];
@@ -59,6 +68,12 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
 
     const usedNames = new Set<string>();
     const exArray = this.getWeeklyExercises(dayIdx);
+    let currentSelectedName = '';
+    if (currentExIdx !== undefined) {
+      const currentCtrl = exArray.at(currentExIdx);
+      currentSelectedName = currentCtrl?.get('exerciseName')?.value || '';
+    }
+
     exArray.controls.forEach((ctrl, idx) => {
       if (idx !== currentExIdx) {
         const name = ctrl.get('exerciseName')?.value;
@@ -66,12 +81,29 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       }
     });
 
-    return exercises
+    const options = exercises
       .filter(e => !usedNames.has(e.name))
       .map(e => ({
         label: `${e.name} (${e.equipment})`,
         value: e.name
       }));
+
+    if (currentSelectedName && !options.some(opt => opt.value === currentSelectedName)) {
+      let exerciseDetail: Exercise | undefined;
+      for (const cat of Object.keys(this.exercisesMap)) {
+        const found = this.exercisesMap[cat].find(e => e.name === currentSelectedName);
+        if (found) {
+          exerciseDetail = found;
+          break;
+        }
+      }
+      options.unshift({
+        label: exerciseDetail ? `${exerciseDetail.name} (${exerciseDetail.equipment})` : currentSelectedName,
+        value: currentSelectedName
+      });
+    }
+
+    return options;
   }
 
   ngOnInit(): void {
@@ -215,6 +247,12 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     });
 
     this.getWeeklyExercises(dayIndex).push(exGroup);
+    setTimeout(() => {
+      const wrapper = document.querySelector('.exercise-table-scroll-wrapper');
+      if (wrapper) {
+        wrapper.scrollTop = wrapper.scrollHeight;
+      }
+    }, 200);
   }
 
   removeWeeklyExercise(dayIndex: number, exIndex: number): void {
@@ -333,13 +371,18 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       return;
     }
 
+    if (this.createWeeklyForm.invalid) {
+      this.proceedWithSave();
+      return;
+    }
+
     const valBefore = this.createWeeklyForm.getRawValue();
     const pendingDays: string[] = [];
 
     valBefore.calendar.forEach((c: any) => {
       if (c.type === 'workout') {
-        const hasEmptyExercise = !c.exercises || c.exercises.length === 0 || c.exercises.some((e: any) => !e.exerciseName);
-        if (hasEmptyExercise) {
+        const hasZeroExercises = !c.exercises || c.exercises.length === 0;
+        if (hasZeroExercises) {
           pendingDays.push(c.dayName);
         }
       }
@@ -406,8 +449,25 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
   proceedWithSave(): void {
     if (this.createWeeklyForm.invalid) {
       this.logFormErrors(this.createWeeklyForm);
-      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_INVALID_FORM);
       this.createWeeklyForm.markAllAsTouched();
+      
+      let hasInvalidExercises = false;
+      for (let i = 0; i < this.weeklyCalendarDays.length; i++) {
+        const day = this.weeklyCalendarDays.at(i);
+        if (day.get('type')?.value === 'workout') {
+          const exercises = this.getWeeklyExercises(i);
+          if (exercises.controls.some(ctrl => ctrl.get('exerciseName')?.invalid)) {
+            hasInvalidExercises = true;
+            break;
+          }
+        }
+      }
+
+      if (hasInvalidExercises) {
+        this.notification.error('Please select an exercise for all rows.');
+      } else {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_INVALID_FORM);
+      }
       return;
     }
 
@@ -431,10 +491,18 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
             exercises: []
           };
         } else {
+          // Auto-detect categories based on selected exercises to ensure none are missed
+          const categoriesSet = new Set<string>(c.targetCategories || []);
+          c.exercises.forEach((ex: any) => {
+            if (ex.exerciseName) {
+              const cat = this.getCategoryForExercise(ex.exerciseName);
+              if (cat) categoriesSet.add(cat);
+            }
+          });
           return {
             dayName: c.dayName,
             type: 'workout',
-            targetCategory: (c.targetCategories || []).join(' + '),
+            targetCategory: Array.from(categoriesSet).join(' + '),
             splitDayName: c.splitDayName || `${c.dayName} Focus`,
             exercises: c.exercises
               .filter((e: any) => e.exerciseName)

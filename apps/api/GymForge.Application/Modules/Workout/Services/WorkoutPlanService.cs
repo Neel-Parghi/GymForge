@@ -65,7 +65,7 @@ namespace GymForge.Application.Modules.Workout.Services
 
             existingPlan.Days.Clear();
 
-            foreach (var dayDto in request.Days)
+            foreach (CreateWorkoutPlanDayDto dayDto in request.Days)
             {
                 WorkoutPlanDay day = _mapper.Map<WorkoutPlanDay>(dayDto);
                 existingPlan.Days.Add(day);

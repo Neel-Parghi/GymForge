@@ -26,7 +26,7 @@ namespace GymForge.Api.Controllers.Common
 
             try
             {
-                using var stream = file.OpenReadStream();
+                using Stream stream = file.OpenReadStream();
                 string? fileUrl = await _fileStorageService.SaveFileAsync(stream, file.FileName, folder);
 
                 return Ok(new { url = fileUrl });

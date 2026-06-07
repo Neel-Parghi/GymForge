@@ -26,7 +26,7 @@ namespace GymForge.Infrastructure.Services
             string uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            using (var destinationStream = new FileStream(filePath, FileMode.Create))
+            using (FileStream destinationStream = new FileStream(filePath, FileMode.Create))
             {
                 await fileStream.CopyToAsync(destinationStream);
             }

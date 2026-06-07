@@ -131,6 +131,18 @@ export class DropdownComponent implements ControlValueAccessor, OnInit {
     return option ? option.label : this.placeholder;
   }
 
+  getLongestLabel(): string {
+    let longest = this.placeholder || '';
+    if (this.options && this.options.length > 0) {
+      for (const option of this.options) {
+        if (option.label && option.label.length > longest.length) {
+          longest = option.label;
+        }
+      }
+    }
+    return longest;
+  }
+
   get filteredOptions(): DropdownOption[] {
     const query = (this.searchControl.value || '').trim();
     if (!this.isSearchable || !query) {

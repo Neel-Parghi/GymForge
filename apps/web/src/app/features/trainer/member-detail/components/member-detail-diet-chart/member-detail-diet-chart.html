@@ -1,0 +1,85 @@
+<div class="tab-pane-content" *ngIf="activeDiet">
+  <div class="diet-chart-panel glass-card">
+    <div class="panel-header">
+      <div class="header-left">
+        <h3>Nutrition & Diet Plan</h3>
+        <p class="subtitle">Active Prescribed Diet: <span class="accent-text font-bold">{{ activeDiet.planName
+            }}</span></p>
+      </div>
+      <button class="btn-primary" (click)="onOpenAssignModal()">
+        <i class="fa-solid fa-exchange-alt"></i> Assign Diet Template
+      </button>
+    </div>
+
+    <div class="diet-dashboard-row">
+      <!-- Left: Macros Dashboard Card (40%) -->
+      <div class="macros-summary-panel">
+        <div class="macros-summary-card">
+          <div class="macro-donut-wrapper">
+            <svg viewBox="0 0 160 160" class="donut-svg">
+              <!-- Base ring -->
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
+              <!-- Accent carbs ring -->
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="#3b82f6" stroke-width="12"
+                stroke-dasharray="376" stroke-dashoffset="180" stroke-linecap="round"></circle>
+              <!-- Accent protein ring -->
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="#10b981" stroke-width="12"
+                stroke-dasharray="376" stroke-dashoffset="260" stroke-linecap="round"></circle>
+            </svg>
+            <div class="donut-content">
+              <span class="val">{{ activeDiet.calories }}</span>
+              <span class="lbl">TOTAL KCAL</span>
+            </div>
+          </div>
+
+          <!-- Macros list details -->
+          <div class="macro-bars-list">
+            <div class="macro-bar-item protein">
+              <div class="bar-header">
+                <span>Protein</span>
+                <strong>{{ activeDiet.macros.protein }}g</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: 35%"></div>
+              </div>
+            </div>
+
+            <div class="macro-bar-item carbs">
+              <div class="bar-header">
+                <span>Carbohydrates</span>
+                <strong>{{ activeDiet.macros.carbs }}g</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: 50%"></div>
+              </div>
+            </div>
+
+            <div class="macro-bar-item fats">
+              <div class="bar-header">
+                <span>Fats</span>
+                <strong>{{ activeDiet.macros.fats }}g</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: 25%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Meals List Section (60%) -->
+      <div class="meals-list-panel">
+        <h4 class="meals-section-title"><i class="fa-solid fa-utensils"></i> Prescribed Meal Schedule</h4>
+        <div class="meals-grid-list">
+          <div class="meal-plan-card" *ngFor="let m of activeDiet.meals">
+            <div class="meal-card-top">
+              <h4>{{ m.name }}</h4>
+              <span class="meal-cal-badge">{{ m.calories }} kcal</span>
+            </div>
+            <p class="meal-items-text">{{ m.items }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -83,4 +83,14 @@ namespace GymForge.Contracts.WorkoutPlan
         public string? Notes { get; set; }
         public int SortOrder { get; set; }
     }
+
+    public class MemberPlanAssignmentDto
+    {
+        public Guid Id { get; set; }
+        public Guid MemberId { get; set; }
+        public Guid WorkoutPlanId { get; set; }
+        public DateTime AssignedAt { get; set; }
+        public bool IsActive { get; set; }
+        public WorkoutPlanDto WorkoutPlan { get; set; } = null!;
+    }
 }

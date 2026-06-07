@@ -36,7 +36,7 @@ namespace GymForge.Infrastructure
                     if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) || 
                         connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
                     {
-                        var uri = new Uri(connectionString);
+                        Uri uri = new Uri(connectionString);
                         string[] userInfo = uri.UserInfo.Split(':');
                         string? host = uri.Host;
                         int port = uri.IsDefaultPort ? 5432 : uri.Port;
@@ -94,6 +94,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IMemberBillingRepository, MemberBillingRepository>();
             services.AddScoped<IWorkoutRepository, WorkoutRepository>();
             services.AddScoped<IWorkoutPlanRepository, WorkoutPlanRepository>();
+            services.AddScoped<IMemberWorkoutRepository, MemberWorkoutRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

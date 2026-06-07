@@ -17,7 +17,7 @@ namespace GymForge.Api.Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             // Skip for swagger and export routes
-            var path = context.Request.Path.Value ?? "";
+            string path = context.Request.Path.Value ?? "";
             if (path.Contains("/swagger") || path.Contains("/export") || path.Contains("/index.html"))
             {
                 await _next(context);
@@ -25,8 +25,8 @@ namespace GymForge.Api.Middlewares
             }
 
             // Capture the original body stream
-            var originalBodyStream = context.Response.Body;
-            using var newBodyStream = new MemoryStream();
+            Stream originalBodyStream = context.Response.Body;
+            using MemoryStream newBodyStream = new MemoryStream();
             context.Response.Body = newBodyStream;
 
             try
@@ -44,7 +44,7 @@ namespace GymForge.Api.Middlewares
 
                 // Read the response body
                 newBodyStream.Seek(0, SeekOrigin.Begin);
-                var responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
+                string responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
                 
                 if (string.IsNullOrEmpty(responseBody))
                 {
@@ -85,7 +85,7 @@ namespace GymForge.Api.Middlewares
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
                 };
 
-                var json = JsonSerializer.Serialize(wrappedResponse, options);
+                string json = JsonSerializer.Serialize(wrappedResponse, options);
 
                 context.Response.Body = originalBodyStream;
                 context.Response.ContentLength = null;

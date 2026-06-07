@@ -36,7 +36,7 @@ namespace GymForge.Infrastructure.Repositories
                 .Include(p => p.Days.OrderBy(d => d.DayIndex))
                     .ThenInclude(d => d.Exercises.OrderBy(e => e.SortOrder))
                 .FirstOrDefaultAsync(p => p.Id == id);
-        }
+        }   
 
         public async Task<WorkoutPlan> CreatePlanAsync(WorkoutPlan plan)
         {

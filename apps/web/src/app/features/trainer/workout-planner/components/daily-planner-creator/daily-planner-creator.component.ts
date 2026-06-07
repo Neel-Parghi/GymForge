@@ -45,11 +45,26 @@ export class DailyPlannerCreatorComponent implements OnInit {
     { label: 'Fat Loss', value: 'Fat Loss' }
   ];
 
+  getCategoryForExercise(exerciseName: string): string | null {
+    if (!exerciseName) return null;
+    for (const cat of Object.keys(this.exercisesMap)) {
+      const found = this.exercisesMap[cat].some(e => e.name === exerciseName);
+      if (found) return cat;
+    }
+    return null;
+  }
+
   getExercisesDropdownOptions(currentExIdx?: number): DropdownOption[] {
     const selectedCats = this.createDailyForm.get('targetCategories')?.value || ['Back'];
     const exercises = this.getExercisesForCategories(selectedCats);
 
     const usedNames = new Set<string>();
+    let currentSelectedName = '';
+    if (currentExIdx !== undefined) {
+      const currentCtrl = this.dailyExercises.at(currentExIdx);
+      currentSelectedName = currentCtrl?.get('exerciseName')?.value || '';
+    }
+
     this.dailyExercises.controls.forEach((ctrl, idx) => {
       if (idx !== currentExIdx) {
         const name = ctrl.get('exerciseName')?.value;
@@ -57,12 +72,29 @@ export class DailyPlannerCreatorComponent implements OnInit {
       }
     });
 
-    return exercises
+    const options = exercises
       .filter(e => !usedNames.has(e.name))
       .map(e => ({
         label: `${e.name} (${e.equipment})`,
         value: e.name
       }));
+
+    if (currentSelectedName && !options.some(opt => opt.value === currentSelectedName)) {
+      let exerciseDetail: Exercise | undefined;
+      for (const cat of Object.keys(this.exercisesMap)) {
+        const found = this.exercisesMap[cat].find(e => e.name === currentSelectedName);
+        if (found) {
+          exerciseDetail = found;
+          break;
+        }
+      }
+      options.unshift({
+        label: exerciseDetail ? `${exerciseDetail.name} (${exerciseDetail.equipment})` : currentSelectedName,
+        value: currentSelectedName
+      });
+    }
+
+    return options;
   }
 
   ngOnInit(): void {
@@ -164,6 +196,12 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   addDailyExercise(): void {
     this.dailyExercises.push(this.createExerciseGroup());
+    setTimeout(() => {
+      const wrapper = document.querySelector('.exercise-table-scroll-wrapper');
+      if (wrapper) {
+        wrapper.scrollTop = wrapper.scrollHeight;
+      }
+    }, 200);
   }
 
   removeDailyExercise(index: number): void {
@@ -212,8 +250,14 @@ export class DailyPlannerCreatorComponent implements OnInit {
       const data = JSON.parse(raw);
       if (!data.exercises || data.exercises.length === 0) return;
 
+      let categories = ['Back'];
+      if (data.categories) {
+        categories = data.categories;
+      } else if (data.category) {
+        categories = data.category.split(' + ');
+      }
       this.createDailyForm.patchValue({
-        targetCategories: data.categories || ['Back']
+        targetCategories: categories
       });
 
       const exArray = this.dailyExercises;
@@ -250,7 +294,13 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   onSubmitDaily(): void {
     if (this.createDailyForm.invalid) {
-      this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_INVALID_FORM);
+      this.createDailyForm.markAllAsTouched();
+      const hasInvalidExercises = this.dailyExercises.controls.some(ctrl => ctrl.get('exerciseName')?.invalid);
+      if (hasInvalidExercises) {
+        this.notification.error('Please select an exercise for all rows.');
+      } else {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_INVALID_FORM);
+      }
       return;
     }
 
@@ -258,7 +308,15 @@ export class DailyPlannerCreatorComponent implements OnInit {
     const description = this.createDailyForm.value.description;
     const level = this.createDailyForm.value.level;
     const goal = this.createDailyForm.value.goal;
-    const categories = this.createDailyForm.value.targetCategories || [];
+
+    const categoriesSet = new Set<string>(this.createDailyForm.value.targetCategories || []);
+    this.dailyExercises.value.forEach((ex: any) => {
+      if (ex.exerciseName) {
+        const cat = this.getCategoryForExercise(ex.exerciseName);
+        if (cat) categoriesSet.add(cat);
+      } 1
+    });
+    const categories = Array.from(categoriesSet);
     const targetCategory = categories.join(' + ');
 
     const exercises = this.dailyExercises.value.map((ex: any) => ({

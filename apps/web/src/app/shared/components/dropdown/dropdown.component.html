@@ -1,8 +1,11 @@
-<div class="custom-select" [class.open]="isOpen" [class.disabled]="disabled">
+<div class="custom-select" [class.open]="isOpen" [class.disabled]="disabled" [style.min-width]="minWidth">
   <div class="select-trigger" (click)="toggleDropdown()">
     <div class="trigger-content">
       <i *ngIf="getSelectedIcon()" [class]="getSelectedIcon()"></i>
-      <span>{{ getSelectedLabel() }}</span>
+      <div class="text-grid">
+        <span class="selected-text">{{ getSelectedLabel() }}</span>
+        <span class="sizer-hidden" aria-hidden="true">{{ getLongestLabel() }}</span>
+      </div>
     </div>
     <i class="fa-solid fa-chevron-down arrow"></i>
   </div>

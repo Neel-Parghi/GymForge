@@ -1,0 +1,268 @@
+<div class="tab-pane-content tracker-full-width" *ngIf="todayWorkout">
+
+  <!-- Backdating Notice Banner -->
+  <div class="backdate-notice-banner animate-fade-in" *ngIf="isBackdating">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <div class="banner-text">
+      <strong>Backdating Workout:</strong> You are currently logging a workout session for <span
+        class="date-highlight">{{ loggingDate | date:'EEEE, d MMMM yyyy' }}</span>.
+    </div>
+  </div>
+
+  <!-- Outer Dashboard Panel -->
+  <div class="workout-tracker-dashboard glass-card" [class.backdated-height]="isBackdating">
+
+    <!-- Top Action Bar -->
+    <div class="tracker-dashboard-header">
+      <div class="header-info-group">
+        <h3>{{ isBackdating ? 'Backdated Workout Logger' : 'Active Workout Tracker' }}</h3>
+        <p class="subtitle">{{ isBackdating ? 'Past' : 'Live' }} workout log: <span class="highlight">{{
+            todayWorkout.dayName }}</span></p>
+      </div>
+
+      <div class="header-actions-group">
+        <!-- Routine Selector Dropdown (Custom Dropdown Component) -->
+        <div class="routine-selector-wrap" *ngIf="activeSplit && dropdownOptions.length > 0">
+          <label><i class="fa-solid fa-calendar-day"></i> Switch Day:</label>
+          <div class="dropdown-wrap">
+            <app-dropdown [options]="dropdownOptions" [formControl]="daySelectControl"
+              (selectionChange)="onDaySelect($event)" minWidth="220px">
+            </app-dropdown>
+          </div>
+
+        </div>
+
+        <button class="btn-outline btn-back-calendar" (click)="onCancel()">
+          <i class="fa-solid fa-arrow-left"></i> Back to Calendar
+        </button>
+
+        <button class="btn-primary" (click)="onSaveSession()">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Save & Log Session
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN SPLIT CONTAINER -->
+    <div class="wt-split-container" *ngIf="!todayWorkout.isRestDay; else restDayState">
+      <!-- LEFT SIDEBAR: Exercise List -->
+      <aside class="wt-exercise-sidebar">
+        <div class="sidebar-header">
+          <span class="section-tag">Exercises List</span>
+          <button class="btn-sidebar-add" (click)="openAddExerciseModal()" title="Add Custom Exercise">
+            <i class="fa-solid fa-circle-plus"></i> Add
+          </button>
+        </div>
+
+        <div class="sidebar-exercise-list">
+          <div class="sidebar-ex-item" *ngFor="let ex of todayWorkout.exercises; let idx = index"
+            [class.active]="idx === selectedExerciseIndex" [class.skipped]="ex.skipped" (click)="selectExercise(idx)">
+
+            <div class="ex-item-main">
+              <span class="ex-index">{{ idx + 1 }}</span>
+              <div class="ex-info">
+                <span class="ex-title">{{ ex.name }}</span>
+                <!-- Completion Indicator -->
+                <span class="ex-meta" *ngIf="!ex.skipped">
+                  {{ getCompletedSetsCount(ex) }}/{{ ex.sets.length }} Sets
+                </span>
+                <span class="ex-meta skipped-text" *ngIf="ex.skipped">
+                  Skipped
+                </span>
+              </div>
+            </div>
+
+            <div class="ex-status-dot">
+              <i class="fa-solid fa-circle-check completed-icon"
+                *ngIf="!ex.skipped && ex.sets.length > 0 && getCompletedSetsCount(ex) === ex.sets.length"></i>
+              <i class="fa-solid fa-ban skipped-icon" *ngIf="ex.skipped"></i>
+              <i class="fa-regular fa-circle pending-icon"
+                *ngIf="!ex.skipped && (ex.sets.length === 0 || getCompletedSetsCount(ex) < ex.sets.length)"></i>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT PANEL: Selected Exercise Console -->
+      <main class="wt-exercise-console">
+        <ng-container *ngIf="todayWorkout.exercises[selectedExerciseIndex] as selectedEx; else noExState">
+
+          <!-- Selected Exercise Header -->
+          <div class="console-ex-header" [class.skipped-bg]="selectedEx.skipped">
+            <div class="console-title-wrap">
+              <h2>{{ selectedEx.name }}</h2>
+              <span class="target-notes" *ngIf="selectedEx.sets[0]?.target">
+                <i class="fa-solid fa-bullseye"></i> Target: {{ selectedEx.sets[0]?.target }}
+              </span>
+            </div>
+
+            <!-- Skip Toggle Switch -->
+            <button class="btn-skip-toggle" [class.active-skip]="selectedEx.skipped"
+              (click)="toggleExerciseSkipped(selectedEx)">
+              <i class="fa-solid" [ngClass]="selectedEx.skipped ? 'fa-play' : 'fa-ban'"></i>
+              {{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}
+            </button>
+          </div>
+
+          <!-- Skipped Overlay Message -->
+          <div class="skipped-overlay-message" *ngIf="selectedEx.skipped">
+            <div class="message-content">
+              <i class="fa-solid fa-eye-slash animate-bounce-slow"></i>
+              <h3>This exercise has been skipped</h3>
+              <p>You can mark it as active to track sets or log progress.</p>
+              <button class="btn-primary btn-small" (click)="toggleExerciseSkipped(selectedEx)">
+                Enable Tracker
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Logging Console (Visible only when not skipped) -->
+          <div class="console-logging-area" *ngIf="!selectedEx.skipped">
+
+            <!-- Table Header -->
+            <div class="set-logger-table">
+              <div class="table-thead">
+                <div class="th-cell col-set">Set</div>
+                <div class="th-cell col-target">Target Goal</div>
+                <div class="th-cell col-weight">Weight (kg)</div>
+                <div class="th-cell col-reps">Reps</div>
+                <div class="th-cell col-status">Status</div>
+                <div class="th-cell col-actions">Remove</div>
+              </div>
+
+              <!-- Table Rows -->
+              <div class="table-tbody">
+                <div class="table-row-item" *ngFor="let s of selectedEx.sets; let sIdx = index"
+                  [class.completed]="s.completed">
+
+                  <div class="td-cell col-set">
+                    <span class="set-num-badge">Set {{ s.setNo }}</span>
+                  </div>
+
+                  <div class="td-cell col-target">
+                    <span class="target-text">{{ s.target }}</span>
+                  </div>
+
+                  <div class="td-cell col-weight">
+                    <div class="premium-num-input" *ngIf="!s.completed">
+                      <input type="number"
+                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0"
+                        placeholder="0">
+                      <span class="unit">kg</span>
+                    </div>
+                    <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span
+                        class="unit">kg</span></span>
+                  </div>
+
+                  <div class="td-cell col-reps">
+                    <div class="premium-num-input" *ngIf="!s.completed">
+                      <input type="number"
+                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0"
+                        placeholder="0">
+                      <span class="unit">reps</span>
+                    </div>
+                    <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span
+                        class="unit">reps</span></span>
+                  </div>
+
+                  <div class="td-cell col-status">
+                    <button class="btn-check-set-new" [class.checked]="s.completed"
+                      (click)="toggleSetCompletion(s, selectedExerciseIndex, sIdx)">
+                      <i class="fa-solid" [ngClass]="s.completed ? 'fa-circle-check' : 'fa-circle'"></i>
+                      <span>{{ s.completed ? 'Completed' : 'Mark Done' }}</span>
+                    </button>
+                  </div>
+
+                  <div class="td-cell col-actions">
+                    <button class="btn-delete-set" (click)="deleteSet(selectedEx, selectedExerciseIndex, sIdx)"
+                      title="Delete Set">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Add Set Row Button -->
+            <div class="console-actions-row">
+              <button class="btn-outline btn-add-set-new" (click)="addSetToExercise(selectedEx, selectedExerciseIndex)">
+                <i class="fa-solid fa-plus"></i> Add New Set
+              </button>
+            </div>
+
+          </div>
+        </ng-container>
+
+        <!-- No Exercises State -->
+        <ng-template #noExState>
+          <div class="empty-state-console">
+            <i class="fa-solid fa-dumbbell"></i>
+            <h3>No exercises logged in today's workout</h3>
+            <p>Click "Add Exercise" to manually customize or select another routine day.</p>
+          </div>
+        </ng-template>
+      </main>
+
+    </div>
+
+    <!-- REST DAY STATE -->
+    <ng-template #restDayState>
+      <div class="rest-day-container animate-fade-in">
+        <div class="rest-day-card">
+          <div class="icon-circle">
+            <i class="fa-solid fa-bed"></i>
+          </div>
+          <h2>Rest & Recovery Day</h2>
+          <p class="rest-message">
+            No workouts are scheduled for this day. Rest is where muscle grows and the body rebuilds itself. Use today
+            to focus on stretching, hydration, and nutrition!
+          </p>
+          <div class="rest-stats-row">
+            <div class="rest-stat-item">
+              <i class="fa-solid fa-glass-water"></i>
+              <span>Hydrate</span>
+            </div>
+            <div class="rest-stat-item">
+              <i class="fa-solid fa-utensils"></i>
+              <span>Nutrition</span>
+            </div>
+            <div class="rest-stat-item">
+              <i class="fa-solid fa-heart-pulse"></i>
+              <span>Recover</span>
+            </div>
+          </div>
+          <div class="rest-actions">
+            <button class="btn-primary" (click)="todayWorkout.isRestDay = false">
+              <i class="fa-solid fa-dumbbell"></i> Track a Workout Anyway
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+</div>
+
+<!-- BEAUTIFUL CUSTOM MODAL POPUP FOR ADDING EXERCISE -->
+<div class="custom-overlay-modal" *ngIf="showAddExerciseModal" (click)="closeAddExerciseModal()">
+  <div class="custom-modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-card-header">
+      <h3><i class="fa-solid fa-circle-plus"></i> Add Custom Exercise</h3>
+      <button class="btn-close-modal-x" (click)="closeAddExerciseModal()">&times;</button>
+    </div>
+    <div class="modal-card-body">
+      <div class="modal-form-group">
+        <label for="new-ex-name">Exercise Name</label>
+        <input type="text" id="new-ex-name" class="modal-input-field" [formControl]="newExerciseControl"
+          placeholder="e.g. Incline Dumbbell Bench Press" (keyup.enter)="confirmAddExercise()" autofocus>
+        <span class="input-helper-text">Enter the name of the exercise to start tracking logs immediately.</span>
+      </div>
+    </div>
+    <div class="modal-card-footer">
+      <button class="btn-outline btn-small" (click)="closeAddExerciseModal()">Cancel</button>
+      <button class="btn-primary btn-small" (click)="confirmAddExercise()">
+        <i class="fa-solid fa-check"></i> Add Exercise
+      </button>
+    </div>
+  </div>
+</div>

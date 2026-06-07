@@ -1,0 +1,200 @@
+<div class="tab-pane-content calendar-full-container">
+
+  <!-- Calendar Panel Container -->
+  <div class="workout-calendar-panel glass-card">
+
+    <!-- Calendar Header Controller -->
+    <div class="calendar-panel-header">
+      <div class="header-left-nav">
+        <button class="btn-calendar-nav" (click)="prevMonth()" title="Previous Month">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="btn-calendar-nav btn-text-nav" (click)="goToToday()">Today</button>
+        <button class="btn-calendar-nav" (click)="nextMonth()" title="Next Month">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <h3 class="calendar-month-title">{{ getMonthLabel() }}</h3>
+      </div>
+
+      <div class="header-right-actions" *ngIf="activeSplit">
+        <div class="active-split-badge">
+          Active Plan: <strong>{{ activeSplit.planName }}</strong>
+        </div>
+        <button class="btn-primary btn-small" (click)="onAssignSplit()">
+          Change Split Plan
+        </button>
+      </div>
+      <div class="header-right-actions" *ngIf="!activeSplit">
+        <button class="btn-primary btn-small" (click)="onAssignSplit()">
+          <i class="fa-solid fa-plus"></i> Assign Workout Plan
+        </button>
+      </div>
+    </div>
+
+    <!-- CALENDAR GRID CONTAINER -->
+    <div class="calendar-grid-wrapper">
+
+      <!-- Weekday Headers -->
+      <div class="weekday-headers-grid">
+        <div class="weekday-header" *ngFor="let day of weekdays">{{ day }}</div>
+      </div>
+
+      <!-- Days Grid (42 cells) -->
+      <div class="days-cells-grid">
+        <div class="day-cell-item" *ngFor="let d of calendarDays" [class.outside-month]="!d.isCurrentMonth"
+          [class.today-cell]="d.isToday" [class.past-cell]="d.isPast" [class.has-history]="d.historySession"
+          [class.rest-day-cell]="d.isRestDay">
+
+          <div class="day-cell-header">
+            <span class="day-number-badge">{{ d.dayNum }}</span>
+
+            <!-- Indicators & Actions -->
+            <div class="header-right-meta">
+              <span class="today-marker" *ngIf="d.isToday">Today</span>
+              <span class="overridden-marker" *ngIf="d.override" title="Overridden from template"><i
+                  class="fa-solid fa-shuffle"></i></span>
+
+              <!-- Quick Action Buttons -->
+              <button class="btn-header-log-action today-action" *ngIf="d.isToday && !d.isRestDay && !d.historySession"
+                (click)="$event.stopPropagation(); trackTodayLive()" title="Log Today's Workout">
+                <i class="fa-solid fa-play"></i>
+              </button>
+              <button class="btn-header-log-action past-action"
+                *ngIf="d.isPast && !d.isToday && !d.isRestDay && !d.historySession"
+                (click)="$event.stopPropagation(); logPastWorkout(d)" title="Log Past Workout">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+              <button class="btn-header-log-action edit-action" *ngIf="d.historySession"
+                (click)="$event.stopPropagation(); editWorkoutSession(d.historySession)" title="Edit Workout Log">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- CELL CONTENT -->
+          <div class="day-cell-content">
+
+            <!-- CASE 1: Logged Session (History exists) -->
+            <ng-container *ngIf="d.historySession; else noHistoryLog">
+              <div class="workout-event history-event" (click)="openSessionDetails(d.historySession)">
+                <div class="event-title">
+                  <span class="status-indicator-dot completed-dot"></span>
+                  <span>{{ d.historySession.dayName.split(' - ')[1] || d.historySession.dayName }}</span>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- CASE 2: No History (Scheduled split / rest / override) -->
+            <ng-template #noHistoryLog>
+              <div class="workout-event scheduled-event" [class.rest-event]="d.isRestDay"
+                (click)="openOverrideDialog(d)">
+
+                <div class="event-title">
+                  <span class="status-indicator-dot" [ngClass]="d.isRestDay ? 'rest-dot' : 'scheduled-dot'"></span>
+                  <span>{{ d.routineName.split(' - ')[1] || d.routineName }}</span>
+                </div>
+              </div>
+            </ng-template>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="custom-overlay-modal" *ngIf="showDetailsModal && selectedSession" (click)="closeDetailsModal()">
+  <div class="custom-modal-card history-details-card" (click)="$event.stopPropagation()">
+    <div class="modal-card-header">
+      <div class="modal-title-group">
+        <h3><i class="fa-solid fa-square-poll-horizontal"></i> Workout History Details</h3>
+        <span class="modal-subtitle">{{ selectedSession.date | date:'EEEE, d MMMM yyyy' }}</span>
+      </div>
+      <button class="btn-close-modal-x" (click)="closeDetailsModal()">&times;</button>
+    </div>
+
+    <div class="modal-card-body modal-scroll-body">
+      <h4 class="session-routine-title">{{ selectedSession.dayName }}</h4>
+      <div class="session-quick-stats">
+        <span class="stat-bubble"><i class="fa-solid fa-check"></i> {{ selectedSession.exercisesCompleted }}
+          Exercises</span>
+        <span class="stat-bubble"><i class="fa-solid fa-list-check"></i> {{ selectedSession.totalSets }} Sets
+          Logged</span>
+        <span class="stat-bubble status-bubble"><i class="fa-solid fa-circle-check"></i> Completed</span>
+      </div>
+
+      <div class="history-exercises-log-view">
+        <div class="history-ex-card" *ngFor="let ex of selectedSession.exercises">
+          <h5>{{ ex.name }}</h5>
+          <div class="history-sets-table">
+            <div class="table-header">
+              <span class="col-set">Set</span>
+              <span class="col-weight">Weight</span>
+              <span class="col-reps">Reps</span>
+              <span class="col-status">Status</span>
+            </div>
+            <div class="table-row" *ngFor="let s of ex.sets">
+              <span class="col-set">Set {{ s.setNo }}</span>
+              <span class="col-weight">{{ s.weight || 0 }} kg</span>
+              <span class="col-reps">{{ s.reps || 0 }} reps</span>
+              <span class="col-status">
+                <span class="status-done" *ngIf="s.completed"><i class="fa-solid fa-circle-check"></i> Done</span>
+                <span class="status-missed" *ngIf="!s.completed"><i class="fa-solid fa-circle-xmark"></i> Skipped</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-card-footer">
+      <button class="btn-primary btn-small" (click)="closeDetailsModal()">Close Details</button>
+    </div>
+  </div>
+</div>
+
+<div class="custom-overlay-modal" *ngIf="showOverrideModal" (click)="closeOverrideModal()">
+  <div class="custom-modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-card-header">
+      <div class="modal-title-group">
+        <h3><i class="fa-solid fa-shuffle"></i> Override Schedule</h3>
+        <span class="modal-subtitle">For date: <strong>{{ overrideDateLabel }}</strong></span>
+      </div>
+      <button class="btn-close-modal-x" (click)="closeOverrideModal()">&times;</button>
+    </div>
+
+    <div class="modal-card-body">
+       <div class="modal-form-group">
+         <label>Select Scheduled Routine</label>
+         <app-dropdown [options]="overrideOptions" [formControl]="overrideValueControl" minWidth="100%">
+         </app-dropdown>
+       </div>
+ 
+       <div class="modal-form-group mt-15">
+         <label>Override Range</label>
+         <div class="override-scope-group">
+           <label class="scope-label">
+             <input type="radio" name="overrideScope" [formControl]="overrideScopeControl" value="single">
+             Only for this date
+           </label>
+           <label class="scope-label">
+             <input type="radio" name="overrideScope" [formControl]="overrideScopeControl" value="recurring">
+             Apply to all future weeks
+           </label>
+         </div>
+         <span class="input-helper-text">
+           Recurring overrides will update the default weekly schedule day for this plan assignment.
+         </span>
+       </div>
+     </div>
+
+    <div class="modal-card-footer">
+      <button class="btn-outline btn-small" (click)="closeOverrideModal()">Cancel</button>
+      <button class="btn-primary btn-small" (click)="confirmOverride()">
+        <i class="fa-solid fa-check"></i> Apply Override
+      </button>
+    </div>
+  </div>
+</div>

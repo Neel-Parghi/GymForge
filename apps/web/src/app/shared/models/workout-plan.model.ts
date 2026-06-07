@@ -56,3 +56,24 @@ export interface DailyPlanner extends BaseWorkoutPlan {
 }
 
 export type WorkoutPlan = SplitPlanner | WeeklyPlanner | DailyPlanner;
+
+export interface CalendarDay {
+  date: Date;
+  dateKey: string;
+  dayNum: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isPast: boolean;
+  historySession: any;
+  override: any;
+  scheduledWorkout: {
+    dayName: string;
+    category?: string;
+    exercises: any[];
+    isRestDay: boolean;
+  } | null;
+  routineName: string;
+  isRestDay: boolean;
+  exercisesCount: number;
+  templateDayName: string;
+}

@@ -48,6 +48,15 @@ export class SplitPlannerCreatorComponent implements OnInit {
     return this.categories.map(c => ({ label: c, value: c }));
   }
 
+  getCategoryForExercise(exerciseName: string): string | null {
+    if (!exerciseName) return null;
+    for (const cat of Object.keys(this.exercisesMap)) {
+      const found = this.exercisesMap[cat].some(e => e.name === exerciseName);
+      if (found) return cat;
+    }
+    return null;
+  }
+
   getExercisesDropdownOptions(dayIdx: number, currentExIdx?: number): DropdownOption[] {
     const day = this.splitDays.at(dayIdx);
     const targetCats = day?.get('targetCategories')?.value || ['Back'];
@@ -55,6 +64,12 @@ export class SplitPlannerCreatorComponent implements OnInit {
 
     const usedNames = new Set<string>();
     const exercisesFormArray = this.getSplitExercises(dayIdx);
+    let currentSelectedName = '';
+    if (currentExIdx !== undefined) {
+      const currentCtrl = exercisesFormArray.at(currentExIdx);
+      currentSelectedName = currentCtrl?.get('exerciseName')?.value || '';
+    }
+
     exercisesFormArray.controls.forEach((ctrl, idx) => {
       if (idx !== currentExIdx) {
         const name = ctrl.get('exerciseName')?.value;
@@ -62,12 +77,29 @@ export class SplitPlannerCreatorComponent implements OnInit {
       }
     });
 
-    return exercises
+    const options = exercises
       .filter(e => !usedNames.has(e.name))
       .map(e => ({
         label: `${e.name} (${e.equipment})`,
         value: e.name
       }));
+
+    if (currentSelectedName && !options.some(opt => opt.value === currentSelectedName)) {
+      let exerciseDetail: Exercise | undefined;
+      for (const cat of Object.keys(this.exercisesMap)) {
+        const found = this.exercisesMap[cat].find(e => e.name === currentSelectedName);
+        if (found) {
+          exerciseDetail = found;
+          break;
+        }
+      }
+      options.unshift({
+        label: exerciseDetail ? `${exerciseDetail.name} (${exerciseDetail.equipment})` : currentSelectedName,
+        value: currentSelectedName
+      });
+    }
+
+    return options;
   }
 
   nextStep(): void {
@@ -119,8 +151,14 @@ export class SplitPlannerCreatorComponent implements OnInit {
       if (!data.exercises || data.exercises.length === 0) return;
 
       const dayGroup = this.splitDays.at(dayIdx);
+      let categories = ['Back'];
+      if (data.categories) {
+        categories = data.categories;
+      } else if (data.category) {
+        categories = data.category.split(' + ');
+      }
       dayGroup.patchValue({
-        targetCategories: data.categories || data.category ? (data.category.split(' + ')) : ['Back']
+        targetCategories: categories
       });
 
       const exArray = this.getSplitExercises(dayIdx);
@@ -234,6 +272,12 @@ export class SplitPlannerCreatorComponent implements OnInit {
     });
 
     this.getSplitExercises(dayIndex).push(exGroup);
+    setTimeout(() => {
+      const wrapper = document.querySelector('.exercise-table-scroll-wrapper');
+      if (wrapper) {
+        wrapper.scrollTop = wrapper.scrollHeight;
+      }
+    }, 200);
   }
 
   removeSplitExercise(dayIndex: number, exIndex: number): void {
@@ -288,8 +332,22 @@ export class SplitPlannerCreatorComponent implements OnInit {
 
   onSubmitSplit(): void {
     if (this.createSplitForm.invalid) {
-      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_INVALID_FORM);
       this.createSplitForm.markAllAsTouched();
+      
+      let hasInvalidExercises = false;
+      for (let i = 0; i < this.splitDays.length; i++) {
+        const exercises = this.getSplitExercises(i);
+        if (exercises.controls.some(ctrl => ctrl.get('exerciseName')?.invalid)) {
+          hasInvalidExercises = true;
+          break;
+        }
+      }
+
+      if (hasInvalidExercises) {
+        this.notification.error('Please select an exercise for all rows.');
+      } else {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_INVALID_FORM);
+      }
       return;
     }
 
@@ -306,16 +364,26 @@ export class SplitPlannerCreatorComponent implements OnInit {
       isCustom: val.isCustom ?? false,
       daysCount: val.days.length,
       exercisesCount: totalExs,
-      days: val.days.map((d: any) => ({
-        name: d.name,
-        category: (d.targetCategories || []).join(' + '),
-        exercises: d.exercises.map((e: any) => ({
-          name: e.exerciseName,
-          sets: e.targetSets,
-          reps: e.targetReps,
-          notes: e.notes
-        }))
-      }))
+      days: val.days.map((d: any) => {
+        // Auto-detect categories based on selected exercises to ensure none are missed
+        const categoriesSet = new Set<string>(d.targetCategories || []);
+        d.exercises.forEach((ex: any) => {
+          if (ex.exerciseName) {
+            const cat = this.getCategoryForExercise(ex.exerciseName);
+            if (cat) categoriesSet.add(cat);
+          }
+        });
+        return {
+          name: d.name,
+          category: Array.from(categoriesSet).join(' + '),
+          exercises: d.exercises.map((e: any) => ({
+            name: e.exerciseName,
+            sets: e.targetSets,
+            reps: e.targetReps,
+            notes: e.notes
+          }))
+        };
+      })
     };
 
     this.save.emit(splitData);
