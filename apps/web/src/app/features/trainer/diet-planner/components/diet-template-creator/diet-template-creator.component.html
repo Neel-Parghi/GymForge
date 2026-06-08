@@ -1,0 +1,194 @@
+<!-- TEMPLATE CREATION MODAL OVERLAY -->
+<div class="modal-overlay">
+  <div class="modal-card animate-scale-in wizard-modal-card">
+    <div class="modal-header">
+      <div class="header-title-group">
+        <i class="fa-solid fa-apple-whole"></i>
+        <h2>{{ plan ? 'Edit Diet Template' : 'New Diet Template' }}</h2>
+      </div>
+      <button class="btn-close" (click)="onClose()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Wizard Progress Tabs Bar -->
+    <div class="wizard-progress-bar">
+      <button type="button" class="wizard-step-btn" [class.active]="activeFormTab === 'details'" (click)="activeFormTab = 'details'">
+        <span class="step-num">1</span>
+        <span class="step-label">Details & Macros</span>
+      </button>
+      <div class="wizard-step-line"></div>
+      <button type="button" class="wizard-step-btn" [class.active]="activeFormTab === 'meals'" (click)="activeFormTab = 'meals'">
+        <span class="step-num">2</span>
+        <span class="step-label">Prescribed Meals ({{ meals.length }})</span>
+      </button>
+    </div>
+
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()" class="premium-form">
+      <div class="form-scroll-body">
+        <!-- STEP 1: Details & Macros -->
+        <div class="wizard-step-content animate-scale-in" *ngIf="activeFormTab === 'details'">
+          <div class="form-group">
+            <label><i class="fa-solid fa-tag"></i> Template Name <span class="required">*</span></label>
+            <input type="text" formControlName="name" class="form-input"
+              placeholder="e.g. Lean Bulking 3000 kcal Plan">
+            <span class="error-msg"
+              *ngIf="createForm.get('name')?.touched && createForm.get('name')?.invalid">Template name is required
+              (min 3 chars).</span>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-bullseye"></i> Primary Nutrition Goal</label>
+            <app-dropdown formControlName="goal" [options]="goalOptions" placeholder="Select goal..."></app-dropdown>
+          </div>
+
+          <!-- Real-time Macros Calculator visualizer -->
+          <div class="macros-calculator-widget mt-10">
+            <h4><i class="fa-solid fa-calculator"></i> Macronutrients Calculator</h4>
+
+            <div class="widget-layout">
+              <div class="macro-donut-wrapper">
+                <svg viewBox="0 0 160 160" class="donut-svg">
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--slate-200)" stroke-width="12">
+                  </circle>
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--warning-color)" stroke-width="12"
+                    stroke-dasharray="377" [attr.stroke-dashoffset]="getFatsOffset()" stroke-linecap="round"></circle>
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--accent-color)" stroke-width="12"
+                    stroke-dasharray="377" [attr.stroke-dashoffset]="getCarbsOffset()" stroke-linecap="round">
+                  </circle>
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--success-color)" stroke-width="12"
+                    stroke-dasharray="377" [attr.stroke-dashoffset]="getProteinOffset()" stroke-linecap="round">
+                  </circle>
+                </svg>
+                <div class="donut-content">
+                  <span class="val">{{ computedCalories }}</span>
+                  <span class="lbl">TOTAL KCAL</span>
+                </div>
+              </div>
+
+              <div class="macro-inputs-grid">
+                <div class="macro-input-row protein">
+                  <div class="lbl-wrap">
+                    <span class="dot"></span>
+                    <label>Protein</label>
+                  </div>
+                  <div class="val-input-wrap">
+                    <input type="number" formControlName="protein" min="0" class="form-input-inline">
+                    <span class="unit">g ({{ macroPercentages.protein }}%)</span>
+                  </div>
+                </div>
+                <div class="macro-input-row carbs">
+                  <div class="lbl-wrap">
+                    <span class="dot"></span>
+                    <label>Carbs</label>
+                  </div>
+                  <div class="val-input-wrap">
+                    <input type="number" formControlName="carbs" min="0" class="form-input-inline">
+                    <span class="unit">g ({{ macroPercentages.carbs }}%)</span>
+                  </div>
+                </div>
+                <div class="macro-input-row fats">
+                  <div class="lbl-wrap">
+                    <span class="dot"></span>
+                    <label>Fats</label>
+                  </div>
+                  <div class="val-input-wrap">
+                    <input type="number" formControlName="fats" min="0" class="form-input-inline">
+                    <span class="unit">g ({{ macroPercentages.fats }}%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Prescribed Meals Builder -->
+        <div class="wizard-step-content meals-step animate-scale-in" *ngIf="activeFormTab === 'meals'">
+          <div class="canvas-header">
+            <h3 class="font-bold-text">Prescribed Meals ({{ meals.length }} entries)</h3>
+            <button type="button" class="btn-secondary btn-sm" (click)="addMeal()">
+              <i class="fa-solid fa-plus-circle"></i> Add Meal
+            </button>
+          </div>
+
+          <!-- Calorie Tracker balance indicator -->
+          <div class="meal-calorie-balance-bar mt-10" [class.over-budget]="mealsTotalCalories > computedCalories">
+            <div class="balance-text">
+              <span>Meal Calories Allocated: <strong>{{ mealsTotalCalories }} kcal</strong> / {{ computedCalories }}
+                kcal</span>
+              <span class="warning-alert" *ngIf="mealsTotalCalories > computedCalories"><i
+                  class="fa-solid fa-triangle-exclamation"></i> Over budget!</span>
+            </div>
+            <div class="balance-track">
+              <div class="balance-fill" [style.width.%]="(mealsTotalCalories / (computedCalories || 1)) * 100"></div>
+            </div>
+          </div>
+
+          <div formArrayName="meals" class="meals-form-list">
+            <div class="meal-builder-item" *ngFor="let meal of meals.controls; let idx = index" [formGroupName]="idx" [class.collapsed]="expandedMealIndex !== idx">
+              <div class="meal-item-header clickable" (click)="toggleMealExpand(idx)">
+                <div class="header-left">
+                  <span class="meal-number">Meal #{{ idx + 1 }}</span>
+                  <!-- Short summary shown when collapsed -->
+                  <span class="collapsed-summary" *ngIf="expandedMealIndex !== idx">
+                    <strong class="summary-name">{{ meal.get('name')?.value || 'Unnamed Meal' }}</strong>
+                    <span class="badge calories"><i class="fa-solid fa-fire"></i> {{ meal.get('calories')?.value || 0 }} kcal</span>
+                    <span class="badge protein"><i class="fa-solid fa-dumbbell"></i> {{ meal.get('protein')?.value || 0 }}g</span>
+                  </span>
+                </div>
+                <div class="header-right">
+                  <button type="button" class="btn-remove-meal" (click)="removeMeal(idx, $event)" title="Remove Meal">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                  <span class="expand-chevron">
+                    <i class="fa-solid" [class.fa-chevron-down]="expandedMealIndex !== idx" [class.fa-chevron-up]="expandedMealIndex === idx"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="meal-item-inputs" *ngIf="expandedMealIndex === idx">
+                <div class="form-group">
+                  <label>Meal Title & Time <span class="required">*</span></label>
+                  <input type="text" formControlName="name" class="form-input form-input-sm"
+                    placeholder="e.g. Breakfast (08:00 AM)">
+                </div>
+                <div class="form-row mt-10">
+                  <div class="form-group">
+                    <label>Calories (kcal) <span class="required">*</span></label>
+                    <input type="number" formControlName="calories" min="0" class="form-input form-input-sm"
+                      placeholder="e.g. 500">
+                  </div>
+                  <div class="form-group">
+                    <label>Protein (g) <span class="required">*</span></label>
+                    <input type="number" formControlName="protein" min="0" class="form-input form-input-sm"
+                      placeholder="e.g. 30">
+                  </div>
+                </div>
+                <div class="form-group mt-10">
+                  <label>Food Items & Description</label>
+                  <textarea formControlName="items" class="form-input textarea-sm"
+                    placeholder="e.g. 100g Rolled Oats, 4 Egg Whites, 1 Scoop Whey, 1 Banana..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Static Wizard Footer Navigation -->
+      <div class="drawer-actions" *ngIf="activeFormTab === 'details'">
+        <button type="button" class="btn-outline" (click)="onClose()">Cancel</button>
+        <button type="button" class="btn-primary" (click)="activeFormTab = 'meals'">
+          Next: Prescribed Meals <i class="fa-solid fa-arrow-right icon-right"></i>
+        </button>
+      </div>
+
+      <div class="drawer-actions" *ngIf="activeFormTab === 'meals'">
+        <button type="button" class="btn-outline" (click)="activeFormTab = 'details'">
+          <i class="fa-solid fa-arrow-left icon-left"></i> Back to Details
+        </button>
+        <button type="submit" class="btn-primary"
+          [disabled]="createForm.invalid || (mealsTotalCalories > computedCalories)">
+          {{ plan ? 'Update Template' : 'Create Template' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

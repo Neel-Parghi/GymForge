@@ -1,7 +1,38 @@
 .diet-chart-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  overflow: hidden;
+  min-height: 650px;
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(var(--slate-50), 0.5);
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .header-left {
+      h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0;
+        letter-spacing: -0.5px;
+      }
+      .subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 4px 0 0 0;
+      }
+    }
+  }
 }
 
 .diet-dashboard-row {
@@ -9,6 +40,8 @@
   gap: 24px;
   align-items: flex-start;
   width: 100%;
+  padding: 24px;
+  flex: 1;
 
   @media (max-width: 1200px) {
     flex-direction: column;
@@ -26,7 +59,7 @@
 }
 
 .macros-summary-card {
-  background: var(--slate-50);
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
@@ -35,15 +68,16 @@
   align-items: center;
   gap: 24px;
   width: 100%;
+  box-shadow: var(--card-shadow);
 }
-
+ 
 .meals-list-panel {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-
+ 
   .meals-section-title {
     font-size: 1rem;
     font-weight: 800;
@@ -54,21 +88,21 @@
     gap: 8px;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-
+ 
     i {
       color: var(--accent-color);
     }
   }
-
+ 
   .meals-grid-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
 }
-
+ 
 .meal-plan-card {
-  background: var(--slate-50);
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 16px 20px;
@@ -76,10 +110,11 @@
   flex-direction: column;
   gap: 8px;
   transition: all 0.2s;
-
+  box-shadow: var(--card-shadow);
+ 
   &:hover {
     border-color: rgba(var(--accent-rgb), 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--card-shadow-hover);
   }
 
   .meal-card-top {
@@ -200,5 +235,59 @@
     &.fats .bar-fill {
       background-color: var(--warning-color);
     }
+  }
+}
+
+/* ── Empty State Screen Styles ────────────────────────────── */
+.no-diet-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  flex: 1;
+  background: var(--bg-surface);
+  border-radius: 20px;
+  border: 1px dashed var(--border-color);
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  min-height: 400px;
+}
+
+.no-diet-card {
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(var(--accent-rgb), 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+
+    i {
+      font-size: 2.5rem;
+      color: var(--accent-color);
+    }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .no-diet-message {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin: 0;
   }
 }

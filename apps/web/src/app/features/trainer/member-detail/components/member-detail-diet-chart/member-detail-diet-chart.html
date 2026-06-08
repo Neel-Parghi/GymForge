@@ -1,12 +1,12 @@
-<div class="tab-pane-content" *ngIf="activeDiet">
-  <div class="diet-chart-panel glass-card">
+<div class="tab-pane-content">
+  <div class="diet-chart-panel glass-card" *ngIf="activeDiet; else noDietState">
     <div class="panel-header">
       <div class="header-left">
         <h3>Nutrition & Diet Plan</h3>
         <p class="subtitle">Active Prescribed Diet: <span class="accent-text font-bold">{{ activeDiet.planName
             }}</span></p>
       </div>
-      <button class="btn-primary" (click)="onOpenAssignModal()">
+      <button class="btn-primary btn-small" (click)="onOpenAssignModal()">
         <i class="fa-solid fa-exchange-alt"></i> Assign Diet Template
       </button>
     </div>
@@ -18,49 +18,52 @@
           <div class="macro-donut-wrapper">
             <svg viewBox="0 0 160 160" class="donut-svg">
               <!-- Base ring -->
-              <circle cx="80" cy="80" r="60" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
-              <!-- Accent carbs ring -->
-              <circle cx="80" cy="80" r="60" fill="transparent" stroke="#3b82f6" stroke-width="12"
-                stroke-dasharray="376" stroke-dashoffset="180" stroke-linecap="round"></circle>
-              <!-- Accent protein ring -->
-              <circle cx="80" cy="80" r="60" fill="transparent" stroke="#10b981" stroke-width="12"
-                stroke-dasharray="376" stroke-dashoffset="260" stroke-linecap="round"></circle>
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--slate-200)" stroke-width="12"></circle>
+              <!-- Cumulative Fats (Yellow) -->
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--warning-color)" stroke-width="12"
+                stroke-dasharray="377" [attr.stroke-dashoffset]="getFatsOffset()" stroke-linecap="round"></circle>
+              <!-- Cumulative Carbs (Blue) -->
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--accent-color)" stroke-width="12"
+                stroke-dasharray="377" [attr.stroke-dashoffset]="getCarbsOffset()" stroke-linecap="round"></circle>
+              <!-- Protein (Green) -->
+              <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--success-color)" stroke-width="12"
+                stroke-dasharray="377" [attr.stroke-dashoffset]="getProteinOffset()" stroke-linecap="round"></circle>
             </svg>
             <div class="donut-content">
               <span class="val">{{ activeDiet.calories }}</span>
               <span class="lbl">TOTAL KCAL</span>
             </div>
           </div>
-
+ 
           <!-- Macros list details -->
           <div class="macro-bars-list">
             <div class="macro-bar-item protein">
               <div class="bar-header">
-                <span>Protein</span>
-                <strong>{{ activeDiet.macros.protein }}g</strong>
+                <span class="macro-label-name">Protein</span>
+                <strong>{{ activeDiet.macros.protein }}g <span class="macro-pct-label">({{ getMacroPercentage('protein') }}%)</span></strong>
               </div>
               <div class="bar-track">
-                <div class="bar-fill" style="width: 35%"></div>
+                <div class="bar-fill" [style.width.%]="getMacroPercentage('protein')"></div>
               </div>
             </div>
-
+ 
             <div class="macro-bar-item carbs">
               <div class="bar-header">
-                <span>Carbohydrates</span>
-                <strong>{{ activeDiet.macros.carbs }}g</strong>
+                <span class="macro-label-name">Carbohydrates</span>
+                <strong>{{ activeDiet.macros.carbs }}g <span class="macro-pct-label">({{ getMacroPercentage('carbs') }}%)</span></strong>
               </div>
               <div class="bar-track">
-                <div class="bar-fill" style="width: 50%"></div>
+                <div class="bar-fill" [style.width.%]="getMacroPercentage('carbs')"></div>
               </div>
             </div>
-
+ 
             <div class="macro-bar-item fats">
               <div class="bar-header">
-                <span>Fats</span>
-                <strong>{{ activeDiet.macros.fats }}g</strong>
+                <span class="macro-label-name">Fats</span>
+                <strong>{{ activeDiet.macros.fats }}g <span class="macro-pct-label">({{ getMacroPercentage('fats') }}%)</span></strong>
               </div>
               <div class="bar-track">
-                <div class="bar-fill" style="width: 25%"></div>
+                <div class="bar-fill" [style.width.%]="getMacroPercentage('fats')"></div>
               </div>
             </div>
           </div>
@@ -82,4 +85,21 @@
       </div>
     </div>
   </div>
+
+  <ng-template #noDietState>
+    <div class="no-diet-container glass-card animate-fade-in">
+      <div class="no-diet-card">
+        <div class="icon-circle">
+          <i class="fa-solid fa-apple-whole"></i>
+        </div>
+        <h2>No Active Diet Plan Prescribed</h2>
+        <p class="no-diet-message">
+          You haven't assigned a nutrition or diet plan to this member yet. A structured nutrition plan is key to achieving optimal results.
+        </p>
+        <button class="btn-primary" (click)="onOpenAssignModal()">
+          <i class="fa-solid fa-plus"></i> Prescribe Diet Plan
+        </button>
+      </div>
+    </div>
+  </ng-template>
 </div>

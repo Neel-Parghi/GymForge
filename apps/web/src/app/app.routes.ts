@@ -122,6 +122,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/trainer/workout-planner/workout-planner.component').then(m => m.WorkoutPlannerComponent)
       },
       {
+        path: 'diet-planner',
+        loadComponent: () => import('./features/trainer/diet-planner/diet-planner.component').then(m => m.PTDietPlannerComponent)
+      },
+      {
         path: 'health-track',
         loadComponent: () => import('./features/trainer/health-track/health-track.component').then(m => m.HealthTrackerComponent)
       },

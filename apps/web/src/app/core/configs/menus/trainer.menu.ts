@@ -32,6 +32,12 @@ export const TrainerMenu: NavItem[] = [
         roles: ['Trainer']
     },
     {
+        label: 'Diet Planner',
+        icon: 'fa-solid fa-apple-whole',
+        route: '/trainer/diet-planner',
+        roles: ['Trainer']
+    },
+    {
         label: 'Health Tracker',
         icon: 'fa-solid fa-heart-pulse',
         route: '/trainer/health-track',

@@ -1,95 +1,106 @@
 <div class="tab-pane-content">
-  <div class="progress-tab-layout">
-    <div class="form-panel glass-card">
-      <h3>Record Health Measurement</h3>
-      <form [formGroup]="measurementForm" (ngSubmit)="submitProgress()" class="premium-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Weight (kg) <span class="required">*</span></label>
-            <input type="number" formControlName="weight" class="form-input" placeholder="e.g. 75.4" step="0.1">
-            <span class="error-msg"
-              *ngIf="measurementForm.get('weight')?.touched && measurementForm.get('weight')?.invalid">Provide
-              weight between 20-300kg.</span>
-          </div>
-
-          <div class="form-group">
-            <label>Height (cm) <span class="required">*</span></label>
-            <input type="number" formControlName="height" class="form-input" placeholder="e.g. 175">
-            <span class="error-msg"
-              *ngIf="measurementForm.get('height')?.touched && measurementForm.get('height')?.invalid">Provide
-              height between 50-250cm.</span>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Body Fat Percentage (%)</label>
-            <input type="number" formControlName="bodyFatPercentage" class="form-input" placeholder="e.g. 14.2"
-              step="0.1">
-            <span class="error-msg"
-              *ngIf="measurementForm.get('bodyFatPercentage')?.touched && measurementForm.get('bodyFatPercentage')?.invalid">Provide
-              fat % between 1-80.</span>
-          </div>
-
-          <div class="form-group">
-            <label>Calculated BMI</label>
-            <div class="bmi-display-card" [ngClass]="getBmiCategoryClass()">
-              <span class="bmi-value" *ngIf="measurementForm.get('bmi')?.value; else noBmi">
-                {{ measurementForm.get('bmi')?.value }}
-                <span class="bmi-category-label">({{ getBmiCategoryText() }})</span>
-              </span>
-              <ng-template #noBmi>
-                <span class="bmi-placeholder">Enter weight & height to calculate</span>
-              </ng-template>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Trainer Notes / Directives</label>
-          <textarea formControlName="notes" class="form-input textarea"
-            placeholder="Add specific guidance or feedback on client posture/progress..."></textarea>
-        </div>
-
-        <button type="submit" class="btn-submit" [disabled]="isSubmittingProgress">
-          <i class="fa-solid fa-save" *ngIf="!isSubmittingProgress"></i>
-          <div class="small-spinner" *ngIf="isSubmittingProgress"></div>
-          <span>Log Measurement</span>
-        </button>
-      </form>
+  <div class="health-tracker-panel glass-card">
+    <div class="panel-header">
+      <div class="header-left">
+        <h3>Health & Progress Tracker</h3>
+        <p class="subtitle">Record and view body composition metrics</p>
+      </div>
     </div>
 
-    <div class="logs-panel glass-card">
-      <h3>Measurement History Logs</h3>
-      <div class="logs-timeline" *ngIf="measurements.length > 0">
-        <div class="log-card" *ngFor="let log of measurements">
-          <div class="log-header">
-            <span class="log-date"><i class="fa-solid fa-calendar-check"></i> {{ log.date | date:'mediumDate'
-              }}</span>
-            <span class="bmi-badge" [ngClass]="getBmiClass(log.bmi)">BMI: {{ log.bmi }}</span>
+    <div class="progress-tab-layout">
+      <!-- Left: Form Panel -->
+      <div class="form-panel">
+        <h4 class="section-title"><i class="fa-solid fa-pen-to-square"></i> Record Measurement</h4>
+        <form [formGroup]="measurementForm" (ngSubmit)="submitProgress()" class="premium-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Weight (kg) <span class="required">*</span></label>
+              <input type="number" formControlName="weight" class="form-input" placeholder="e.g. 75.4" step="0.1">
+              <span class="error-msg"
+                *ngIf="measurementForm.get('weight')?.touched && measurementForm.get('weight')?.invalid">Provide
+                weight between 20-300kg.</span>
+            </div>
+
+            <div class="form-group">
+              <label>Height (cm) <span class="required">*</span></label>
+              <input type="number" formControlName="height" class="form-input" placeholder="e.g. 175">
+              <span class="error-msg"
+                *ngIf="measurementForm.get('height')?.touched && measurementForm.get('height')?.invalid">Provide
+                height between 50-250cm.</span>
+            </div>
           </div>
 
-          <div class="metrics-grid">
-            <div class="metric-item">
-              <span class="label">Weight</span>
-              <span class="value">{{ log.weight }} kg</span>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Body Fat Percentage (%)</label>
+              <input type="number" formControlName="bodyFatPercentage" class="form-input" placeholder="e.g. 14.2"
+                step="0.1">
+              <span class="error-msg"
+                *ngIf="measurementForm.get('bodyFatPercentage')?.touched && measurementForm.get('bodyFatPercentage')?.invalid">Provide
+                fat % between 1-80.</span>
             </div>
-            <div class="metric-item">
-              <span class="label">Height</span>
-              <span class="value">{{ log.height }} cm</span>
-            </div>
-            <div class="metric-item">
-              <span class="label">Body Fat</span>
-              <span class="value">{{ log.bodyFatPercentage }}%</span>
+
+            <div class="form-group">
+              <label>Calculated BMI</label>
+              <div class="bmi-display-card" [ngClass]="getBmiCategoryClass()">
+                <span class="bmi-value" *ngIf="measurementForm.get('bmi')?.value; else noBmi">
+                  {{ measurementForm.get('bmi')?.value }}
+                  <span class="bmi-category-label">({{ getBmiCategoryText() }})</span>
+                </span>
+                <ng-template #noBmi>
+                  <span class="bmi-placeholder">Enter weight & height</span>
+                </ng-template>
+              </div>
             </div>
           </div>
 
-          <p class="log-notes" *ngIf="log.notes">{{ log.notes }}</p>
-        </div>
+          <div class="form-group">
+            <label>Trainer Notes / Directives</label>
+            <textarea formControlName="notes" class="form-input textarea"
+              placeholder="Add specific guidance or feedback on client posture/progress..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" [disabled]="isSubmittingProgress">
+            <i class="fa-solid fa-save" *ngIf="!isSubmittingProgress"></i>
+            <div class="small-spinner" *ngIf="isSubmittingProgress"></div>
+            <span>Log Measurement</span>
+          </button>
+        </form>
       </div>
 
-      <div class="empty-state" *ngIf="measurements.length === 0">
-        <p>No measurement history logs found for this client.</p>
+      <!-- Right: Logs Panel -->
+      <div class="logs-panel">
+        <h4 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Measurement History</h4>
+        <div class="logs-timeline" *ngIf="measurements.length > 0">
+          <div class="log-card" *ngFor="let log of measurements">
+            <div class="log-header">
+              <span class="log-date"><i class="fa-solid fa-calendar-check"></i> {{ log.date | date:'mediumDate'
+                }}</span>
+              <span class="bmi-badge" [ngClass]="getBmiClass(log.bmi)">BMI: {{ log.bmi }}</span>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <span class="label">Weight</span>
+                <span class="value">{{ log.weight }} kg</span>
+              </div>
+              <div class="metric-item">
+                <span class="label">Height</span>
+                <span class="value">{{ log.height }} cm</span>
+              </div>
+              <div class="metric-item">
+                <span class="label">Body Fat</span>
+                <span class="value">{{ log.bodyFatPercentage ? log.bodyFatPercentage + '%' : '--' }}</span>
+              </div>
+            </div>
+
+            <p class="log-notes" *ngIf="log.notes">{{ log.notes }}</p>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="measurements.length === 0">
+          <p>No measurement history logs found for this client.</p>
+        </div>
       </div>
     </div>
   </div>
