@@ -9,15 +9,8 @@
     </button>
   </header>
 
-  <!-- Client Grid/Table Glass Card -->
-  <!-- <div class="glass-card table-wrapper"> -->
-  <div class="loading-state" *ngIf="isLoading">
-    <div class="spinner"></div>
-    <p>Synchronizing assigned client roster...</p>
-  </div>
-
-  <app-data-grid *ngIf="!isLoading" [config]="gridConfig" [data]="assignedMembers" [totalItems]="assignedMembers.length"
-    [pageSize]="10" [currentPage]="1" (actionEvent)="onGridAction($event)">
+  <app-data-grid [config]="gridConfig" [data]="assignedMembers" [totalItems]="assignedMembers.length" [pageSize]="10"
+    [currentPage]="1" (actionEvent)="onGridAction($event)">
 
     <!-- Custom column template for Preferred Slot -->
     <ng-template [gridCell]="'assignedSlot'" let-row>
@@ -38,5 +31,4 @@
       </div>
     </ng-template>
   </app-data-grid>
-  <!-- </div> -->
 </div>

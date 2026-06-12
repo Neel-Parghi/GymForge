@@ -6,7 +6,9 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { WorkoutPlanService } from '../../../core/services/workout-plan.service';
 import { MemberService } from '../../../core/services/member.service';
+import { DietPlanService } from '../../../core/services/diet-plan.service';
 import { WorkoutPlan, SplitPlanner, WeeklyPlanner, DailyPlanner } from '../../../shared/models/workout-plan.model';
+import { CONSTANTS } from '../../../core/constants/constants';
 import { PTMemberDetailOverviewComponent } from './components/member-detail-overview/member-detail-overview';
 import { PTMemberDetailTrackPerformanceComponent } from './components/member-detail-track-performance/member-detail-track-performance';
 import { PTMemberDetailWorkoutCalendarComponent } from './components/member-detail-workout-calendar/member-detail-workout-calendar';
@@ -35,6 +37,7 @@ export class PTMemberDetailComponent implements OnInit {
   private notification = inject(NotificationService);
   private workoutPlanService = inject(WorkoutPlanService);
   private memberService = inject(MemberService);
+  private dietPlanService = inject(DietPlanService);
 
   memberId = '';
   memberInfo: any = null;
@@ -54,23 +57,13 @@ export class PTMemberDetailComponent implements OnInit {
   showAssignSplitModal = false;
   showAssignDietModal = false;
 
-  // Active workout split mock data
+  // Active workout split
   activeSplit: any = null;
   planAssignments: any[] = [];
 
-  // Active Diet split mock data
-  activeDiet = {
-    planName: 'Lean Bulking 3000 kcal Plan',
-    calories: 3000,
-    macros: { protein: 180, carbs: 360, fats: 80 },
-    meals: [
-      { name: 'Meal 1: Breakfast (08:00 AM)', calories: 650, items: '100g Rolled Oats, 4 Egg Whites, 1 Scoop Whey Protein, 1 Banana, 15g Almonds' },
-      { name: 'Meal 2: Mid-Day Snack (11:30 AM)', calories: 400, items: '200g Greek Yogurt (0% Fat), 100g Berries, 30g Honey' },
-      { name: 'Meal 3: Lunch (02:00 PM)', calories: 750, items: '150g Grilled Chicken Breast, 150g Basmati Rice, Steamed Broccoli, 1 tbsp Olive Oil' },
-      { name: 'Meal 4: Post-Workout (06:00 PM)', calories: 500, items: '2 Scoops Hydrolyzed Whey, 75g Cream of Rice, 1 Apple' },
-      { name: 'Meal 5: Dinner (08:30 PM)', calories: 700, items: '150g Salmon Fillet, 200g Baked Sweet Potatoes, Asparagus' }
-    ]
-  };
+  // Active Diet plan (loaded from API)
+  activeDiet: any = null;
+  dietPlans: any[] = [];
 
   // Live Sets tracker mock checklist
   todayWorkout: any = null;
@@ -82,6 +75,8 @@ export class PTMemberDetailComponent implements OnInit {
       this.loadMeasurementsLogs();
       this.loadWorkoutPlans();
       this.loadActivePlanAndWorkoutLogs();
+      this.loadDietPlans();
+      this.loadActiveDiet();
     });
   }
 
@@ -161,12 +156,10 @@ export class PTMemberDetailComponent implements OnInit {
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const todayName = daysOfWeek[new Date().getDay()];
 
-    // 1. Find matching day in activeSplit
     let templateDay = this.activeSplit.days.find((d: any) =>
       d.dayName && d.dayName.toLowerCase().includes(todayName.toLowerCase())
     );
 
-    // 2. Sequential fallback for abstract splits (Day 1, Day 2, etc.) mapped to Mon/Wed/Fri
     if (!templateDay && this.activeSplit.days.length > 0) {
       const isAbstractSplit = !this.activeSplit.days.some((d: any) =>
         daysOfWeek.some(w => d.dayName.toLowerCase().includes(w.toLowerCase()))
@@ -228,7 +221,7 @@ export class PTMemberDetailComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to save recurring override:', err);
-          this.notification.error('Failed to save recurring override schedule.');
+          this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.SAVE_RECURRING_OVERRIDE_ERROR);
         }
       });
     } else {
@@ -268,7 +261,7 @@ export class PTMemberDetailComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to save override log:', err);
-          this.notification.error('Failed to save override schedule to backend.');
+          this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.SAVE_OVERRIDE_ERROR);
         }
       });
     }
@@ -284,7 +277,6 @@ export class PTMemberDetailComponent implements OnInit {
   onLogDateWorkout(event: { date: Date, routineName: string, templateDayName?: string }): void {
     this.loggingDate = event.date;
 
-    // Find matching routine from split or overrides
     const dateStr = this.getDateKeyFor(event.date);
     const override = this.workoutOverrides[dateStr];
 
@@ -329,21 +321,23 @@ export class PTMemberDetailComponent implements OnInit {
     }
 
     this.setTab('workout-track');
-    this.notification.info(`Ready to log workout for: ${event.date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}`);
+    this.notification.info(CONSTANTS.MEMBER_DETAIL_MODULE.LOG_WORKOUT_READY_PREFIX + event.date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }));
   }
 
   onEditWorkoutSession(session: any): void {
     this.loggingDate = new Date(session.date);
 
-    const exercises = session.loggedExercises || session.exercises || [];
+    const rawExercises = session.loggedExercises || session.exercises || [];
+    const sortedExercises = [...rawExercises].sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
     this.todayWorkout = {
       dayName: session.dayName,
       isRestDay: session.dayName?.toLowerCase().includes('rest') || false,
-      exercises: exercises.map((ex: any) => {
+      exercises: sortedExercises.map((ex: any) => {
         const sets = [...(ex.loggedSets || ex.sets || [])].sort((a: any, b: any) => (a.setNo || 0) - (b.setNo || 0));
         return {
           name: ex.name,
           skipped: ex.skipped || false,
+          isCardio: ex.isCardio || false,
           sets: sets.map((s: any) => ({
             setNo: s.setNo,
             target: s.target || `${s.reps || 10} reps`,
@@ -356,7 +350,7 @@ export class PTMemberDetailComponent implements OnInit {
     };
 
     this.setTab('workout-track');
-    this.notification.info(`Editing workout session for: ${this.loggingDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}`);
+    this.notification.info(CONSTANTS.MEMBER_DETAIL_MODULE.EDIT_WORKOUT_PREFIX + this.loggingDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }));
   }
 
   loadWorkoutPlans(): void {
@@ -386,24 +380,12 @@ export class PTMemberDetailComponent implements OnInit {
       if (profile) {
         this.staffService.getAssignedMembers(profile.id).subscribe({
           next: (res: any) => {
-            let list = res?.data || [];
-            if (list.length === 0) {
-              list = [
-                { memberId: 'm-01', firstName: 'Neel', lastName: 'Parghi', email: 'neel@gymforge.com', membershipNumber: 'MEM-87265', assignedSlot: '07:00 AM', assignedDate: new Date(), status: 'Active' },
-                { memberId: 'm-02', firstName: 'Aarav', lastName: 'Mehta', email: 'aarav@gymforge.com', membershipNumber: 'MEM-19028', assignedSlot: '09:00 AM', assignedDate: new Date(), status: 'Active' },
-                { memberId: 'm-03', firstName: 'Rohan', lastName: 'Sharma', email: 'rohan@gymforge.com', membershipNumber: 'MEM-33049', assignedSlot: '11:00 AM', assignedDate: new Date(), status: 'Expired' }
-              ];
-            }
-            this.memberInfo = list.find((m: any) => m.memberId === this.memberId) || list[0];
+            const list = res?.data || [];
+            this.memberInfo = list.find((m: any) => m.memberId === this.memberId) || null;
           },
           error: (err) => {
-            console.error('Error fetching member details, using premium mock fallback:', err);
-            const list = [
-              { memberId: 'm-01', firstName: 'Neel', lastName: 'Parghi', email: 'neel@gymforge.com', membershipNumber: 'MEM-87265', assignedSlot: '07:00 AM', assignedDate: new Date(), status: 'Active' },
-              { memberId: 'm-02', firstName: 'Aarav', lastName: 'Mehta', email: 'aarav@gymforge.com', membershipNumber: 'MEM-19028', assignedSlot: '09:00 AM', assignedDate: new Date(), status: 'Active' },
-              { memberId: 'm-03', firstName: 'Rohan', lastName: 'Sharma', email: 'rohan@gymforge.com', membershipNumber: 'MEM-33049', assignedSlot: '11:00 AM', assignedDate: new Date(), status: 'Expired' }
-            ];
-            this.memberInfo = list.find((m: any) => m.memberId === this.memberId) || list[0];
+            console.error('Error fetching member details:', err);
+            this.memberInfo = null;
           }
         });
       }
@@ -416,20 +398,10 @@ export class PTMemberDetailComponent implements OnInit {
       next: (res: any) => {
         this.measurements = res?.data || [];
         this.measurements.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        if (this.measurements.length === 0) {
-          this.measurements = [
-            { id: 'm-log-1', weight: 78.5, height: 178, bodyFatPercentage: 14.5, bmi: 24.8, date: new Date(Date.now() - 86400000 * 30), recordedBy: 'Sam Trainer' },
-            { id: 'm-log-2', weight: 81.2, height: 178, bodyFatPercentage: 16.2, bmi: 25.6, date: new Date(Date.now() - 86400000 * 60), recordedBy: 'Sam Trainer' }
-          ];
-        }
         this.isLoadingLogs = false;
       },
       error: () => {
-        this.measurements = [
-          { id: 'm-log-1', weight: 78.5, height: 178, bodyFatPercentage: 14.5, bmi: 24.8, date: new Date(Date.now() - 86400000 * 30), recordedBy: 'Sam Trainer' },
-          { id: 'm-log-2', weight: 81.2, height: 178, bodyFatPercentage: 16.2, bmi: 25.6, date: new Date(Date.now() - 86400000 * 60), recordedBy: 'Sam Trainer' }
-        ];
+        this.measurements = [];
         this.isLoadingLogs = false;
       }
     });
@@ -442,26 +414,31 @@ export class PTMemberDetailComponent implements OnInit {
       height: formVal.height,
       bodyFatPercentage: formVal.bodyFatPercentage || undefined,
       bmi: formVal.bmi || undefined,
-      notes: formVal.notes || undefined
+      notes: formVal.notes || undefined,
+      isAdvanced: formVal.isAdvanced || false,
+      neck: formVal.neck || undefined,
+      shoulders: formVal.shoulders || undefined,
+      chest: formVal.chest || undefined,
+      leftBicep: formVal.leftBicep || undefined,
+      rightBicep: formVal.rightBicep || undefined,
+      leftForearm: formVal.leftForearm || undefined,
+      rightForearm: formVal.rightForearm || undefined,
+      upperAbs: formVal.upperAbs || undefined,
+      lowerAbs: formVal.lowerAbs || undefined,
+      waist: formVal.waist || undefined,
+      hips: formVal.hips || undefined,
+      leftThigh: formVal.leftThigh || undefined,
+      rightThigh: formVal.rightThigh || undefined,
+      leftCalf: formVal.leftCalf || undefined,
+      rightCalf: formVal.rightCalf || undefined
     }).subscribe({
       next: () => {
-        this.notification.success('Progress record added!');
+        this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.PROGRESS_RECORD_ADDED);
         this.loadMeasurementsLogs();
         this.isSubmittingProgress = false;
       },
       error: () => {
-        const mockLog = {
-          id: 'm-log-' + (this.measurements.length + 1),
-          weight: formVal.weight,
-          height: formVal.height,
-          bodyFatPercentage: formVal.bodyFatPercentage || 15.0,
-          bmi: formVal.bmi || 24.5,
-          date: new Date(),
-          recordedBy: 'Sam Trainer',
-          notes: formVal.notes || undefined
-        };
-        this.measurements = [mockLog, ...this.measurements];
-        this.notification.success('Progress record saved (Mock mode)!');
+        this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.PROGRESS_RECORD_ERROR);
         this.isSubmittingProgress = false;
       }
     });
@@ -537,16 +514,15 @@ export class PTMemberDetailComponent implements OnInit {
 
   saveWorkoutSession(): void {
     const isRest = this.todayWorkout.isRestDay || this.todayWorkout.dayName?.toLowerCase().includes('rest');
-    let activeExercises = [];
 
     if (!isRest) {
-      activeExercises = this.todayWorkout.exercises.filter((ex: any) => !ex.skipped);
-      const completedSetsCount = activeExercises.reduce(
+      const nonSkippedExercises = this.todayWorkout.exercises.filter((ex: any) => !ex.skipped);
+      const completedSetsCount = nonSkippedExercises.reduce(
         (sum: number, ex: any) => sum + ex.sets.filter((s: any) => s.completed).length, 0
       );
 
       if (completedSetsCount === 0) {
-        this.notification.warning('Please log at least one completed set before logging the session.');
+        this.notification.warning(CONSTANTS.MEMBER_DETAIL_MODULE.MIN_COMPLETED_SET_WARNING);
         return;
       }
     }
@@ -556,9 +532,12 @@ export class PTMemberDetailComponent implements OnInit {
       dayName: this.todayWorkout.dayName,
       status: isRest ? 'RestDay' : 'Completed',
       notes: isRest ? 'Rest Day logged from tracker' : '',
-      loggedExercises: isRest ? [] : activeExercises.map((ex: any) => ({
+      loggedExercises: isRest ? [] : this.todayWorkout.exercises.map((ex: any, idx: number) => ({
         name: ex.name,
-        loggedSets: ex.sets.map((s: any) => ({
+        skipped: ex.skipped || false,
+        sortOrder: idx,
+        isCardio: ex.isCardio || false,
+        loggedSets: ex.skipped ? [] : ex.sets.map((s: any) => ({
           setNo: s.setNo,
           weight: s.weight || 0,
           reps: s.reps || 0,
@@ -569,7 +548,7 @@ export class PTMemberDetailComponent implements OnInit {
 
     this.memberService.logWorkoutSession(this.memberId, payload).subscribe({
       next: () => {
-        this.notification.success(`Successfully logged workout session!`);
+        this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.LOG_WORKOUT_SUCCESS);
         this.loadActivePlanAndWorkoutLogs();
         this.loggingDate = new Date();
         if (this.previousTab === 'workout-calendar') {
@@ -577,7 +556,7 @@ export class PTMemberDetailComponent implements OnInit {
         }
       },
       error: () => {
-        this.notification.error('Failed to log workout session to database.');
+        this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.LOG_WORKOUT_ERROR);
       }
     });
   }
@@ -592,13 +571,12 @@ export class PTMemberDetailComponent implements OnInit {
 
   assignWorkoutSplit(plan: WorkoutPlan | string): void {
     if (typeof plan === 'string') {
-      // Mock split plan
-      this.notification.warning('Cannot assign custom string plans in dynamic mode.');
+      this.notification.warning(CONSTANTS.MEMBER_DETAIL_MODULE.CANNOT_ASSIGN_CUSTOM_PLAN_WARNING);
     } else {
       if (plan.id) {
         this.memberService.assignPlan(this.memberId, plan.id).subscribe({
           next: () => {
-            this.notification.success(`Assigned ${plan.name} to member!`);
+            this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_PLAN_SUCCESS_PREFIX + plan.name + CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_PLAN_SUCCESS_SUFFIX);
 
             const todayStr = this.getTodayDateKey();
             const todayDate = new Date(todayStr);
@@ -613,17 +591,58 @@ export class PTMemberDetailComponent implements OnInit {
             this.loadActivePlanAndWorkoutLogs();
           },
           error: () => {
-            this.notification.error('Failed to assign plan on backend.');
+            this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_PLAN_ERROR);
           }
         });
       } else {
-        this.notification.error('Invalid Workout Plan ID.');
+        this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.INVALID_PLAN_ID_ERROR);
       }
     }
     this.closeAssignSplitModal();
   }
 
+  loadDietPlans(): void {
+    this.dietPlanService.getPlans().subscribe({
+      next: (plans) => {
+        this.dietPlans = plans || [];
+      },
+      error: (err) => {
+        console.error('Failed to load diet plans:', err);
+        this.dietPlans = [];
+      }
+    });
+  }
+
+  loadActiveDiet(): void {
+    this.memberService.getActiveDiet(this.memberId).subscribe({
+      next: (res: any) => {
+        const assignment = res?.data;
+        if (assignment?.dietPlan) {
+          const dp = assignment.dietPlan;
+          this.activeDiet = {
+            planName: dp.name,
+            calories: dp.calories,
+            macros: { protein: dp.protein, carbs: dp.carbs, fats: dp.fats },
+            meals: (dp.meals || []).map((m: any) => ({
+              name: m.name,
+              time: m.time,
+              calories: m.calories,
+              protein: m.protein,
+              items: m.items
+            }))
+          };
+        } else {
+          this.activeDiet = null;
+        }
+      },
+      error: () => {
+        this.activeDiet = null;
+      }
+    });
+  }
+
   openAssignDietModal(): void {
+    this.loadDietPlans();
     this.showAssignDietModal = true;
   }
 
@@ -631,15 +650,29 @@ export class PTMemberDetailComponent implements OnInit {
     this.showAssignDietModal = false;
   }
 
-  assignDietPlan(planName: string, calories: number, protein: number, carbs: number, fats: number): void {
-    this.activeDiet = {
-      planName: planName,
-      calories: calories,
-      macros: { protein, carbs, fats },
-      meals: this.activeDiet.meals // Keep meals constant for mock demo
-    };
-    this.notification.success(`Assigned ${planName} diet template to ${this.memberInfo?.firstName}!`);
-    this.closeAssignDietModal();
+  assignDietPlan(plan: any): void {
+    this.memberService.assignDiet(this.memberId, plan.id).subscribe({
+      next: () => {
+        this.activeDiet = {
+          planName: plan.name,
+          calories: plan.calories,
+          macros: { protein: plan.protein, carbs: plan.carbs, fats: plan.fats },
+          meals: (plan.meals || []).map((m: any) => ({
+            name: m.name,
+            time: m.time,
+            calories: m.calories,
+            protein: m.protein,
+            items: m.items
+          }))
+        };
+        this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_SUCCESS_PREFIX + plan.name + CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_SUCCESS_MID + this.memberInfo?.firstName + CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_SUCCESS_SUFFIX);
+        this.closeAssignDietModal();
+      },
+      error: (err) => {
+        console.error('Failed to assign diet plan:', err);
+        this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_ERROR);
+      }
+    });
   }
 
   goBack(): void {

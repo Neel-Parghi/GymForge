@@ -72,8 +72,8 @@
     <i class="fa-solid fa-apple-whole"></i>
     <h2>No Diet Templates Found</h2>
     <p>Get started by creating your first reusable nutrition diet template.</p>
-    <button class="btn-primary btn-small mt-15" (click)="openCreateModal()">
-      <i class="fa-solid fa-plus"></i> Create Template
+    <button class="btn-primary mt-15" (click)="openCreateModal()">
+      Create Template
     </button>
   </div>
 
@@ -132,8 +132,8 @@
           <div class="meal-card">
             <div class="meal-card-header">
               <div class="meal-name-group">
-                <span class="tc-time"><i class="fa-regular fa-clock"></i> {{ getMealTime(m.name) }}</span>
-                <h4 class="tc-name">{{ getMealTitle(m.name) || 'Meal ' + (i + 1) }}</h4>
+                <span class="tc-time"><i class="fa-regular fa-clock"></i> {{ getMealTime(m) }}</span>
+                <h4 class="tc-name">{{ getMealTitle(m) || 'Meal ' + (i + 1) }}</h4>
               </div>
               <div class="tc-badges">
                 <span class="tc-badge kcal"><i class="fa-solid fa-fire"></i> {{ m.calories }} kcal</span>

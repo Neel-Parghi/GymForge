@@ -95,12 +95,20 @@
               </span>
             </div>
 
-            <!-- Skip Toggle Switch -->
-            <button class="btn-skip-toggle" [class.active-skip]="selectedEx.skipped"
-              (click)="toggleExerciseSkipped(selectedEx)">
-              <i class="fa-solid" [ngClass]="selectedEx.skipped ? 'fa-play' : 'fa-ban'"></i>
-              {{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}
-            </button>
+            <!-- Skip Toggle Switch & Mode Toggle -->
+            <div class="console-actions-group" style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn-skip-toggle" (click)="toggleExerciseMode(selectedEx)"
+                title="Toggle between Strength and Cardio tracking mode">
+                <i class="fa-solid" [ngClass]="selectedEx.isCardio ? 'fa-dumbbell' : 'fa-person-running'"></i>
+                {{ selectedEx.isCardio ? 'Strength Mode' : 'Cardio Mode' }}
+              </button>
+
+              <button class="btn-skip-toggle" [class.active-skip]="selectedEx.skipped"
+                (click)="toggleExerciseSkipped(selectedEx)">
+                <i class="fa-solid" [ngClass]="selectedEx.skipped ? 'fa-play' : 'fa-ban'"></i>
+                {{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}
+              </button>
+            </div>
           </div>
 
           <!-- Skipped Overlay Message -->
@@ -119,12 +127,12 @@
           <div class="console-logging-area" *ngIf="!selectedEx.skipped">
 
             <!-- Table Header -->
-            <div class="set-logger-table">
+            <div class="set-logger-table" [class.cardio-table]="selectedEx.isCardio">
               <div class="table-thead">
                 <div class="th-cell col-set">Set</div>
-                <div class="th-cell col-target">Target Goal</div>
-                <div class="th-cell col-weight">Weight (kg)</div>
-                <div class="th-cell col-reps">Reps</div>
+                <div class="th-cell col-target" *ngIf="!selectedEx.isCardio">Target Goal</div>
+                <div class="th-cell col-weight">{{ selectedEx.isCardio ? 'Distance (km)' : 'Weight (kg)' }}</div>
+                <div class="th-cell col-reps">{{ selectedEx.isCardio ? 'Duration (mins)' : 'Reps' }}</div>
                 <div class="th-cell col-status">Status</div>
                 <div class="th-cell col-actions">Remove</div>
               </div>
@@ -138,7 +146,7 @@
                     <span class="set-num-badge">Set {{ s.setNo }}</span>
                   </div>
 
-                  <div class="td-cell col-target">
+                  <div class="td-cell col-target" *ngIf="!selectedEx.isCardio">
                     <span class="target-text">{{ s.target }}</span>
                   </div>
 
@@ -146,11 +154,11 @@
                     <div class="premium-num-input" *ngIf="!s.completed">
                       <input type="number"
                         [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0"
-                        placeholder="0">
-                      <span class="unit">kg</span>
+                        placeholder="0" step="0.1">
+                      <span class="unit">{{ selectedEx.isCardio ? 'km' : 'kg' }}</span>
                     </div>
-                    <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span
-                        class="unit">kg</span></span>
+                    <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span class="unit">{{
+                        selectedEx.isCardio ? 'km' : 'kg' }}</span></span>
                   </div>
 
                   <div class="td-cell col-reps">
@@ -158,10 +166,10 @@
                       <input type="number"
                         [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0"
                         placeholder="0">
-                      <span class="unit">reps</span>
+                      <span class="unit">{{ selectedEx.isCardio ? 'mins' : 'reps' }}</span>
                     </div>
-                    <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span
-                        class="unit">reps</span></span>
+                    <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span class="unit">{{
+                        selectedEx.isCardio ? 'mins' : 'reps' }}</span></span>
                   </div>
 
                   <div class="td-cell col-status">

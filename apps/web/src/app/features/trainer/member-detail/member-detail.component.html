@@ -52,8 +52,8 @@
         (editWorkout)="onEditWorkoutSession($event)">
       </app-member-detail-workout-calendar>
 
-      <app-member-detail-diet-chart *ngIf="activeTab === 'diet-chart'" [activeDiet]="activeDiet"
-        (openAssignModal)="openAssignDietModal()">
+      <app-member-detail-diet-chart *ngIf="activeTab === 'diet-chart'" [activeDiet]="activeDiet" [memberId]="memberId"
+        [memberInfo]="memberInfo" (openAssignModal)="openAssignDietModal()" (customDietSaved)="loadActiveDiet()">
       </app-member-detail-diet-chart>
 
       <app-member-detail-health-tracker *ngIf="activeTab === 'progress'" [measurements]="measurements"
@@ -74,9 +74,7 @@
       <div class="modal-body-list">
         <p class="modal-desc">Select a workout split plan to assign to {{ memberInfo.firstName }}</p>
 
-        <!-- Custom Workout Plans -->
-        <ng-container *ngIf="workoutPlans.length > 0">
-          <div class="section-label">Your Custom Plans</div>
+        <ng-container *ngIf="workoutPlans.length > 0; else noWorkoutPlans">
           <div class="assign-template-item custom-plan-item" *ngFor="let plan of workoutPlans"
             (click)="assignWorkoutSplit(plan)">
             <div class="item-left">
@@ -85,30 +83,14 @@
             </div>
             <i class="fa-solid fa-chevron-right arrow-icon"></i>
           </div>
-          <div class="section-label standard-label">Standard Templates</div>
         </ng-container>
 
-        <div class="assign-template-item" (click)="assignWorkoutSplit('3-Day Push-Pull-Legs (PPL)')">
-          <div class="item-left">
-            <strong>3-Day Push-Pull-Legs (PPL)</strong>
-            <span>3 Days/Week • Intermediate • Hypertrophy</span>
+        <ng-template #noWorkoutPlans>
+          <div class="empty-state" style="padding: 24px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-dumbbell" style="font-size: 1.5rem; margin-bottom: 8px; opacity: 0.5;"></i>
+            <p>No workout plans created yet. Go to the Workout Planner to create templates.</p>
           </div>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
-        <div class="assign-template-item" (click)="assignWorkoutSplit('4-Day Strength & Power Split')">
-          <div class="item-left">
-            <strong>4-Day Strength & Power Split</strong>
-            <span>4 Days/Week • Advanced • Strength</span>
-          </div>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
-        <div class="assign-template-item" (click)="assignWorkoutSplit('Kettlebell Shred & Condition')">
-          <div class="item-left">
-            <strong>Kettlebell Shred & Condition</strong>
-            <span>2 Days/Week • Beginner • Fat Loss</span>
-          </div>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
+        </ng-template>
       </div>
     </div>
   </div>
@@ -122,28 +104,24 @@
       </div>
       <div class="modal-body-list">
         <p class="modal-desc">Select a nutrition meal guide template to assign to {{ memberInfo.firstName }}</p>
-        <div class="assign-template-item" (click)="assignDietPlan('Lean Bulking 3000 kcal Plan', 3000, 180, 360, 80)">
-          <div class="item-left">
-            <strong>Lean Bulking 3000 kcal Plan</strong>
-            <span>3000 kcal • Macros: 180g P / 360g C / 80g F • Muscle Gain</span>
+
+        <ng-container *ngIf="dietPlans.length > 0; else noDietPlans">
+          <div class="assign-template-item" *ngFor="let plan of dietPlans" (click)="assignDietPlan(plan)">
+            <div class="item-left">
+              <strong>{{ plan.name }}</strong>
+              <span>{{ plan.calories }} kcal • {{ plan.protein }}g P / {{ plan.carbs }}g C / {{ plan.fats }}g F • {{
+                plan.goal }} • {{ plan.meals?.length || 0 }} meals</span>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow-icon"></i>
           </div>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
-        <div class="assign-template-item" (click)="assignDietPlan('Keto Cut & Shred 1800 kcal', 1800, 140, 20, 125)">
-          <div class="item-left">
-            <strong>Keto Cut & Shred 1800 kcal</strong>
-            <span>1800 kcal • Macros: 140g P / 20g C / 125g F • Fat Loss</span>
+        </ng-container>
+
+        <ng-template #noDietPlans>
+          <div class="empty-state" style="padding: 24px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-apple-whole" style="font-size: 1.5rem; margin-bottom: 8px; opacity: 0.5;"></i>
+            <p>No diet plans created yet. Go to the Diet Planner to create templates.</p>
           </div>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
-        <div class="assign-template-item"
-          (click)="assignDietPlan('Vegetarian High Protein 2200 kcal', 2200, 130, 250, 65)">
-          <div class="item-left">
-            <strong>Vegetarian High Protein 2200 kcal</strong>
-            <span>2200 kcal • Macros: 130g P / 250g C / 65g F • Wellness</span>
-          </div>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
+        </ng-template>
       </div>
     </div>
   </div>

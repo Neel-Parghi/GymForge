@@ -21,12 +21,12 @@
         <div class="active-split-badge">
           Active Plan: <strong>{{ activeSplit.planName }}</strong>
         </div>
-        <button class="btn-primary btn-small" (click)="onAssignSplit()">
+        <button class="btn-primary" (click)="onAssignSplit()">
           Change Split Plan
         </button>
       </div>
       <div class="header-right-actions" *ngIf="!activeSplit">
-        <button class="btn-primary btn-small" (click)="onAssignSplit()">
+        <button class="btn-primary" (click)="onAssignSplit()">
           <i class="fa-solid fa-plus"></i> Assign Workout Plan
         </button>
       </div>
@@ -126,19 +126,25 @@
       </div>
 
       <div class="history-exercises-log-view">
-        <div class="history-ex-card" *ngFor="let ex of selectedSession.exercises">
-          <h5>{{ ex.name }}</h5>
-          <div class="history-sets-table">
+        <div class="history-ex-card" *ngFor="let ex of selectedSession.exercises" [class.skipped-card]="ex.skipped">
+          <div class="ex-card-title-row" style="display: flex; justify-content: space-between; align-items: center;">
+            <h5>{{ ex.name }}</h5>
+            <span *ngIf="ex.skipped" class="badge-skipped"
+              style="background-color: #ffe5e5; color: #ff3b30; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fa-solid fa-ban"></i> Skipped
+            </span>
+          </div>
+          <div class="history-sets-table" *ngIf="!ex.skipped">
             <div class="table-header">
               <span class="col-set">Set</span>
-              <span class="col-weight">Weight</span>
-              <span class="col-reps">Reps</span>
+              <span class="col-weight">{{ ex.isCardio ? 'Distance' : 'Weight' }}</span>
+              <span class="col-reps">{{ ex.isCardio ? 'Time' : 'Reps' }}</span>
               <span class="col-status">Status</span>
             </div>
             <div class="table-row" *ngFor="let s of ex.sets">
               <span class="col-set">Set {{ s.setNo }}</span>
-              <span class="col-weight">{{ s.weight || 0 }} kg</span>
-              <span class="col-reps">{{ s.reps || 0 }} reps</span>
+              <span class="col-weight">{{ s.weight || 0 }} {{ ex.isCardio ? 'km' : 'kg' }}</span>
+              <span class="col-reps">{{ s.reps || 0 }} {{ ex.isCardio ? 'mins' : 'reps' }}</span>
               <span class="col-status">
                 <span class="status-done" *ngIf="s.completed"><i class="fa-solid fa-circle-check"></i> Done</span>
                 <span class="status-missed" *ngIf="!s.completed"><i class="fa-solid fa-circle-xmark"></i> Skipped</span>
@@ -166,29 +172,29 @@
     </div>
 
     <div class="modal-card-body">
-       <div class="modal-form-group">
-         <label>Select Scheduled Routine</label>
-         <app-dropdown [options]="overrideOptions" [formControl]="overrideValueControl" minWidth="100%">
-         </app-dropdown>
-       </div>
- 
-       <div class="modal-form-group mt-15">
-         <label>Override Range</label>
-         <div class="override-scope-group">
-           <label class="scope-label">
-             <input type="radio" name="overrideScope" [formControl]="overrideScopeControl" value="single">
-             Only for this date
-           </label>
-           <label class="scope-label">
-             <input type="radio" name="overrideScope" [formControl]="overrideScopeControl" value="recurring">
-             Apply to all future weeks
-           </label>
-         </div>
-         <span class="input-helper-text">
-           Recurring overrides will update the default weekly schedule day for this plan assignment.
-         </span>
-       </div>
-     </div>
+      <div class="modal-form-group">
+        <label>Select Scheduled Routine</label>
+        <app-dropdown [options]="overrideOptions" [formControl]="overrideValueControl" minWidth="100%">
+        </app-dropdown>
+      </div>
+
+      <div class="modal-form-group mt-15">
+        <label>Override Range</label>
+        <div class="override-scope-group">
+          <label class="scope-label">
+            <input type="radio" name="overrideScope" [formControl]="overrideScopeControl" value="single">
+            Only for this date
+          </label>
+          <label class="scope-label">
+            <input type="radio" name="overrideScope" [formControl]="overrideScopeControl" value="recurring">
+            Apply to all future weeks
+          </label>
+        </div>
+        <span class="input-helper-text">
+          Recurring overrides will update the default weekly schedule day for this plan assignment.
+        </span>
+      </div>
+    </div>
 
     <div class="modal-card-footer">
       <button class="btn-outline btn-small" (click)="closeOverrideModal()">Cancel</button>

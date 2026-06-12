@@ -72,6 +72,9 @@ export const API_CONSTANTS = {
     WORKOUT_LOGS: 'members/{memberId}/workout-logs',
     RECURRING_OVERRIDE: 'members/{memberId}/recurring-override',
     PLAN_ASSIGNMENTS: 'members/{memberId}/plan-assignments',
+    ACTIVE_DIET: 'members/{memberId}/active-diet',
+    ASSIGN_DIET: 'members/{memberId}/assign-diet',
+    CUSTOM_DIET: 'members/{memberId}/custom-diet',
   },
   STAFF: {
     BASE: 'staff',
@@ -129,5 +132,9 @@ export const API_CONSTANTS = {
   WORKOUT_PLAN: {
     BASE: 'workout-plan',
     BY_ID: 'workout-plan/{id}'
+  },
+  DIET_PLAN: {
+    BASE: 'diet-plan',
+    BY_ID: 'diet-plan/{id}'
   }
 };

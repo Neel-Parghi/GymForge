@@ -1,19 +1,92 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MemberService } from '../../../../../core/services/member.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { CONSTANTS } from '../../../../../core/constants/constants';
+import { DietTemplateCreatorComponent } from '../../../diet-planner/diet-template-creator/diet-template-creator.component';
 
 @Component({
   selector: 'app-member-detail-diet-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DietTemplateCreatorComponent],
   templateUrl: './member-detail-diet-chart.html',
   styleUrl: './member-detail-diet-chart.scss',
 })
 export class PTMemberDetailDietChartComponent {
+  private memberService = inject(MemberService);
+  private notification = inject(NotificationService);
+
   @Input() activeDiet: any = null;
+  @Input() memberId: string = '';
+  @Input() memberInfo: any = null;
+
   @Output() openAssignModal = new EventEmitter<void>();
+  @Output() customDietSaved = new EventEmitter<void>();
+
+  showCreateCustomModal = false;
+  customPlanData: any = null;
 
   onOpenAssignModal(): void {
     this.openAssignModal.emit();
+  }
+
+  openCreateCustomModal(): void {
+    if (this.activeDiet) {
+      this.customPlanData = {
+        name: this.activeDiet.planName,
+        goal: this.activeDiet.goal,
+        protein: this.activeDiet.macros?.protein,
+        carbs: this.activeDiet.macros?.carbs,
+        fats: this.activeDiet.macros?.fats,
+        meals: (this.activeDiet.meals || []).map((m: any) => ({
+          name: m.name,
+          calories: m.calories,
+          protein: m.protein,
+          items: m.items
+        }))
+      };
+    } else {
+      this.customPlanData = {
+        name: `${this.memberInfo?.firstName || 'Member'}'s Diet Plan`,
+        goal: 'Muscle Gain',
+        protein: 150,
+        carbs: 200,
+        fats: 70,
+        meals: []
+      };
+    }
+    this.showCreateCustomModal = true;
+  }
+
+  closeCreateCustomModal(): void {
+    this.showCreateCustomModal = false;
+    this.customPlanData = null;
+  }
+
+  onSaveCustomDiet(planData: any): void {
+    const finalPayload = {
+      ...planData,
+      isCustom: true,
+      isTemplate: false,
+      description: `Custom diet plan created for ${this.memberInfo?.firstName || 'member'}.`
+    };
+
+    this.memberService.assignCustomDiet(this.memberId, finalPayload).subscribe({
+      next: () => {
+        this.notification.success(
+          CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_SUCCESS_PREFIX +
+          finalPayload.name +
+          CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_SUCCESS_MID +
+          (this.memberInfo?.firstName || 'member') +
+          CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_SUCCESS_SUFFIX
+        );
+        this.closeCreateCustomModal();
+        this.customDietSaved.emit();
+      },
+      error: () => {
+        this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.ASSIGN_DIET_ERROR);
+      }
+    });
   }
 
   getMacroPercentage(macroType: 'protein' | 'carbs' | 'fats'): number {

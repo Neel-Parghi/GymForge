@@ -41,26 +41,9 @@ export class PTMembersTrackComponent implements OnInit {
     this.staffService.getAssignedMembers(this.trainerId, forceRefresh).subscribe({
       next: (res: any) => {
         this.assignedMembers = res?.data || [];
-        
-        // Dynamic Fallback: if database is empty, pre-populate mock clients for immediate UI preview
-        if (this.assignedMembers.length === 0) {
-          this.assignedMembers = [
-            { memberId: 'm-01', firstName: 'Neel', lastName: 'Parghi', email: 'neel@gymforge.com', membershipNumber: 'MEM-87265', assignedSlot: '07:00 AM', assignedDate: new Date(), status: 'Active' },
-            { memberId: 'm-02', firstName: 'Aarav', lastName: 'Mehta', email: 'aarav@gymforge.com', membershipNumber: 'MEM-19028', assignedSlot: '09:00 AM', assignedDate: new Date(), status: 'Active' },
-            { memberId: 'm-03', firstName: 'Rohan', lastName: 'Sharma', email: 'rohan@gymforge.com', membershipNumber: 'MEM-33049', assignedSlot: '11:00 AM', assignedDate: new Date(), status: 'Expired' }
-          ];
-        }
-        
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading assigned members, loading premium mock fallback:', err);
-        // Fallback on error to ensure visual demo remains active
-        this.assignedMembers = [
-          { memberId: 'm-01', firstName: 'Neel', lastName: 'Parghi', email: 'neel@gymforge.com', membershipNumber: 'MEM-87265', assignedSlot: '07:00 AM', assignedDate: new Date(), status: 'Active' },
-          { memberId: 'm-02', firstName: 'Aarav', lastName: 'Mehta', email: 'aarav@gymforge.com', membershipNumber: 'MEM-19028', assignedSlot: '09:00 AM', assignedDate: new Date(), status: 'Active' },
-          { memberId: 'm-03', firstName: 'Rohan', lastName: 'Sharma', email: 'rohan@gymforge.com', membershipNumber: 'MEM-33049', assignedSlot: '11:00 AM', assignedDate: new Date(), status: 'Expired' }
-        ];
         this.isLoading = false;
       }
     });

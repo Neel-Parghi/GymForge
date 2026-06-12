@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormControl, FormGroup, FormArray } from '@angular
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-member-detail-track-performance',
@@ -28,6 +29,31 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
   dropdownOptions: DropdownOption[] = [];
   workoutForm!: FormGroup;
 
+  isCardioExercise(name: string, target?: string): boolean {
+    if (!name) return false;
+    const nameLower = name.toLowerCase().trim();
+
+    if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_KEYWORDS.some(keyword => nameLower.includes(keyword))) {
+      return true;
+    }
+
+    if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_NAME_REGEXP.test(nameLower)) {
+      if (nameLower.includes('farmer')) {
+        return false;
+      }
+      return true;
+    }
+
+    if (target) {
+      const targetLower = target.toLowerCase().trim();
+      if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_TARGET_REGEXP.test(targetLower)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   onCancel(): void {
     this.cancel.emit();
   }
@@ -41,7 +67,6 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     return logD.getTime() !== today.getTime();
   }
 
-  // Custom Modal for Add Exercise
   showAddExerciseModal = false;
 
   ngOnInit(): void {
@@ -67,6 +92,9 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   buildWorkoutForm() {
     const exerciseGroups = (this.todayWorkout?.exercises || []).map((ex: any) => {
+      if (ex.isCardio === undefined) {
+        ex.isCardio = this.isCardioExercise(ex.name, ex.sets[0]?.target);
+      }
       const setGroups = (ex.sets || []).map((set: any) => {
         const fg = new FormGroup({
           weight: new FormControl(set.weight || 0),
@@ -121,20 +149,24 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     const foundDay = this.activeSplit?.days.find((d: any) => d.dayName === dayName);
     if (foundDay) {
       this.todayWorkout.dayName = foundDay.dayName;
-      this.todayWorkout.exercises = foundDay.exercises.map((ex: any) => ({
-        name: ex.name,
-        skipped: false,
-        sets: Array.from({ length: typeof ex.sets === 'number' ? ex.sets : 3 }, (_, i) => ({
-          setNo: i + 1,
-          target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
-          weight: 20,
-          reps: 10,
-          completed: false
-        }))
-      }));
+      this.todayWorkout.exercises = foundDay.exercises.map((ex: any) => {
+        const isCardio = this.isCardioExercise(ex.name, ex.reps);
+        return {
+          name: ex.name,
+          skipped: false,
+          isCardio: isCardio,
+          sets: Array.from({ length: typeof ex.sets === 'number' ? ex.sets : 3 }, (_, i) => ({
+            setNo: i + 1,
+            target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
+            weight: "",
+            reps: 10,
+            completed: false
+          }))
+        };
+      });
       this.selectedExerciseIndex = 0;
       this.buildWorkoutForm();
-      this.notification.info(`Switched workout day to: ${foundDay.dayName}`);
+      this.notification.info(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWITCH_WORKOUT_DAY_PREFIX + foundDay.dayName);
     }
   }
 
@@ -158,7 +190,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     const newSetObj = {
       setNo: nextSetNo,
       target: lastSet?.target || '8-12 reps',
-      weight: lastSet?.weight || 20,
+      weight: lastSet?.weight || "",
       reps: lastSet?.reps || 10,
       completed: false
     };
@@ -177,7 +209,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     });
     setsArray.push(fg);
 
-    this.notification.success('Added new set.');
+    this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.ADDED_NEW_SET);
 
     setTimeout(() => {
       const rows = document.querySelectorAll('.table-row-item');
@@ -195,7 +227,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   deleteSet(exercise: any, exerciseIndex: number, setIndex: number): void {
     if (exercise.sets.length <= 1) {
-      this.notification.warning('An exercise must have at least one set.');
+      this.notification.warning(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.MIN_SET_WARNING);
       return;
     }
     exercise.sets.splice(setIndex, 1);
@@ -206,15 +238,15 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     const setsArray = this.getSetsFormArray(exerciseIndex);
     setsArray.removeAt(setIndex);
 
-    this.notification.info('Set removed.');
+    this.notification.info(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SET_REMOVED);
   }
 
   toggleExerciseSkipped(exercise: any): void {
     exercise.skipped = !exercise.skipped;
     if (exercise.skipped) {
-      this.notification.info(`${exercise.name} marked as skipped.`);
+      this.notification.info(exercise.name + CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.MARKED_SKIPPED_SUFFIX);
     } else {
-      this.notification.info(`${exercise.name} marked as active.`);
+      this.notification.info(exercise.name + CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.MARKED_ACTIVE_SUFFIX);
     }
   }
 
@@ -230,7 +262,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
   confirmAddExercise(): void {
     const exName = this.newExerciseControl.value?.trim();
     if (!exName) {
-      this.notification.warning('Please enter a valid exercise name.');
+      this.notification.warning(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.INVALID_EXERCISE_NAME);
       return;
     }
 
@@ -238,11 +270,13 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       this.todayWorkout.exercises = [];
     }
 
+    const isCardio = this.isCardioExercise(exName);
     const newExObj = {
       name: exName,
       skipped: false,
+      isCardio: isCardio,
       sets: [
-        { setNo: 1, target: '8-12 reps', weight: 20, reps: 10, completed: false }
+        { setNo: 1, target: isCardio ? '20 mins' : '8-12 reps', weight: isCardio ? 0 : 20, reps: isCardio ? 20 : 10, completed: false }
       ]
     };
     this.todayWorkout.exercises.push(newExObj);
@@ -267,7 +301,12 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
     this.selectedExerciseIndex = this.todayWorkout.exercises.length - 1;
     this.closeAddExerciseModal();
-    this.notification.success(`Added ${exName} to today's workout tracker!`);
+    this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.ADDED_EXERCISE_PREFIX + exName + CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.ADDED_EXERCISE_SUFFIX);
+  }
+
+  toggleExerciseMode(exercise: any): void {
+    exercise.isCardio = !exercise.isCardio;
+    this.notification.info(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWITCHED_MODE_PREFIX + exercise.name + CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWITCHED_MODE_MID + (exercise.isCardio ? 'Cardio' : 'Strength') + CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWITCHED_MODE_SUFFIX);
   }
 
   onSaveSession(): void {

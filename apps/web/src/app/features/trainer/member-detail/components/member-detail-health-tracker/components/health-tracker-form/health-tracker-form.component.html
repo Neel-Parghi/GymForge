@@ -1,0 +1,188 @@
+<div class="panel-header">
+  <div class="header-left">
+    <h3>Record New Measurement</h3>
+    <p class="subtitle">Fill out the form below to save client progress</p>
+  </div>
+  <div class="header-right header-actions-group">
+    <div class="mode-toggle-group">
+      <button type="button" class="btn-toggle" [class.active]="activeTrackerMode === 'basic'"
+        (click)="setTrackerMode('basic')">
+        <i class="fa-solid fa-list-check"></i> Basic
+      </button>
+      <button type="button" class="btn-toggle" [class.active]="activeTrackerMode === 'advanced'"
+        (click)="setTrackerMode('advanced')">
+        <i class="fa-solid fa-child"></i> Advanced
+      </button>
+    </div>
+    <button type="button" class="btn-action-secondary" (click)="cancel.emit()">
+      <i class="fa-solid fa-arrow-left"></i> Back to History
+    </button>
+  </div>
+</div>
+
+<div class="progress-tab-layout form-layout">
+  <div class="form-panel full-width-panel">
+    <form [formGroup]="measurementForm" (ngSubmit)="submitProgress()" class="premium-form">
+
+      <div class="form-section-card">
+        <h5 class="section-subtitle-main"><i class="fa-solid fa-weight-scale"></i> Core Metrics</h5>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Weight (kg) <span class="required">*</span></label>
+            <input type="number" formControlName="weight" class="form-input" placeholder="e.g. 75.4" step="0.1">
+            <span class="error-msg"
+              *ngIf="measurementForm.get('weight')?.touched && measurementForm.get('weight')?.invalid">Provide
+              weight between 1-300kg.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Height (cm) <span class="required">*</span></label>
+            <input type="number" formControlName="height" class="form-input" placeholder="e.g. 175">
+            <span class="error-msg"
+              *ngIf="measurementForm.get('height')?.touched && measurementForm.get('height')?.invalid">Provide
+              height between 1-250cm.</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" [class.full-width]="activeTrackerMode === 'basic'">
+            <label>Calculated BMI</label>
+            <div class="bmi-display-card" [ngClass]="getBmiCategoryClass()">
+              <span class="bmi-value" *ngIf="measurementForm.get('bmi')?.value; else noBmi">
+                {{ measurementForm.get('bmi')?.value }}
+                <span class="bmi-category-label">({{ getBmiCategoryText() }})</span>
+              </span>
+              <ng-template #noBmi>
+                <span class="bmi-placeholder">Enter weight & height</span>
+              </ng-template>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="activeTrackerMode === 'advanced'">
+            <label>Body Fat Percentage (%)</label>
+            <input type="number" formControlName="bodyFatPercentage" class="form-input" placeholder="e.g. 14.2"
+              step="0.1">
+            <span class="error-msg"
+              *ngIf="measurementForm.get('bodyFatPercentage')?.touched && measurementForm.get('bodyFatPercentage')?.invalid">Provide
+              fat % between 1-80.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Body Parts Grid -->
+      <div class="advanced-fields-section animation-fade-in" *ngIf="activeTrackerMode === 'advanced'">
+
+        <div class="form-section-card">
+          <h5 class="section-subtitle-main"><i class="fa-solid fa-arrows-left-right-to-line"></i> Circumferences
+            (cm)</h5>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Neck</label>
+              <input type="number" formControlName="neck" class="form-input" placeholder="e.g. 38">
+            </div>
+            <div class="form-group">
+              <label>Shoulders</label>
+              <input type="number" formControlName="shoulders" class="form-input" placeholder="e.g. 115">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Chest</label>
+              <input type="number" formControlName="chest" class="form-input" placeholder="e.g. 98">
+            </div>
+            <div class="form-group">
+              <label>Waist</label>
+              <input type="number" formControlName="waist" class="form-input" placeholder="e.g. 82">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Hips</label>
+              <input type="number" formControlName="hips" class="form-input" placeholder="e.g. 92">
+            </div>
+            <div class="form-group">
+              <label>Upper Abs</label>
+              <input type="number" formControlName="upperAbs" class="form-input" placeholder="e.g. 80">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Lower Abs</label>
+              <input type="number" formControlName="lowerAbs" class="form-input" placeholder="e.g. 84">
+            </div>
+            <div class="form-group-placeholder"></div>
+          </div>
+        </div>
+
+        <div class="form-section-card">
+          <h5 class="section-subtitle-main"><i class="fa-solid fa-child"></i> Limbs (Left vs Right)</h5>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Left Bicep</label>
+              <input type="number" formControlName="leftBicep" class="form-input" placeholder="e.g. 35">
+            </div>
+            <div class="form-group">
+              <label>Right Bicep</label>
+              <input type="number" formControlName="rightBicep" class="form-input" placeholder="e.g. 35">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Left Forearm</label>
+              <input type="number" formControlName="leftForearm" class="form-input" placeholder="e.g. 28">
+            </div>
+            <div class="form-group">
+              <label>Right Forearm</label>
+              <input type="number" formControlName="rightForearm" class="form-input" placeholder="e.g. 28">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Left Thigh</label>
+              <input type="number" formControlName="leftThigh" class="form-input" placeholder="e.g. 58">
+            </div>
+            <div class="form-group">
+              <label>Right Thigh</label>
+              <input type="number" formControlName="rightThigh" class="form-input" placeholder="e.g. 58">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Left Calf</label>
+              <input type="number" formControlName="leftCalf" class="form-input" placeholder="e.g. 38">
+            </div>
+            <div class="form-group">
+              <label>Right Calf</label>
+              <input type="number" formControlName="rightCalf" class="form-input" placeholder="e.g. 38">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-section-card">
+        <h5 class="section-subtitle-main"><i class="fa-regular fa-comment-dots"></i> Feedback & Notes</h5>
+        <div class="form-group">
+          <label>Trainer Notes / Directives</label>
+          <textarea formControlName="notes" class="form-input textarea"
+            placeholder="Add specific guidance or feedback on client posture/progress..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions-bar">
+        <button type="submit" class="btn-submit-main" [disabled]="isSubmittingProgress">
+          <i class="fa-solid fa-save"></i>
+          <span>Save Measurement</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

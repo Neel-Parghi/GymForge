@@ -29,7 +29,7 @@
   }
 }
 
-/* ── Diet Cards Catalog Grid ───────────────────────────── */
+/* Diet Cards Catalog Grid */
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
@@ -161,7 +161,7 @@
   }
 }
 
-/* ── Macros Progress Bars ──────────────────────────────── */
+/* Macros Progress Bars*/
 .macros-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -223,7 +223,7 @@
   }
 }
 
-/* ── Empty State ───────────────────────────────────────── */
+/* Empty State */
 .empty-state-catalog {
   display: flex;
   flex-direction: column;
@@ -259,7 +259,7 @@
   }
 }
 
-/* ── Meal Detail Side Drawer ───────────────────────────── */
+/* Meal Detail Side Drawer */
 .meal-drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -286,7 +286,6 @@
   right: 0;
   height: 100vh;
   width: 500px;
-  /* wider — more breathing room */
   max-width: 96vw;
   background: var(--bg-surface);
   border-left: 1px solid var(--border-color);
@@ -581,7 +580,7 @@
 
             .tc-badges {
               display: flex;
-              flex-direction: column;
+              flex-direction: row;
               align-items: flex-end;
               gap: 5px;
               flex-shrink: 0;
@@ -655,7 +654,7 @@
   }
 }
 
-/* ── Helpers ───────────────────────────────────────────── */
+/* Helpers */
 .mt-15 {
   margin-top: 15px;
 }

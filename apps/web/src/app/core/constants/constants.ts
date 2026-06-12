@@ -394,6 +394,55 @@ export const CONSTANTS = {
         DELETE_ERROR: 'Failed to delete planner template.',
         DELETE_CONFIRM: 'Are you sure you want to delete this workout planner template?',
         PLAN_SAVE_ERROR: 'Failed to save updated plan order.',
+    },
+    //#endregion
+
+    //#region Member Detail Module
+    MEMBER_DETAIL_MODULE: {
+        SAVE_RECURRING_OVERRIDE_ERROR: 'Failed to save recurring override schedule.',
+        SAVE_OVERRIDE_ERROR: 'Failed to save override schedule to backend.',
+        LOG_WORKOUT_READY_PREFIX: 'Ready to log workout for: ',
+        EDIT_WORKOUT_PREFIX: 'Editing workout session for: ',
+        
+        PROGRESS_RECORD_ADDED: 'Progress record added!',
+        PROGRESS_RECORD_ERROR: 'Failed to save progress record.',
+        MIN_COMPLETED_SET_WARNING: 'Please log at least one completed set before logging the session.',
+        LOG_WORKOUT_SUCCESS: 'Successfully logged workout session!',
+        LOG_WORKOUT_ERROR: 'Failed to log workout session to database.',
+        CANNOT_ASSIGN_CUSTOM_PLAN_WARNING: 'Cannot assign custom string plans in dynamic mode.',
+        ASSIGN_PLAN_SUCCESS_PREFIX: 'Assigned ',
+        ASSIGN_PLAN_SUCCESS_SUFFIX: ' to member!',
+        ASSIGN_PLAN_ERROR: 'Failed to assign plan on backend.',
+        INVALID_PLAN_ID_ERROR: 'Invalid Workout Plan ID.',
+        ASSIGN_DIET_SUCCESS_PREFIX: 'Assigned ',
+        ASSIGN_DIET_SUCCESS_MID: ' diet template to ',
+        ASSIGN_DIET_SUCCESS_SUFFIX: '!',
+        ASSIGN_DIET_ERROR: 'Failed to assign diet plan. Please try again.',
+        
+        TRACK_PERFORMANCE: {
+            SWITCH_WORKOUT_DAY_PREFIX: 'Switched workout day to: ',
+            ADDED_NEW_SET: 'Added new set.',
+            MIN_SET_WARNING: 'An exercise must have at least one set.',
+            SET_REMOVED: 'Set removed.',
+            MARKED_SKIPPED_SUFFIX: ' marked as skipped.',
+            MARKED_ACTIVE_SUFFIX: ' marked as active.',
+            INVALID_EXERCISE_NAME: 'Please enter a valid exercise name.',
+            ADDED_EXERCISE_PREFIX: 'Added ',
+            ADDED_EXERCISE_SUFFIX: " to today's workout tracker!",
+            SWITCHED_MODE_PREFIX: 'Switched ',
+            SWITCHED_MODE_MID: ' to ',
+            SWITCHED_MODE_SUFFIX: ' tracking mode.',
+            
+            CARDIO_KEYWORDS: [
+                'treadmill', 'cycling', 'cardio', 'elliptical', 'jog', 'swimming', 'rowing', 'aerobic', 'hiit', 'spin class'
+            ],
+            CARDIO_NAME_REGEXP: /\b(run|running|runs|walk|walking|walks|bike|biking|bikes|cycle|cycling|cycles|swim|swimming|swims|rowing|jog|jogging|jogs)\b/,
+            CARDIO_TARGET_REGEXP: /\b\d*\s*(min|minute|sec|second|km|kilometer|mile|meter|mtr|hr|hour)s?\b/
+        },
+        
+        WORKOUT_CALENDAR: {
+            CANNOT_OVERRIDE_PAST: 'Cannot override workouts in the past.'
+        }
     }
     //#endregion
 }

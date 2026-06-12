@@ -145,7 +145,8 @@ export class HealthTrackerComponent implements OnInit {
       height: formVal.height,
       bodyFatPercentage: formVal.bodyFatPercentage || undefined,
       bmi: formVal.bmi || undefined,
-      notes: formVal.notes || undefined
+      notes: formVal.notes || undefined,
+      isAdvanced: formVal.isAdvanced || false
     }).subscribe({
       next: () => {
         this.notification.success('Health measurement recorded successfully!');

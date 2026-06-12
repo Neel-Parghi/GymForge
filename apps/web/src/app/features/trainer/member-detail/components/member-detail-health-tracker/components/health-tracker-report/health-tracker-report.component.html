@@ -1,0 +1,384 @@
+<div class="modal-overlay-backdrop" (click)="closeDetailsDrawer()">
+  <div class="comparison-modal-card glass-card-heavy" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="modal-header-title">
+        <div>
+          <h4>Measurement Report & Comparison</h4>
+          <span class="date-sub">Recorded on {{ selectedLog?.date | date:'longDate' }}</span>
+        </div>
+      </div>
+      <button type="button" class="btn-modal-close" (click)="closeDetailsDrawer()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-scroll-body">
+      <div class="modal-columns-grid">
+
+        <!-- Column 1: Current Record Details -->
+        <div class="modal-col details-col">
+          <h5 class="drawer-section-title">Current Metrics</h5>
+
+          <!-- Summary Stats Card -->
+          <div class="drawer-summary-card">
+            <div class="badge-status-row">
+              <span class="mode-badge-inline" [class.advanced]="selectedLog?.isAdvanced">
+                {{ selectedLog?.isAdvanced ? 'Advanced Tracker' : 'Basic Tracker' }}
+              </span>
+              <span class="bmi-badge-inline" [ngClass]="getBmiClass(selectedLog?.bmi)">
+                BMI: {{ selectedLog?.bmi }}
+              </span>
+            </div>
+
+            <div class="summary-metrics-layout">
+              <div class="metric-block">
+                <span class="lbl">Weight</span>
+                <span class="val">{{ selectedLog?.weight }} <span class="unit">kg</span></span>
+              </div>
+              <div class="metric-block">
+                <span class="lbl">Height</span>
+                <span class="val">{{ selectedLog?.height }} <span class="unit">cm</span></span>
+              </div>
+              <div class="metric-block" *ngIf="selectedLog?.bodyFatPercentage">
+                <span class="lbl">Body Fat</span>
+                <span class="val">{{ selectedLog?.bodyFatPercentage }}<span class="unit">%</span></span>
+              </div>
+            </div>
+
+            <div class="bmi-category-block" [ngClass]="getBmiClass(selectedLog?.bmi)">
+              <span>BMI Classification: <strong>{{ getBmiText(selectedLog?.bmi) }}</strong></span>
+            </div>
+          </div>
+
+          <!-- Compact Body Dimensions Card -->
+          <div class="drawer-dimensions-section mt-20" *ngIf="selectedLog?.isAdvanced">
+            <h5 class="drawer-section-title">Body Dimensions</h5>
+
+            <div class="dimensions-category-card">
+              <div class="dimensions-grid-details">
+                <div class="dim-row" *ngIf="selectedLog?.neck">
+                  <span class="label">Neck</span>
+                  <span class="val">{{ selectedLog?.neck }} cm</span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.shoulders">
+                  <span class="label">Shoulders</span>
+                  <span class="val">{{ selectedLog?.shoulders }} cm</span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.chest">
+                  <span class="label">Chest</span>
+                  <span class="val">{{ selectedLog?.chest }} cm</span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.waist">
+                  <span class="label">Waist</span>
+                  <span class="val">{{ selectedLog?.waist }} cm</span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.hips">
+                  <span class="label">Hips</span>
+                  <span class="val">{{ selectedLog?.hips }} cm</span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.upperAbs || selectedLog?.lowerAbs">
+                  <span class="label">Abs (Upper/Lower)</span>
+                  <span class="val">
+                    {{ selectedLog?.upperAbs || '--' }} / {{ selectedLog?.lowerAbs || '--' }} cm
+                  </span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.leftBicep || selectedLog?.rightBicep">
+                  <span class="label">Biceps (L/R)</span>
+                  <span class="val">
+                    {{ selectedLog?.leftBicep || '--' }} / {{ selectedLog?.rightBicep || '--' }} cm
+                  </span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.leftForearm || selectedLog?.rightForearm">
+                  <span class="label">Forearms (L/R)</span>
+                  <span class="val">
+                    {{ selectedLog?.leftForearm || '--' }} / {{ selectedLog?.rightForearm || '--' }} cm
+                  </span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.leftThigh || selectedLog?.rightThigh">
+                  <span class="label">Thighs (L/R)</span>
+                  <span class="val">
+                    {{ selectedLog?.leftThigh || '--' }} / {{ selectedLog?.rightThigh || '--' }} cm
+                  </span>
+                </div>
+                <div class="dim-row" *ngIf="selectedLog?.leftCalf || selectedLog?.rightCalf">
+                  <span class="label">Calves (L/R)</span>
+                  <span class="val">
+                    {{ selectedLog?.leftCalf || '--' }} / {{ selectedLog?.rightCalf || '--' }} cm
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes / Directives -->
+          <div class="drawer-notes-section mt-20" *ngIf="selectedLog?.notes">
+            <h5 class="drawer-section-title">Trainer Notes</h5>
+            <div class="notes-paper-card">
+              <p>{{ selectedLog?.notes }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Comparison & Progress Analysis -->
+        <div class="modal-col comparison-col">
+          <h5 class="drawer-section-title">Comparison with Previous Log</h5>
+
+          <ng-container *ngIf="previousLog; else noPrevLog">
+            <div class="comparison-summary-widget">
+              <span class="compare-date-sub">Compared to entry on: <strong>{{ previousLog.date | date:'mediumDate'
+                  }}</strong></span>
+
+              <div class="compare-metrics-list">
+                <div class="compare-row">
+                  <span class="lbl">Weight</span>
+                  <span class="vals">
+                    <span class="prev">{{ previousLog.weight }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.weight }} kg</span>
+                  </span>
+                  <span class="delta" *ngIf="getDelta(selectedLog.weight, previousLog.weight) as d" [ngClass]="d.class">
+                    <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                  </span>
+                </div>
+
+                <div class="compare-row" *ngIf="selectedLog.bodyFatPercentage || previousLog.bodyFatPercentage">
+                  <span class="lbl">Body Fat</span>
+                  <span class="vals">
+                    <span class="prev">{{ previousLog.bodyFatPercentage ? previousLog.bodyFatPercentage + '%' : '--'
+                      }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.bodyFatPercentage ? selectedLog.bodyFatPercentage + '%' : '--'
+                      }}</span>
+                  </span>
+                  <span class="delta"
+                    *ngIf="getDelta(selectedLog.bodyFatPercentage, previousLog.bodyFatPercentage) as d"
+                    [ngClass]="d.class">
+                    <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}%
+                  </span>
+                </div>
+
+                <div class="compare-row">
+                  <span class="lbl">BMI</span>
+                  <span class="vals">
+                    <span class="prev">{{ previousLog.bmi }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.bmi }}</span>
+                  </span>
+                  <span class="delta" *ngIf="getDelta(selectedLog.bmi, previousLog.bmi) as d" [ngClass]="d.class">
+                    <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compare Advanced Metrics -->
+            <div class="dimensions-category-card mt-15" *ngIf="selectedLog.isAdvanced && previousLog.isAdvanced">
+              <div class="compare-dimensions-list">
+
+                <div class="compare-item-row" *ngIf="selectedLog.neck || previousLog.neck">
+                  <span class="label">Neck</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.neck || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.neck || '--' }} cm</span>
+                  </span>
+                  <span class="delta-col">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.neck, previousLog.neck) as d"
+                      [ngClass]="d.class">
+                      <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row" *ngIf="selectedLog.shoulders || previousLog.shoulders">
+                  <span class="label">Shoulders</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.shoulders || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.shoulders || '--' }} cm</span>
+                  </span>
+                  <span class="delta-col">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.shoulders, previousLog.shoulders) as d"
+                      [ngClass]="d.class">
+                      <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row" *ngIf="selectedLog.chest || previousLog.chest">
+                  <span class="label">Chest</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.chest || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.chest || '--' }} cm</span>
+                  </span>
+                  <span class="delta-col">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.chest, previousLog.chest) as d"
+                      [ngClass]="d.class">
+                      <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row" *ngIf="selectedLog.waist || previousLog.waist">
+                  <span class="label">Waist</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.waist || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.waist || '--' }} cm</span>
+                  </span>
+                  <span class="delta-col">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.waist, previousLog.waist) as d"
+                      [ngClass]="d.class">
+                      <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row" *ngIf="selectedLog.hips || previousLog.hips">
+                  <span class="label">Hips</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.hips || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.hips || '--' }} cm</span>
+                  </span>
+                  <span class="delta-col">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.hips, previousLog.hips) as d"
+                      [ngClass]="d.class">
+                      <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row"
+                  *ngIf="selectedLog.upperAbs || previousLog.upperAbs || selectedLog.lowerAbs || previousLog.lowerAbs">
+                  <span class="label">Abs (Upper/Lower)</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.upperAbs || '--' }} / {{ previousLog.lowerAbs || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.upperAbs || '--' }} / {{ selectedLog.lowerAbs || '--' }}
+                      cm</span>
+                  </span>
+                  <span class="delta-col gap-4">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.upperAbs, previousLog.upperAbs) as d"
+                      [ngClass]="d.class" title="Upper Abs">
+                      U: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.lowerAbs, previousLog.lowerAbs) as d"
+                      [ngClass]="d.class" title="Lower Abs">
+                      L: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <!-- Arms & Legs combined metrics comparison -->
+                <div class="compare-item-row"
+                  *ngIf="selectedLog.leftBicep || previousLog.leftBicep || selectedLog.rightBicep || previousLog.rightBicep">
+                  <span class="label">Biceps (L/R)</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.leftBicep || '--' }} / {{ previousLog.rightBicep || '--'
+                      }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.leftBicep || '--' }} / {{ selectedLog.rightBicep || '--' }}
+                      cm</span>
+                  </span>
+                  <span class="delta-col gap-4">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.leftBicep, previousLog.leftBicep) as d"
+                      [ngClass]="d.class" title="Left">
+                      L: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.rightBicep, previousLog.rightBicep) as d"
+                      [ngClass]="d.class" title="Right">
+                      R: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row"
+                  *ngIf="selectedLog.leftForearm || previousLog.leftForearm || selectedLog.rightForearm || previousLog.rightForearm">
+                  <span class="label">Forearms (L/R)</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.leftForearm || '--' }} / {{ previousLog.rightForearm || '--'
+                      }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.leftForearm || '--' }} / {{ selectedLog.rightForearm || '--' }}
+                      cm</span>
+                  </span>
+                  <span class="delta-col gap-4">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.leftForearm, previousLog.leftForearm) as d"
+                      [ngClass]="d.class" title="Left">
+                      L: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.rightForearm, previousLog.rightForearm) as d"
+                      [ngClass]="d.class" title="Right">
+                      R: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row"
+                  *ngIf="selectedLog.leftThigh || previousLog.leftThigh || selectedLog.rightThigh || previousLog.rightThigh">
+                  <span class="label">Thighs (L/R)</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.leftThigh || '--' }} / {{ previousLog.rightThigh || '--'
+                      }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.leftThigh || '--' }} / {{ selectedLog.rightThigh || '--' }}
+                      cm</span>
+                  </span>
+                  <span class="delta-col gap-4">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.leftThigh, previousLog.leftThigh) as d"
+                      [ngClass]="d.class" title="Left">
+                      L: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.rightThigh, previousLog.rightThigh) as d"
+                      [ngClass]="d.class" title="Right">
+                      R: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="compare-item-row"
+                  *ngIf="selectedLog.leftCalf || previousLog.leftCalf || selectedLog.rightCalf || previousLog.rightCalf">
+                  <span class="label">Calves (L/R)</span>
+                  <span class="val-group values-center">
+                    <span class="prev">{{ previousLog.leftCalf || '--' }} / {{ previousLog.rightCalf || '--' }}</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                    <span class="curr">{{ selectedLog.leftCalf || '--' }} / {{ selectedLog.rightCalf || '--' }}
+                      cm</span>
+                  </span>
+                  <span class="delta-col gap-4">
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.leftCalf, previousLog.leftCalf) as d"
+                      [ngClass]="d.class" title="Left">
+                      L: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                    <span class="delta-badge" *ngIf="getDelta(selectedLog.rightCalf, previousLog.rightCalf) as d"
+                      [ngClass]="d.class" title="Right">
+                      R: <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="empty-state-small" *ngIf="selectedLog.isAdvanced && !previousLog.isAdvanced">
+              <p>The previous log was a Basic Entry. A detailed comparative body dimensions breakdown is only
+                available when both entries are logged in Advanced mode.</p>
+            </div>
+          </ng-container>
+
+          <ng-template #noPrevLog>
+            <div class="comparison-empty-card">
+              <h6>Initial Entry Registered</h6>
+              <p>This is the first measurement record logged for this client. Chronological progress comparison and
+                delta analytics will become active once subsequent progress logs are recorded.</p>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

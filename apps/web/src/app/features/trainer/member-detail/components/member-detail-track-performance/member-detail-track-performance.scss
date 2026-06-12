@@ -36,7 +36,7 @@
   }
 }
 
-/* ── Top Header Actions Bar ───────────────────────────────── */
+/* Top Header Actions Bar */
 .tracker-dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -124,7 +124,7 @@
   width: 250px;
 }
 
-/* ── Main Two-Column Split Layout ────────────────────────── */
+/*   Main Two-Column Split Layout  */
 .wt-split-container {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -137,7 +137,7 @@
   }
 }
 
-/* ── Left Sidebar (Exercise Navigator) ────────────────────── */
+/*   Left Sidebar (Exercise Navigator)   */
 .wt-exercise-sidebar {
   border-right: 1px solid var(--border-color);
   background: var(--slate-50);
@@ -286,7 +286,7 @@
 
     .ex-title {
       font-size: 0.88rem;
-      font-weight: 700;
+      font-weight: 500;
       color: var(--text-main);
       white-space: nowrap;
       overflow: hidden;
@@ -297,7 +297,7 @@
       font-size: 0.72rem;
       color: var(--text-muted);
       margin-top: 2px;
-      font-weight: 600;
+      font-weight: 500;
 
       &.skipped-text {
         color: #ef4444;
@@ -329,7 +329,7 @@
   }
 }
 
-/* ── Right Panel (Exercise Console) ──────────────────────── */
+/*   Right Panel (Exercise Console)    */
 .wt-exercise-console {
   padding: 24px;
   display: flex;
@@ -456,7 +456,7 @@
   }
 }
 
-/* ── Logger Grid/Table Styling ──────────────────────────── */
+/*   Logger Grid/Table Styling   */
 .console-logging-area {
   display: flex;
   flex-direction: column;
@@ -471,6 +471,18 @@
   border: 1px solid var(--border-color);
   border-radius: 16px;
   overflow: hidden;
+
+  &.cardio-table {
+
+    .table-thead,
+    .table-row-item {
+      grid-template-columns: 80px 1fr 1fr 150px 70px;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 70px 1fr 1fr 60px;
+      }
+    }
+  }
 
   /* Header Row */
   .table-thead {
@@ -716,7 +728,7 @@
   }
 }
 
-/* ── Console Empty States ────────────────────────────────── */
+/*   Console Empty States      */
 .empty-state-console {
   display: flex;
   flex-direction: column;
@@ -767,7 +779,7 @@
   }
 }
 
-/* ── Custom Overlay Modal popup for adding exercise ─────── */
+/* Custom Overlay Modal popup for adding exercise */
 .custom-overlay-modal {
   position: fixed;
   top: 0;
@@ -907,7 +919,7 @@
   border-top: 1px solid var(--border-color);
 }
 
-/* ── Backdating Notice Banner ────────────────────────────── */
+/*   Backdating Notice Banner    */
 .backdate-notice-banner {
   display: flex;
   align-items: center;
@@ -933,7 +945,7 @@
   }
 }
 
-/* ── Rest Day Screen Styles ────────────────────────────── */
+/*   Rest Day Screen Styles    */
 .rest-day-container {
   display: flex;
   align-items: center;

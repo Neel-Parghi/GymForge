@@ -20,12 +20,6 @@ export const TrainerMenu: NavItem[] = [
         roles: ['Trainer']
     },
     {
-        label: 'Plan Library',
-        icon: 'fa-solid fa-book-open',
-        route: '/trainer/plan-library',
-        roles: ['Trainer']
-    },
-    {
         label: 'Workout Planner',
         icon: 'fa-solid fa-calendar-check',
         route: '/trainer/workout-planner',

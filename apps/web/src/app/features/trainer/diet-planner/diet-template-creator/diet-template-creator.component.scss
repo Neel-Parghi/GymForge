@@ -226,7 +226,8 @@
 /* Wizard Modal Card Setup */
 .modal-overlay .modal-card.wizard-modal-card {
   max-width: 680px;
-  height: 96vh;
+  height: 85vh;
+  max-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
 
@@ -429,7 +430,7 @@
   padding-bottom: 20px;
 }
 
-/* ── Meal Budget & List Builder ────────────────────────── */
+/* Meal Budget & List Builder */
 .meal-calorie-balance-bar {
   background: var(--slate-50);
   border: 1px solid var(--border-color);
@@ -483,6 +484,7 @@
 }
 
 @keyframes pulseAlert {
+
   0%,
   100% {
     opacity: 1;
@@ -669,7 +671,7 @@
   }
 }
 
-/* ── Macros Calculator Widget ────────────────────────── */
+/* Macros Calculator Widget */
 .macros-calculator-widget {
   background: var(--slate-50);
   border: 1px solid var(--border-color);

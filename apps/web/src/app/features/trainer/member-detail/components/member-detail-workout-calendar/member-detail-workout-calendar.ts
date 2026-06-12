@@ -4,8 +4,8 @@ import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
-
 import { CalendarDay } from '../../../../../shared/models/workout-plan.model';
+import { CONSTANTS } from '../../../../../core/constants/constants';
 
 @Component({
   selector: 'app-member-detail-workout-calendar',
@@ -83,21 +83,18 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
 
     const days: any[] = [];
 
-    // Padding days from previous month
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const dayNum = prevMonthTotalDays - i;
       const date = new Date(year, month - 1, dayNum);
       days.push(this.createDayObject(date, false));
     }
 
-    // Days of current month
     for (let i = 1; i <= totalDays; i++) {
       const date = new Date(year, month, i);
       days.push(this.createDayObject(date, true));
     }
 
-    // Padding days for next month to complete 6-row grid (42 cells)
-    const remainingCells = 42 - days.length;
+    const remainingCells = 35 - days.length;
     for (let i = 1; i <= remainingCells; i++) {
       const date = new Date(year, month + 1, i);
       days.push(this.createDayObject(date, false));
@@ -115,19 +112,16 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
     const todayStr = this.getDateKey(new Date());
     const isToday = dateKey === todayStr;
 
-    // Calculate simple isPast (ignoring times)
     const comparisonDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const comparisonToday = new Date();
     comparisonToday.setHours(0, 0, 0, 0);
     const isPast = comparisonDate.getTime() < comparisonToday.getTime();
 
-    // 1. Check if logged in history
     const historySession = this.workoutHistory.find(h => {
       const d = new Date(h.date);
       return this.getDateKey(d) === dateKey && h.status === 'Completed';
     });
 
-    // 2. Check if overridden (look at either local overrides OR planned sessions in workoutHistory)
     let override = this.workoutOverrides ? this.workoutOverrides[dateKey] : null;
     if (!override) {
       const plannedSession = this.workoutHistory.find(h => {
@@ -147,7 +141,6 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
       }
     }
 
-    // 3. Find scheduled routine based on the plan assignment active on this date
     let scheduledWorkout: any = null;
     const targetTime = comparisonDate.getTime();
     const activeAssignment = this.planAssignments
@@ -157,14 +150,11 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
     const planToUse = activeAssignment || (!isPast ? this.activeSplit : null);
 
     if (planToUse && planToUse.days) {
-      // Find template day matching day name (e.g., 'Monday') or day index mapping
       let templateDay = planToUse.days.find((d: any) => {
         if (!d.dayName) return false;
         return d.dayName.toLowerCase().includes(weekdayName.toLowerCase());
       });
 
-      // Fallback: If no day name match (e.g., it is a "Split" plan with abstract names like "Day 1", "Day 2"),
-      // map them sequentially to Monday (index 0), Wednesday (index 1), Friday (index 2)
       if (!templateDay && planToUse.days.length > 0) {
         if (weekdayName === 'Monday') {
           templateDay = planToUse.days[0];
@@ -185,7 +175,6 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
       }
     }
 
-    // Final mapping
     let routineName = 'Rest Day';
     let isRestDay = true;
     let exercisesCount = 0;
@@ -229,11 +218,13 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
 
   openSessionDetails(session: any): void {
     const rawExercises = session.loggedExercises || session.exercises || [];
-    const exercises = rawExercises.map((ex: any) => {
+    const sortedExercises = [...rawExercises].sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    const exercises = sortedExercises.map((ex: any) => {
       const rawSets = ex.loggedSets || ex.sets || [];
       const sets = [...rawSets].sort((a: any, b: any) => (a.setNo || 0) - (b.setNo || 0));
       return {
         ...ex,
+        isCardio: ex.isCardio || false,
         sets
       };
     });
@@ -249,10 +240,34 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
     this.selectedSession = null;
   }
 
+  isCardioExercise(name: string, target?: string): boolean {
+    if (!name) return false;
+    const nameLower = name.toLowerCase().trim();
+
+    if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_KEYWORDS.some(keyword => nameLower.includes(keyword))) {
+      return true;
+    }
+
+    if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_NAME_REGEXP.test(nameLower)) {
+      if (nameLower.includes('farmer')) {
+        return false;
+      }
+      return true;
+    }
+
+    if (target) {
+      const targetLower = target.toLowerCase().trim();
+      if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_TARGET_REGEXP.test(targetLower)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   openOverrideDialog(dayObj: any): void {
-    // Only allow overrides for today or future days
     if (dayObj.isPast && !dayObj.isToday) {
-      this.notification.warning('Cannot override workouts in the past.');
+      this.notification.warning(CONSTANTS.MEMBER_DETAIL_MODULE.WORKOUT_CALENDAR.CANNOT_OVERRIDE_PAST);
       return;
     }
 
@@ -260,7 +275,6 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
     this.overrideDateLabel = dayObj.date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
     this.overrideScopeControl.setValue('single');
 
-    // Populate dropdown options: Split routine days + Rest Day + Custom Cardio option
     const options: DropdownOption[] = [];
     if (this.activeSplit && this.activeSplit.days) {
       this.activeSplit.days.forEach((d: any) => {
@@ -273,7 +287,6 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
 
     this.overrideOptions = options;
 
-    // Pre-select current setting
     let initialVal = '';
     if (dayObj.override) {
       const val = dayObj.override.templateDayName || dayObj.routineName;

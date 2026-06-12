@@ -3,12 +3,17 @@
     <div class="panel-header">
       <div class="header-left">
         <h3>Nutrition & Diet Plan</h3>
-        <p class="subtitle">Active Prescribed Diet: <span class="accent-text font-bold">{{ activeDiet.planName
-            }}</span></p>
+        <p class="subtitle">Active Prescribed Diet: <span class="accent-text font-bold">{{ activeDiet.planName }}</span>
+        </p>
       </div>
-      <button class="btn-primary btn-small" (click)="onOpenAssignModal()">
-        <i class="fa-solid fa-exchange-alt"></i> Assign Diet Template
-      </button>
+      <div class="header-actions">
+        <button class="btn-outline" (click)="openCreateCustomModal()">
+          <i class="fa-solid fa-edit"></i> Edit / Create Custom Diet
+        </button>
+        <button class="btn-primary" (click)="onOpenAssignModal()">
+          <i class="fa-solid fa-exchange-alt"></i> Assign Template
+        </button>
+      </div>
     </div>
 
     <div class="diet-dashboard-row">
@@ -34,33 +39,36 @@
               <span class="lbl">TOTAL KCAL</span>
             </div>
           </div>
- 
+
           <!-- Macros list details -->
           <div class="macro-bars-list">
             <div class="macro-bar-item protein">
               <div class="bar-header">
                 <span class="macro-label-name">Protein</span>
-                <strong>{{ activeDiet.macros.protein }}g <span class="macro-pct-label">({{ getMacroPercentage('protein') }}%)</span></strong>
+                <strong>{{ activeDiet.macros.protein }}g <span class="macro-pct-label">({{ getMacroPercentage('protein')
+                    }}%)</span></strong>
               </div>
               <div class="bar-track">
                 <div class="bar-fill" [style.width.%]="getMacroPercentage('protein')"></div>
               </div>
             </div>
- 
+
             <div class="macro-bar-item carbs">
               <div class="bar-header">
                 <span class="macro-label-name">Carbohydrates</span>
-                <strong>{{ activeDiet.macros.carbs }}g <span class="macro-pct-label">({{ getMacroPercentage('carbs') }}%)</span></strong>
+                <strong>{{ activeDiet.macros.carbs }}g <span class="macro-pct-label">({{ getMacroPercentage('carbs')
+                    }}%)</span></strong>
               </div>
               <div class="bar-track">
                 <div class="bar-fill" [style.width.%]="getMacroPercentage('carbs')"></div>
               </div>
             </div>
- 
+
             <div class="macro-bar-item fats">
               <div class="bar-header">
                 <span class="macro-label-name">Fats</span>
-                <strong>{{ activeDiet.macros.fats }}g <span class="macro-pct-label">({{ getMacroPercentage('fats') }}%)</span></strong>
+                <strong>{{ activeDiet.macros.fats }}g <span class="macro-pct-label">({{ getMacroPercentage('fats')
+                    }}%)</span></strong>
               </div>
               <div class="bar-track">
                 <div class="bar-fill" [style.width.%]="getMacroPercentage('fats')"></div>
@@ -77,7 +85,7 @@
           <div class="meal-plan-card" *ngFor="let m of activeDiet.meals">
             <div class="meal-card-top">
               <h4>{{ m.name }}</h4>
-              <span class="meal-cal-badge">{{ m.calories }} kcal</span>
+              <span class="meal-cal-badge">{{ m.calories }} kcal | {{ m.protein }}g protein</span>
             </div>
             <p class="meal-items-text">{{ m.items }}</p>
           </div>
@@ -94,12 +102,23 @@
         </div>
         <h2>No Active Diet Plan Prescribed</h2>
         <p class="no-diet-message">
-          You haven't assigned a nutrition or diet plan to this member yet. A structured nutrition plan is key to achieving optimal results.
+          You haven't assigned a nutrition or diet plan to this member yet. Customize a unique diet plan or select one
+          of the templates.
         </p>
-        <button class="btn-primary" (click)="onOpenAssignModal()">
-          <i class="fa-solid fa-plus"></i> Prescribe Diet Plan
-        </button>
+        <div class="rest-actions">
+          <button class="btn-outline btn-small" (click)="openCreateCustomModal()">
+            <i class="fa-solid fa-plus"></i> Create Custom Diet
+          </button>
+          <button class="btn-primary btn-small" (click)="onOpenAssignModal()">
+            <i class="fa-solid fa-exchange-alt"></i> Assign Diet Template
+          </button>
+        </div>
       </div>
     </div>
   </ng-template>
 </div>
+
+<!-- REUSED TEMPLATE CREATOR FOR CUSTOM DIETS -->
+<app-diet-template-creator *ngIf="showCreateCustomModal" [plan]="customPlanData" [title]="'Create Custom Diet Plan'"
+  (save)="onSaveCustomDiet($event)" (close)="closeCreateCustomModal()">
+</app-diet-template-creator>

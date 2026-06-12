@@ -18,6 +18,10 @@ export class MemberService extends BaseApiService {
   private membersListCache = new Map<string, Observable<ApiResponse<PagedResponse<GymMember>>>>();
   private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
   private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
+  private activePlanCache = new Map<string, Observable<ApiResponse<any>>>();
+  private planAssignmentsCache = new Map<string, Observable<ApiResponse<any[]>>>();
+  private workoutLogsCache = new Map<string, Observable<ApiResponse<any[]>>>();
+  private activeDietCache = new Map<string, Observable<ApiResponse<any>>>();
   private dashboardCache$: Observable<ApiResponse<any>> | null = null;
 
   constructor() {
@@ -143,28 +147,82 @@ export class MemberService extends BaseApiService {
     return this.dashboardCache$;
   }
 
-  getActivePlan(memberId: string): Observable<ApiResponse<any>> {
-    return this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_PLAN.replace('{memberId}', memberId));
+  getActivePlan(memberId: string, forceRefresh = false): Observable<ApiResponse<any>> {
+    if (forceRefresh || !this.activePlanCache.has(memberId)) {
+      const request$ = this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_PLAN.replace('{memberId}', memberId)).pipe(
+        shareReplay(1)
+      );
+      this.activePlanCache.set(memberId, request$);
+    }
+    return this.activePlanCache.get(memberId)!;
   }
 
   assignPlan(memberId: string, planId: string): Observable<ApiResponse<any>> {
-    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ASSIGN_PLAN.replace('{memberId}', memberId), { workoutPlanId: planId });
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ASSIGN_PLAN.replace('{memberId}', memberId), { workoutPlanId: planId }).pipe(
+      tap(() => {
+        this.activePlanCache.delete(memberId);
+        this.planAssignmentsCache.delete(memberId);
+        this.workoutLogsCache.delete(memberId);
+      })
+    );
   }
 
-  getPlanAssignments(memberId: string): Observable<ApiResponse<any[]>> {
-    return this.get<ApiResponse<any[]>>(API_CONSTANTS.MEMBERS.PLAN_ASSIGNMENTS.replace('{memberId}', memberId));
+  getPlanAssignments(memberId: string, forceRefresh = false): Observable<ApiResponse<any[]>> {
+    if (forceRefresh || !this.planAssignmentsCache.has(memberId)) {
+      const request$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.MEMBERS.PLAN_ASSIGNMENTS.replace('{memberId}', memberId)).pipe(
+        shareReplay(1)
+      );
+      this.planAssignmentsCache.set(memberId, request$);
+    }
+    return this.planAssignmentsCache.get(memberId)!;
   }
 
-  getWorkoutLogs(memberId: string): Observable<ApiResponse<any[]>> {
-    return this.get<ApiResponse<any[]>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId));
+  getWorkoutLogs(memberId: string, forceRefresh = false): Observable<ApiResponse<any[]>> {
+    if (forceRefresh || !this.workoutLogsCache.has(memberId)) {
+      const request$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId)).pipe(
+        shareReplay(1)
+      );
+      this.workoutLogsCache.set(memberId, request$);
+    }
+    return this.workoutLogsCache.get(memberId)!;
   }
 
   logWorkoutSession(memberId: string, payload: any): Observable<ApiResponse<any>> {
-    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId), payload);
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId), payload).pipe(
+      tap(() => {
+        this.workoutLogsCache.delete(memberId);
+      })
+    );
   }
 
   saveRecurringOverride(memberId: string, payload: { dayOfWeek: string, workoutPlanDayId: string | null, isRestDay: boolean }): Observable<ApiResponse<any>> {
     return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.RECURRING_OVERRIDE.replace('{memberId}', memberId), payload);
+  }
+
+  getActiveDiet(memberId: string, forceRefresh = false): Observable<ApiResponse<any>> {
+    if (forceRefresh || !this.activeDietCache.has(memberId)) {
+      const request$ = this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_DIET.replace('{memberId}', memberId)).pipe(
+        shareReplay(1)
+      );
+      this.activeDietCache.set(memberId, request$);
+    }
+    return this.activeDietCache.get(memberId)!;
+  }
+
+  assignDiet(memberId: string, dietPlanId: string): Observable<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ASSIGN_DIET.replace('{memberId}', memberId), { dietPlanId }).pipe(
+      tap(() => {
+        this.activeDietCache.delete(memberId);
+      })
+    );
+  }
+
+  assignCustomDiet(memberId: string, payload: any): Observable<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.CUSTOM_DIET.replace('{memberId}', memberId), payload).pipe(
+      tap(() => {
+        this.activeDietCache.delete(memberId);
+      })
+    );
   }
 
   clearCache(): void {
@@ -172,6 +230,10 @@ export class MemberService extends BaseApiService {
     this.memberCache.clear();
     this.historyCache.clear();
     this.dashboardCache$ = null;
+    this.activePlanCache.clear();
+    this.planAssignmentsCache.clear();
+    this.workoutLogsCache.clear();
+    this.activeDietCache.clear();
   }
 
 }

@@ -114,10 +114,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/trainer/member-detail/member-detail.component').then(m => m.PTMemberDetailComponent)
       },
       {
-        path: 'plan-library',
-        loadComponent: () => import('./features/trainer/plan-library/plan-library.component').then(m => m.PlanLibraryComponent)
-      },
-      {
         path: 'workout-planner',
         loadComponent: () => import('./features/trainer/workout-planner/workout-planner.component').then(m => m.WorkoutPlannerComponent)
       },

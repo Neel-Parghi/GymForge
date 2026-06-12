@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
-import { DropdownOption } from '../../../../../shared/models/dropdown.model';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../../shared/models/dropdown.model';
 
 @Component({
   selector: 'app-diet-template-creator',
@@ -17,6 +17,7 @@ export class DietTemplateCreatorComponent implements OnInit {
   private notification = inject(NotificationService);
 
   @Input() plan: any = null;
+  @Input() title: string = '';
   @Output() save = new EventEmitter<any>();
   @Output() close = new EventEmitter<void>();
 
@@ -56,14 +57,69 @@ export class DietTemplateCreatorComponent implements OnInit {
   }
 
   addMeal(meal?: any): void {
+    const rawName: string = meal?.name || '';
+    const timeMatch = rawName.match(/\(([^)]+)\)/);
+    const parsedTime = timeMatch ? this.to24h(timeMatch[1]) : '08:00';
+    const parsedTitle = rawName.replace(/\s*\([^)]+\)/, '').trim();
+
     const mealGroup = this.fb.group({
-      name: [meal?.name || '', [Validators.required]],
+      mealTitle: [parsedTitle, [Validators.required]],
+      mealTime: [parsedTime, [Validators.required]],
       calories: [meal?.calories || 400, [Validators.required, Validators.min(0)]],
       protein: [meal?.protein || 30, [Validators.required, Validators.min(0)]],
       items: [meal?.items || '']
     });
     this.meals.push(mealGroup);
     this.expandedMealIndex = this.meals.length - 1;
+
+    setTimeout(() => {
+      const mealElements = document.querySelectorAll('.meal-builder-item');
+      if (mealElements && mealElements.length > 0) {
+        const lastMeal = mealElements[mealElements.length - 1];
+        lastMeal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 100);
+  }
+
+  private to24h(timeStr: string): string {
+    if (!timeStr)
+      return '08:00';
+
+    if (/^\d{1,2}:\d{2}$/.test(timeStr.trim()))
+      return timeStr.trim().padStart(5, '0');
+
+    const m = timeStr.trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+
+    if (!m)
+      return '08:00';
+
+    let h = parseInt(m[1], 10);
+    const min = m[2];
+    const period = m[3].toUpperCase();
+
+    if (period === 'PM' && h !== 12)
+      h += 12;
+
+    if (period === 'AM' && h === 12)
+      h = 0;
+
+    return `${String(h).padStart(2, '0')}:${min}`;
+  }
+
+  private to12h(timeStr: string): string {
+    if (!timeStr)
+      return '08:00 AM';
+
+    const [hStr, min] = timeStr.split(':');
+    let h = parseInt(hStr, 10);
+    const period = h >= 12 ? 'PM' : 'AM';
+
+    if (h === 0)
+      h = 12;
+    else if (h > 12)
+      h -= 12;
+
+    return `${String(h).padStart(2, '0')}:${min} ${period}`;
   }
 
   toggleMealExpand(index: number, event?: Event): void {
@@ -153,7 +209,7 @@ export class DietTemplateCreatorComponent implements OnInit {
 
     const val = this.createForm.getRawValue();
     const planData = {
-      id: this.plan?.id || 'diet-mock-' + (Date.now()),
+      id: this.plan?.id,
       name: val.name,
       description: '',
       calories: this.computedCalories,
@@ -161,7 +217,14 @@ export class DietTemplateCreatorComponent implements OnInit {
       carbs: val.carbs,
       fats: val.fats,
       goal: val.goal,
-      meals: val.meals
+      meals: val.meals.map((m: any, idx: number) => ({
+        name: m.mealTitle.trim(),
+        time: this.to12h(m.mealTime),
+        calories: m.calories,
+        protein: m.protein,
+        items: m.items,
+        sortOrder: idx
+      }))
     };
 
     this.save.emit(planData);

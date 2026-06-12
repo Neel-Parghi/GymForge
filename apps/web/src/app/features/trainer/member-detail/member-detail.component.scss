@@ -248,6 +248,7 @@
     border-radius: 20px;
     width: 100%;
     max-width: 520px;
+    max-height: calc(100vh - 80px);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     overflow: hidden;
     display: flex;
@@ -291,6 +292,25 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--slate-200);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--slate-300);
+    }
 
     .modal-desc {
       font-size: 0.85rem;
