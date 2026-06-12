@@ -150,33 +150,39 @@ namespace GymForge.Application.Modules.Workout.Services
             {
                 LoggedExercise loggedExercise = new()
                 {
-                    Name = exDto.Name
+                    Name = exDto.Name,
+                    Skipped = exDto.Skipped,
+                    SortOrder = exDto.SortOrder,
+                    IsCardio = exDto.IsCardio
                 };
 
-                bool completedAnySet = false;
-
-                foreach (LogLoggedSetDto setDto in exDto.LoggedSets)
+                if (!exDto.Skipped)
                 {
-                    LoggedSet loggedSet = new()
-                    {
-                        SetNo = setDto.SetNo,
-                        Weight = setDto.Weight,
-                        Reps = setDto.Reps,
-                        Completed = setDto.Completed
-                    };
+                    bool completedAnySet = false;
 
-                    if (loggedSet.Completed)
+                    foreach (LogLoggedSetDto setDto in exDto.LoggedSets)
                     {
-                        completedAnySet = true;
+                        LoggedSet loggedSet = new()
+                        {
+                            SetNo = setDto.SetNo,
+                            Weight = setDto.Weight,
+                            Reps = setDto.Reps,
+                            Completed = setDto.Completed
+                        };
+
+                        if (loggedSet.Completed)
+                        {
+                            completedAnySet = true;
+                        }
+
+                        loggedExercise.LoggedSets.Add(loggedSet);
+                        totalSets++;
                     }
 
-                    loggedExercise.LoggedSets.Add(loggedSet);
-                    totalSets++;
-                }
-
-                if (completedAnySet)
-                {
-                    exercisesCompleted++;
+                    if (completedAnySet)
+                    {
+                        exercisesCompleted++;
+                    }
                 }
 
                 log.LoggedExercises.Add(loggedExercise);

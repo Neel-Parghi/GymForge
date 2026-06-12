@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610031002_SyncModelSnapshot")]
+    partial class SyncModelSnapshot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -271,13 +274,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("GymId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsCustom")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsTemplate")
                         .HasColumnType("boolean");
 
                     b.Property<Guid?>("ModifiedBy")
@@ -850,9 +847,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsCardio")
-                        .HasColumnType("boolean");
-
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uuid");
 
@@ -862,12 +856,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("Skipped")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
 
                     b.Property<Guid>("WorkoutSessionLogId")
                         .HasColumnType("uuid");
@@ -1044,47 +1032,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.ToTable("MasterExercises");
                 });
 
-            modelBuilder.Entity("GymForge.Domain.Entities.MemberDietAssignment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("DietPlanId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DietPlanId");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("MemberId", "IsActive");
-
-                    b.ToTable("MemberDietAssignments");
-                });
-
             modelBuilder.Entity("GymForge.Domain.Entities.MemberMeasurement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1097,9 +1044,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
 
                     b.Property<double?>("BodyFatPercentage")
                         .HasPrecision(5, 2)
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("Chest")
                         .HasColumnType("double precision");
 
                     b.Property<Guid>("CreatedBy")
@@ -1115,27 +1059,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .HasPrecision(5, 2)
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("Hips")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool>("IsAdvanced")
-                        .HasColumnType("boolean");
-
-                    b.Property<double?>("LeftBicep")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("LeftCalf")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("LeftForearm")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("LeftThigh")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("LowerAbs")
-                        .HasColumnType("double precision");
-
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
 
@@ -1145,35 +1068,11 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double?>("Neck")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
                     b.Property<Guid?>("RecordedById")
                         .HasColumnType("uuid");
-
-                    b.Property<double?>("RightBicep")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("RightCalf")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("RightForearm")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("RightThigh")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("Shoulders")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("UpperAbs")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("Waist")
-                        .HasColumnType("double precision");
 
                     b.Property<double?>("Weight")
                         .HasPrecision(5, 2)
@@ -2463,25 +2362,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Equipment");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.MemberDietAssignment", b =>
-                {
-                    b.HasOne("GymForge.Domain.Entities.DietPlan", "DietPlan")
-                        .WithMany()
-                        .HasForeignKey("DietPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DietPlan");
-
-                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberMeasurement", b =>

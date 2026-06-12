@@ -211,14 +211,33 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request)
         {
+            Staff? staff = await _staffRepository.GetByUserIdAsync(recordedById);
+            Guid? staffId = staff?.Id;
+
             MemberMeasurement measurement = new()
             {
                 MemberId = memberId,
-                RecordedById = recordedById == Guid.Empty ? null : recordedById,
+                RecordedById = staffId,
                 Weight = request.Weight,
                 Height = request.Height,
                 BodyFatPercentage = request.BodyFatPercentage,
                 BMI = request.BMI,
+                IsAdvanced = request.IsAdvanced,
+                Neck = request.Neck,
+                Shoulders = request.Shoulders,
+                Chest = request.Chest,
+                LeftBicep = request.LeftBicep,
+                RightBicep = request.RightBicep,
+                LeftForearm = request.LeftForearm,
+                RightForearm = request.RightForearm,
+                UpperAbs = request.UpperAbs,
+                LowerAbs = request.LowerAbs,
+                Waist = request.Waist,
+                Hips = request.Hips,
+                LeftThigh = request.LeftThigh,
+                RightThigh = request.RightThigh,
+                LeftCalf = request.LeftCalf,
+                RightCalf = request.RightCalf,
                 Notes = request.Notes,
                 Date = DateTime.UtcNow
             };

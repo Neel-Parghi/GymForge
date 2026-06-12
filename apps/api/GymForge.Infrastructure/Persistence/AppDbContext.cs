@@ -12,6 +12,7 @@ namespace GymForge.Infrastructure.Persistence
 
         }
 
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Gym> Gyms { get; set; }
@@ -81,6 +82,12 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<MemberPlanAssignment> MemberPlanAssignments { get; set; }
        
         public DbSet<MemberWorkoutScheduleDay> MemberWorkoutScheduleDays { get; set; }
+        
+        public DbSet<DietPlan> DietPlans { get; set; }
+        
+        public DbSet<DietPlanMeal> DietPlanMeals { get; set; }
+
+        public DbSet<MemberDietAssignment> MemberDietAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -371,6 +378,40 @@ namespace GymForge.Infrastructure.Persistence
                 Currency = "INR",
                 CreatedOn = new DateTime(2026, 4, 25, 0, 0, 0, DateTimeKind.Utc),
                 CreatedBy = Guid.Empty
+            });
+
+            // DietPlan configurations
+            modelBuilder.Entity<DietPlan>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => new { x.CreatedBy, x.IsDeleted });
+                entity.HasQueryFilter(p => !p.IsDeleted);
+                
+                entity.HasMany(wp => wp.Meals)
+                      .WithOne(d => d.DietPlan)
+                      .HasForeignKey(d => d.DietPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DietPlanMeal>(entity =>
+            {
+                entity.HasIndex(x => x.DietPlanId);
+            });
+
+            modelBuilder.Entity<MemberDietAssignment>(entity =>
+            {
+                entity.HasIndex(x => x.MemberId);
+                entity.HasIndex(x => new { x.MemberId, x.IsActive });
+
+                entity.HasOne(mda => mda.Member)
+                      .WithMany()
+                      .HasForeignKey(mda => mda.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mda => mda.DietPlan)
+                      .WithMany()
+                      .HasForeignKey(mda => mda.DietPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

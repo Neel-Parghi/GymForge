@@ -70,7 +70,11 @@ namespace GymForge.Infrastructure
                     options.AddInterceptors(auditableInterceptor);
                 }
 
-                options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+                options.ConfigureWarnings(w =>
+                {
+                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning);
+                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
+                });
             });
 
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
@@ -95,6 +99,8 @@ namespace GymForge.Infrastructure
             services.AddScoped<IWorkoutRepository, WorkoutRepository>();
             services.AddScoped<IWorkoutPlanRepository, WorkoutPlanRepository>();
             services.AddScoped<IMemberWorkoutRepository, MemberWorkoutRepository>();
+            services.AddScoped<IDietPlanRepository, DietPlanRepository>();
+            services.AddScoped<IMemberDietRepository, MemberDietRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

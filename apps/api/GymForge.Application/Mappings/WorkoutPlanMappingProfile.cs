@@ -10,7 +10,8 @@ namespace GymForge.Application.Mappings
         {
             // Response Mappings
             CreateMap<WorkoutPlan, WorkoutPlanDto>();
-            CreateMap<WorkoutPlanDay, WorkoutPlanDayDto>();
+            CreateMap<WorkoutPlanDay, WorkoutPlanDayDto>()
+                .ForMember(dest => dest.Exercises, opt => opt.MapFrom(src => src.Exercises.OrderBy(e => e.SortOrder)));
             CreateMap<WorkoutPlanExercise, WorkoutPlanExerciseDto>();
 
             // Request Mappings
@@ -46,7 +47,8 @@ namespace GymForge.Application.Mappings
                 .ForMember(dest => dest.ModifiedOn, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore());
 
-            CreateMap<WorkoutSessionLog, WorkoutSessionLogDto>();
+            CreateMap<WorkoutSessionLog, WorkoutSessionLogDto>()
+                .ForMember(dest => dest.LoggedExercises, opt => opt.MapFrom(src => src.LoggedExercises.OrderBy(e => e.SortOrder)));
             CreateMap<LoggedExercise, LoggedExerciseDto>()
                 .ForMember(dest => dest.LoggedSets, opt => opt.MapFrom(src => src.LoggedSets.OrderBy(s => s.SetNo)));
             CreateMap<LoggedSet, LoggedSetDto>();

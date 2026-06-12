@@ -17,6 +17,9 @@ namespace GymForge.Contracts.WorkoutPlan
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public bool Skipped { get; set; } = false;
+        public int SortOrder { get; set; }
+        public bool IsCardio { get; set; } = false;
         public List<LoggedSetDto> LoggedSets { get; set; } = [];
     }
 
@@ -41,6 +44,9 @@ namespace GymForge.Contracts.WorkoutPlan
     public class LogLoggedExerciseDto
     {
         public string Name { get; set; } = string.Empty;
+        public bool Skipped { get; set; } = false;
+        public int SortOrder { get; set; }
+        public bool IsCardio { get; set; } = false;
         public List<LogLoggedSetDto> LoggedSets { get; set; } = [];
     }
 
