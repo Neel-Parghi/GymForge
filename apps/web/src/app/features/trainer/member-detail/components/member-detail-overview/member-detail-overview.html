@@ -13,28 +13,95 @@
         <div class="ov-member-title">
           <div class="ov-name-wrapper">
             <h2 class="ov-member-name">{{ memberInfo?.firstName }} {{ memberInfo?.lastName }}</h2>
-            <span class="ov-status-badge" [ngClass]="memberInfo?.status?.toLowerCase()">
-              <span class="pulse-dot"></span>{{ memberInfo?.status }}
+            <span class="ov-status-badge" [ngClass]="statusClass">
+              <span class="pulse-dot"></span>{{ statusLabel }}
             </span>
           </div>
-          <span class="ov-member-id"><i class="fa-solid fa-fingerprint"></i> ID: {{ memberInfo?.membershipNumber
-            }}</span>
+          <span class="ov-member-id"><i class="fa-solid fa-fingerprint"></i> ID: {{ memberInfo?.membershipNumber }}</span>
+          
+          <!-- Client Fitness Goals -->
+          <div class="ov-goals-list" *ngIf="memberInfo?.fitnessGoals?.length">
+            <span class="goal-tag" *ngFor="let goal of memberInfo.fitnessGoals">
+              <i class="fa-solid fa-bullseye"></i> {{ goal }}
+            </span>
+          </div>
         </div>
       </div>
 
       <div class="ov-member-details-grid">
         <div class="ov-detail-item">
-          <div class="ov-detail-icon"><i class="fa-regular fa-clock"></i></div>
+          <div class="ov-detail-icon slot-icon"><i class="fa-regular fa-clock"></i></div>
           <div class="ov-detail-content">
             <span class="ov-detail-label">Assigned Time Slot</span>
-            <span class="ov-detail-value">{{ memberInfo?.assignedSlot }}</span>
+            <span class="ov-detail-value">{{ memberInfo?.assignedSlot || 'Anytime' }}</span>
           </div>
         </div>
         <div class="ov-detail-item">
-          <div class="ov-detail-icon"><i class="fa-solid fa-calendar-plus"></i></div>
+          <div class="ov-detail-icon since-icon"><i class="fa-solid fa-calendar-plus"></i></div>
           <div class="ov-detail-content">
             <span class="ov-detail-label">Member Since</span>
             <span class="ov-detail-value">{{ memberInfo?.assignedDate | date:'MMMM yyyy' }}</span>
+          </div>
+        </div>
+        <div class="ov-detail-item" *ngIf="memberInfo?.phoneNumber">
+          <div class="ov-detail-icon phone-icon"><i class="fa-solid fa-phone"></i></div>
+          <div class="ov-detail-content">
+            <span class="ov-detail-label">Phone</span>
+            <span class="ov-detail-value">{{ memberInfo.phoneNumber }}</span>
+          </div>
+        </div>
+        <div class="ov-detail-item" *ngIf="memberInfo?.email">
+          <div class="ov-detail-icon email-icon"><i class="fa-regular fa-envelope"></i></div>
+          <div class="ov-detail-content">
+            <span class="ov-detail-label">Email</span>
+            <span class="ov-detail-value">{{ memberInfo.email }}</span>
+          </div>
+        </div>
+        <div class="ov-detail-item" *ngIf="memberInfo?.gender">
+          <div class="ov-detail-icon gender-icon"><i class="fa-solid fa-venus-mars"></i></div>
+          <div class="ov-detail-content">
+            <span class="ov-detail-label">Gender</span>
+            <span class="ov-detail-value">
+              {{ memberInfo.gender === 1 ? 'Male' : memberInfo.gender === 2 ? 'Female' : memberInfo.gender === 3 ? 'Other' : 'Prefer not to say' }}
+            </span>
+          </div>
+        </div>
+        <div class="ov-detail-item" *ngIf="memberInfo?.dateOfBirth && memberInfo?.dateOfBirth !== '0001-01-01T00:00:00'">
+          <div class="ov-detail-icon dob-icon"><i class="fa-solid fa-cake-candles"></i></div>
+          <div class="ov-detail-content">
+            <span class="ov-detail-label">Date of Birth</span>
+            <span class="ov-detail-value">{{ memberInfo.dateOfBirth | date:'dd MMM yyyy' }}</span>
+          </div>
+        </div>
+        <div class="ov-detail-item" *ngIf="memberInfo?.bloodGroup">
+          <div class="ov-detail-icon blood-icon"><i class="fa-solid fa-droplet"></i></div>
+          <div class="ov-detail-content">
+            <span class="ov-detail-label">Blood Group</span>
+            <span class="ov-detail-value">{{ memberInfo.bloodGroup }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency & Health alerts footer -->
+      <div class="ov-profile-footer" *ngIf="memberInfo?.emergencyContactName || memberInfo?.medicalConditions">
+        <!-- Emergency Contact Details -->
+        <div class="ov-emergency-contact" *ngIf="memberInfo?.emergencyContactName">
+          <div class="contact-icon"><i class="fa-solid fa-phone-volume"></i></div>
+          <div class="contact-content">
+            <span class="contact-label">Emergency Contact</span>
+            <span class="contact-value">
+              {{ memberInfo.emergencyContactName }} 
+              <span class="contact-phone" *ngIf="memberInfo.emergencyContactPhone">({{ memberInfo.emergencyContactPhone }})</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Critical Medical Warnings -->
+        <div class="health-alert-box" *ngIf="memberInfo?.medicalConditions">
+          <div class="alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="alert-content">
+            <span class="alert-title">Medical Condition Alert</span>
+            <p class="alert-desc">{{ memberInfo.medicalConditions }}</p>
           </div>
         </div>
       </div>
@@ -47,38 +114,31 @@
         <span class="ov-stats-subtitle">Current Month Status</span>
       </div>
 
-      <div class="ov-kpi-grid">
-        <div class="ov-kpi-tile sessions">
-          <div class="tile-icon"><i class="fa-solid fa-calendar-check"></i></div>
-          <div class="tile-content">
-            <span class="tile-val">{{ monthlySessionCount }}</span>
-            <span class="tile-lbl">Sessions Completed</span>
+      <div class="ov-monthly-completion">
+        <div class="completion-hero">
+          <span class="completion-num">{{ monthlySessionCount }}</span>
+          <span class="completion-divider">/</span>
+          <span class="completion-target">{{ monthlySessionTarget }}</span>
+        </div>
+        <span class="completion-label">Sessions Completed</span>
+
+        <div class="completion-progress-wrap">
+          <div class="completion-progress-bar">
+            <div class="progress-fill" [style.width.%]="monthlyCompletionPct"></div>
           </div>
+          <span class="completion-pct">{{ monthlyCompletionPct }}%</span>
         </div>
 
-        <div class="ov-kpi-tile sets">
-          <div class="tile-icon"><i class="fa-solid fa-dumbbell"></i></div>
-          <div class="tile-content">
-            <span class="tile-val">{{ totalSetsThisMonth }}</span>
-            <span class="tile-lbl">Sets Completed</span>
-          </div>
-        </div>
+        <p class="completion-desc">
+          <i class="fa-solid fa-circle-info"></i>
+          Target is calculated as {{ activeDaysPerWeek }} sessions/week. 
+          {{ completionFeedback }}
+        </p>
 
-        <div class="ov-kpi-tile streak">
-          <div class="tile-icon"><i class="fa-solid fa-fire"></i></div>
-          <div class="tile-content">
-            <span class="tile-val">{{ currentStreak }}</span>
-            <span class="tile-lbl">Day Streak</span>
-          </div>
-        </div>
-
-        <div class="ov-kpi-tile bmi" *ngIf="measurements && measurements.length > 0"
-          [ngClass]="'bmi-' + getBmiClass(measurements[0].bmi)">
-          <div class="tile-icon"><i class="fa-solid fa-weight-scale"></i></div>
-          <div class="tile-content">
-            <span class="tile-val">{{ measurements[0].bmi }}</span>
-            <span class="tile-lbl">BMI ({{ getBmiText(measurements[0].bmi) }})</span>
-          </div>
+        <div class="completion-footer" *ngIf="memberInfo">
+          <span class="days-left-badge" [ngClass]="{'ending-soon': isEndingSoon, 'expired': isExpired}">
+            <i class="fa-solid" [ngClass]="isExpired ? 'fa-circle-exclamation' : 'fa-clock'"></i> {{ daysLeftLabel }}
+          </span>
         </div>
       </div>
     </div>
@@ -188,7 +248,7 @@
   </div>
 
   <!-- ═══ ROW 3: Active Plans + Session Timeline ═══ -->
-  <div class="ov-row3" *ngIf="activeDiet">
+  <div class="ov-row3">
 
     <!-- Active Split tile -->
     <div class="ov-plan-card glass-card workout-plan" *ngIf="activeSplit">
@@ -204,8 +264,8 @@
       <div class="ov-split-days">
         <div class="ov-split-day-row" *ngFor="let day of activeSplit.days">
           <span class="ov-day-name">{{ day.dayName.split(' - ')[0] }}</span>
-          <span class="ov-day-focus">{{ day.dayName.split(' - ')[1] }}</span>
-          <span class="ov-day-count">{{ day.exercises.length }} ex.</span>
+          <span class="ov-day-focus">{{ day.isRestDay ? 'Rest Day' : (day.category || 'Workout') }}</span>
+          <span class="ov-day-count">{{ day.isRestDay ? '0' : day.exercises.length }} ex.</span>
         </div>
       </div>
     </div>
@@ -222,8 +282,8 @@
       </div>
     </div>
 
-    <!-- Active Diet tile -->
-    <div class="ov-plan-card glass-card diet-plan">
+    <!-- Active Diet tile (assigned state) -->
+    <div class="ov-plan-card glass-card diet-plan" *ngIf="activeDiet">
       <div class="ov-plan-header">
         <div class="ov-plan-icon diet"><i class="fa-solid fa-apple-whole"></i></div>
         <div class="ov-plan-head-text">
@@ -261,6 +321,22 @@
           <span class="ov-macro-name">Fats</span>
         </div>
         <div class="ov-macro-kcal">{{ activeDiet.calories }} <span>kcal</span></div>
+      </div>
+    </div>
+
+    <!-- Active Diet tile (empty state) -->
+    <div class="ov-plan-card glass-card diet-plan" *ngIf="!activeDiet">
+      <div class="ov-plan-header">
+        <div class="ov-plan-icon diet"><i class="fa-solid fa-apple-whole"></i></div>
+        <div class="ov-plan-head-text">
+          <p class="ov-plan-type">Active Diet Plan</p>
+          <h3 class="ov-plan-name">No Active Plan</h3>
+        </div>
+        <button class="ov-plan-go-btn" (click)="setTab('diet-chart')"><i
+            class="fa-solid fa-arrow-up-right-from-square"></i></button>
+      </div>
+      <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted);">
+        Assign a plan template in the Diet tab.
       </div>
     </div>
 

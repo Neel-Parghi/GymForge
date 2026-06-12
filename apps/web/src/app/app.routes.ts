@@ -121,10 +121,7 @@ export const routes: Routes = [
         path: 'diet-planner',
         loadComponent: () => import('./features/trainer/diet-planner/diet-planner.component').then(m => m.PTDietPlannerComponent)
       },
-      {
-        path: 'health-track',
-        loadComponent: () => import('./features/trainer/health-track/health-track.component').then(m => m.HealthTrackerComponent)
-      },
+
       {
         path: 'settings',
         loadComponent: () => import('./features/trainer/settings/settings.component').then(m => m.TrainerSettingsComponent)

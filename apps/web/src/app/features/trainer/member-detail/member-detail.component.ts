@@ -381,7 +381,24 @@ export class PTMemberDetailComponent implements OnInit {
         this.staffService.getAssignedMembers(profile.id).subscribe({
           next: (res: any) => {
             const list = res?.data || [];
-            this.memberInfo = list.find((m: any) => m.memberId === this.memberId) || null;
+            const assignmentInfo = list.find((m: any) => m.memberId === this.memberId) || null;
+            if (assignmentInfo) {
+              this.memberService.getMemberById(this.memberId).subscribe({
+                next: (profileRes: any) => {
+                  const fullProfile = profileRes?.data || profileRes;
+                  this.memberInfo = {
+                    ...assignmentInfo,
+                    ...fullProfile
+                  };
+                },
+                error: (err) => {
+                  console.error('Error fetching full member details, falling back to assignment info:', err);
+                  this.memberInfo = assignmentInfo;
+                }
+              });
+            } else {
+              this.memberInfo = null;
+            }
           },
           error: (err) => {
             console.error('Error fetching member details:', err);
