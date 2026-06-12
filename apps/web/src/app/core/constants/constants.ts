@@ -394,6 +394,7 @@ export const CONSTANTS = {
         DELETE_ERROR: 'Failed to delete planner template.',
         DELETE_CONFIRM: 'Are you sure you want to delete this workout planner template?',
         PLAN_SAVE_ERROR: 'Failed to save updated plan order.',
+        SELECT_EXERCISE_WARNING: 'Please select an exercise for all rows.',
     },
     //#endregion
 
@@ -443,6 +444,33 @@ export const CONSTANTS = {
         WORKOUT_CALENDAR: {
             CANNOT_OVERRIDE_PAST: 'Cannot override workouts in the past.'
         }
+    },
+    //#endregion
+
+    //#region Diet Planner
+    DIET_PLANNER_MODULE: {
+        LOAD_ERROR: 'Failed to load diet templates.',
+        CREATE_SUCCESS: 'Diet template created successfully in your library!',
+        CREATE_ERROR: 'Failed to create diet template.',
+        UPDATE_SUCCESS: 'Diet template updated successfully!',
+        UPDATE_ERROR: 'Failed to update diet template.',
+        DELETE_CONFIRM: 'Are you sure you want to delete this diet template?',
+        DELETE_SUCCESS: 'Template deleted successfully.',
+        DELETE_ERROR: 'Failed to delete diet template.',
+        MIN_MEAL_WARNING: 'A diet template must have at least one meal.'
+    },
+    //#endregion
+
+    //#region Health Tracker
+    HEALTH_TRACKER_MODULE: {
+        LOAD_LOGS_ERROR: 'Failed to load health tracking logs',
+        RECORD_SUCCESS: 'Health measurement recorded successfully!'
+    },
+    //#endregion
+
+    //#region Trainer Settings
+    TRAINER_SETTINGS: {
+        SAVE_SUCCESS: 'Preferences saved successfully!'
     }
     //#endregion
 }

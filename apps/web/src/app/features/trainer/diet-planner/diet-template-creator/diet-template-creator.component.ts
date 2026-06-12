@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Va
 import { NotificationService } from '../../../../core/services/notification.service';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
+import { CONSTANTS } from '../../../../core/constants/constants';
 
 @Component({
   selector: 'app-diet-template-creator',
@@ -134,7 +135,7 @@ export class DietTemplateCreatorComponent implements OnInit {
       event.stopPropagation();
     }
     if (this.meals.length <= 1) {
-      this.notification.warning('A diet template must have at least one meal.');
+      this.notification.warning(CONSTANTS.DIET_PLANNER_MODULE.MIN_MEAL_WARNING);
       return;
     }
     this.meals.removeAt(index);

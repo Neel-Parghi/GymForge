@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { StaffService } from '../../../core/services/staff.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-trainer-health-track',
@@ -125,7 +126,7 @@ export class HealthTrackerComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading member logs:', err);
-        this.notification.error('Failed to load health tracking logs');
+        this.notification.error(CONSTANTS.HEALTH_TRACKER_MODULE.LOAD_LOGS_ERROR);
         this.isLoadingLogs = false;
       }
     });
@@ -149,7 +150,7 @@ export class HealthTrackerComponent implements OnInit {
       isAdvanced: formVal.isAdvanced || false
     }).subscribe({
       next: () => {
-        this.notification.success('Health measurement recorded successfully!');
+        this.notification.success(CONSTANTS.HEALTH_TRACKER_MODULE.RECORD_SUCCESS);
         this.measurementForm.reset();
         this.loadLogs();
         this.isSubmitting = false;

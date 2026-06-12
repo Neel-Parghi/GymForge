@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../../core/services/notification.service';
 import { DietTemplateCreatorComponent } from './diet-template-creator/diet-template-creator.component';
 import { DietPlanService } from '../../../core/services/diet-plan.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-diet-planner',
@@ -39,7 +40,7 @@ export class PTDietPlannerComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load diet templates:', err);
-        this.notification.error('Failed to load diet templates.');
+        this.notification.error(CONSTANTS.DIET_PLANNER_MODULE.LOAD_ERROR);
       }
     });
   }
@@ -63,25 +64,25 @@ export class PTDietPlannerComponent implements OnInit {
     if (this.editingPlan) {
       this.dietPlanService.updatePlan(this.editingPlan.id, planData).subscribe({
         next: () => {
-          this.notification.success('Diet template updated successfully!');
+          this.notification.success(CONSTANTS.DIET_PLANNER_MODULE.UPDATE_SUCCESS);
           this.loadDietPlans();
           this.closeCreateModal();
         },
         error: (err) => {
           console.error('Failed to update template:', err);
-          this.notification.error('Failed to update diet template.');
+          this.notification.error(CONSTANTS.DIET_PLANNER_MODULE.UPDATE_ERROR);
         }
       });
     } else {
       this.dietPlanService.createPlan(planData).subscribe({
         next: () => {
-          this.notification.success('Diet template created successfully in your library!');
+          this.notification.success(CONSTANTS.DIET_PLANNER_MODULE.CREATE_SUCCESS);
           this.loadDietPlans();
           this.closeCreateModal();
         },
         error: (err) => {
           console.error('Failed to create template:', err);
-          this.notification.error('Failed to create diet template.');
+          this.notification.error(CONSTANTS.DIET_PLANNER_MODULE.CREATE_ERROR);
         }
       });
     }
@@ -89,15 +90,15 @@ export class PTDietPlannerComponent implements OnInit {
 
   deleteTemplate(id: string, event: Event): void {
     event.stopPropagation();
-    if (confirm('Are you sure you want to delete this diet template?')) {
+    if (confirm(CONSTANTS.DIET_PLANNER_MODULE.DELETE_CONFIRM)) {
       this.dietPlanService.deletePlan(id).subscribe({
         next: () => {
-          this.notification.success('Template deleted successfully.');
+          this.notification.success(CONSTANTS.DIET_PLANNER_MODULE.DELETE_SUCCESS);
           this.loadDietPlans();
         },
         error: (err) => {
           console.error('Failed to delete template:', err);
-          this.notification.error('Failed to delete diet template.');
+          this.notification.error(CONSTANTS.DIET_PLANNER_MODULE.DELETE_ERROR);
         }
       });
     }

@@ -464,7 +464,7 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       }
 
       if (hasInvalidExercises) {
-        this.notification.error('Please select an exercise for all rows.');
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.SELECT_EXERCISE_WARNING);
       } else {
         this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_INVALID_FORM);
       }

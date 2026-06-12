@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CONSTANTS } from '../../../core/constants/constants';
 
 @Component({
   selector: 'app-trainer-settings',
@@ -10,6 +12,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './settings.component.scss'
 })
 export class TrainerSettingsComponent {
+  private notification = inject(NotificationService);
+
   preferences = {
     shiftStartReminder: true,
     clientCheckInNotification: true,
@@ -19,8 +23,7 @@ export class TrainerSettingsComponent {
   };
 
   saveSettings(): void {
-    // Mimic save logic with local storage
     localStorage.setItem('trainerPreferences', JSON.stringify(this.preferences));
-    alert('Preferences saved successfully!');
+    this.notification.success(CONSTANTS.TRAINER_SETTINGS.SAVE_SUCCESS);
   }
 }
