@@ -1,0 +1,127 @@
+<div class="trainer-billing-container">
+  <header class="page-header">
+    <div class="header-info">
+      <h1>Commissions & Payouts</h1>
+      <p class="subtitle">View your monthly earnings breakdown, base salary, and personal training commissions</p>
+    </div>
+
+    <div class="header-actions">
+      <app-dropdown [options]="dropdownOptions" [(ngModel)]="monthKey" (selectionChange)="onMonthChange()"
+        minWidth="220px">
+      </app-dropdown>
+    </div>
+  </header>
+
+  <div class="billing-content-wrapper" *ngIf="payoutDetails; else noData">
+    <div class="payout-grid">
+      <!-- Summary Card -->
+      <div class="glass-card payout-summary-card">
+        <div class="card-glow"></div>
+        <div class="payout-header">
+          <div class="payout-id">{{ payoutDetails.id }}</div>
+          <span class="status-badge" [ngClass]="payoutDetails.status.toLowerCase()">
+            {{ payoutDetails.status }}
+          </span>
+        </div>
+
+        <div class="main-amount">
+          <span class="currency">₹</span>
+          <span class="val">{{ payoutDetails.totalPayout | number:'1.2-2' }}</span>
+          <span class="label">Net Earning Payout</span>
+        </div>
+
+        <div class="summary-breakdown">
+          <div class="breakdown-row">
+            <span>Base Salary</span>
+            <span class="val">₹{{ payoutDetails.baseSalary | number:'1.2-2' }}</span>
+          </div>
+          <div class="breakdown-row highlight">
+            <span>Commissions Earned</span>
+            <span class="val">₹{{ payoutDetails.commissions | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Card -->
+      <div class="glass-card info-card">
+        <h3>Payout Details</h3>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="label">Trainer Account</span>
+            <span class="val">{{ payoutDetails.staffName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Commission Rates</span>
+            <span class="val">PT: {{ payoutDetails.ptCommissionRate }}% | Rehab: {{ payoutDetails.rehabCommissionRate
+              }}%</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Released Date</span>
+            <span class="val">{{ (payoutDetails.payoutDate | date:'mediumDate') || 'Processing...' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Clients Contributing to Commission -->
+    <div class="glass-card clients-card">
+      <div class="clients-header">
+        <h2>Active PT Members (Contributing to Commissions)</h2>
+      </div>
+
+      <div class="clients-list-container">
+        <!-- List Header -->
+        <div class="client-list-header">
+          <span class="col-name">Client Name</span>
+          <span class="col-membership">Membership #</span>
+          <span class="col-slot">Assigned Slot</span>
+          <span class="col-duration">Duration</span>
+          <span class="col-status">Status</span>
+        </div>
+
+        <div class="client-item" *ngFor="let member of assignedMembers">
+          <div class="client-name-cell">
+            <div class="client-avatar">
+              <span>{{ member.firstName ? member.firstName[0] : 'M' }}</span>
+            </div>
+            <div class="client-info">
+              <span class="client-name">{{ member.firstName }} {{ member.lastName }}</span>
+              <span class="client-email">{{ member.email || 'No email provided' }}</span>
+            </div>
+          </div>
+
+          <span class="col-membership val">{{ member.membershipNumber || '-' }}</span>
+
+          <span class="col-slot val">
+            <i class="fa-solid fa-clock"></i> {{ member.assignedSlot || 'Flexible' }}
+          </span>
+
+          <div class="col-duration val-stacked">
+            <span class="main-val">{{ getDuration(member.assignedDate, member.endDate) }}</span>
+            <span class="sub-val">{{ (member.assignedDate | date:'mediumDate') || '-' }} - {{ (member.endDate |
+              date:'mediumDate') || 'Ongoing' }}</span>
+          </div>
+
+          <span class="col-status">
+            <span class="status-pill" [ngClass]="member.status?.toLowerCase() || 'active'">
+              {{ member.status || 'Active' }}
+            </span>
+          </span>
+        </div>
+
+        <div class="no-clients" *ngIf="assignedMembers.length === 0">
+          <i class="fa-solid fa-user-slash"></i>
+          <p>No active PT members allocated. Active allocations contribute directly to commissions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noData>
+    <div class="glass-card no-data-card">
+      <i class="fa-solid fa-receipt"></i>
+      <h3>No payout statement found</h3>
+      <p>There is no payroll log or released statement on file for the selected month ({{ monthKey }}).</p>
+    </div>
+  </ng-template>
+</div>

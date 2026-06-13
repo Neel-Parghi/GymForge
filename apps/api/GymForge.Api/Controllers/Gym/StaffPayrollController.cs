@@ -1,19 +1,22 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Gym.Billing;
+using GymForge.Contracts.Staff;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/billing/staff")]
-    [Authorize(Roles = "GymOwner,Staff")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer")]
     public class StaffPayrollController : BaseApiController
     {
         private readonly IStaffPayrollService _payrollService;
+        private readonly IStaffService _staffService;
 
-        public StaffPayrollController(IStaffPayrollService payrollService)
+        public StaffPayrollController(IStaffPayrollService payrollService, IStaffService staffService)
         {
             _payrollService = payrollService;
+            _staffService = staffService;
         }
 
         [HttpGet("overview")]
@@ -28,6 +31,28 @@ namespace GymForge.Api.Controllers.Gym
             }
 
             StaffPayrollOverviewDto overview = await _payrollService.GetStaffPayrollOverviewAsync(GymId.Value, SecureBranchId, monthKey);
+
+            if (User.IsInRole("Trainer"))
+            {
+                StaffResponse? staff = await _staffService.GetStaffByIdAsync(UserId);
+                if (staff != null)
+                {
+                    overview.Payouts = overview.Payouts.Where(p => p.StaffId == staff.Id).ToList();
+                    overview.TotalBaseSalary = overview.Payouts.Sum(p => p.BaseSalary);
+                    overview.TotalCommissions = overview.Payouts.Sum(p => p.Commissions);
+                    overview.TotalPayout = overview.Payouts.Sum(p => p.TotalPayout);
+                    overview.StaffCount = overview.Payouts.Count;
+                }
+                else
+                {
+                    overview.Payouts = new List<StaffPayoutDto>();
+                    overview.TotalBaseSalary = 0;
+                    overview.TotalCommissions = 0;
+                    overview.TotalPayout = 0;
+                    overview.StaffCount = 0;
+                }
+            }
+
             return Ok(overview);
         }
 

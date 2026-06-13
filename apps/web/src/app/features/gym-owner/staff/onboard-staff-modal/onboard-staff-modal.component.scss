@@ -207,13 +207,13 @@
 button {
   cursor: pointer;
   font-family: var(--font-body);
-  font-weight: 700;
+  font-weight: 600;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  padding: 14px 28px;
+  padding: 12px 20px;
   font-size: 0.95rem;
 
   &:disabled {

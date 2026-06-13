@@ -20,6 +20,8 @@ export class StaffService extends BaseApiService {
   private staffLogsCache$: Observable<ApiResponse<any>> | null = null;
   private staffBypassedLogsCache$: Observable<ApiResponse<any>> | null = null;
   private measurementsCache = new Map<string, Observable<ApiResponse<MeasurementResponse[]>>>();
+  private staffDetailsCache = new Map<string, Observable<ApiResponse<StaffResponse>>>();
+  private attendanceLogsCache = new Map<string, Observable<ApiResponse<any>>>();
 
   constructor() {
     super();
@@ -80,8 +82,14 @@ export class StaffService extends BaseApiService {
     return this.unscopedStaffCache$;
   }
 
-  getStaffById(id: string): Observable<ApiResponse<StaffResponse>> {
-    return this.get<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${id}`);
+  getStaffById(id: string, forceRefresh = false): Observable<ApiResponse<StaffResponse>> {
+    if (forceRefresh || !this.staffDetailsCache.has(id)) {
+      const request$ = this.get<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
+        shareReplay(1)
+      );
+      this.staffDetailsCache.set(id, request$);
+    }
+    return this.staffDetailsCache.get(id)!;
   }
 
   addStaff(payload: AddStaffRequest): Observable<ApiResponse<StaffResponse>> {
@@ -96,13 +104,19 @@ export class StaffService extends BaseApiService {
 
   updateStaff(id: string, payload: AddStaffRequest): Observable<ApiResponse<any>> {
     return this.put<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/${id}`, payload).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(id);
+        this.clearCache();
+      })
     );
   }
 
   deleteStaff(id: string): Observable<ApiResponse<any>> {
     return this.delete<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(id);
+        this.clearCache();
+      })
     );
   }
 
@@ -159,13 +173,19 @@ export class StaffService extends BaseApiService {
 
   checkInStaff(staffId: string, notes?: string): Observable<ApiResponse<StaffResponse>> {
     return this.post<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${staffId}/check-in`, { notes }).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(staffId);
+        this.clearCache();
+      })
     );
   }
 
   checkOutStaff(staffId: string): Observable<ApiResponse<StaffResponse>> {
     return this.post<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${staffId}/check-out`, {}).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(staffId);
+        this.clearCache();
+      })
     );
   }
 
@@ -182,42 +202,16 @@ export class StaffService extends BaseApiService {
   }
 
   getStaffAttendanceLogs(params?: any, forceRefresh = false): Observable<ApiResponse<any>> {
-    if (forceRefresh) {
-      this.clearCache();
+    const cacheKey = JSON.stringify(params || {});
+
+    if (forceRefresh || !this.attendanceLogsCache.has(cacheKey)) {
+      const request$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
+        shareReplay(1)
+      );
+      this.attendanceLogsCache.set(cacheKey, request$);
     }
 
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${month}-${day}`;
-
-    const isDefault = !params?.searchTerm &&
-      (!params?.status || params.status === 'all') &&
-      params?.pageNumber === 1 &&
-      params?.pageSize === 10 &&
-      (!params?.date || params.date === todayStr) &&
-      !params?.bypassPagination;
-
-    if (isDefault) {
-      if (!this.staffLogsCache$) {
-        this.staffLogsCache$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
-          shareReplay(1)
-        );
-      }
-      return this.staffLogsCache$;
-    }
-
-    if (params?.bypassPagination) {
-      if (!this.staffBypassedLogsCache$) {
-        this.staffBypassedLogsCache$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
-          shareReplay(1)
-        );
-      }
-      return this.staffBypassedLogsCache$;
-    }
-
-    return this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params);
+    return this.attendanceLogsCache.get(cacheKey)!;
   }
 
   clearCache(): void {
@@ -228,5 +222,7 @@ export class StaffService extends BaseApiService {
     this.measurementsCache.clear();
     this.staffLogsCache$ = null;
     this.staffBypassedLogsCache$ = null;
+    this.staffDetailsCache.clear();
+    this.attendanceLogsCache.clear();
   }
 }

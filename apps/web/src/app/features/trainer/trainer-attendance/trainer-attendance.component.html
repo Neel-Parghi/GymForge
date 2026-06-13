@@ -1,0 +1,117 @@
+<div class="trainer-attendance-container">
+  <header class="page-header">
+    <div class="header-info">
+      <h1>Attendance Center</h1>
+      <p class="subtitle">Clock in/out to log your presence and view your shift history</p>
+    </div>
+  </header>
+
+  <div class="attendance-dashboard">
+    <!-- Clock Card -->
+    <div class="glass-card status-card" [ngClass]="{ 'checked-in': isCheckedIn }">
+      <div class="card-glow"></div>
+      <div class="status-indicator-wrapper">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ isCheckedIn ? 'Active Shift' : 'Clocked Out' }}</span>
+      </div>
+
+      <div class="timer-display">
+        <span class="time">{{ isCheckedIn ? timerString : '00:00:00' }}</span>
+      </div>
+
+      <div class="control-section">
+        <div class="notes-wrapper" *ngIf="!isCheckedIn">
+          <input 
+            type="text" 
+            id="checkin-notes" 
+            [(ngModel)]="checkInNotes" 
+            placeholder="Shift notes (optional)..."
+            class="notes-input"
+          />
+        </div>
+
+        <button class="btn-clock" [ngClass]="isCheckedIn ? 'btn-out' : 'btn-in'" (click)="toggleClock()">
+          <i class="fa-solid" [ngClass]="isCheckedIn ? 'fa-right-from-bracket' : 'fa-right-to-bracket'"></i>
+          {{ isCheckedIn ? 'Clock Out' : 'Clock In' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Overview Card -->
+    <div class="glass-card info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-title">Last Clock In</span>
+            <span class="info-val">{{ (staffDetails?.lastCheckInTime | date:'shortTime') || '--:--' }}</span>
+            <span class="info-sub">{{ (staffDetails?.lastCheckInTime | date:'mediumDate') || 'No recent logs' }}</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fa-solid fa-calendar-day"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-title">Preferred Shift</span>
+            <span class="info-val">{{ staffDetails?.shiftTimings || 'General Shift' }}</span>
+            <span class="info-sub">Default Availability</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Card -->
+  <div class="glass-card history-card">
+    <div class="history-header">
+      <h2>Shift Logs & Attendance History</h2>
+    </div>
+
+    <div class="table-container">
+      <app-data-grid 
+        [config]="gridConfig" 
+        [data]="logs" 
+        [totalItems]="totalLogsCount"
+        [pageSize]="pageSize" 
+        [currentPage]="pageNumber"
+        (pageChange)="changePage($event)"
+        (pageSizeChange)="changePageSize($event)">
+        
+        <ng-template [gridCell]="'date'" let-row>
+          <span class="bold-text">{{ row.checkInTime | date:'mediumDate' }}</span>
+        </ng-template>
+
+        <ng-template [gridCell]="'checkInTime'" let-row>
+          <span class="badge badge-in">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> {{ row.checkInTime | date:'shortTime' }}
+          </span>
+        </ng-template>
+
+        <ng-template [gridCell]="'checkOutTime'" let-row>
+          <span class="badge badge-out" *ngIf="row.checkOutTime">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> {{ row.checkOutTime | date:'shortTime' }}
+          </span>
+          <span class="badge badge-pending" *ngIf="!row.checkOutTime">Active</span>
+        </ng-template>
+
+        <ng-template [gridCell]="'hoursWorked'" let-row>
+          <span class="hours-worked">{{ row.hoursWorked != null ? (row.hoursWorked + ' hrs') : 'In progress...' }}</span>
+        </ng-template>
+
+        <ng-template [gridCell]="'notes'" let-row>
+          <span class="notes-cell" [title]="row.notes || ''">{{ row.notes || '-' }}</span>
+        </ng-template>
+
+        <ng-template #emptyState>
+          <div class="no-data">
+            <i class="fa-solid fa-clipboard-question"></i>
+            <p>No shift logs found. Clock in to create your first session log!</p>
+          </div>
+        </ng-template>
+      </app-data-grid>
+    </div>
+  </div>
+</div>

@@ -1,101 +1,128 @@
-<div class="trainer-dashboard-container">
-  <!-- Header Section -->
-  <header class="dashboard-header">
-    <div class="header-info">
-      <h1>Welcome back, <span class="accent-text">{{ trainerName }}</span></h1>
-      <p class="subtitle">Here is what is scheduled for your shift today, {{ todayDate | date:'fullDate' }}</p>
+<div class="trainer-dashboard-container" [ngClass]="greetingTheme">
+  <!-- Dynamic Background Leaks -->
+  <div class="ambient-leaks-wrapper">
+    <div class="ambient-leak-1"></div>
+    <div class="ambient-leak-2"></div>
+    <div class="ambient-leak-3"></div>
+  </div>
+
+  <!-- Hero Banner Section -->
+  <header class="hero-section">
+    <div class="hero-content">
+      <div class="weather-icon-large">
+        <i class="fa-solid" [ngClass]="greetingIcon"></i>
+      </div>
+      <div class="hero-text">
+        <h1>{{ greeting }}, <span class="accent-text">{{ trainerName }}</span></h1>
+        <p class="subtitle">Here is what is scheduled for your shift today, {{ todayDate | date:'fullDate' }}</p>
+      </div>
     </div>
-    <div class="header-badge">
-      <div class="status-indicator online"></div>
-      <span>Shift Active</span>
+    <div class="hero-actions">
+      <div class="header-badge" [ngClass]="{ 'checked-in': isCheckedIn }" (click)="toggleClock()">
+        <div class="status-indicator"></div>
+        <span>{{ isCheckedIn ? 'Active Shift' : 'Clocked Out' }}</span>
+      </div>
     </div>
   </header>
 
-  <!-- Statistics Grid -->
-  <section class="stats-grid">
-    <div class="stat-card" *ngFor="let stat of stats">
-      <div class="stat-content">
-        <span class="stat-label">{{ stat.title }}</span>
-        <h3 class="stat-value">{{ stat.value }}</h3>
-      </div>
-      <div class="stat-icon-wrapper" [ngClass]="stat.color">
-        <i class="fa-solid" [ngClass]="stat.icon"></i>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content Layout -->
-  <div class="dashboard-main-layout">
-    <!-- Left: Schedule -->
-    <div class="timeline-container glass-card">
-      <div class="card-header">
-        <div class="title-area">
-          <i class="fa-solid fa-calendar-days header-icon"></i>
-          <div>
-            <h2>Today's Sessions</h2>
-            <p class="sub">Track your client appointments and training slots</p>
-          </div>
+  <!-- Scrollable Content Area -->
+  <div class="dashboard-scrollable-content">
+    <!-- Statistics Grid -->
+    <section class="stats-grid">
+      <div class="stat-card" *ngFor="let stat of stats">
+        <div class="stat-content">
+          <span class="stat-label">{{ stat.title }}</span>
+          <h3 class="stat-value">{{ stat.value }}</h3>
         </div>
-        <span class="badge">{{ completedSessions }} / {{ totalSessions }} Done</span>
+        <div class="stat-icon-wrapper" [ngClass]="stat.color">
+          <i class="fa-solid" [ngClass]="stat.icon"></i>
+        </div>
       </div>
+    </section>
 
-      <div class="timeline-list">
-        <div class="timeline-item" *ngFor="let session of todaySessions" [class.completed]="session.status === 'Completed'">
-          <div class="time-marker">
-            <span class="time-text">{{ session.time }}</span>
-            <div class="connector-dot"></div>
-          </div>
-          <div class="session-card">
-            <div class="member-avatar">
-              {{ session.initials }}
-            </div>
-            <div class="session-details">
-              <h4>{{ session.memberName }}</h4>
-              <p class="plan-tag"><i class="fa-solid fa-dumbbell"></i> {{ session.planName }}</p>
-            </div>
-            <div class="session-action">
-              <span class="status-pill" [class.done]="session.status === 'Completed'">
-                {{ session.status }}
-              </span>
+    <!-- Main Content Layout -->
+    <div class="dashboard-main-layout">
+      <!-- Left: Schedule -->
+      <div class="timeline-container glass-card full-height">
+        <div class="card-header">
+          <div class="title-area">
+            <i class="fa-solid fa-calendar-days header-icon"></i>
+            <div>
+              <h2>Today's Sessions</h2>
+              <p class="sub">Track your client appointments and training slots</p>
             </div>
           </div>
+          <span class="badge">{{ completedSessions }} / {{ totalSessions }} Done</span>
         </div>
-      </div>
-    </div>
+        <div class="session-progress">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill"
+              [style.width.%]="totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0"></div>
+          </div>
+        </div>
 
-    <!-- Right: Quick Actions & Alerts -->
-    <div class="sidebar-cards">
-      <!-- Quick Actions -->
-      <div class="glass-card actions-card">
-        <h3>Quick Actions</h3>
-        <div class="actions-grid">
-          <button class="action-btn" (click)="navigateTo('/trainer/members')">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>View Clients</span>
-          </button>
-          <button class="action-btn" (click)="navigateTo('/trainer/workout-planner')">
-            <i class="fa-solid fa-dumbbell"></i>
-            <span>Workout Planner</span>
-          </button>
-          <button class="action-btn" (click)="navigateTo('/trainer/settings')">
-            <i class="fa-solid fa-sliders"></i>
-            <span>Preferences</span>
-          </button>
-          <button class="action-btn secondary" (click)="navigateTo('/trainer/profile')">
-            <i class="fa-solid fa-user-gear"></i>
-            <span>Edit Profile</span>
-          </button>
+        <div class="timeline-list">
+          <!-- Empty State -->
+          <div class="empty-state" *ngIf="todaySessions.length === 0">
+            <i class="fa-solid fa-mug-hot"></i>
+            <p>No sessions scheduled for today</p>
+          </div>
+
+          <div class="timeline-item" *ngFor="let session of todaySessions"
+            [class.completed]="session.status === 'Completed'">
+            <div class="time-marker">
+              <div class="connector-dot"></div>
+            </div>
+            <div class="session-card">
+              <div class="member-avatar">
+                {{ session.initials }}
+              </div>
+              <div class="session-details">
+                <div class="session-header">
+                  <h4>{{ session.memberName }}</h4>
+                  <div class="header-right">
+                    <span class="session-time"><i class="fa-regular fa-clock"></i> {{ session.time }}</span>
+                    <span class="status-pill" [class.done]="session.status === 'Completed'">
+                      {{ session.status }}
+                    </span>
+                    <button class="btn-complete-session" *ngIf="session.status !== 'Completed'"
+                      (click)="completeSession(session, $event)" title="Mark as Completed">
+                      <i class="fa-solid fa-check"></i>
+                    </button>
+                  </div>
+                </div>
+                <p class="plan-tag"><i class="fa-solid fa-dumbbell"></i> {{ session.planName }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Motivation Card -->
-      <div class="motivation-card">
-        <div class="quote-content">
-          <i class="fa-solid fa-quote-left quote-icon"></i>
-          <p class="quote-text">"Success isn't always about greatness. It's about consistency. Consistent hard work leads to success."</p>
-          <span class="quote-author">— Dwayne Johnson</span>
+      <!-- Right: Quick Actions & Alerts -->
+      <div class="sidebar-cards">
+        <!-- Quick Actions -->
+        <div class="glass-card actions-card">
+          <h3>Quick Actions</h3>
+          <div class="actions-grid">
+            <button class="action-btn" (click)="navigateTo('/trainer/members')">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>View Clients</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('/trainer/workout-planner')">
+              <i class="fa-solid fa-dumbbell"></i>
+              <span>Workout Planner</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('/trainer/settings')">
+              <i class="fa-solid fa-sliders"></i>
+              <span>Preferences</span>
+            </button>
+            <button class="action-btn secondary" (click)="navigateTo('/trainer/profile')">
+              <i class="fa-solid fa-user-gear"></i>
+              <span>Edit Profile</span>
+            </button>
+          </div>
         </div>
       </div>
+      <!-- End Scrollable Content Area -->
     </div>
   </div>
-</div>

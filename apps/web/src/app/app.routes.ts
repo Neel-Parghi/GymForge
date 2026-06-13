@@ -124,7 +124,15 @@ export const routes: Routes = [
 
       {
         path: 'settings',
-        loadComponent: () => import('./features/trainer/settings/settings.component').then(m => m.TrainerSettingsComponent)
+        loadComponent: () => import('./features/trainer/trainer-settings/trainer-settings.component').then(m => m.TrainerSettingsComponent)
+      },
+      {
+        path: 'attendance',
+        loadComponent: () => import('./features/trainer/trainer-attendance/trainer-attendance.component').then(m => m.TrainerAttendanceComponent)
+      },
+      {
+        path: 'billing',
+        loadComponent: () => import('./features/trainer/trainer-billing/trainer-billing.component').then(m => m.TrainerBillingComponent)
       },
       {
         path: 'profile',

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../../core/services/profile.service';
+import { StaffService } from '../../../core/services/staff.service';
 import { UserProfile } from '../../../shared/models/user-profile.model';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -11,7 +12,7 @@ import { API_CONSTANTS } from '../../../core/constants/api-constants';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -29,9 +30,13 @@ export class ProfileComponent implements OnInit {
   selectedFile: File | null = null;
   previewUrl: string | null = null;
 
+  isTrainer = false;
+  specInput = '';
+
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
+    private staffService: StaffService,
     private notification: NotificationService
   ) {
     this.profileForm = this.fb.group({
@@ -43,7 +48,13 @@ export class ProfileComponent implements OnInit {
       addressLine2: [''],
       city: [''],
       state: [''],
-      zipCode: ['']
+      zipCode: [''],
+      bio: [''],
+      experienceYears: [0],
+      instagramUrl: [''],
+      portfolioUrl: [''],
+      shiftTimings: [''],
+      specializations: [[]]
     });
 
     this.passwordForm = this.fb.group({
@@ -68,6 +79,8 @@ export class ProfileComponent implements OnInit {
         const data = response.data || response;
 
         this.profile = data;
+        this.isTrainer = data.role === 'Trainer';
+
         this.profileForm.patchValue({
           firstName: data.firstName,
           lastName: data.lastName,
@@ -79,11 +92,46 @@ export class ProfileComponent implements OnInit {
           state: data.state,
           zipCode: data.zipCode
         });
+
+        if (this.isTrainer) {
+          this.staffService.getStaffById(data.id).subscribe({
+            next: (res: any) => {
+              if (res?.data) {
+                this.profileForm.patchValue({
+                  bio: res.data.bio || '',
+                  experienceYears: res.data.experienceYears || 0,
+                  instagramUrl: res.data.instagramUrl || '',
+                  portfolioUrl: res.data.portfolioUrl || '',
+                  shiftTimings: res.data.shiftTimings || '',
+                  specializations: res.data.specializations || []
+                });
+              }
+            },
+            error: (err) => console.error('Failed to load trainer details', err)
+          });
+        }
+
         this.selectedFile = null;
         this.previewUrl = null;
       },
       error: (err) => console.error('Failed to load profile', err)
     });
+  }
+
+  addSpecialization(): void {
+    const val = this.specInput.trim();
+    const specs = this.profileForm.get('specializations')?.value || [];
+    if (val && !specs.includes(val)) {
+      specs.push(val);
+      this.profileForm.patchValue({ specializations: specs });
+      this.specInput = '';
+    }
+  }
+
+  removeSpecialization(index: number): void {
+    const specs = this.profileForm.get('specializations')?.value || [];
+    specs.splice(index, 1);
+    this.profileForm.patchValue({ specializations: specs });
   }
 
   toggleEdit() {
@@ -115,25 +163,38 @@ export class ProfileComponent implements OnInit {
       }
 
       // 2. Save the profile details
-      this.profileService.updateProfile(this.profileForm.value).subscribe({
-        next: () => {
-          this.isSaving = false;
-          this.isEditMode = false;
-          this.selectedFile = null;
-          this.previewUrl = null;
-          this.notification.success(CONSTANTS.PROFILE_UPDATE_SUCCESS_MESSAGE);
-          
-          // Single final refresh to sync everything (including Header) - FORCE REFRESH HERE
-          this.loadProfile(true);
-        },
-        error: (err) => {
-          this.isSaving = false;
-          this.notification.error(err.error?.message || CONSTANTS.PROFILE_UPDATE_ERROR_MESSAGE);
-        }
-      });
+      await this.profileService.updateProfile(this.profileForm.value).toPromise();
+
+      // 3. Save the staff details if trainer
+      if (this.isTrainer && this.profile?.id) {
+        const staffPayload = {
+          firstName: this.profileForm.value.firstName,
+          lastName: this.profileForm.value.lastName,
+          email: this.profile?.email || '',
+          phoneNumber: this.profileForm.value.phone,
+          role: (this.profile as any).roleId || 1,
+          branchId: (this.profile as any).branchId || undefined,
+          bio: this.profileForm.value.bio,
+          experienceYears: this.profileForm.value.experienceYears,
+          instagramUrl: this.profileForm.value.instagramUrl,
+          portfolioUrl: this.profileForm.value.portfolioUrl,
+          shiftTimings: this.profileForm.value.shiftTimings,
+          specializations: this.profileForm.value.specializations
+        };
+        await this.staffService.updateStaff(this.profile.id, staffPayload).toPromise();
+      }
+
+      this.isSaving = false;
+      this.isEditMode = false;
+      this.selectedFile = null;
+      this.previewUrl = null;
+      this.notification.success(CONSTANTS.PROFILE_UPDATE_SUCCESS_MESSAGE);
+      
+      // Single final refresh to sync everything (including Header) - FORCE REFRESH HERE
+      this.loadProfile(true);
     } catch (error: any) {
       this.isSaving = false;
-      this.notification.error(error.error?.message || CONSTANTS.PROFILE_PICTURE_UPLOAD_ERROR);
+      this.notification.error(error.error?.message || CONSTANTS.PROFILE_UPDATE_ERROR_MESSAGE);
     }
   }
 

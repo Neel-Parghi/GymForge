@@ -151,7 +151,7 @@ namespace GymForge.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.StaffId == staffId && x.CheckOutTime == null);
         }
 
-        public async Task<IEnumerable<StaffAttendanceLog>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null)
+        public async Task<IEnumerable<StaffAttendanceLog>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null, Guid? staffId = null)
         {
             IQueryable<StaffAttendanceLog> query = _dbContext.StaffAttendanceLogs
                 .AsNoTracking()
@@ -163,6 +163,11 @@ namespace GymForge.Infrastructure.Repositories
                 query = query.Where(x => x.BranchId == branchId);
             }
 
+            if (staffId != null)
+            {
+                query = query.Where(x => x.StaffId == staffId);
+            }
+
             return await query
                 .OrderByDescending(x => x.CheckInTime)
                 .ToListAsync();
@@ -171,7 +176,8 @@ namespace GymForge.Infrastructure.Repositories
         public async Task<PagedResponse<StaffAttendanceLog>> GetStaffAttendanceLogsPagedAsync(
             Guid gymId,
             PaginationParams pagination,
-            Guid? branchId = null)
+            Guid? branchId = null,
+            Guid? staffId = null)
         {
             IQueryable<StaffAttendanceLog> query = _dbContext.StaffAttendanceLogs
                 .AsNoTracking()
@@ -181,6 +187,11 @@ namespace GymForge.Infrastructure.Repositories
             if (branchId != null)
             {
                 query = query.Where(x => x.BranchId == branchId);
+            }
+
+            if (staffId != null)
+            {
+                query = query.Where(x => x.StaffId == staffId);
             }
 
             if (!string.IsNullOrEmpty(pagination.SearchTerm))

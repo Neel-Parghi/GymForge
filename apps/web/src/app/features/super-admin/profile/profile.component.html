@@ -102,6 +102,58 @@
             <label>Zip / Postal Code</label>
             <input type="text" formControlName="zipCode" [readonly]="!isEditMode">
           </div>
+
+          <!-- Trainer Public Bio Section (Only shown if isTrainer is true) -->
+          <ng-container *ngIf="isTrainer">
+            <div class="address-sub-header full-row">
+              <h3>Trainer Bio & Professional Details</h3>
+            </div>
+
+            <div class="form-group">
+              <label>Experience (Years)</label>
+              <input type="number" formControlName="experienceYears" [readonly]="!isEditMode">
+            </div>
+
+            <div class="form-group">
+              <label>Availability Slots / Shift Timings</label>
+              <input type="text" formControlName="shiftTimings" [readonly]="!isEditMode" placeholder="e.g. 06:00 AM - 12:00 PM, 04:00 PM - 08:00 PM">
+            </div>
+
+            <div class="form-group full-row">
+              <label>Bio / Philosophy</label>
+              <textarea formControlName="bio" [readonly]="!isEditMode" rows="4" placeholder="Write a short summary about your training focus, certifications, or methodology..." style="width: 100%; box-sizing: border-box; resize: vertical; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem; background: var(--bg-surface); color: var(--text-main);"></textarea>
+            </div>
+
+            <div class="form-group full-row">
+              <label>Specialization Areas</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; min-height: 2.25rem; padding: 0.5rem; background: var(--slate-50); border-radius: 0.75rem; border: 1px dashed var(--border-color); align-items: center;">
+                <span *ngFor="let tag of profileForm.get('specializations')?.value; let idx = index" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; background: var(--success-bg); color: var(--success-color); border: 1px solid var(--success-border); border-radius: 9999px; font-size: 0.8125rem; font-weight: 700;">
+                  {{ tag }}
+                  <button *ngIf="isEditMode" type="button" (click)="removeSpecialization(idx)" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 0.75rem; padding: 0; display: inline-flex; align-items: center;">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </span>
+              </div>
+              <div *ngIf="isEditMode" style="display: flex; gap: 0.75rem;">
+                <input type="text" [(ngModel)]="specInput" [ngModelOptions]="{standalone: true}" placeholder="e.g. Hypertrophy, Strength Conditioning, Fat Loss" style="flex: 1; padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid var(--border-color); font-size: 0.95rem;" (keydown.enter)="$event.preventDefault(); addSpecialization()">
+                <button type="button" (click)="addSpecialization()" style="background: var(--slate-100); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;">Add Tag</button>
+              </div>
+            </div>
+
+            <div class="address-sub-header full-row">
+              <h3>Social Profiles</h3>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fa-brands fa-instagram"></i> Instagram Link</label>
+              <input type="url" formControlName="instagramUrl" [readonly]="!isEditMode" placeholder="https://instagram.com/handle">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fa-solid fa-globe"></i> Portfolio / Website</label>
+              <input type="url" formControlName="portfolioUrl" [readonly]="!isEditMode" placeholder="https://mywebsite.com">
+            </div>
+          </ng-container>
         </div>
       </form>
     </div>

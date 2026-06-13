@@ -1,5 +1,5 @@
-<app-slide-drawer [isOpen]="isOpen" title="Transaction Receipt"
-  subtitle="Detailed record of the front-desk sale" width="450px" (closeDrawer)="closeDrawer.emit()">
+<app-slide-drawer [isOpen]="isOpen" title="Transaction Receipt" subtitle="Detailed record of the front-desk sale"
+  width="450px" (closeDrawer)="closeDrawer.emit()">
   <div drawer-body class="receipt-container" *ngIf="selectedSale">
     <div class="receipt-card">
       <div class="receipt-header">
@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <div class="receipt-footer">
+      <!-- <div class="receipt-footer">
         <p>Thank you for your purchase!</p>
         <div class="footer-actions">
           <button class="btn-icon-text" type="button" (click)="printReceipt()"><i class="fas fa-print"></i> Print</button>
@@ -94,7 +94,7 @@
             <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-envelope'"></i> Email
           </button>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
   <div drawer-footer class="drawer-actions">

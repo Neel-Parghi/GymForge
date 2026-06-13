@@ -45,6 +45,18 @@ export const TrainerMenu: NavItem[] = [
         roles: ['Trainer']
     },
     {
+        label: 'Attendance',
+        icon: 'fa-solid fa-clock',
+        route: '/trainer/attendance',
+        roles: ['Trainer']
+    },
+    {
+        label: 'Bills & Payouts',
+        icon: 'fa-solid fa-file-invoice-dollar',
+        route: '/trainer/billing',
+        roles: ['Trainer']
+    },
+    {
         label: 'Settings',
         icon: 'fa-solid fa-gear',
         route: '/trainer/settings',

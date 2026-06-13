@@ -1,0 +1,58 @@
+<div class="trainer-settings-container">
+  <header class="page-header">
+    <div class="header-info">
+      <h1>Trainer Configurations</h1>
+      <p class="subtitle">Customize your portal preferences and notification alerts</p>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <!-- Portal Preferences -->
+    <div class="settings-card glass-card">
+      <h2>Portal Preferences</h2>
+
+      <div class="settings-section">
+        <h3>Shift & Client Alerts</h3>
+        <p class="section-desc">Manage notifications regarding your client check-ins and session schedules</p>
+
+        <div class="switch-list">
+          <div class="switch-row">
+            <div class="switch-label">
+              <h4>Shift Reminders</h4>
+              <p>Get notified 15 minutes before your shift starts</p>
+            </div>
+            <label class="switch-control">
+              <input type="checkbox" [(ngModel)]="preferences.shiftStartReminder">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="switch-row">
+            <div class="switch-label">
+              <h4>Client Checked-In Alert</h4>
+              <p>Receive live alerts when an assigned PT member scans in</p>
+            </div>
+            <label class="switch-control">
+              <input type="checkbox" [(ngModel)]="preferences.clientCheckInNotification">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="switch-row">
+            <div class="switch-label">
+              <h4>PT Session Updates</h4>
+              <p>Receive notifications for new client allocations or session timing updates</p>
+            </div>
+            <label class="switch-control">
+              <input type="checkbox" [(ngModel)]="preferences.ptSessionAlerts">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-save btn-primary" (click)="saveSettings()">
+        <i class="fa-solid fa-save"></i> Save Notification Prefs
+      </button>
+    </div>
+  </div>

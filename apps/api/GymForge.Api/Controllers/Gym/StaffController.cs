@@ -151,17 +151,32 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet("attendance-logs")]
-        public async Task<ActionResult> GetStaffAttendanceLogs([FromQuery] PaginationParams pagination)
+        public async Task<ActionResult> GetStaffAttendanceLogs([FromQuery] PaginationParams pagination, [FromQuery] Guid? staffId = null)
         {
             if (GymId == null) return Unauthorized();
+
+            if (User.IsInRole("Trainer") || User.IsInRole("Staff"))
+            {
+                StaffResponse? staff = await _staffService.GetStaffByIdAsync(UserId);
+                if (staff != null)
+                {
+                    staffId = staff.Id;
+                }
+                else
+                {
+                    return Ok(pagination.BypassPagination == true 
+                        ? (object)new List<StaffAttendanceLogResponse>() 
+                        : new PagedResponse<StaffAttendanceLogResponse>(new List<StaffAttendanceLogResponse>(), 0, pagination.PageNumber, pagination.PageSize));
+                }
+            }
             
             if (pagination.BypassPagination == true)
             {
-                IEnumerable<StaffAttendanceLogResponse> allLogs = await _staffService.GetStaffAttendanceLogsAsync(GymId.Value, SecureBranchId);
+                IEnumerable<StaffAttendanceLogResponse> allLogs = await _staffService.GetStaffAttendanceLogsAsync(GymId.Value, SecureBranchId, staffId);
                 return Ok(allLogs);
             }
             
-            PagedResponse<StaffAttendanceLogResponse> pagedLogs = await _staffService.GetStaffAttendanceLogsPagedAsync(GymId.Value, pagination, SecureBranchId);
+            PagedResponse<StaffAttendanceLogResponse> pagedLogs = await _staffService.GetStaffAttendanceLogsPagedAsync(GymId.Value, pagination, SecureBranchId, staffId);
             return Ok(pagedLogs);
         }
     }
