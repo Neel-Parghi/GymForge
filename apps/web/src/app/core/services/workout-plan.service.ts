@@ -99,6 +99,7 @@ export class WorkoutPlanService extends BaseApiService {
       isCustom: apiPlan.isCustom ?? false,
       daysCount: apiPlan.daysCount,
       exercisesCount: apiPlan.exercisesCount,
+      createdBy: apiPlan.createdBy,
       createdAt: apiPlan.createdOn ? new Date(apiPlan.createdOn) : new Date()
     };
 

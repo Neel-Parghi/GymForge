@@ -23,7 +23,7 @@ namespace GymForge.Infrastructure.Repositories
                                             .Include(p => p.Meals.OrderBy(m => m.SortOrder))
                                             .Where(p => 
                                                 (
-                                                    (gymId.HasValue && p.GymId == gymId.Value) || 
+                                                    (gymId.HasValue && p.GymId == gymId.Value && (!p.IsCustom || p.CreatedBy == userId)) || 
                                                     (!gymId.HasValue && p.CreatedBy == userId && !p.GymId.HasValue) ||
                                                     (!gymId.HasValue && p.GymId.HasValue && userGymIds.Contains(p.GymId.Value) && !p.IsCustom)
                                                 ) 

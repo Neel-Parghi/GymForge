@@ -59,12 +59,11 @@ export class DietTemplateCreatorComponent implements OnInit {
 
   addMeal(meal?: any): void {
     const rawName: string = meal?.name || '';
-    const timeMatch = rawName.match(/\(([^)]+)\)/);
-    const parsedTime = timeMatch ? this.to24h(timeMatch[1]) : '08:00';
-    const parsedTitle = rawName.replace(/\s*\([^)]+\)/, '').trim();
+    const rawTime: string = meal?.time || '';
+    const parsedTime = rawTime ? this.to24h(rawTime) : '08:00';
 
     const mealGroup = this.fb.group({
-      mealTitle: [parsedTitle, [Validators.required]],
+      mealTitle: [rawName, [Validators.required]],
       mealTime: [parsedTime, [Validators.required]],
       calories: [meal?.calories || 400, [Validators.required, Validators.min(0)]],
       protein: [meal?.protein || 30, [Validators.required, Validators.min(0)]],

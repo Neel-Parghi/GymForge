@@ -71,6 +71,7 @@ export class UserDietPlanner implements OnInit {
     this.memberService.assignDiet(this.userId, plan.id).subscribe({
       next: () => {
         this.activeDiet = {
+          planId: plan.id,
           planName: plan.name,
           calories: plan.calories,
           macros: { protein: plan.protein, carbs: plan.carbs, fats: plan.fats },

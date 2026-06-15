@@ -694,6 +694,7 @@ export class PTMemberDetailComponent implements OnInit {
     this.memberService.assignDiet(this.memberId, plan.id).subscribe({
       next: () => {
         this.activeDiet = {
+          planId: plan.id,
           planName: plan.name,
           calories: plan.calories,
           macros: { protein: plan.protein, carbs: plan.carbs, fats: plan.fats },

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { PTMemberDetailTrackPerformanceComponent } from '../../trainer/member-detail/components/member-detail-track-performance/member-detail-track-performance';
 import { MemberService } from '../../../core/services/member.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
@@ -17,6 +18,7 @@ export class UserPerformance implements OnInit {
   private memberService = inject(MemberService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
+  private router = inject(Router);
 
   todayWorkout: any = null;
   activeSplit: any = null;
@@ -32,6 +34,8 @@ export class UserPerformance implements OnInit {
     
     if (this.routerState?.loggingDate) {
       this.loggingDate = new Date(this.routerState.loggingDate);
+    } else if (this.routerState?.sessionToEdit && this.routerState.sessionToEdit.date) {
+      this.loggingDate = new Date(this.routerState.sessionToEdit.date);
     }
     
     this.authService.userProfile$.subscribe(profile => {
@@ -320,5 +324,9 @@ export class UserPerformance implements OnInit {
         this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.LOG_WORKOUT_ERROR);
       }
     });
+  }
+
+  goBackToCalendar(): void {
+    this.router.navigate(['/user/workout-calendar']);
   }
 }

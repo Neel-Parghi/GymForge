@@ -23,9 +23,11 @@ namespace GymForge.Infrastructure.Repositories
                                             .Include(p => p.Days.OrderBy(d => d.DayIndex))
                                                 .ThenInclude(d => d.Exercises.OrderBy(e => e.SortOrder))
                                             .Where(p => 
-                                                (gymId.HasValue && p.GymId == gymId.Value) || 
-                                                (!gymId.HasValue && p.CreatedBy == userId && !p.GymId.HasValue) ||
-                                                (!gymId.HasValue && p.GymId.HasValue && userGymIds.Contains(p.GymId.Value) && !p.IsCustom)
+                                                (
+                                                    (gymId.HasValue && p.GymId == gymId.Value && (!p.IsCustom || p.CreatedBy == userId)) || 
+                                                    (!gymId.HasValue && p.CreatedBy == userId && !p.GymId.HasValue) ||
+                                                    (!gymId.HasValue && p.GymId.HasValue && userGymIds.Contains(p.GymId.Value) && !p.IsCustom)
+                                                ) && !p.IsDeleted
                                             );
 
             if (!string.IsNullOrWhiteSpace(type))

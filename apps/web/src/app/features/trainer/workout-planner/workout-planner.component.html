@@ -42,10 +42,13 @@
           <span class="badge goal">{{ plan.goal }}</span>
         </div>
         <div class="card-actions-group">
-          <button class="btn-edit" (click)="editPlanner(plan, 'split', $event)" title="Edit Template">
+          <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'split', $event)" title="Edit Template">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
-          <button class="btn-delete" (click)="deletePlanner(plan.id, 'split', $event)" title="Delete Template">
+          <button class="btn-edit" *ngIf="!canEdit(plan)" (click)="editPlanner(plan, 'split', $event)" title="Inherit & Edit Template">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+          <button class="btn-delete" *ngIf="canEdit(plan)" (click)="deletePlanner(plan.id, 'split', $event)" title="Delete Template">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
@@ -64,7 +67,6 @@
 
         <div class="split-visual-overview">
           <span class="split-dot-badge" *ngFor="let d of plan.days">
-            <i class="fa-solid" [ngClass]="getCategoryIcon(d.category)"></i>
             {{ d.category }}
           </span>
         </div>
@@ -89,10 +91,13 @@
           <span class="badge goal">{{ plan.goal }}</span>
         </div>
         <div class="card-actions-group">
-          <button class="btn-edit" (click)="editPlanner(plan, 'weekly', $event)" title="Edit Template">
+          <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'weekly', $event)" title="Edit Template">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
-          <button class="btn-delete" (click)="deletePlanner(plan.id, 'weekly', $event)" title="Delete Template">
+          <button class="btn-edit" *ngIf="!canEdit(plan)" (click)="editPlanner(plan, 'weekly', $event)" title="Inherit & Edit Template">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+          <button class="btn-delete" *ngIf="canEdit(plan)" (click)="deletePlanner(plan.id, 'weekly', $event)" title="Delete Template">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
@@ -136,10 +141,13 @@
           <span class="badge goal">{{ plan.goal }}</span>
         </div>
         <div class="card-actions-group">
-          <button class="btn-edit" (click)="editPlanner(plan, 'daily', $event)" title="Edit Template">
+          <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'daily', $event)" title="Edit Template">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
-          <button class="btn-delete" (click)="deletePlanner(plan.id, 'daily', $event)" title="Delete Template">
+          <button class="btn-edit" *ngIf="!canEdit(plan)" (click)="editPlanner(plan, 'daily', $event)" title="Inherit & Edit Template">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+          <button class="btn-delete" *ngIf="canEdit(plan)" (click)="deletePlanner(plan.id, 'daily', $event)" title="Delete Template">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
@@ -156,7 +164,6 @@
 
         <div class="split-visual-overview">
           <span class="split-dot-badge">
-            <i class="fa-solid" [ngClass]="getCategoryIcon(plan.targetCategory ? plan.targetCategory.split(' + ')[0] : '')"></i>
             {{ plan.targetCategory }}
           </span>
         </div>

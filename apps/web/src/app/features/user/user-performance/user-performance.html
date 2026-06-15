@@ -7,6 +7,6 @@
   </div>
 
   <app-member-detail-track-performance [todayWorkout]="todayWorkout" [activeSplit]="activeSplit"
-    [loggingDate]="loggingDate" (saveSession)="saveWorkoutSession()">
+    [loggingDate]="loggingDate" (saveSession)="saveWorkoutSession()" (cancel)="goBackToCalendar()">
   </app-member-detail-track-performance>
 </div>

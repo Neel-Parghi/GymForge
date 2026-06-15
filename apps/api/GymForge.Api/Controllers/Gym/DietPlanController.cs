@@ -37,6 +37,10 @@ namespace GymForge.Api.Controllers.Gym
         [HttpPost]
         public async Task<ActionResult<DietPlanDto>> CreatePlan([FromBody] CreateDietPlanRequest request)
         {
+            if (IsStandaloneUser)
+            {
+                request.IsCustom = true;
+            }
             DietPlanDto result = await _dietPlanService.CreatePlanAsync(request, GymId, UserId);
             return Ok(result);
         }

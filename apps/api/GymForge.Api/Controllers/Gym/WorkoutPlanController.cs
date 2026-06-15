@@ -37,6 +37,10 @@ namespace GymForge.Api.Controllers.Gym
         [HttpPost]
         public async Task<ActionResult<WorkoutPlanDto>> CreatePlan([FromBody] CreateWorkoutPlanRequest request)
         {
+            if (IsStandaloneUser)
+            {
+                request.IsCustom = true;
+            }
             WorkoutPlanDto result = await _workoutPlanService.CreatePlanAsync(request, GymId, UserId);
             return Ok(result);
         }

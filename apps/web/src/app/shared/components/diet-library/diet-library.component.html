@@ -30,6 +30,9 @@
             <button class="btn-edit" *ngIf="canEdit(diet)" (click)="openEditModal(diet)" title="Edit Template">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
+            <button class="btn-edit" *ngIf="!canEdit(diet)" (click)="openEditModal(diet)" title="Inherit & Edit Template">
+              <i class="fa-solid fa-copy"></i>
+            </button>
             <button class="btn-delete" *ngIf="canEdit(diet)" (click)="deleteTemplate(diet.id, $event)"
               title="Delete Template">
               <i class="fa-solid fa-trash-can"></i>
@@ -39,7 +42,7 @@
 
         <div class="card-body">
           <div class="title-row">
-            <h3 class="card-title">{{ diet.name }}</h3>
+            <h3 class="card-title" [title]="diet.name">{{ diet.name | truncate:50:true }}</h3>
             <button class="btn-primary-sm" *ngIf="currentUserId && activeDietId !== diet.id"
               (click)="assignTemplate(diet, $event)" title="Set as Active Plan">
               Assign

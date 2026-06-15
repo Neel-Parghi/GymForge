@@ -5,11 +5,12 @@ import { DietTemplateCreatorComponent } from './diet-template-creator/diet-templ
 import { ConfirmationPopupComponent } from '../confirmation-popup/confirmation-popup.component';
 import { DietPlanService } from '../../../core/services/diet-plan.service';
 import { CONSTANTS } from '../../../core/constants/constants';
+import { TruncatePipe } from '../../pipes/truncate.pipe';
 
 @Component({
   selector: 'app-diet-library',
   standalone: true,
-  imports: [CommonModule, DietTemplateCreatorComponent, ConfirmationPopupComponent],
+  imports: [CommonModule, DietTemplateCreatorComponent, ConfirmationPopupComponent, TruncatePipe],
   templateUrl: './diet-library.component.html',
   styleUrl: './diet-library.component.scss'
 })
@@ -60,7 +61,12 @@ export class DietLibraryComponent implements OnInit {
   }
 
   openEditModal(plan: any): void {
-    this.editingPlan = plan;
+    if (!this.canEdit(plan)) {
+      // Inherit mode: duplicate plan without ID
+      this.editingPlan = { ...plan, id: undefined, createdBy: this.currentUserId, isCustom: true };
+    } else {
+      this.editingPlan = plan;
+    }
     this.showCreateModal = true;
   }
 
@@ -70,7 +76,7 @@ export class DietLibraryComponent implements OnInit {
   }
 
   onSaveTemplate(planData: any): void {
-    if (this.editingPlan) {
+    if (this.editingPlan && this.editingPlan.id) {
       this.dietPlanService.updatePlan(this.editingPlan.id, planData).subscribe({
         next: () => {
           this.notification.success(CONSTANTS.DIET_PLANNER_MODULE.UPDATE_SUCCESS);

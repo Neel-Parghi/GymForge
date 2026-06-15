@@ -9,6 +9,7 @@ import { SplitPlannerCreatorComponent } from './components/split-planner-creator
 import { WeeklyPlannerCreatorComponent } from './components/weekly-planner-creator/weekly-planner-creator.component';
 import { DailyPlannerCreatorComponent } from './components/daily-planner-creator/daily-planner-creator.component';
 import { WorkoutPlanService } from '../../../core/services/workout-plan.service';
+import { AuthApiService } from '../../../core/services/auth-api.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import {
@@ -37,7 +38,9 @@ export class WorkoutPlannerComponent implements OnInit {
   private workoutMasterService = inject(WorkoutMasterService);
   private workoutPlanService = inject(WorkoutPlanService);
   private confirmationService = inject(ConfirmationService);
+  private authService = inject(AuthApiService);
 
+  currentUserId = '';
   activeTab: 'splits' | 'weekly' | 'daily' = 'splits';
 
   // Modal toggle states
@@ -64,6 +67,12 @@ export class WorkoutPlannerComponent implements OnInit {
   dailyPlanners: DailyPlanner[] = [];
 
   ngOnInit(): void {
+    this.authService.userProfile$.subscribe(profile => {
+      if (profile) {
+        this.currentUserId = profile.id;
+      }
+    });
+
     this.loadPlanners();
 
     // Fetch exercise reference lists from Master API
@@ -176,19 +185,29 @@ export class WorkoutPlannerComponent implements OnInit {
     this.editingDailyPlan = null;
   }
 
+  canEdit(plan: any): boolean {
+    if (!this.currentUserId) return true;
+    return plan.createdBy && plan.createdBy.toLowerCase() === this.currentUserId.toLowerCase();
+  }
+
   editPlanner(plan: WorkoutPlan, type: 'split' | 'weekly' | 'daily', event?: Event): void {
     if (event) {
       event.stopPropagation();
     }
 
+    let planToEdit = plan;
+    if (!this.canEdit(plan)) {
+      planToEdit = { ...plan, id: undefined, createdBy: this.currentUserId, isCustom: true };
+    }
+
     if (type === 'split') {
-      this.editingSplitPlan = plan as SplitPlanner;
+      this.editingSplitPlan = planToEdit as SplitPlanner;
       this.showCreateSplitModal = true;
     } else if (type === 'weekly') {
-      this.editingWeeklyPlan = plan as WeeklyPlanner;
+      this.editingWeeklyPlan = planToEdit as WeeklyPlanner;
       this.showCreateWeeklyModal = true;
     } else {
-      this.editingDailyPlan = plan as DailyPlanner;
+      this.editingDailyPlan = planToEdit as DailyPlanner;
       this.showCreateDailyModal = true;
     }
   }

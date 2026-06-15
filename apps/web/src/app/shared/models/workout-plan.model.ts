@@ -23,6 +23,7 @@ export interface BaseWorkoutPlan {
   goal: string;
   type: WorkoutPlanType;
   gymId?: string;
+  createdBy?: string;
   isCustom?: boolean;
   daysCount?: number;
   exercisesCount?: number;
