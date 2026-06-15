@@ -8,8 +8,9 @@ namespace GymForge.Domain.Entities
         public decimal Carbs { get; set; }
         public decimal Fats { get; set; }
         public int Calories { get; set; }
-        public string Goal { get; set; } = "Maintenance";
-        public Guid GymId { get; set; }
+        public string Goal { get; set; } = "Weight Loss";
+        
+        public Guid? GymId { get; set; }
         public bool IsCustom { get; set; } = false; // Whether it is custom made for a member
         public bool IsTemplate { get; set; } = true; // Whether it is a global template or custom/private
         public bool IsDeleted { get; set; } = false;

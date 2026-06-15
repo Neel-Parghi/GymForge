@@ -579,7 +579,19 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   openAssignSplitModal(): void {
-    this.showAssignSplitModal = true;
+    this.workoutPlanService.getPlans().subscribe({
+      next: (plans) => {
+        this.workoutPlans = plans || [];
+        if (this.workoutPlans.length === 0) {
+          this.notification.warning('No workout plans available. Please create a plan first.');
+        } else {
+          this.showAssignSplitModal = true;
+        }
+      },
+      error: () => {
+        this.notification.warning('No workout plans available. Please create a plan first.');
+      }
+    });
   }
 
   closeAssignSplitModal(): void {
@@ -659,8 +671,19 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   openAssignDietModal(): void {
-    this.loadDietPlans();
-    this.showAssignDietModal = true;
+    this.dietPlanService.getPlans().subscribe({
+      next: (plans) => {
+        this.dietPlans = plans || [];
+        if (this.dietPlans.length === 0) {
+          this.notification.warning('No diet plans available. Please create a plan first.');
+        } else {
+          this.showAssignDietModal = true;
+        }
+      },
+      error: () => {
+        this.notification.warning('No diet plans available. Please create a plan first.');
+      }
+    });
   }
 
   closeAssignDietModal(): void {

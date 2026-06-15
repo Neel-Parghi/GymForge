@@ -163,6 +163,15 @@
           color: var(--text-main);
           text-transform: uppercase;
           letter-spacing: 1px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .heading-icon {
+            font-size: 0.85rem;
+            color: var(--primary-main);
+            opacity: 0.8;
+          }
         }
 
         .nav-divider {

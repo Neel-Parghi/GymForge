@@ -6,8 +6,10 @@ namespace GymForge.Application.Modules.Diet.Interface
     {
         Task<MemberDietAssignmentDto?> GetActiveDietForMemberAsync(Guid memberId);
         
-        Task<bool> AssignDietToMemberAsync(Guid memberId, Guid dietPlanId);
+        Task<bool> AssignDietToMemberAsync(Guid memberId, Guid dietPlanId, Guid? gymId);
         
-        Task<bool> AssignCustomDietToMemberAsync(Guid memberId, CreateDietPlanRequest request, Guid gymId, Guid createdById);
+        Task<bool> AssignCustomDietToMemberAsync(Guid memberId, CreateDietPlanRequest request, Guid? gymId, Guid createdById);
+
+        Task<bool> UnassignActiveDietAsync(Guid memberId, Guid? gymId);
     }
 }

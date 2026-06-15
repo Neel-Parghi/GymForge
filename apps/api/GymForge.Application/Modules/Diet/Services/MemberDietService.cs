@@ -65,7 +65,7 @@ namespace GymForge.Application.Modules.Diet.Services
             };
         }
 
-        public async Task<bool> AssignDietToMemberAsync(Guid memberId, Guid dietPlanId)
+        public async Task<bool> AssignDietToMemberAsync(Guid memberId, Guid dietPlanId, Guid? gymId)
         {
             MemberDietAssignment? activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
             if (activeAssignment != null)
@@ -75,18 +75,20 @@ namespace GymForge.Application.Modules.Diet.Services
 
             MemberDietAssignment newAssignment = new()
             {
-                MemberId = memberId,
                 DietPlanId = dietPlanId,
                 AssignedAt = DateTime.UtcNow,
                 IsActive = true
             };
+
+            if (gymId.HasValue) newAssignment.MemberId = memberId;
+            else newAssignment.UserId = memberId;
 
             await _memberDietRepository.AddDietAssignmentAsync(newAssignment);
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> AssignCustomDietToMemberAsync(Guid memberId, CreateDietPlanRequest request, Guid gymId, Guid createdById)
+        public async Task<bool> AssignCustomDietToMemberAsync(Guid memberId, CreateDietPlanRequest request, Guid? gymId, Guid createdById)
         {
             DietPlan plan = _mapper.Map<DietPlan>(request);
             plan.GymId = gymId;
@@ -105,13 +107,25 @@ namespace GymForge.Application.Modules.Diet.Services
 
             MemberDietAssignment newAssignment = new()
             {
-                MemberId = memberId,
                 DietPlan = plan,
                 AssignedAt = DateTime.UtcNow,
                 IsActive = true
             };
 
+            if (gymId.HasValue) newAssignment.MemberId = memberId;
+            else newAssignment.UserId = memberId;
+
             await _memberDietRepository.AddDietAssignmentAsync(newAssignment);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UnassignActiveDietAsync(Guid memberId, Guid? gymId)
+        {
+            MemberDietAssignment? activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
+            if (activeAssignment == null) return false;
+
+            activeAssignment.IsActive = false;
             await _unitOfWork.SaveChangesAsync();
             return true;
         }

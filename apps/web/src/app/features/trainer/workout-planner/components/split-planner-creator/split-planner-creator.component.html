@@ -61,7 +61,7 @@
           </div>
 
           <!-- Visibility Toggle -->
-          <div class="visibility-toggle-row">
+          <div class="visibility-toggle-row" *ngIf="!isStandaloneUser">
             <div class="visibility-toggle-info">
               <i class="fa-solid fa-eye"></i>
               <div>
@@ -82,7 +82,7 @@
           <div class="details-tip-panel">
             <div class="tip-icon"><i class="fa-solid fa-circle-info"></i></div>
             <div class="tip-body">
-              <strong>Tip from Designer:</strong> In the next step, you can configure split days dynamically, choose
+              In the next step, you can configure split days dynamically, choose
               category targets for each split day, copy splits, and assemble your spreadsheet list of exercises.
             </div>
           </div>

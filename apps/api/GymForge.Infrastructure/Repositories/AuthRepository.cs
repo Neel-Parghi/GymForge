@@ -65,5 +65,18 @@ namespace GymForge.Infrastructure.Repositories
                 .Select(s => s.BranchId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task LinkUserToGymMembersAsync(User user)
+        {
+            string emailLower = user.Email.ToLower();
+            List<GymMember> unlinkedMembers = await _context.GymMembers
+                .Where(m => m.Email.ToLower() == emailLower && m.UserId == null)
+                .ToListAsync();
+
+            foreach (GymMember member in unlinkedMembers)
+            {
+                member.UserId = user.Id;
+            }
+        }
     }
 }

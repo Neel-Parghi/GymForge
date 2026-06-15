@@ -16,14 +16,18 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAddressRepository _addressRepository;
+        private readonly IAuthRepository _authRepository;
+        private readonly IEmailService _emailService;
 
-        public GymMemberService(IGymMemberRepository memberRepository, IGymPlanRepository planRepository, IMapper mapper, IUnitOfWork unitOfWork, IAddressRepository addressRepository)
+        public GymMemberService(IGymMemberRepository memberRepository, IGymPlanRepository planRepository, IMapper mapper, IUnitOfWork unitOfWork, IAddressRepository addressRepository, IAuthRepository authRepository, IEmailService emailService)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _addressRepository = addressRepository;
+            _authRepository = authRepository;
+            _emailService = emailService;
         }
 
         public async Task<GymMemberResponse> OnboardMemberAsync(Guid gymId, OnboardMemberRequest request, Guid createdBy)
@@ -54,6 +58,12 @@ namespace GymForge.Application.Modules.Gym.Services
                 member.Address.CreatedOn = DateTime.UtcNow;
             }
 
+            User? existingUser = await _authRepository.GetByUserByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                member.UserId = existingUser.Id;
+            }
+
             await _memberRepository.AddAsync(member);
 
             DateTime startDate = request.StartDate ?? DateTime.UtcNow;
@@ -81,6 +91,16 @@ namespace GymForge.Application.Modules.Gym.Services
             await _memberRepository.AddSubscriptionAsync(subscription);
 
             await _unitOfWork.SaveChangesAsync();
+
+            if (existingUser != null)
+            {
+                await _emailService.SendEmailAsync(
+                    existingUser.Email,
+                    $"{existingUser.FirstName} {existingUser.LastName}",
+                    "GymForge: Gym Membership Linked",
+                    $"<p>Hi {existingUser.FirstName},</p><p>A gym has just linked a new membership to your account! You can now log into your User Portal to view your gym membership, plans, and tracker.</p>"
+                );
+            }
 
             return _mapper.Map<GymMemberResponse>(member);
         }
@@ -131,10 +151,24 @@ namespace GymForge.Application.Modules.Gym.Services
             GymMember? member = await _memberRepository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Member not found");
 
+            Guid? oldUserId = member.UserId;
+
             _mapper.Map(request, member);
             member.BranchId = request.BranchId;
             member.ModifiedBy = updatedBy;
             member.ModifiedOn = DateTime.UtcNow;
+
+            User? existingUser = await _authRepository.GetByUserByEmailAsync(member.Email);
+            if (existingUser != null)
+            {
+                member.UserId = existingUser.Id;
+            }
+            else
+            {
+                member.UserId = null;
+            }
+            
+            bool isNewlyLinked = oldUserId == null && member.UserId != null;
 
             if (request.Address != null)
             {
@@ -209,6 +243,16 @@ namespace GymForge.Application.Modules.Gym.Services
 
             await _memberRepository.UpdateAsync(member);
             await _unitOfWork.SaveChangesAsync();
+
+            if (isNewlyLinked && existingUser != null)
+            {
+                await _emailService.SendEmailAsync(
+                    existingUser.Email,
+                    $"{existingUser.FirstName} {existingUser.LastName}",
+                    "GymForge: Gym Membership Linked",
+                    $"<p>Hi {existingUser.FirstName},</p><p>A gym has just linked a new membership to your account! You can now log into your User Portal to view your gym membership, plans, and tracker.</p>"
+                );
+            }
 
             return _mapper.Map<GymMemberResponse>(member);
         }
@@ -304,7 +348,20 @@ namespace GymForge.Application.Modules.Gym.Services
         public async Task<IEnumerable<MemberSubscriptionResponse>> GetSubscriptionHistoryAsync(Guid memberId)
         {
             GymMember? member = await _memberRepository.GetByIdAsync(memberId);
-            if (member == null) return Enumerable.Empty<MemberSubscriptionResponse>();
+
+            if (member == null) 
+                return Enumerable.Empty<MemberSubscriptionResponse>();
+
+            IOrderedEnumerable<MemberSubscription> subscriptions = member.Subscriptions.OrderByDescending(s => s.StartDate);
+            return _mapper.Map<IEnumerable<MemberSubscriptionResponse>>(subscriptions);
+        }
+
+        public async Task<IEnumerable<MemberSubscriptionResponse>> GetSubscriptionHistoryByUserIdAsync(Guid userId)
+        {
+            GymMember? member = await _memberRepository.GetByUserIdAsync(userId);
+
+            if (member == null) 
+                return Enumerable.Empty<MemberSubscriptionResponse>();
 
             IOrderedEnumerable<MemberSubscription> subscriptions = member.Subscriptions.OrderByDescending(s => s.StartDate);
             return _mapper.Map<IEnumerable<MemberSubscriptionResponse>>(subscriptions);

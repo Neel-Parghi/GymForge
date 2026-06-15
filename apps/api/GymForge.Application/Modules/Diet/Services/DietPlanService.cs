@@ -19,9 +19,9 @@ namespace GymForge.Application.Modules.Diet.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<DietPlanDto>> GetPlansByGymIdAsync(Guid gymId, string? goal = null)
+        public async Task<IEnumerable<DietPlanDto>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null)
         {
-            IEnumerable<DietPlan> plans = await _dietPlanRepository.GetPlansByGymIdAsync(gymId, goal);
+            IEnumerable<DietPlan> plans = await _dietPlanRepository.GetPlansAsync(gymId, userId, goal);
             return _mapper.Map<IEnumerable<DietPlanDto>>(plans);
         }
 
@@ -31,7 +31,7 @@ namespace GymForge.Application.Modules.Diet.Services
             return plan == null ? null : _mapper.Map<DietPlanDto>(plan);
         }
 
-        public async Task<DietPlanDto> CreatePlanAsync(CreateDietPlanRequest request, Guid gymId, Guid createdById)
+        public async Task<DietPlanDto> CreatePlanAsync(CreateDietPlanRequest request, Guid? gymId, Guid createdById)
         {
             DietPlan plan = _mapper.Map<DietPlan>(request);
             plan.GymId = gymId;
@@ -46,7 +46,7 @@ namespace GymForge.Application.Modules.Diet.Services
             return _mapper.Map<DietPlanDto>(created);
         }
 
-        public async Task<DietPlanDto> UpdatePlanAsync(UpdateDietPlanRequest request, Guid gymId, Guid modifiedById)
+        public async Task<DietPlanDto> UpdatePlanAsync(UpdateDietPlanRequest request, Guid? gymId, Guid modifiedById)
         {
             DietPlan? existingPlan = await _dietPlanRepository.GetPlanByIdAsync(request.Id);
             

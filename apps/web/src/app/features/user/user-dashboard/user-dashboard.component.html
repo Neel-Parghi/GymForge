@@ -1,0 +1,138 @@
+<div class="user-dashboard-container" [ngClass]="greetingTheme">
+  <!-- Dynamic Background Leaks -->
+  <div class="ambient-leaks-wrapper">
+    <div class="ambient-leak-1"></div>
+    <div class="ambient-leak-2"></div>
+    <div class="ambient-leak-3"></div>
+  </div>
+
+  <header class="hero-section">
+    <div class="hero-content">
+      <div class="weather-icon-large">
+        <i class="fa-solid" [ngClass]="greetingIcon"></i>
+      </div>
+      <div class="hero-text">
+        <h1>{{ greeting }}, <span class="accent-text">{{ userName }}</span></h1>
+        <p class="subtitle">Keep pushing, you're doing great this week!</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-scrollable-content">
+    <div class="dashboard-main-layout">
+       
+       <!-- Top Widgets Row -->
+       <div class="stats-widget-row">
+         <div class="stat-widget glass-card">
+           <div class="widget-icon primary"><i class="fa-solid fa-dumbbell"></i></div>
+           <div class="widget-info">
+             <span class="widget-label">Active Plan</span>
+             <h4 class="widget-value">Hypertrophy V1</h4>
+           </div>
+         </div>
+         <div class="stat-widget glass-card">
+           <div class="widget-icon success"><i class="fa-solid fa-bullseye"></i></div>
+           <div class="widget-info">
+             <span class="widget-label">Weekly Goals</span>
+             <h4 class="widget-value">3 / 5 Days</h4>
+           </div>
+         </div>
+         <div class="stat-widget glass-card">
+           <div class="widget-icon warning"><i class="fa-solid fa-fire"></i></div>
+           <div class="widget-info">
+             <span class="widget-label">Workout Streak</span>
+             <h4 class="widget-value">4 Days</h4>
+           </div>
+         </div>
+         <div class="stat-widget glass-card">
+           <div class="widget-icon info"><i class="fa-solid fa-fire-flame-curved"></i></div>
+           <div class="widget-info">
+             <span class="widget-label">Calories Burned</span>
+             <h4 class="widget-value">3,240 kcal</h4>
+             <span style="font-size: 0.75rem; color: rgba(17, 24, 39, 0.6); font-weight: 600; margin-top: 4px; display: block;">This week</span>
+           </div>
+         </div>
+       </div>
+
+       <!-- Main Area Split -->
+       <div class="main-b2c-grid">
+         
+         <!-- Left Column: Strength Progression Graph -->
+         <div class="action-plan-col">
+           <div class="glass-card strength-chart-card">
+              <div class="card-header">
+                <div class="title-area">
+                  <h2 style="margin: 0;">Strength Progression</h2>
+                  <p class="sub" style="margin: 0;">Track your main lift improvements</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <app-dropdown 
+                    [options]="liftOptions" 
+                    [value]="selectedLift" 
+                    (selectionChange)="onLiftChange($event)" 
+                    minWidth="140px">
+                  </app-dropdown>
+                  <div class="card-tabs">
+                    <button class="tab-btn" [class.active]="strengthPeriod === '1M'" (click)="strengthPeriod = '1M'">1M</button>
+                    <button class="tab-btn" [class.active]="strengthPeriod === '3M'" (click)="strengthPeriod = '3M'">3M</button>
+                    <button class="tab-btn" [class.active]="strengthPeriod === '6M'" (click)="strengthPeriod = '6M'">6M</button>
+                    <button class="tab-btn" [class.active]="strengthPeriod === '1Y'" (click)="strengthPeriod = '1Y'">1Y</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-container" style="position: relative; height: 280px; width: 100%;">
+                <canvas baseChart
+                  [data]="lineChartData"
+                  [options]="lineChartOptions"
+                  [type]="lineChartType">
+                </canvas>
+              </div>
+           </div>
+         </div>
+
+         <!-- Right Column: Quests & Quick Links -->
+         <div class="quick-links-col">
+           
+           <!-- Daily Quests -->
+           <div class="quests-card glass-card">
+             <h3><i class="fa-solid fa-list-check" style="color: #3b82f6;"></i> Today's Quests</h3>
+             <div class="quest-list">
+               <div class="quest-item" *ngFor="let quest of dailyQuests" [class.completed]="quest.completed" (click)="toggleQuest(quest)">
+                 <div class="icon-box" [style.background]="quest.completed ? '#22c55e' : quest.color + '22'" [style.color]="quest.completed ? 'white' : quest.color">
+                   <i class="fa-solid" [ngClass]="quest.completed ? 'fa-check' : quest.icon"></i>
+                 </div>
+                 <div class="quest-text">{{ quest.title }}</div>
+               </div>
+             </div>
+           </div>
+
+           <div class="glass-card quick-launch-card">
+             <h3>Quick Launch</h3>
+             <div class="launch-grid">
+               <button class="launch-btn" routerLink="/user/performance">
+                 <div class="icon-bg" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fa-solid fa-chart-line"></i></div>
+                 <span>Performance</span>
+               </button>
+               <button class="launch-btn" routerLink="/user/diet-planner">
+                 <div class="icon-bg" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fa-solid fa-apple-whole"></i></div>
+                 <span>Diet Planner</span>
+               </button>
+               <button class="launch-btn" routerLink="/user/workout-calendar">
+                 <div class="icon-bg" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fa-solid fa-calendar-days"></i></div>
+                 <span>Calendar</span>
+               </button>
+               <button class="launch-btn" routerLink="/user/billing">
+                 <div class="icon-bg" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                 <span>Billing</span>
+               </button>
+             </div>
+           </div>
+
+         </div>
+
+       </div>
+
+    </div>
+  </div>
+</div>

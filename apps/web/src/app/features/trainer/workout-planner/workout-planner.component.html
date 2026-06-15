@@ -1,8 +1,8 @@
-<div class="plan-library-container">
+<div class="plan-library-container is-card-view">
   <header class="page-header">
     <div class="header-info">
       <h1>Workout & Schedule Planner</h1>
-      <p class="subtitle">Design athletic multi-day splits and assign weekly training calendars for your clients</p>
+      <p class="subtitle">Design athletic multi-day splits and training calendars</p>
     </div>
     <div class="actions">
       <button class="btn-primary" (click)="openCreatorModal()">
@@ -10,6 +10,8 @@
       </button>
     </div>
   </header>
+
+  <div class="catalog-wrapper">
 
   <!-- Tabs Navigation -->
   <div class="library-tabs-bar">
@@ -27,7 +29,7 @@
   </div>
 
   <!-- SPLIT PLANNERS CATALOG -->
-  <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'splits'">
+  <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'splits' && splitPlanners.length > 0">
     <div class="template-card hover-glow-card" *ngFor="let plan of splitPlanners"
       (click)="openDetailsModal(plan, 'split')">
       <div class="card-glow-element"></div>
@@ -76,7 +78,7 @@
   </div>
 
   <!-- WEEKLY PLANNERS CATALOG -->
-  <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'weekly'">
+  <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'weekly' && weeklyPlanners.length > 0">
     <div class="template-card weekly-card hover-glow-card" *ngFor="let plan of weeklyPlanners"
       (click)="openDetailsModal(plan, 'weekly')">
       <div class="card-glow-element weekly-glow"></div>
@@ -121,7 +123,7 @@
   </div>
 
   <!-- STANDALONE DAILY PLANNERS CATALOG -->
-  <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'daily'">
+  <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'daily' && dailyPlanners.length > 0">
     <div class="template-card hover-glow-card" *ngFor="let plan of dailyPlanners"
       (click)="openDetailsModal(plan, 'daily')">
       <div class="card-glow-element daily-glow"></div>
@@ -165,6 +167,36 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- EMPTY STATES -->
+  <div class="empty-state-container animate-fade-in" *ngIf="activeTab === 'splits' && splitPlanners.length === 0">
+    <div class="empty-state-card glass-card">
+      <i class="fa-solid fa-folder-open"></i>
+      <h2>No Split Plans Created</h2>
+      <p>You haven't created any multi-day split plans yet. Create your first split to assign it.</p>
+      <button class="btn-primary" (click)="openCreatorModal()"><i class="fa-solid fa-plus"></i> Create Split Plan</button>
+    </div>
+  </div>
+
+  <div class="empty-state-container animate-fade-in" *ngIf="activeTab === 'weekly' && weeklyPlanners.length === 0">
+    <div class="empty-state-card glass-card">
+      <i class="fa-solid fa-folder-open"></i>
+      <h2>No Weekly Plans Created</h2>
+      <p>You haven't created any weekly training calendars yet. Create your first weekly plan.</p>
+      <button class="btn-primary" (click)="openCreatorModal()"><i class="fa-solid fa-plus"></i> Create Weekly Plan</button>
+    </div>
+  </div>
+
+  <div class="empty-state-container animate-fade-in" *ngIf="activeTab === 'daily' && dailyPlanners.length === 0">
+    <div class="empty-state-card glass-card">
+      <i class="fa-solid fa-folder-open"></i>
+      <h2>No Standalone Days Created</h2>
+      <p>You haven't created any standalone workout days yet. Create one to use as templates or overrides.</p>
+      <button class="btn-primary" (click)="openCreatorModal()"><i class="fa-solid fa-plus"></i> Create Standalone Day</button>
+    </div>
+  </div>
+
   </div>
 
   <!-- TIMETABLE DETAILS POPUP MODAL COMPONENT -->

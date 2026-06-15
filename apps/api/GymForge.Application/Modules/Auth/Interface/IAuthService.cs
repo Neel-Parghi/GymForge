@@ -5,6 +5,7 @@ namespace GymForge.Application.Modules.Auth.Interface
     public interface IAuthService
     {
         Task<TokenResponseDto> RegisterSuperAdmin(RegisterRequestDto dto);
+        Task<TokenResponseDto> RegisterAsync(RegisterRequestDto dto);
 
         Task<TokenResponseDto> Login(LoginRequestDto dto);
 

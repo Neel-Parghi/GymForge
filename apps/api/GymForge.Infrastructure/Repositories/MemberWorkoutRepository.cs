@@ -14,11 +14,11 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<MemberPlanAssignment?> GetActivePlanAssignmentAsync(Guid memberId)
+        public async Task<MemberPlanAssignment?> GetActivePlanAssignmentAsync(Guid memberOrUserId)
         {
             return await _dbContext.MemberPlanAssignments
                 .Include(mpa => mpa.CustomScheduleDays)
-                .Where(mpa => mpa.MemberId == memberId && mpa.IsActive)
+                .Where(mpa => (mpa.MemberId == memberOrUserId || mpa.UserId == memberOrUserId || (mpa.Member != null && mpa.Member.UserId == memberOrUserId)) && mpa.IsActive)
                 .OrderByDescending(mpa => mpa.AssignedAt)
                 .FirstOrDefaultAsync();
         }
@@ -28,12 +28,12 @@ namespace GymForge.Infrastructure.Repositories
             await _dbContext.MemberPlanAssignments.AddAsync(assignment);
         }
 
-        public async Task<IEnumerable<WorkoutSessionLog>> GetWorkoutLogsAsync(Guid memberId)
+        public async Task<IEnumerable<WorkoutSessionLog>> GetWorkoutLogsAsync(Guid memberOrUserId)
         {
             return await _dbContext.WorkoutSessionLogs
                 .Include(l => l.LoggedExercises)
                     .ThenInclude(e => e.LoggedSets)
-                .Where(l => l.MemberId == memberId)
+                .Where(l => l.MemberId == memberOrUserId || l.UserId == memberOrUserId || (l.Member != null && l.Member.UserId == memberOrUserId))
                 .OrderByDescending(l => l.Date)
                 .ToListAsync();
         }
@@ -49,11 +49,11 @@ namespace GymForge.Infrastructure.Repositories
             await Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<WorkoutSessionLog>> GetLogsByDateAsync(Guid memberId, DateTime date)
+        public async Task<IEnumerable<WorkoutSessionLog>> GetLogsByDateAsync(Guid memberOrUserId, DateTime date)
         {
             DateTime targetDate = date.Date;
             return await _dbContext.WorkoutSessionLogs
-                .Where(l => l.MemberId == memberId && l.Date.Date == targetDate)
+                .Where(l => (l.MemberId == memberOrUserId || l.UserId == memberOrUserId || (l.Member != null && l.Member.UserId == memberOrUserId)) && l.Date.Date == targetDate)
                 .ToListAsync();
         }
 
@@ -75,14 +75,14 @@ namespace GymForge.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<MemberPlanAssignment>> GetPlanAssignmentsAsync(Guid memberId)
+        public async Task<IEnumerable<MemberPlanAssignment>> GetPlanAssignmentsAsync(Guid memberOrUserId)
         {
             return await _dbContext.MemberPlanAssignments
                 .Include(mpa => mpa.CustomScheduleDays)
                 .Include(mpa => mpa.WorkoutPlan)
                     .ThenInclude(p => p.Days)
                         .ThenInclude(d => d.Exercises)
-                .Where(mpa => mpa.MemberId == memberId)
+                .Where(mpa => mpa.MemberId == memberOrUserId || mpa.UserId == memberOrUserId || (mpa.Member != null && mpa.Member.UserId == memberOrUserId))
                 .OrderBy(mpa => mpa.AssignedAt)
                 .ToListAsync();
         }

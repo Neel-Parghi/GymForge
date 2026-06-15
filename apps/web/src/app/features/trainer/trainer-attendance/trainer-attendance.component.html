@@ -21,13 +21,8 @@
 
       <div class="control-section">
         <div class="notes-wrapper" *ngIf="!isCheckedIn">
-          <input 
-            type="text" 
-            id="checkin-notes" 
-            [(ngModel)]="checkInNotes" 
-            placeholder="Shift notes (optional)..."
-            class="notes-input"
-          />
+          <input type="text" id="checkin-notes" [(ngModel)]="checkInNotes" placeholder="Shift notes (optional)..."
+            class="notes-input" />
         </div>
 
         <button class="btn-clock" [ngClass]="isCheckedIn ? 'btn-out' : 'btn-in'" (click)="toggleClock()">
@@ -71,15 +66,9 @@
     </div>
 
     <div class="table-container">
-      <app-data-grid 
-        [config]="gridConfig" 
-        [data]="logs" 
-        [totalItems]="totalLogsCount"
-        [pageSize]="pageSize" 
-        [currentPage]="pageNumber"
-        (pageChange)="changePage($event)"
-        (pageSizeChange)="changePageSize($event)">
-        
+      <app-data-grid [config]="gridConfig" [data]="logs" [totalItems]="totalLogsCount" [pageSize]="pageSize"
+        [currentPage]="pageNumber" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)">
+
         <ng-template [gridCell]="'date'" let-row>
           <span class="bold-text">{{ row.checkInTime | date:'mediumDate' }}</span>
         </ng-template>
@@ -98,7 +87,8 @@
         </ng-template>
 
         <ng-template [gridCell]="'hoursWorked'" let-row>
-          <span class="hours-worked">{{ row.hoursWorked != null ? (row.hoursWorked + ' hrs') : 'In progress...' }}</span>
+          <span class="hours-worked">{{ row.hoursWorked != null ? (row.hoursWorked + ' hrs') : 'In progress...'
+            }}</span>
         </ng-template>
 
         <ng-template [gridCell]="'notes'" let-row>

@@ -9,6 +9,7 @@ import { SplitPlannerCreatorComponent } from './components/split-planner-creator
 import { WeeklyPlannerCreatorComponent } from './components/weekly-planner-creator/weekly-planner-creator.component';
 import { DailyPlannerCreatorComponent } from './components/daily-planner-creator/daily-planner-creator.component';
 import { WorkoutPlanService } from '../../../core/services/workout-plan.service';
+import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import {
   WorkoutPlan,
@@ -35,6 +36,7 @@ export class WorkoutPlannerComponent implements OnInit {
   private notification = inject(NotificationService);
   private workoutMasterService = inject(WorkoutMasterService);
   private workoutPlanService = inject(WorkoutPlanService);
+  private confirmationService = inject(ConfirmationService);
 
   activeTab: 'splits' | 'weekly' | 'daily' = 'splits';
 
@@ -309,10 +311,19 @@ export class WorkoutPlannerComponent implements OnInit {
     }
   }
 
-  deletePlanner(id: string | undefined, type: 'split' | 'weekly' | 'daily', event: Event): void {
+  async deletePlanner(id: string | undefined, type: 'split' | 'weekly' | 'daily', event: Event): Promise<void> {
     event.stopPropagation();
     if (!id) return;
-    if (confirm(CONSTANTS.WORKOUT_PLANNER_MODULE.DELETE_CONFIRM)) {
+    
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Delete Workout Plan',
+      message: CONSTANTS.WORKOUT_PLANNER_MODULE.DELETE_CONFIRM,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (confirmed) {
       this.workoutPlanService.deletePlan(id).subscribe({
         next: () => {
           if (type === 'split') {

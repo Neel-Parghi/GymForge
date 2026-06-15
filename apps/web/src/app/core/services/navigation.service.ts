@@ -5,6 +5,7 @@ import { NavItem } from "../models/nav-Item.model";
 import { SuperAdminMenu } from "../configs/menus/super-admin.menu";
 import { GymOwnerMenu } from "../configs/menus/gym-owner.menu";
 import { TrainerMenu } from "../configs/menus/trainer.menu";
+import { UserMenu } from "../configs/menus/user.menu";
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
@@ -26,6 +27,9 @@ export class NavigationService {
                 break;
             case 'Trainer':
                 config = TrainerMenu;
+                break;
+            case 'User':
+                config = UserMenu;
                 break;
             default:
                 config = [];

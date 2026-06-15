@@ -46,7 +46,7 @@ export class TrainerDashboardComponent implements OnInit {
       this.greeting = 'Good morning';
       this.greetingIcon = 'fa-sun';
       this.greetingTheme = 'theme-morning';
-    } else if (hour < 17) {
+    } else if (hour < 18) {
       this.greeting = 'Good afternoon';
       this.greetingIcon = 'fa-cloud-sun';
       this.greetingTheme = 'theme-afternoon';
@@ -119,7 +119,7 @@ export class TrainerDashboardComponent implements OnInit {
         const list = res?.data || [];
         this.activeClientsCount = list.filter((x: any) => x.isActive || x.status === 'Active').length;
         this.stats[0].value = this.activeClientsCount.toString();
-        
+
         // Map todaySessions
         this.todaySessions = list.map((member: any) => {
           return {
@@ -151,7 +151,7 @@ export class TrainerDashboardComponent implements OnInit {
   loadCommissions(): void {
     const today = new Date();
     const monthKey = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}`;
-    
+
     this.billingService.getStaffPayrollOverview(monthKey).subscribe({
       next: (res: any) => {
         if (res?.data?.payouts && res.data.payouts.length > 0) {

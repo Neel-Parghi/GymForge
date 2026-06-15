@@ -220,14 +220,13 @@ namespace GymForge.Application.Modules.Gym.Services
             }
         }
 
-        public async Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request)
+        public async Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request, Guid? gymId)
         {
             Staff? staff = await _staffRepository.GetByUserIdAsync(recordedById);
             Guid? staffId = staff?.Id;
 
             MemberMeasurement measurement = new()
             {
-                MemberId = memberId,
                 RecordedById = staffId,
                 Weight = request.Weight,
                 Height = request.Height,
@@ -252,6 +251,9 @@ namespace GymForge.Application.Modules.Gym.Services
                 Notes = request.Notes,
                 Date = DateTime.UtcNow
             };
+
+            if (gymId.HasValue) measurement.MemberId = memberId;
+            else measurement.UserId = memberId;
 
             await _staffRepository.AddMeasurementAsync(measurement);
             await _unitOfWork.SaveChangesAsync();

@@ -3,7 +3,21 @@
   <header class="auth-header">
     <div class="brand-logo">GYM FORGE</div>
     <div class="header-actions">
-      <!-- Placeholder for Support link if needed -->
+      <!-- Premium Animated Role Slider -->
+      <div class="premium-role-toggle">
+        <span class="toggle-label">Sign up as :</span>
+        <div class="toggle-track" (click)="setRole(selectedRole === 'GymOwner' ? 'User' : 'GymOwner')">
+          <div class="toggle-thumb" [class.is-user]="selectedRole === 'User'"></div>
+          
+          <div class="toggle-option" [class.active]="selectedRole === 'GymOwner'">
+            <span>Gym Owner</span>
+          </div>
+          
+          <div class="toggle-option" [class.active]="selectedRole === 'User'">
+            <span>User</span>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -31,6 +45,7 @@
           </div>
 
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+
             <div class="form-item">
               <label for="name">Full Name</label>
               <div class="input-wrapper">

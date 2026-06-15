@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/staff")]
-    [Authorize(Roles = "GymOwner,Staff,Trainer")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer,User")]
     public class StaffController : BaseApiController
     {
         private readonly IStaffService _staffService;
@@ -102,7 +102,7 @@ namespace GymForge.Api.Controllers.Gym
         [HttpPost("~/api/members/{memberId}/measurements")]
         public async Task<ActionResult> RecordMeasurement(Guid memberId, [FromBody] AddMeasurementRequest request)
         {
-            await _staffService.RecordMeasurementAsync(memberId, UserId, request);
+            await _staffService.RecordMeasurementAsync(memberId, UserId, request, IsStandaloneUser ? null : GymId);
             return Ok(new { message = "Measurement recorded successfully" });
         }
 

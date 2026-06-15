@@ -24,6 +24,20 @@ namespace GymForge.Api.Controllers
         //     return Ok(response);
         // }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterRequestDto dto)
+        {
+            try
+            {
+                TokenResponseDto response = await _authService.RegisterAsync(dto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {

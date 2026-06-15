@@ -88,6 +88,9 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       this.daySelectControl.setValue(this.todayWorkout.dayName, { emitEvent: false });
       this.buildWorkoutForm();
     }
+    if (changes['activeSplit'] && this.activeSplit) {
+      this.setupDropdownOptions();
+    }
   }
 
   buildWorkoutForm() {

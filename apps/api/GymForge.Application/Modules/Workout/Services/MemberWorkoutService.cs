@@ -90,7 +90,7 @@ namespace GymForge.Application.Modules.Workout.Services
             return planDto;
         }
 
-        public async Task<bool> AssignPlanToMemberAsync(Guid memberId, Guid planId)
+        public async Task<bool> AssignPlanToMemberAsync(Guid memberId, Guid planId, Guid? gymId)
         {
             MemberPlanAssignment? activeAssignment = await _memberWorkoutRepository.GetActivePlanAssignmentAsync(memberId);
             if (activeAssignment != null)
@@ -109,11 +109,13 @@ namespace GymForge.Application.Modules.Workout.Services
 
             MemberPlanAssignment newAssignment = new()
             {
-                MemberId = memberId,
                 WorkoutPlanId = planId,
                 AssignedAt = DateTime.UtcNow,
                 IsActive = true
             };
+
+            if (gymId.HasValue) newAssignment.MemberId = memberId;
+            else newAssignment.UserId = memberId;
 
             await _memberWorkoutRepository.AddPlanAssignmentAsync(newAssignment);
             await _unitOfWork.SaveChangesAsync();
@@ -126,7 +128,7 @@ namespace GymForge.Application.Modules.Workout.Services
             return _mapper.Map<IEnumerable<WorkoutSessionLogDto>>(logs);
         }
 
-        public async Task<WorkoutSessionLogDto> LogWorkoutSessionAsync(Guid memberId, LogWorkoutSessionRequest request)
+        public async Task<WorkoutSessionLogDto> LogWorkoutSessionAsync(Guid memberId, LogWorkoutSessionRequest request, Guid? gymId)
         {
             IEnumerable<WorkoutSessionLog> existingLogs = await _memberWorkoutRepository.GetLogsByDateAsync(memberId, request.Date);
             if (existingLogs.Any())
@@ -136,12 +138,14 @@ namespace GymForge.Application.Modules.Workout.Services
 
             WorkoutSessionLog log = new()
             {
-                MemberId = memberId,
                 Date = request.Date,
                 DayName = request.DayName,
                 Status = request.Status,
                 Notes = request.Notes
             };
+
+            if (gymId.HasValue) log.MemberId = memberId;
+            else log.UserId = memberId;
 
             int exercisesCompleted = 0;
             int totalSets = 0;

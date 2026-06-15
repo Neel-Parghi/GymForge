@@ -253,6 +253,11 @@ namespace GymForge.Application.Modules.Gym.Services
             return await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId);
         }
 
+        public async Task<GymListResponseDto?> GetGymDetailsByIdAsync(Guid gymId)
+        {
+            return await _gymManagementRepository.GetGymDetailsResponseByIdAsync(gymId);
+        }
+
         public async Task UpdateMyGymAsync(Guid ownerId, UpdateMyGymDto updateMyGymDto)
         {
             Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync((await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId))?.Id ?? Guid.Empty);

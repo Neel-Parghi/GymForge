@@ -12,7 +12,7 @@ app-health-tracker-report {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: calc(100vh - 170px);
+  height: calc(100vh - 165px);
   min-height: 500px;
 
   .panel-header {
@@ -48,7 +48,7 @@ app-health-tracker-report {
   gap: 24px;
   align-items: flex-start;
   width: 100%;
-  padding: 24px;
+  padding: 22px;
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;

@@ -14,12 +14,12 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<MemberDietAssignment?> GetActiveDietAssignmentAsync(Guid memberId)
+        public async Task<MemberDietAssignment?> GetActiveDietAssignmentAsync(Guid memberOrUserId)
         {
             return await _dbContext.MemberDietAssignments
                 .Include(mda => mda.DietPlan)
                     .ThenInclude(dp => dp.Meals)
-                .Where(mda => mda.MemberId == memberId && mda.IsActive)
+                .Where(mda => (mda.MemberId == memberOrUserId || mda.UserId == memberOrUserId) && mda.IsActive)
                 .OrderByDescending(mda => mda.AssignedAt)
                 .FirstOrDefaultAsync();
         }
@@ -29,12 +29,12 @@ namespace GymForge.Infrastructure.Repositories
             await _dbContext.MemberDietAssignments.AddAsync(assignment);
         }
 
-        public async Task<IEnumerable<MemberDietAssignment>> GetDietAssignmentsAsync(Guid memberId)
+        public async Task<IEnumerable<MemberDietAssignment>> GetDietAssignmentsAsync(Guid memberOrUserId)
         {
             return await _dbContext.MemberDietAssignments
                 .Include(mda => mda.DietPlan)
                     .ThenInclude(dp => dp.Meals)
-                .Where(mda => mda.MemberId == memberId)
+                .Where(mda => mda.MemberId == memberOrUserId || mda.UserId == memberOrUserId || (mda.Member != null && mda.Member.UserId == memberOrUserId))
                 .OrderByDescending(mda => mda.AssignedAt)
                 .ToListAsync();
         }

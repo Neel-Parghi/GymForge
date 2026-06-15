@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/workout-plan")]
-    [Authorize(Roles = "GymOwner,Staff,Trainer")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer,User")]
     [ApiController]
     public class WorkoutPlanController : BaseApiController
     {
@@ -20,9 +20,7 @@ namespace GymForge.Api.Controllers.Gym
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorkoutPlanDto>>> GetPlans([FromQuery] string? type = null)
         {
-            if (GymId == null) return Unauthorized();
-            
-            IEnumerable<WorkoutPlanDto> plans = await _workoutPlanService.GetPlansByGymIdAsync(GymId.Value, type);
+            IEnumerable<WorkoutPlanDto> plans = await _workoutPlanService.GetPlansAsync(GymId, UserId, type);
             return Ok(plans);
         }
 
@@ -39,24 +37,19 @@ namespace GymForge.Api.Controllers.Gym
         [HttpPost]
         public async Task<ActionResult<WorkoutPlanDto>> CreatePlan([FromBody] CreateWorkoutPlanRequest request)
         {
-            if (GymId == null) 
-                return Unauthorized();
-            
-            WorkoutPlanDto result = await _workoutPlanService.CreatePlanAsync(request, GymId.Value, UserId);
+            WorkoutPlanDto result = await _workoutPlanService.CreatePlanAsync(request, GymId, UserId);
             return Ok(result);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<WorkoutPlanDto>> UpdatePlan(Guid id, [FromBody] UpdateWorkoutPlanRequest request)
         {
-            if (GymId == null) 
-                return Unauthorized();
             if (id != request.Id) 
                 return BadRequest("Plan ID mismatch.");
 
             try
             {
-                WorkoutPlanDto result = await _workoutPlanService.UpdatePlanAsync(request, GymId.Value, UserId);
+                WorkoutPlanDto result = await _workoutPlanService.UpdatePlanAsync(request, GymId, UserId);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)

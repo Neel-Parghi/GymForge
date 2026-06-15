@@ -8,6 +8,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
 import { ConfirmationPopupComponent } from '../../../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { WeeklyPlanner } from '../../../../../shared/models/workout-plan.model';
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { AuthApiService } from '../../../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-weekly-planner-creator',
@@ -19,6 +20,11 @@ import { CONSTANTS } from '../../../../../core/constants/constants';
 export class WeeklyPlannerCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
+  private authService = inject(AuthApiService);
+
+  get isStandaloneUser(): boolean {
+    return this.authService.getUserRole() === 'User';
+  }
 
   copiedWorkout: any = null;
   showConfirmPopup = false;

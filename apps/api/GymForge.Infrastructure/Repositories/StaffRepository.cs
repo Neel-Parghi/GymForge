@@ -130,12 +130,12 @@ namespace GymForge.Infrastructure.Repositories
             await _dbContext.MemberMeasurements.AddAsync(measurement);
         }
 
-        public async Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberId)
+        public async Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberOrUserId)
         {
             return await _dbContext.MemberMeasurements
                 .AsNoTracking()
                 .Include(x => x.RecordedBy)
-                .Where(x => x.MemberId == memberId)
+                .Where(x => x.MemberId == memberOrUserId || x.UserId == memberOrUserId)
                 .OrderByDescending(x => x.Date)
                 .ToListAsync();
         }

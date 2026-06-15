@@ -91,6 +91,9 @@ export class MainLayoutComponent implements OnInit {
     } else if (role === 'Trainer') {
       this.dashboardRoute = '/trainer/dashboard';
       this.profileRoute = '/trainer/profile';
+    } else if (role === 'User') {
+      this.dashboardRoute = '/user/dashboard';
+      this.profileRoute = '/user/profile';
     } else {
       this.dashboardRoute = '/super-admin/dashboard';
       this.profileRoute = '/super-admin/profile';

@@ -1,0 +1,12 @@
+<div class="user-page-wrapper">
+  <div class="header-section">
+    <div>
+      <!-- <h1 class="page-title">Track Performance</h1>
+      <p class="page-subtitle">Log your workout sessions and track progress</p> -->
+    </div>
+  </div>
+
+  <app-member-detail-track-performance [todayWorkout]="todayWorkout" [activeSplit]="activeSplit"
+    [loggingDate]="loggingDate" (saveSession)="saveWorkoutSession()">
+  </app-member-detail-track-performance>
+</div>

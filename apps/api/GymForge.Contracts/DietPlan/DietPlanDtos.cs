@@ -10,7 +10,8 @@ namespace GymForge.Contracts.DietPlan
         public decimal Fats { get; set; }
         public int Calories { get; set; }
         public string Goal { get; set; } = "Maintenance";
-        public Guid GymId { get; set; }
+        public Guid? GymId { get; set; }
+        public Guid CreatedBy { get; set; }
         public bool IsCustom { get; set; } = false;
         public bool IsTemplate { get; set; } = true;
         public List<DietPlanMealDto> Meals { get; set; } = [];
@@ -73,7 +74,8 @@ namespace GymForge.Contracts.DietPlan
     public class MemberDietAssignmentDto
     {
         public Guid Id { get; set; }
-        public Guid MemberId { get; set; }
+        public Guid? MemberId { get; set; }
+        public Guid? UserId { get; set; }
         public Guid DietPlanId { get; set; }
         public DateTime AssignedAt { get; set; }
         public bool IsActive { get; set; }

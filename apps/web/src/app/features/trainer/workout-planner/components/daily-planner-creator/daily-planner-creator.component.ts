@@ -7,6 +7,7 @@ import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { DailyPlanner } from '../../../../../shared/models/workout-plan.model';
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { AuthApiService } from '../../../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-daily-planner-creator',
@@ -18,6 +19,11 @@ import { CONSTANTS } from '../../../../../core/constants/constants';
 export class DailyPlannerCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
+  private authService = inject(AuthApiService);
+
+  get isStandaloneUser(): boolean {
+    return this.authService.getUserRole() === 'User';
+  }
 
   copiedWorkout: any = null;
   showConfirmPopup = false;

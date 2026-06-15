@@ -23,7 +23,7 @@ namespace GymForge.Domain.Interface
         
         // Measurements
         Task AddMeasurementAsync(MemberMeasurement measurement);
-        Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberId);
+        Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberOrUserId);
 
         // Staff Attendance
         Task AddStaffAttendanceLogAsync(StaffAttendanceLog log);

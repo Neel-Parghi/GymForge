@@ -26,4 +26,8 @@ export class UserService extends BaseApiService {
   validateInvitation(token: string): Observable<any> {
     return this.get(`${API_CONSTANTS.USER.VALIDATE_INVITATION}/${token}`, {});
   }
+
+  getMySubscriptions(): Observable<any> {
+    return this.get(API_CONSTANTS.USER.MY_SUBSCRIPTIONS);
+  }
 }

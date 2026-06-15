@@ -58,7 +58,7 @@
           </div>
 
           <!-- Visibility Toggle -->
-          <div class="visibility-toggle-row">
+          <div class="visibility-toggle-row" *ngIf="!isStandaloneUser">
             <div class="visibility-toggle-info">
               <i class="fa-solid fa-eye"></i>
               <div>
@@ -79,7 +79,7 @@
           <div class="details-tip-panel">
             <div class="tip-icon"><i class="fa-solid fa-circle-info"></i></div>
             <div class="tip-body">
-              <strong>Tip from Designer:</strong> Keep the name concise and focus on the client's objective. In the next
+              Keep the name concise and focus on the client's objective. In the next
               step, you will be able to customize each weekday with custom target muscle groups and specific exercises.
             </div>
           </div>

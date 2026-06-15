@@ -225,6 +225,14 @@ export class MemberService extends BaseApiService {
     );
   }
 
+  unassignActiveDiet(memberId: string): Observable<ApiResponse<any>> {
+    return this.delete<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_DIET.replace('{memberId}', memberId)).pipe(
+      tap(() => {
+        this.activeDietCache.delete(memberId);
+      })
+    );
+  }
+
   clearCache(): void {
     this.membersListCache.clear();
     this.memberCache.clear();

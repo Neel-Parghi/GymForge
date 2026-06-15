@@ -268,7 +268,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("GymId")
+                    b.Property<Guid?>("GymId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsCustom")
@@ -1065,7 +1065,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("MemberId")
+                    b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ModifiedBy")
@@ -1074,11 +1074,16 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DietPlanId");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("MemberId", "IsActive");
 
@@ -1136,7 +1141,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<double?>("LowerAbs")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("MemberId")
+                    b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ModifiedBy")
@@ -1172,6 +1177,9 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<double?>("UpperAbs")
                         .HasColumnType("double precision");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.Property<double?>("Waist")
                         .HasColumnType("double precision");
 
@@ -1184,6 +1192,8 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId");
 
                     b.HasIndex("RecordedById");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("MemberMeasurements");
                 });
@@ -1206,7 +1216,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("MemberId")
+                    b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ModifiedBy")
@@ -1215,12 +1225,17 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("WorkoutPlanId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("WorkoutPlanId");
 
@@ -2085,7 +2100,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("GymId")
+                    b.Property<Guid?>("GymId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsCustom")
@@ -2236,7 +2251,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<int>("ExercisesCompleted")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("MemberId")
+                    b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ModifiedBy")
@@ -2255,9 +2270,14 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<int>("TotalSets")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("WorkoutSessionLogs");
                 });
@@ -2476,30 +2496,41 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
                         .WithMany()
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("DietPlan");
 
                     b.Navigation("Member");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberMeasurement", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
                         .WithMany("Measurements")
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MemberId");
 
                     b.HasOne("GymForge.Domain.Entities.Staff", "RecordedBy")
                         .WithMany()
                         .HasForeignKey("RecordedById")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Member");
 
                     b.Navigation("RecordedBy");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberPlanAssignment", b =>
@@ -2507,8 +2538,12 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
                         .WithMany()
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("GymForge.Domain.Entities.WorkoutPlan", "WorkoutPlan")
                         .WithMany()
@@ -2517,6 +2552,8 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Member");
+
+                    b.Navigation("User");
 
                     b.Navigation("WorkoutPlan");
                 });
@@ -2773,10 +2810,16 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasOne("GymForge.Domain.Entities.GymMember", "Member")
                         .WithMany()
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Member");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.DietPlan", b =>

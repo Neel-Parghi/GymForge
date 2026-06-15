@@ -14,13 +14,19 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<WorkoutPlan>> GetPlansByGymIdAsync(Guid gymId, string? type = null)
+        public async Task<IEnumerable<WorkoutPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? type = null)
         {
+            List<Guid> userGymIds = !gymId.HasValue ? await _dbContext.GymMembers.Where(m => m.UserId == userId).Select(m => m.GymId).ToListAsync() : [];
+
             IQueryable<WorkoutPlan> query = _dbContext.WorkoutPlans
                                             .AsNoTracking()
                                             .Include(p => p.Days.OrderBy(d => d.DayIndex))
                                                 .ThenInclude(d => d.Exercises.OrderBy(e => e.SortOrder))
-                                            .Where(p => p.GymId == gymId);
+                                            .Where(p => 
+                                                (gymId.HasValue && p.GymId == gymId.Value) || 
+                                                (!gymId.HasValue && p.CreatedBy == userId && !p.GymId.HasValue) ||
+                                                (!gymId.HasValue && p.GymId.HasValue && userGymIds.Contains(p.GymId.Value) && !p.IsCustom)
+                                            );
 
             if (!string.IsNullOrWhiteSpace(type))
             {

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MemberService } from '../../../../../core/services/member.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
-import { DietTemplateCreatorComponent } from '../../../diet-planner/diet-template-creator/diet-template-creator.component';
+import { ConfirmationService } from '../../../../../core/services/confirmation.service';
+import { DietTemplateCreatorComponent } from '../../../../../shared/components/diet-library/diet-template-creator/diet-template-creator.component';
 
 @Component({
   selector: 'app-member-detail-diet-chart',
@@ -15,6 +16,7 @@ import { DietTemplateCreatorComponent } from '../../../diet-planner/diet-templat
 export class PTMemberDetailDietChartComponent {
   private memberService = inject(MemberService);
   private notification = inject(NotificationService);
+  private confirmationService = inject(ConfirmationService);
 
   @Input() activeDiet: any = null;
   @Input() memberId: string = '';
@@ -28,6 +30,28 @@ export class PTMemberDetailDietChartComponent {
 
   onOpenAssignModal(): void {
     this.openAssignModal.emit();
+  }
+
+  async onRemoveActiveDiet(): Promise<void> {
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Remove Active Diet',
+      message: 'Are you sure you want to remove the active diet plan from this member?',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (confirmed) {
+      this.memberService.unassignActiveDiet(this.memberId).subscribe({
+        next: () => {
+          this.notification.success('Active diet plan successfully removed.');
+          this.customDietSaved.emit(); // Emitting this reloads the view
+        },
+        error: () => {
+          this.notification.error('Failed to remove active diet plan.');
+        }
+      });
+    }
   }
 
   openCreateCustomModal(): void {
@@ -126,5 +150,30 @@ export class PTMemberDetailDietChartComponent {
     const pct = this.getMacroPercentage('fats');
     const prevPct = this.getMacroPercentage('protein') + this.getMacroPercentage('carbs');
     return this.getCircumference() - ((pct + prevPct) / 100) * this.getCircumference();
+  }
+
+  getMealTime(meal: any): string {
+    if (!meal)
+      return '08:00 AM';
+
+    if (meal.time)
+      return meal.time;
+
+    const name = meal.name || '';
+    const match = name.match(/\(([^)]+)\)/);
+
+    return match ? match[1] : '08:00 AM';
+  }
+
+  getMealTitle(meal: any): string {
+    if (!meal)
+      return 'Meal';
+
+    if (meal.time)
+      return meal.name;
+
+    const name = meal.name || 'Meal';
+
+    return name.replace(/\s*\([^)]+\)/, '').trim();
   }
 }

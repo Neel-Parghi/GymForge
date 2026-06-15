@@ -1,4 +1,4 @@
-<div class="tab-pane-content tracker-full-width" *ngIf="todayWorkout">
+<div class="tab-pane-content tracker-full-width">
 
   <!-- Backdating Notice Banner -->
   <div class="backdate-notice-banner animate-fade-in" *ngIf="isBackdating">
@@ -17,7 +17,7 @@
       <div class="header-info-group">
         <h3>{{ isBackdating ? 'Backdated Workout Logger' : 'Active Workout Tracker' }}</h3>
         <p class="subtitle">{{ isBackdating ? 'Past' : 'Live' }} workout log: <span class="highlight">{{
-            todayWorkout.dayName }}</span></p>
+            todayWorkout?.dayName || 'No Scheduled Workout' }}</span></p>
       </div>
 
       <div class="header-actions-group">
@@ -32,18 +32,18 @@
 
         </div>
 
-        <button class="btn-outline btn-back-calendar" (click)="onCancel()">
+        <button class="btn-outline btn-back-calendar" (click)="onCancel()" *ngIf="isBackdating">
           <i class="fa-solid fa-arrow-left"></i> Back to Calendar
         </button>
 
-        <button class="btn-primary" (click)="onSaveSession()">
+        <button class="btn-primary" (click)="onSaveSession()" *ngIf="todayWorkout">
           <i class="fa-solid fa-cloud-arrow-up"></i> Save & Log Session
         </button>
       </div>
     </div>
 
     <!-- MAIN TWO-COLUMN SPLIT CONTAINER -->
-    <div class="wt-split-container" *ngIf="!todayWorkout.isRestDay; else restDayState">
+    <div class="wt-split-container" *ngIf="todayWorkout && !todayWorkout.isRestDay; else alternateState">
       <!-- LEFT SIDEBAR: Exercise List -->
       <aside class="wt-exercise-sidebar">
         <div class="sidebar-header">
@@ -213,39 +213,54 @@
 
     </div>
 
-    <!-- REST DAY STATE -->
-    <ng-template #restDayState>
-      <div class="rest-day-container animate-fade-in">
-        <div class="rest-day-card">
-          <div class="icon-circle">
-            <i class="fa-solid fa-bed"></i>
-          </div>
-          <h2>Rest & Recovery Day</h2>
-          <p class="rest-message">
-            No workouts are scheduled for this day. Rest is where muscle grows and the body rebuilds itself. Use today
-            to focus on stretching, hydration, and nutrition!
-          </p>
-          <div class="rest-stats-row">
-            <div class="rest-stat-item">
-              <i class="fa-solid fa-glass-water"></i>
-              <span>Hydrate</span>
-            </div>
-            <div class="rest-stat-item">
-              <i class="fa-solid fa-utensils"></i>
-              <span>Nutrition</span>
-            </div>
-            <div class="rest-stat-item">
-              <i class="fa-solid fa-heart-pulse"></i>
-              <span>Recover</span>
-            </div>
-          </div>
-          <div class="rest-actions">
-            <button class="btn-primary" (click)="todayWorkout.isRestDay = false">
-              <i class="fa-solid fa-dumbbell"></i> Track a Workout Anyway
-            </button>
+    <!-- ALTERNATE STATES -->
+    <ng-template #alternateState>
+      <ng-container *ngIf="!todayWorkout; else restDayState">
+        <div class="tab-pane-content tracker-full-width" style="padding: 24px; display: flex; flex: 1; align-items: center; justify-content: center;">
+          <div class="empty-state-console animate-fade-in" style="border: none; background: transparent;">
+            <i class="fa-solid fa-calendar-xmark" style="font-size: 3.5rem; color: var(--slate-300); margin-bottom: 20px;"></i>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">No Workout Tracked Today</h3>
+            <p style="font-size: 0.95rem; color: var(--text-muted); max-width: 400px; margin: 0 auto;">
+              There are no workouts scheduled for today, or a plan hasn't been assigned yet. Select a routine from the calendar or create a plan.
+            </p>
           </div>
         </div>
-      </div>
+      </ng-container>
+
+      <!-- REST DAY STATE -->
+      <ng-template #restDayState>
+        <div class="rest-day-container animate-fade-in">
+          <div class="rest-day-card">
+            <div class="icon-circle">
+              <i class="fa-solid fa-bed"></i>
+            </div>
+            <h2>Rest & Recovery Day</h2>
+            <p class="rest-message">
+              No workouts are scheduled for this day. Rest is where muscle grows and the body rebuilds itself. Use today
+              to focus on stretching, hydration, and nutrition!
+            </p>
+            <div class="rest-stats-row">
+              <div class="rest-stat-item">
+                <i class="fa-solid fa-glass-water"></i>
+                <span>Hydrate</span>
+              </div>
+              <div class="rest-stat-item">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Nutrition</span>
+              </div>
+              <div class="rest-stat-item">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <span>Recover</span>
+              </div>
+            </div>
+            <div class="rest-actions">
+              <button class="btn-primary" (click)="todayWorkout.isRestDay = false">
+                <i class="fa-solid fa-dumbbell"></i> Track a Workout Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
     </ng-template>
 
   </div>

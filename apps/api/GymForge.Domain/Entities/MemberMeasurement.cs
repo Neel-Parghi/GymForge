@@ -2,7 +2,8 @@ namespace GymForge.Domain.Entities
 {
     public class MemberMeasurement : BaseEntity
     {
-        public Guid MemberId { get; set; }
+        public Guid? MemberId { get; set; }
+        public Guid? UserId { get; set; }
         public Guid? RecordedById { get; set; }
         
         public double? Weight { get; set; }
@@ -30,7 +31,8 @@ namespace GymForge.Domain.Entities
         public string? Notes { get; set; }
         public DateTime Date { get; set; }
 
-        public GymMember Member { get; set; } = null!;
+        public GymMember? Member { get; set; }
+        public User? User { get; set; }
         public Staff? RecordedBy { get; set; }
     }
 }

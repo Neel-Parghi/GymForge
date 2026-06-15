@@ -11,7 +11,7 @@ namespace GymForge.Domain.Entities
         public string Goal { get; set; } = "Hypertrophy";   
         
         public string Type { get; set; } = "Split";
-        public Guid GymId { get; set; }
+        public Guid? GymId { get; set; }
         
         public int DaysCount { get; set; }
         

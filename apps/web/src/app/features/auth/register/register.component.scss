@@ -1,1 +1,65 @@
 @import '../auth-shared.scss';
+
+// Theme-Matching Role Toggle
+.premium-role-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .toggle-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .toggle-track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #e5e7eb;
+    border-radius: 30px;
+    padding: 3px;
+    width: 180px;
+    height: 32px;
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    height: 26px;
+    background: #ffffff;
+    border-radius: 26px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+
+    &.is-user {
+      transform: translateX(100%);
+    }
+  }
+
+  .toggle-option {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    z-index: 2;
+    color: #6b7280;
+    font-size: 0.65rem;
+    font-weight: 700;
+    transition: color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    &.active {
+      color: var(--primary-precision, #005bbc);
+    }
+  }
+}

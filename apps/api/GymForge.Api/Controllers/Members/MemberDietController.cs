@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Members
 {
     [Route("api/members/{memberId}")]
-    [Authorize(Roles = "GymOwner,Staff,Trainer")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer,User")]
     [ApiController]
     public class MemberDietController : BaseApiController
     {
@@ -31,7 +31,7 @@ namespace GymForge.Api.Controllers.Members
         [HttpPost("assign-diet")]
         public async Task<ActionResult> AssignDiet(Guid memberId, [FromBody] AssignDietPlanRequest request)
         {
-            bool success = await _memberDietService.AssignDietToMemberAsync(memberId, request.DietPlanId);
+            bool success = await _memberDietService.AssignDietToMemberAsync(memberId, request.DietPlanId, IsStandaloneUser ? null : GymId);
             if (!success)
             {
                 return BadRequest("Failed to assign diet plan.");
@@ -42,15 +42,23 @@ namespace GymForge.Api.Controllers.Members
         [HttpPost("custom-diet")]
         public async Task<ActionResult> SaveCustomDiet(Guid memberId, [FromBody] CreateDietPlanRequest request)
         {
-            if (GymId == null) 
-                return Unauthorized();
-
-            bool success = await _memberDietService.AssignCustomDietToMemberAsync(memberId, request, GymId.Value, UserId);
+            bool success = await _memberDietService.AssignCustomDietToMemberAsync(memberId, request, IsStandaloneUser ? null : GymId, UserId);
             if (!success)
             {
                 return BadRequest("Failed to save and assign custom diet plan.");
             }
             return Ok(new { message = "Custom diet plan saved and assigned successfully." });
+        }
+
+        [HttpDelete("active-diet")]
+        public async Task<ActionResult> UnassignDiet(Guid memberId)
+        {
+            bool success = await _memberDietService.UnassignActiveDietAsync(memberId, IsStandaloneUser ? null : GymId);
+            if (!success)
+            {
+                return BadRequest("No active diet plan to remove.");
+            }
+            return Ok(new { message = "Diet plan unassigned successfully." });
         }
     }
 }

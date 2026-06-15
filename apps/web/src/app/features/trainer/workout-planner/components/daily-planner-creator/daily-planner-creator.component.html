@@ -31,7 +31,8 @@
           <div class="form-row">
             <div class="form-group flex-2">
               <label><i class="fa-solid fa-tag"></i> Workout Session Name <span class="required">*</span></label>
-              <input type="text" formControlName="name" class="form-input" placeholder="e.g. Heavy Pull Day / Arms Hypertrophy">
+              <input type="text" formControlName="name" class="form-input"
+                placeholder="e.g. Heavy Pull Day / Arms Hypertrophy">
               <span class="error-msg"
                 *ngIf="createDailyForm.get('name')?.touched && createDailyForm.get('name')?.invalid">Workout
                 name is required.</span>
@@ -57,13 +58,14 @@
           </div>
 
           <!-- Visibility Toggle -->
-          <div class="visibility-toggle-row">
+          <div class="visibility-toggle-row" *ngIf="!isStandaloneUser">
             <div class="visibility-toggle-info">
               <i class="fa-solid fa-eye"></i>
               <div>
                 <span class="toggle-label">Plan Visibility</span>
                 <span class="toggle-sublabel">
-                  {{ createDailyForm.get('isCustom')?.value ? 'Personal PT Plan — visible only to your assigned members' : 'Public — all gym members can access this plan' }}
+                  {{ createDailyForm.get('isCustom')?.value ? 'Personal PT Plan — visible only to your assigned members'
+                  : 'Public — all gym members can access this plan' }}
                 </span>
               </div>
             </div>
@@ -77,14 +79,15 @@
           <div class="details-tip-panel">
             <div class="tip-icon"><i class="fa-solid fa-circle-info"></i></div>
             <div class="tip-body">
-              <strong>Tip from Designer:</strong> In the next step, you can assemble the spreadsheet list of exercises, select muscle focuses, and add coaching cues or notes.
+              In the next step, you can assemble the spreadsheet list of exercises, select muscle focuses, and add
+              coaching cues or notes.
             </div>
           </div>
         </div>
 
         <!-- STEP 2: Exercises Configuration -->
         <div class="wizard-step-content animate-scale-in" *ngIf="activeStep === 'plan'">
-          
+
           <!-- Standalone Workout Day Config Tab -->
           <div class="calendar-tabs">
             <button type="button" class="tab-btn active">
@@ -96,7 +99,8 @@
             <div class="panel-header">
               <div class="category-select-wrapper font-bold-text">
                 <span class="panel-badge">Workout Session</span>
-                <input type="text" formControlName="name" class="day-title-input compact-input" placeholder="e.g. Back Day">
+                <input type="text" formControlName="name" class="day-title-input compact-input"
+                  placeholder="e.g. Back Day">
               </div>
 
               <!-- Muscle Focus Selector Pills inside panel-header -->
@@ -157,10 +161,12 @@
                   <i class="fa-solid fa-circle-plus"></i> Add Exercise Row
                 </button>
                 <div class="panel-copy-paste-actions">
-                  <button type="button" class="btn-secondary-action btn-copy" (click)="copyWorkout()" title="Copy Workout">
+                  <button type="button" class="btn-secondary-action btn-copy" (click)="copyWorkout()"
+                    title="Copy Workout">
                     <i class="fa-solid fa-copy"></i> Copy Workout
                   </button>
-                  <button type="button" class="btn-secondary-action btn-paste" (click)="pasteWorkout()" title="Paste Workout">
+                  <button type="button" class="btn-secondary-action btn-paste" (click)="pasteWorkout()"
+                    title="Paste Workout">
                     <i class="fa-solid fa-paste"></i> Paste Workout
                   </button>
                 </div>

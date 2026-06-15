@@ -4,7 +4,7 @@ namespace GymForge.Domain.Interface
 {
     public interface IDietPlanRepository
     {
-        Task<IEnumerable<DietPlan>> GetPlansByGymIdAsync(Guid gymId, string? goal = null);
+        Task<IEnumerable<DietPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null);
         
         Task<DietPlan?> GetPlanByIdAsync(Guid id);
         

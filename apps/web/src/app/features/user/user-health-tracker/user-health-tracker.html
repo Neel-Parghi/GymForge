@@ -1,0 +1,12 @@
+<div class="user-page-wrapper">
+  <!-- <div class="header-section">
+    <div>
+      <h1 class="page-title">Health Metrics</h1>
+      <p class="page-subtitle">Track your weight and body composition</p>
+    </div>
+  </div> -->
+
+  <app-member-detail-health-tracker [measurements]="measurements" [isLoadingLogs]="isLoadingLogs"
+    [isSubmittingProgress]="isSubmittingProgress" (recordMeasurement)="onRecordMeasurement($event)">
+  </app-member-detail-health-tracker>
+</div>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using GymForge.Shared.Enums;
 
 namespace GymForge.Contracts.Auth
 {
@@ -14,10 +15,12 @@ namespace GymForge.Contracts.Auth
         public string Email { get; set; } = string.Empty;
 
         [Phone]
-        public string Phone { get; set; } = string.Empty;
+        public string? Phone { get; set; }
 
         [Required]
         [MinLength(8)]
         public string Password { get; set; } = string.Empty;
+
+        public UserRole Role { get; set; } = UserRole.User;
     }
 }

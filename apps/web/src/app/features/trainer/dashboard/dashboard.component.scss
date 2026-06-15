@@ -151,7 +151,10 @@
     }
 
     .hero-section {
-      background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+      // background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+      // box-shadow: 0 20px 50px -10px rgba(43, 88, 118, 0.4);
+
+      background: linear-gradient(130deg, #002d4b 0%, #adadad 100%);
       box-shadow: 0 20px 50px -10px rgba(43, 88, 118, 0.4);
 
       .weather-icon-large {
@@ -275,7 +278,7 @@
       padding: 10px 20px;
       border-radius: 30px;
       color: #000000;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 0.9rem;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(10px);
@@ -522,7 +525,7 @@
       left: 14px;
       top: 20px;
       bottom: 20px;
-      width: 4px;
+      width: 2px;
       background: #7e7e7e;
     }
   }

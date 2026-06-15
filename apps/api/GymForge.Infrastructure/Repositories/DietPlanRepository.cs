@@ -14,12 +14,21 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<DietPlan>> GetPlansByGymIdAsync(Guid gymId, string? goal = null)
+        public async Task<IEnumerable<DietPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null)
         {
+            List<Guid> userGymIds = !gymId.HasValue ? await _dbContext.GymMembers.Where(m => m.UserId == userId).Select(m => m.GymId).ToListAsync() : [];
+
             IQueryable<DietPlan> query = _dbContext.DietPlans
                                             .AsNoTracking()
                                             .Include(p => p.Meals.OrderBy(m => m.SortOrder))
-                                            .Where(p => p.GymId == gymId && p.IsTemplate && !p.IsDeleted);
+                                            .Where(p => 
+                                                (
+                                                    (gymId.HasValue && p.GymId == gymId.Value) || 
+                                                    (!gymId.HasValue && p.CreatedBy == userId && !p.GymId.HasValue) ||
+                                                    (!gymId.HasValue && p.GymId.HasValue && userGymIds.Contains(p.GymId.Value) && !p.IsCustom)
+                                                ) 
+                                                && p.IsTemplate && !p.IsDeleted
+                                            );
 
             if (!string.IsNullOrWhiteSpace(goal))
             {

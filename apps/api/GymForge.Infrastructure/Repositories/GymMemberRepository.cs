@@ -80,6 +80,14 @@ namespace GymForge.Infrastructure.Repositories
                                     .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<GymMember?> GetByUserIdAsync(Guid userId)
+        {
+            return await _dbContext.GymMembers
+                                    .Include(x => x.Subscriptions)
+                                    .Include(x => x.Address)
+                                    .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
         public Task UpdateAsync(GymMember member)
         {
             _dbContext.GymMembers.Update(member);

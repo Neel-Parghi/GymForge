@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
+import { DropdownComponent } from '../../dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../core/constants/constants';
 

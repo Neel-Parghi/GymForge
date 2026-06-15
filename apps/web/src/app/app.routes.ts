@@ -141,6 +141,49 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'user',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/user/user-dashboard/user-dashboard.component').then(m => m.UserDashboardComponent)
+      },
+      {
+        path: 'performance',
+        loadComponent: () => import('./features/user/user-performance/user-performance').then(m => m.UserPerformance)
+      },
+      {
+        path: 'workout-calendar',
+        loadComponent: () => import('./features/user/user-workout-calendar/user-workout-calendar').then(m => m.UserWorkoutCalendar)
+      },
+      {
+        path: 'workout-planner',
+        loadComponent: () => import('./features/user/user-workout-planner/user-workout-planner').then(m => m.UserWorkoutPlanner)
+      },
+      {
+        path: 'diet-planner',
+        loadComponent: () => import('./features/user/user-diet-planner/user-diet-planner').then(m => m.UserDietPlanner)
+      },
+      {
+        path: 'health-tracker',
+        loadComponent: () => import('./features/user/user-health-tracker/user-health-tracker').then(m => m.UserHealthTracker)
+      },
+      {
+        path: 'billing',
+        loadComponent: () => import('./features/user/user-billing/user-billing').then(m => m.UserBilling)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/user/user-settings/user-settings').then(m => m.UserSettings)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
+      }
+    ]
+  },
+  {
     path: 'subscription-expired',
     loadComponent: () => import('./features/gym-owner/subscription-expired/subscription-expired.component').then(m => m.SubscriptionExpiredComponent),
     canActivate: [authGuard]

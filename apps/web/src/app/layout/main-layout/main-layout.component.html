@@ -27,7 +27,10 @@
         <li>
           @if (item.isHeading) {
           @if (!isSidebarCollapsed) {
-          <div class="nav-heading">{{ item.label }}</div>
+          <div class="nav-heading">
+            @if (item.icon) { <i [class]="item.icon + ' heading-icon'"></i> }
+            {{ item.label }}
+          </div>
           } @else {
           <div class="nav-divider"></div>
           }

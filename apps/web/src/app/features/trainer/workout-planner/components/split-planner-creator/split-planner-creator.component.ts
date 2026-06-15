@@ -7,7 +7,7 @@ import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { SplitPlanner } from '../../../../../shared/models/workout-plan.model';
 import { CONSTANTS } from '../../../../../core/constants/constants';
-
+import { AuthApiService } from '../../../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-split-planner-creator',
@@ -19,6 +19,11 @@ import { CONSTANTS } from '../../../../../core/constants/constants';
 export class SplitPlannerCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
+  private authService = inject(AuthApiService);
+
+  get isStandaloneUser(): boolean {
+    return this.authService.getUserRole() === 'User';
+  }
 
   @Input() categories: string[] = [];
   @Input() exercisesMap: { [category: string]: Exercise[] } = {};

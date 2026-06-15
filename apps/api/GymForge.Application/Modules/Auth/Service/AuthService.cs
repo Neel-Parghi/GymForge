@@ -40,6 +40,37 @@ namespace GymForge.Application.Modules.Auth.Service
             return await GenerateAndSaveTokens(user);
         }
 
+        public async Task<TokenResponseDto> RegisterAsync(RegisterRequestDto userDto)
+        {
+            if (userDto.Role != UserRole.User && userDto.Role != UserRole.GymOwner)
+            {
+                throw new Exception("Invalid role for registration. Only User or GymOwner roles are allowed.");
+            }
+
+            User? existingUser = await _authRepository.GetByUserByEmailAsync(userDto.Email);
+            if (existingUser != null)
+            {
+                throw new Exception("A user with this email already exists.");
+            }
+
+            User user = new()
+            {
+                FirstName = userDto.FirstName,
+                LastName = userDto.LastName ?? string.Empty,
+                Email = userDto.Email,
+                PasswordHash = _passwordService.HashPassword(userDto.Password),
+                Phone = userDto.Phone ?? string.Empty,
+                Role = userDto.Role,
+                IsActive = true
+            };
+
+            await _authRepository.AddUserAsync(user);
+            await _authRepository.LinkUserToGymMembersAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            return await GenerateAndSaveTokens(user);
+        }
+
         public async Task<TokenResponseDto> Login(LoginRequestDto userDto)
         {
             User? user = await _authRepository.Login(userDto);

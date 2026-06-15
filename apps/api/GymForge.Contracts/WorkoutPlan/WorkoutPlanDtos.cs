@@ -8,7 +8,7 @@ namespace GymForge.Contracts.WorkoutPlan
         public string Level { get; set; } = "Beginner";
         public string Goal { get; set; } = "Hypertrophy";
         public string Type { get; set; } = "Split";
-        public Guid GymId { get; set; }
+        public Guid? GymId { get; set; }
         public int DaysCount { get; set; }
         public int ExercisesCount { get; set; }
         public bool IsCustom { get; set; }
@@ -87,7 +87,8 @@ namespace GymForge.Contracts.WorkoutPlan
     public class MemberPlanAssignmentDto
     {
         public Guid Id { get; set; }
-        public Guid MemberId { get; set; }
+        public Guid? MemberId { get; set; }
+        public Guid? UserId { get; set; }
         public Guid WorkoutPlanId { get; set; }
         public DateTime AssignedAt { get; set; }
         public bool IsActive { get; set; }

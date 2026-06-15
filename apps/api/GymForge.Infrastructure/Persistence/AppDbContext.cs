@@ -180,6 +180,11 @@ namespace GymForge.Infrastructure.Persistence
                       .HasForeignKey(mm => mm.RecordedById)
                       .OnDelete(DeleteBehavior.SetNull);
 
+                entity.HasOne(mm => mm.User)
+                      .WithMany()
+                      .HasForeignKey(mm => mm.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
                 entity.Property(mm => mm.Weight).HasPrecision(5, 2);
                 entity.Property(mm => mm.Height).HasPrecision(5, 2);
                 entity.Property(mm => mm.BodyFatPercentage).HasPrecision(5, 2);
@@ -325,6 +330,11 @@ namespace GymForge.Infrastructure.Persistence
                       .HasForeignKey(l => l.MemberId)
                       .OnDelete(DeleteBehavior.Cascade);
 
+                entity.HasOne(l => l.User)
+                      .WithMany()
+                      .HasForeignKey(l => l.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasMany(l => l.LoggedExercises)
                       .WithOne(le => le.WorkoutSessionLog)
                       .HasForeignKey(le => le.WorkoutSessionLogId)
@@ -344,6 +354,11 @@ namespace GymForge.Infrastructure.Persistence
                 entity.HasOne(mpa => mpa.Member)
                       .WithMany()
                       .HasForeignKey(mpa => mpa.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mpa => mpa.User)
+                      .WithMany()
+                      .HasForeignKey(mpa => mpa.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(mpa => mpa.WorkoutPlan)
@@ -406,6 +421,11 @@ namespace GymForge.Infrastructure.Persistence
                 entity.HasOne(mda => mda.Member)
                       .WithMany()
                       .HasForeignKey(mda => mda.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mda => mda.User)
+                      .WithMany()
+                      .HasForeignKey(mda => mda.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(mda => mda.DietPlan)

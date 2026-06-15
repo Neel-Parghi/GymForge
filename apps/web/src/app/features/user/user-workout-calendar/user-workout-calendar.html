@@ -1,0 +1,47 @@
+<div class="user-page-wrapper">
+  <!-- <div class="header-section">
+    <div>
+      <h1 class="page-title">Workout Calendar</h1>
+      <p class="page-subtitle">View your past and upcoming workout plans</p>
+    </div>
+  </div> -->
+
+  <app-member-detail-workout-calendar [workoutHistory]="workoutHistory" [activeSplit]="activeSplit"
+    [planAssignments]="planAssignments" [workoutOverrides]="workoutOverrides"
+    (openAssignModal)="openAssignSplitModal()"
+    (updateOverrides)="onUpdateOverrides($event)"
+    (logDateWorkout)="onLogDateWorkout($event)"
+    (editWorkout)="onEditWorkoutSession($event)">
+  </app-member-detail-workout-calendar>
+
+  <!-- WORKOUT ASSIGNMENT MODAL OVERLAY -->
+  <div class="modal-overlay" *ngIf="showAssignSplitModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Assign Workout Template</h2>
+        <button class="btn-close" (click)="closeAssignSplitModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body-list">
+        <p class="modal-desc">Select a workout split plan to assign to yourself</p>
+
+        <ng-container *ngIf="workoutPlans.length > 0; else noWorkoutPlans">
+          <div class="assign-template-item custom-plan-item" *ngFor="let plan of workoutPlans"
+            (click)="assignWorkoutSplit(plan)">
+            <div class="item-left">
+              <strong>{{ plan.name }}</strong>
+              <span>{{ plan.type }} • Level: {{ plan.level }} • Goal: {{ plan.goal }}</span>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow-icon"></i>
+          </div>
+        </ng-container>
+
+        <ng-template #noWorkoutPlans>
+          <div class="empty-state" style="padding: 24px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-dumbbell" style="font-size: 1.5rem; margin-bottom: 8px; opacity: 0.5;"></i>
+            <p>No workout plans created yet. Go to the Workout Planner to create templates.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

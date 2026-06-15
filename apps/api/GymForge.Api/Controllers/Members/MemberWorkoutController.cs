@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Members
 {
     [Route("api/members/{memberId}")]
-    [Authorize(Roles = "GymOwner,Staff,Trainer")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer,User")]
     [ApiController]
     public class MemberWorkoutController : BaseApiController
     {
@@ -31,7 +31,7 @@ namespace GymForge.Api.Controllers.Members
         [HttpPost("assign-plan")]
         public async Task<ActionResult> AssignPlan(Guid memberId, [FromBody] AssignWorkoutPlanRequest request)
         {
-            bool success = await _memberWorkoutService.AssignPlanToMemberAsync(memberId, request.WorkoutPlanId);
+            bool success = await _memberWorkoutService.AssignPlanToMemberAsync(memberId, request.WorkoutPlanId, IsStandaloneUser ? null : GymId);
             if (!success)
             {
                 return BadRequest("Failed to assign workout plan.");
@@ -49,7 +49,7 @@ namespace GymForge.Api.Controllers.Members
         [HttpPost("workout-logs")]
         public async Task<ActionResult<WorkoutSessionLogDto>> LogWorkoutSession(Guid memberId, [FromBody] LogWorkoutSessionRequest request)
         {
-            WorkoutSessionLogDto log = await _memberWorkoutService.LogWorkoutSessionAsync(memberId, request);
+            WorkoutSessionLogDto log = await _memberWorkoutService.LogWorkoutSessionAsync(memberId, request, IsStandaloneUser ? null : GymId);
             return Ok(log);
         }
 

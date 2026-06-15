@@ -19,7 +19,8 @@ export const API_CONSTANTS = {
     SET_PASSWORD: 'users/set-password',
     CHANGE_PASSWORD: 'users/change-password',
     VALIDATE_INVITATION: 'users/validate-invitation',
-    UPLOAD_AVATAR: 'users/profile/upload-avatar'
+    UPLOAD_AVATAR: 'users/profile/upload-avatar',
+    MY_SUBSCRIPTIONS: 'users/my-subscriptions'
   },
   GYM: {
     ONBOARD: 'gyms/onboard',

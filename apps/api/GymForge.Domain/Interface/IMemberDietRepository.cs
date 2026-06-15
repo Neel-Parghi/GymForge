@@ -4,10 +4,10 @@ namespace GymForge.Domain.Interface
 {
     public interface IMemberDietRepository
     {
-        Task<MemberDietAssignment?> GetActiveDietAssignmentAsync(Guid memberId);
+        Task<MemberDietAssignment?> GetActiveDietAssignmentAsync(Guid memberOrUserId);
         
         Task AddDietAssignmentAsync(MemberDietAssignment assignment);
         
-        Task<IEnumerable<MemberDietAssignment>> GetDietAssignmentsAsync(Guid memberId);
+        Task<IEnumerable<MemberDietAssignment>> GetDietAssignmentsAsync(Guid memberOrUserId);
     }
 }
