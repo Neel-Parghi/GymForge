@@ -43,9 +43,17 @@ export class AuthApiService extends BaseApiService {
   }
 
   register(userData: any): Observable<any> {
-    return this.post(API_CONSTANTS.AUTH.REGISTER, userData).pipe(
+    return this.post(API_CONSTANTS.AUTH.REGISTER, userData);
+  }
+
+  verifyOtp(data: { email: string, otpCode: string }): Observable<any> {
+    return this.post(API_CONSTANTS.AUTH.VERIFY_OTP, data).pipe(
       tap(res => this.saveTokens(res))
     );
+  }
+
+  resendOtp(data: { email: string }): Observable<any> {
+    return this.post(API_CONSTANTS.AUTH.RESEND_OTP, data);
   }
 
   getMe() {

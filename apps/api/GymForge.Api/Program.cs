@@ -1,5 +1,7 @@
 using GymForge.Api;
 using GymForge.Api.Middlewares;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using GymForge.Application;
 using GymForge.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +67,26 @@ builder.Services.AddAutoMapper(cfg => {}, typeof(Program).Assembly, typeof(GymFo
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("OtpPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers["X-Forwarded-For"].ToString(),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        await context.HttpContext.Response.WriteAsJsonAsync(new { message = "Too many requests. Please try again later." }, cancellationToken: token);
+    };
+});
+
 var app = builder.Build();
 
 // Automatically migrate database on startup
@@ -94,6 +116,7 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.UseMiddleware<ResponseWrapperMiddleware>();
 

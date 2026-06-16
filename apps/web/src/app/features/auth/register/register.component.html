@@ -44,7 +44,7 @@
             <p class="card-subtitle">Get started with the world's most powerful gym management tools.</p>
           </div>
 
-          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+          <form *ngIf="!isOtpStep" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
 
             <div class="form-item">
               <label for="name">Full Name</label>
@@ -77,7 +77,28 @@
             </button>
           </form>
 
-          <div class="auth-footer-prompt">
+          <form *ngIf="isOtpStep" (ngSubmit)="verifyOtp()" class="auth-form">
+            <div class="form-item">
+              <label for="otp">Verification Code</label>
+              <p class="otp-instruction">We've sent a 6-digit code to <strong>{{registeredEmail}}</strong>.</p>
+              <div class="input-wrapper">
+                <input type="text" id="otp" name="otp" [(ngModel)]="otpCode" placeholder="Enter 6-digit code" required maxlength="6" class="otp-input" />
+              </div>
+            </div>
+
+            <button class="submit-btn" type="submit" [disabled]="otpCode.length !== 6 || isLoading">
+              {{ isLoading ? 'Verifying...' : 'Verify Email' }}
+              <i class="fa-solid fa-arrow-right arrow-icon" *ngIf="!isLoading"></i>
+            </button>
+
+            <div class="resend-action">
+              <button type="button" class="resend-btn" (click)="resendOtp()" [disabled]="resendCooldown > 0 || isLoading">
+                {{ resendCooldown > 0 ? 'Resend code in ' + resendCooldown + 's' : 'Resend Code' }}
+              </button>
+            </div>
+          </form>
+
+          <div class="auth-footer-prompt" *ngIf="!isOtpStep">
             Already have an account?
             <a routerLink="/login">Sign In</a>
           </div>

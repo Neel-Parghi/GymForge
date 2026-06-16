@@ -2,6 +2,7 @@ using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Contracts.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace GymForge.Api.Controllers
@@ -25,12 +26,43 @@ namespace GymForge.Api.Controllers
         // }
 
         [HttpPost("register")]
+        [EnableRateLimiting("OtpPolicy")]
         public async Task<IActionResult> Register(RegisterRequestDto dto)
         {
             try
             {
-                TokenResponseDto response = await _authService.RegisterAsync(dto);
+                RegisterResponseDto response = await _authService.RegisterAsync(dto);
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpRequestDto dto)
+        {
+            try
+            {
+                TokenResponseDto response = await _authService.VerifyOtpAsync(dto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("resend-otp")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> ResendOtp(ResendOtpRequestDto dto)
+        {
+            try
+            {
+                await _authService.ResendOtpAsync(dto);
+                return Ok(new { message = "OTP resent successfully." });
             }
             catch (Exception ex)
             {

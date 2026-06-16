@@ -12,13 +12,15 @@ namespace GymForge.Application.Modules.Auth.Service
         private readonly IJwtService _jwtService;
         private readonly IAuthRepository _authRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
-        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUnitOfWork unitOfWork)
+        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _passwordService = passwordService;
             _jwtService = jwtService;
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         public async Task<TokenResponseDto> RegisterSuperAdmin(RegisterRequestDto userDto)
@@ -40,7 +42,7 @@ namespace GymForge.Application.Modules.Auth.Service
             return await GenerateAndSaveTokens(user);
         }
 
-        public async Task<TokenResponseDto> RegisterAsync(RegisterRequestDto userDto)
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto userDto)
         {
             if (userDto.Role != UserRole.User && userDto.Role != UserRole.GymOwner)
             {
@@ -50,8 +52,22 @@ namespace GymForge.Application.Modules.Auth.Service
             User? existingUser = await _authRepository.GetByUserByEmailAsync(userDto.Email);
             if (existingUser != null)
             {
+                if (!existingUser.IsEmailVerified)
+                {
+                    // Allow re-registering or just regenerating OTP if email is not verified
+                    string existingOtp = new Random().Next(100000, 999999).ToString();
+                    existingUser.OtpCode = existingOtp;
+                    existingUser.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+                    
+                    await _unitOfWork.SaveChangesAsync();
+                    await _emailService.SendOtpEmailAsync(existingUser.Email, existingUser.FirstName, existingOtp);
+                    
+                    return new RegisterResponseDto { Message = "OTP sent to email.", RequiresOtp = true, Email = existingUser.Email };
+                }
                 throw new Exception("A user with this email already exists.");
             }
+
+            string otp = new Random().Next(100000, 999999).ToString();
 
             User user = new()
             {
@@ -61,14 +77,59 @@ namespace GymForge.Application.Modules.Auth.Service
                 PasswordHash = _passwordService.HashPassword(userDto.Password),
                 Phone = userDto.Phone ?? string.Empty,
                 Role = userDto.Role,
-                IsActive = true
+                IsActive = true,
+                IsEmailVerified = false,
+                OtpCode = otp,
+                OtpExpiry = DateTime.UtcNow.AddMinutes(10)
             };
 
             await _authRepository.AddUserAsync(user);
             await _authRepository.LinkUserToGymMembersAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
+            await _emailService.SendOtpEmailAsync(user.Email, user.FirstName, otp);
+
+            return new RegisterResponseDto { Message = "OTP sent to email.", RequiresOtp = true, Email = user.Email };
+        }
+
+        public async Task<TokenResponseDto> VerifyOtpAsync(VerifyOtpRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+            
+            if (user.IsEmailVerified)
+                throw new Exception("Email is already verified.");
+                
+            if (user.OtpCode != dto.OtpCode || user.OtpExpiry < DateTime.UtcNow)
+                throw new Exception("Invalid or expired OTP code.");
+                
+            user.IsEmailVerified = true;
+            user.OtpCode = null;
+            user.OtpExpiry = null;
+            
+            await _unitOfWork.SaveChangesAsync();
+            
             return await GenerateAndSaveTokens(user);
+        }
+
+        public async Task<bool> ResendOtpAsync(ResendOtpRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+                
+            if (user.IsEmailVerified)
+                throw new Exception("Email is already verified.");
+                
+            string otp = new Random().Next(100000, 999999).ToString();
+            user.OtpCode = otp;
+            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            
+            await _unitOfWork.SaveChangesAsync();
+            await _emailService.SendOtpEmailAsync(user.Email, user.FirstName, otp);
+            
+            return true;
         }
 
         public async Task<TokenResponseDto> Login(LoginRequestDto userDto)
@@ -77,6 +138,9 @@ namespace GymForge.Application.Modules.Auth.Service
 
             if (user == null)
                 throw new Exception("Invalid credentials");
+
+            if (!user.IsEmailVerified)
+                throw new Exception("EMAIL_NOT_VERIFIED");
 
             bool validPassword = _passwordService.VerifyPasword(userDto.Password, user.PasswordHash!);
 

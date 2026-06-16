@@ -6,6 +6,8 @@ export const API_CONSTANTS = {
   AUTH: {
     LOGIN: 'auth/login',
     REGISTER: 'auth/register',
+    VERIFY_OTP: 'auth/verify-otp',
+    RESEND_OTP: 'auth/resend-otp',
     REGISTER_SUPERADMIN: 'auth/register-superadmin',
     LOGOUT: 'auth/logout',
     REFRESH: 'auth/refresh',

@@ -106,5 +106,24 @@ namespace GymForge.Infrastructure.Services
 
             await SendEmailAsync(email, name, $"Receipt for your purchase: {productName}", htmlContent);
         }
+
+        public async Task SendOtpEmailAsync(string email, string name, string otpCode)
+        {
+            string htmlContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;'>
+                    <h2 style='color: #2c3e50; text-align: center;'>Welcome to GymForge!</h2>
+                    <p style='color: #555;'>Hello {name},</p>
+                    <p style='color: #555;'>Thank you for registering. Please use the verification code below to complete your registration process.</p>
+                    <div style='background-color: #f8f9fa; padding: 15px; border-radius: 4px; text-align: center; margin: 20px 0;'>
+                        <h1 style='color: #007bff; margin: 0; letter-spacing: 5px; font-size: 32px;'>{otpCode}</h1>
+                    </div>
+                    <p style='color: #555;'>This code will expire in 10 minutes.</p>
+                    <p style='color: #555;'>If you did not request this, please ignore this email.</p>
+                    <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
+                    <p style='color: #888; font-size: 12px; text-align: center;'>&copy; {DateTime.UtcNow.Year} GymForge. All rights reserved.</p>
+                </div>";
+
+            await SendEmailAsync(email, name, "Your GymForge Verification Code", htmlContent);
+        }
     }
 }

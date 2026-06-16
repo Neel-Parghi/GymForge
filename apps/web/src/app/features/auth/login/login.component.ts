@@ -54,7 +54,12 @@ export class LoginComponent {
           this.isLoading = false;
         },
         error: (err) => {
-          this.notification.error(err.error?.message || CONSTANTS.AUTH.LOGIN_ERROR);
+          const errorMessage = err.error?.message || CONSTANTS.AUTH.LOGIN_ERROR;
+          if (errorMessage === 'EMAIL_NOT_VERIFIED') {
+            this.notification.error('Your email is not verified. Please register again to receive a new verification code.');
+          } else {
+            this.notification.error(errorMessage);
+          }
           this.isLoading = false;
         },
       });

@@ -24,6 +24,12 @@ namespace GymForge.Domain.Entities
 
         public bool IsActive { get; set; }
 
+        public bool IsEmailVerified { get; set; } = false;
+
+        public string? OtpCode { get; set; }
+
+        public DateTime? OtpExpiry { get; set; }
+
         public string? InvitationToken { get; set; }
 
         public DateTime? InvitationExpiry { get; set; }

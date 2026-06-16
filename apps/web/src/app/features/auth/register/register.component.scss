@@ -63,3 +63,46 @@
     }
   }
 }
+
+.otp-instruction {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
+.otp-input {
+  letter-spacing: 0.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.resend-action {
+  margin-top: 1.5rem;
+  text-align: center;
+
+  .resend-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not([disabled]) {
+      color: var(--primary-color-hover);
+      text-decoration: underline;
+    }
+
+    &[disabled] {
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+  }
+}
