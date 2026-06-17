@@ -11,7 +11,9 @@ export const API_CONSTANTS = {
     REGISTER_SUPERADMIN: 'auth/register-superadmin',
     LOGOUT: 'auth/logout',
     REFRESH: 'auth/refresh',
-    ME: 'auth/me'
+    ME: 'auth/me',
+    FORGOT_PASSWORD: 'auth/forgot-password',
+    RESET_PASSWORD: 'auth/reset-password'
   },
   USER: {
     PROFILE: 'users/profile',

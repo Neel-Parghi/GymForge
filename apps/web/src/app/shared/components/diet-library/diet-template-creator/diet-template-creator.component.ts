@@ -40,9 +40,9 @@ export class DietTemplateCreatorComponent implements OnInit {
     this.createForm = this.fb.group({
       name: [plan?.name || '', [Validators.required, Validators.minLength(3)]],
       goal: [plan?.goal || 'Muscle Gain', [Validators.required]],
-      protein: [plan?.protein || 150, [Validators.required, Validators.min(0)]],
-      carbs: [plan?.carbs || 200, [Validators.required, Validators.min(0)]],
-      fats: [plan?.fats || 70, [Validators.required, Validators.min(0)]],
+      protein: [plan?.protein ?? null, [Validators.required, Validators.min(0)]],
+      carbs: [plan?.carbs ?? null, [Validators.required, Validators.min(0)]],
+      fats: [plan?.fats ?? null, [Validators.required, Validators.min(0)]],
       meals: this.fb.array([])
     });
 
@@ -65,8 +65,8 @@ export class DietTemplateCreatorComponent implements OnInit {
     const mealGroup = this.fb.group({
       mealTitle: [rawName, [Validators.required]],
       mealTime: [parsedTime, [Validators.required]],
-      calories: [meal?.calories || 400, [Validators.required, Validators.min(0)]],
-      protein: [meal?.protein || 30, [Validators.required, Validators.min(0)]],
+      calories: [meal?.calories ?? null, [Validators.required, Validators.min(0)]],
+      protein: [meal?.protein ?? null, [Validators.required, Validators.min(0)]],
       items: [meal?.items || '']
     });
     this.meals.push(mealGroup);
@@ -83,7 +83,7 @@ export class DietTemplateCreatorComponent implements OnInit {
 
   private to24h(timeStr: string): string {
     if (!timeStr)
-      return '08:00';
+      return '';
 
     if (/^\d{1,2}:\d{2}$/.test(timeStr.trim()))
       return timeStr.trim().padStart(5, '0');
@@ -91,7 +91,7 @@ export class DietTemplateCreatorComponent implements OnInit {
     const m = timeStr.trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
 
     if (!m)
-      return '08:00';
+      return timeStr.trim();
 
     let h = parseInt(m[1], 10);
     const min = m[2];

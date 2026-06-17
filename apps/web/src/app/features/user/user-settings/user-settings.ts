@@ -17,8 +17,6 @@ export class UserSettings {
     marketingEmails: false
   };
 
-  activeTab: 'preferences' | 'security' = 'preferences';
-
   saveChanges() {
     console.log('Saved settings', this.preferences);
   }

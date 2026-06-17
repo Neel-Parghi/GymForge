@@ -106,6 +106,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      margin-bottom: 10px;
 
       label {
         font-size: 0.78rem;
@@ -226,7 +227,7 @@
 /* Wizard Modal Card Setup */
 .modal-overlay .modal-card.wizard-modal-card {
   max-width: 680px;
-  height: 85vh;
+  height: 90vh;
   max-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
@@ -259,7 +260,7 @@
 .wizard-step-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 6px;
   height: 100%;
   overflow-y: auto;
   padding-right: 4px;

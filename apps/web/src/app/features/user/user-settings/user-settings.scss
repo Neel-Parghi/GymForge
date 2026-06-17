@@ -27,7 +27,6 @@ $calendar-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
   overflow: hidden;
   font-family: 'Inter', system-ui, sans-serif;
 
-  // Scrollbar customization
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -101,124 +100,6 @@ $calendar-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
     }
   }
 
-  // Navigation Tabs
-  .settings-tabs {
-    padding: 0 30px;
-    background: white;
-    display: flex;
-    gap: 16px;
-    border-bottom: 1px solid $border-color;
-    flex-shrink: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    .tab-btn {
-      padding: 12px 8px;
-      background: transparent;
-      border: none;
-      color: $text-muted;
-      font-weight: 600;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-
-      .tab-icon-wrapper {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        transition: all 0.25s ease;
-        background: #f1f5f9;
-        color: #64748b;
-      }
-
-      .tab-label {
-        transition: color 0.2s ease;
-      }
-
-      &:hover {
-        color: $text-dark;
-
-        .tab-icon-wrapper {
-          background: #e2e8f0;
-          color: $text-dark;
-        }
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: transparent;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        transition: all 0.25s ease;
-        transform: scaleX(0.85);
-        opacity: 0;
-      }
-
-      &.active {
-        color: $text-dark;
-
-        &::after {
-          opacity: 1;
-          transform: scaleX(1);
-        }
-
-        // Active State Accent Coloring
-        &:has(.permissions-tab) {
-          &::after {
-            background: $permissions-primary;
-          }
-
-          .tab-icon-wrapper {
-            background: $permissions-soft;
-            color: $permissions-primary;
-          }
-        }
-
-
-        &:has(.notifications-tab) {
-          &::after {
-            background: $notifications-primary;
-          }
-
-          .tab-icon-wrapper {
-            background: $notifications-soft;
-            color: $notifications-primary;
-          }
-        }
-
-        &:has(.calendar-tab) {
-          &::after {
-            background: $calendar-primary;
-          }
-
-          .tab-icon-wrapper {
-            background: $calendar-soft;
-            color: $calendar-primary;
-          }
-        }
-      }
-    }
-  }
-
-  // Scrollable pane area
   .scroll-area {
     flex: 1;
     overflow-y: auto;
@@ -298,7 +179,6 @@ $calendar-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
         }
 
 
-        // Role Access Matrix Grid Table
         .matrix-table-container {
           width: 100%;
           margin-top: 12px;
@@ -429,7 +309,6 @@ $calendar-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
           }
         }
 
-        // Switch Slider
         .switch-premium {
           position: relative;
           display: inline-block;
@@ -805,5 +684,4 @@ $calendar-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
       }
     }
   }
-
 }

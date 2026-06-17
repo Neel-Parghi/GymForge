@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { API_CONSTANTS } from '../../../core/constants/api-constants';
+import { AuthApiService } from '../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-profile',
@@ -37,7 +38,8 @@ export class ProfileComponent implements OnInit {
     private fb: FormBuilder,
     private profileService: ProfileService,
     private staffService: StaffService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private authApi: AuthApiService
   ) {
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -147,25 +149,20 @@ export class ProfileComponent implements OnInit {
     this.isSaving = true;
 
     try {
-      // 1. If there's a new file, upload it first
       if (this.selectedFile) {
         const uploadRes = await this.profileService.uploadAvatar(this.selectedFile).toPromise();
-        
-        // Exhaustive check for the URL in the response (handling wrapping and casing)
-        const newUrl = uploadRes?.data?.url || uploadRes?.data?.Url || 
-                       uploadRes?.url || uploadRes?.Url;
-        
+
+        const newUrl = uploadRes?.data?.url || uploadRes?.data?.Url ||
+          uploadRes?.url || uploadRes?.Url;
+
         if (newUrl) {
           this.profileForm.patchValue({ profilePictureUrl: newUrl });
-          // Force update local profile object so preview stays stable if needed
           if (this.profile) this.profile.profilePictureUrl = newUrl;
         }
       }
 
-      // 2. Save the profile details
       await this.profileService.updateProfile(this.profileForm.value).toPromise();
 
-      // 3. Save the staff details if trainer
       if (this.isTrainer && this.profile?.id) {
         const staffPayload = {
           firstName: this.profileForm.value.firstName,
@@ -189,8 +186,7 @@ export class ProfileComponent implements OnInit {
       this.selectedFile = null;
       this.previewUrl = null;
       this.notification.success(CONSTANTS.PROFILE_UPDATE_SUCCESS_MESSAGE);
-      
-      // Single final refresh to sync everything (including Header) - FORCE REFRESH HERE
+
       this.loadProfile(true);
     } catch (error: any) {
       this.isSaving = false;
@@ -205,13 +201,27 @@ export class ProfileComponent implements OnInit {
     this.passwordChangeError = '';
     this.passwordChangeSuccess = false;
 
-    setTimeout(() => {
-      this.isChangingPassword = false;
-      this.passwordChangeSuccess = true;
-      this.passwordForm.reset();
+    const payload = {
+      currentPassword: this.passwordForm.value.currentPassword,
+      newPassword: this.passwordForm.value.newPassword,
+      confirmPassword: this.passwordForm.value.confirmPassword
+    };
 
-      setTimeout(() => this.passwordChangeSuccess = false, 3000);
-    }, 1000);
+    this.profileService.changePassword(payload).subscribe({
+      next: () => {
+        this.isChangingPassword = false;
+        this.passwordChangeSuccess = true;
+        this.passwordForm.reset();
+        this.notification.success('Password updated successfully.');
+        setTimeout(() => this.passwordChangeSuccess = false, 3000);
+      },
+      error: (err: any) => {
+        this.isChangingPassword = false;
+        const msg = err?.error?.data?.message || err?.error?.message || 'Failed to change password. Please check your current password.';
+        this.passwordChangeError = msg;
+        this.notification.error(msg);
+      }
+    });
   }
 
   getImageUrl(path: string | undefined): string | null {
@@ -236,7 +246,19 @@ export class ProfileComponent implements OnInit {
   }
 
   requestReset() {
-    this.notification.success(CONSTANTS.AUTH.PASSWORD_RESET_LINK_SENT);
+    if (!this.profile?.email) {
+      this.notification.error('Email not found.');
+      return;
+    }
+
+    this.authApi.forgotPassword({ email: this.profile.email }).subscribe({
+      next: () => {
+        this.notification.success('Verification link sent to your email.');
+      },
+      error: () => {
+        this.notification.success('If the email is registered, a verification code has been sent.');
+      }
+    });
   }
 
   triggerAvatarUpload() {

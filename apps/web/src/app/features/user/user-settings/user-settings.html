@@ -11,24 +11,10 @@
     </button>
   </div>
 
-  <!-- Premium Navigation Tabs -->
-  <div class="settings-tabs">
-    <button class="tab-btn" [class.active]="activeTab === 'preferences'" (click)="activeTab = 'preferences'">
-      <span class="tab-icon-wrapper notifications-tab"><i class="fas fa-sliders"></i></span>
-      <span class="tab-label">Preferences</span>
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
-      <span class="tab-icon-wrapper permissions-tab"><i class="fas fa-shield-halved"></i></span>
-      <span class="tab-label">Security</span>
-    </button>
-  </div>
-
-  <!-- Scrollable Form Area -->
   <div class="scroll-area">
     <div class="tab-content">
 
-      <!-- Preferences Tab -->
-      <div class="settings-pane" *ngIf="activeTab === 'preferences'">
+      <div class="settings-pane">
         <div class="pane-header">
           <div class="pane-title-group">
             <h3>Notifications & Preferences</h3>
@@ -72,43 +58,6 @@
                 </label>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Security Tab -->
-      <div class="settings-pane" *ngIf="activeTab === 'security'">
-        <div class="pane-header">
-          <div class="pane-title-group">
-            <h3>Security Settings</h3>
-            <p>Keep your account secure with a strong password and two-factor authentication.</p>
-          </div>
-        </div>
-
-        <div class="pane-body">
-          <div class="single-setting-container" style="max-width: 500px;">
-            <div class="form-group">
-              <label><i class="fas fa-lock"></i> Current Password</label>
-              <div class="input-wrapper">
-                <input type="password" placeholder="Enter current password">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label><i class="fas fa-key"></i> New Password</label>
-              <div class="input-wrapper">
-                <input type="password" placeholder="Enter new password">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label><i class="fas fa-check-circle"></i> Confirm New Password</label>
-              <div class="input-wrapper">
-                <input type="password" placeholder="Confirm new password">
-              </div>
-            </div>
-
-
           </div>
         </div>
       </div>

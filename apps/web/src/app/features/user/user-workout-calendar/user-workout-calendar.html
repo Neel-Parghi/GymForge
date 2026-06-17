@@ -7,11 +7,9 @@
   </div> -->
 
   <app-member-detail-workout-calendar [workoutHistory]="workoutHistory" [activeSplit]="activeSplit"
-    [planAssignments]="planAssignments" [workoutOverrides]="workoutOverrides"
-    (openAssignModal)="openAssignSplitModal()"
-    (updateOverrides)="onUpdateOverrides($event)"
-    (logDateWorkout)="onLogDateWorkout($event)"
-    (editWorkout)="onEditWorkoutSession($event)">
+    [planAssignments]="planAssignments" [workoutOverrides]="workoutOverrides" (openAssignModal)="openAssignSplitModal()"
+    (updateOverrides)="onUpdateOverrides($event)" (logDateWorkout)="onLogDateWorkout($event)"
+    (editWorkout)="onEditWorkoutSession($event)" (changeTab)="onTrackToday()">
   </app-member-detail-workout-calendar>
 
   <!-- WORKOUT ASSIGNMENT MODAL OVERLAY -->

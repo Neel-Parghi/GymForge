@@ -127,12 +127,12 @@ export class UserWorkoutCalendar implements OnInit {
 
   assignWorkoutSplit(plan: any): void {
     if (typeof plan === 'string') return;
-    
+
     if (plan.id) {
       this.memberService.assignPlan(this.userId, plan.id).subscribe({
         next: () => {
           this.notification.success(`Successfully assigned ${plan.name} to yourself!`);
-          
+
           const todayStr = this.getDateKeyFor(new Date());
           const todayDate = new Date(todayStr);
           const updatedOverrides = { ...this.workoutOverrides };
@@ -142,7 +142,7 @@ export class UserWorkoutCalendar implements OnInit {
             }
           }
           this.workoutOverrides = updatedOverrides;
-          
+
           this.loadActivePlanAndWorkoutLogs();
         },
         error: () => {
@@ -150,18 +150,19 @@ export class UserWorkoutCalendar implements OnInit {
         }
       });
     }
-    
+
     this.showAssignSplitModal = false;
   }
 
   onUpdateOverrides(event: { dateKey: string, workout: any, scope?: 'single' | 'recurring' }): void {
-    if (event.scope === 'recurring') {
+    const isRest = event.workout.dayName.toLowerCase().includes('rest');
+    const hasValidPlanDayId = !isRest && event.workout.id;
+
+    if (event.scope === 'recurring' && (isRest || hasValidPlanDayId)) {
       const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const dateParts = event.dateKey.split('-');
       const localDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
       const dayOfWeekName = weekdayNames[localDate.getDay()];
-
-      const isRest = event.workout.dayName.toLowerCase().includes('rest');
 
       const payload = {
         dayOfWeek: dayOfWeekName,
@@ -179,6 +180,10 @@ export class UserWorkoutCalendar implements OnInit {
         }
       });
     } else {
+      if (event.scope === 'recurring' && !hasValidPlanDayId && !isRest) {
+        this.notification.info('Custom workouts like Cardio can only be applied to this date.');
+      }
+
       this.workoutOverrides = {
         ...this.workoutOverrides,
         [event.dateKey]: event.workout
@@ -186,8 +191,6 @@ export class UserWorkoutCalendar implements OnInit {
 
       const dateParts = event.dateKey.split('-');
       const localDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]), 12, 0, 0);
-
-      const isRest = event.workout.dayName.toLowerCase().includes('rest');
 
       const payload = {
         date: localDate,
@@ -225,22 +228,24 @@ export class UserWorkoutCalendar implements OnInit {
   }
 
   onLogDateWorkout(event: { date: Date, routineName: string, templateDayName?: string }): void {
-    // Navigate to performance tracker and pass the date and routine
-    this.router.navigate(['/user/performance'], { 
-      state: { 
+    this.router.navigate(['/user/performance'], {
+      state: {
         loggingDate: event.date,
         routineName: event.routineName,
         templateDayName: event.templateDayName
-      } 
+      }
     });
   }
 
+  onTrackToday(): void {
+    this.router.navigate(['/user/performance']);
+  }
+
   onEditWorkoutSession(session: any): void {
-    // Navigate to performance tracker and pass the session
-    this.router.navigate(['/user/performance'], { 
-      state: { 
-        sessionToEdit: session 
-      } 
+    this.router.navigate(['/user/performance'], {
+      state: {
+        sessionToEdit: session
+      }
     });
   }
 }

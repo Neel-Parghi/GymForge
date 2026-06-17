@@ -201,13 +201,14 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   onUpdateOverrides(event: { dateKey: string, workout: any, scope?: 'single' | 'recurring' }): void {
-    if (event.scope === 'recurring') {
+    const isRest = event.workout.dayName.toLowerCase().includes('rest');
+    const hasValidPlanDayId = !isRest && event.workout.id;
+
+    if (event.scope === 'recurring' && (isRest || hasValidPlanDayId)) {
       const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const dateParts = event.dateKey.split('-');
       const localDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
       const dayOfWeekName = weekdayNames[localDate.getDay()];
-
-      const isRest = event.workout.dayName.toLowerCase().includes('rest');
 
       const payload = {
         dayOfWeek: dayOfWeekName,
@@ -225,6 +226,10 @@ export class PTMemberDetailComponent implements OnInit {
         }
       });
     } else {
+      if (event.scope === 'recurring' && !hasValidPlanDayId && !isRest) {
+        this.notification.info('Custom workouts like Cardio can only be applied to this date.');
+      }
+
       this.workoutOverrides = {
         ...this.workoutOverrides,
         [event.dateKey]: event.workout
@@ -232,8 +237,6 @@ export class PTMemberDetailComponent implements OnInit {
 
       const dateParts = event.dateKey.split('-');
       const localDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]), 12, 0, 0);
-
-      const isRest = event.workout.dayName.toLowerCase().includes('rest');
 
       const payload = {
         date: localDate,

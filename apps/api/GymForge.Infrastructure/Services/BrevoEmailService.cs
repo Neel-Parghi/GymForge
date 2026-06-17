@@ -125,5 +125,25 @@ namespace GymForge.Infrastructure.Services
 
             await SendEmailAsync(email, name, "Your GymForge Verification Code", htmlContent);
         }
+        public async Task SendPasswordResetLinkEmailAsync(string email, string name, string resetLink)
+        {
+            string htmlContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;'>
+                    <h2 style='color: #2c3e50; text-align: center;'>Reset Your Password</h2>
+                    <p style='color: #555;'>Hello {name},</p>
+                    <p style='color: #555;'>We received a request to reset your password for your GymForge account. Click the button below to securely set a new password.</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{resetLink}' style='background-color: #005bbc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;'>Reset Password</a>
+                    </div>
+                    <p style='color: #555; font-size: 14px;'>Or copy and paste this link into your browser:</p>
+                    <p style='color: #005bbc; font-size: 13px; word-break: break-all;'>{resetLink}</p>
+                    <p style='color: #555; margin-top: 20px;'>This link will expire in 10 minutes.</p>
+                    <p style='color: #555;'>If you did not request a password reset, please ignore this email. Your account remains secure.</p>
+                    <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
+                    <p style='color: #888; font-size: 12px; text-align: center;'>&copy; {DateTime.UtcNow.Year} GymForge. All rights reserved.</p>
+                </div>";
+
+            await SendEmailAsync(email, name, "GymForge Password Reset Link", htmlContent);
+        }
     }
 }

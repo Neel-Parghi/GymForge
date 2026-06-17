@@ -37,7 +37,7 @@
         </button>
 
         <button class="btn-primary" (click)="onSaveSession()" *ngIf="todayWorkout">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Save & Log Session
+          Save & Log Session
         </button>
       </div>
     </div>
@@ -216,12 +216,16 @@
     <!-- ALTERNATE STATES -->
     <ng-template #alternateState>
       <ng-container *ngIf="!todayWorkout; else restDayState">
-        <div class="tab-pane-content tracker-full-width" style="padding: 24px; display: flex; flex: 1; align-items: center; justify-content: center;">
+        <div class="tab-pane-content tracker-full-width"
+          style="padding: 24px; display: flex; flex: 1; align-items: center; justify-content: center;">
           <div class="empty-state-console animate-fade-in" style="border: none; background: transparent;">
-            <i class="fa-solid fa-calendar-xmark" style="font-size: 3.5rem; color: var(--slate-300); margin-bottom: 20px;"></i>
-            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">No Workout Tracked Today</h3>
+            <i class="fa-solid fa-calendar-xmark"
+              style="font-size: 3.5rem; color: var(--slate-300); margin-bottom: 20px;"></i>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">No Workout
+              Tracked Today</h3>
             <p style="font-size: 0.95rem; color: var(--text-muted); max-width: 400px; margin: 0 auto;">
-              There are no workouts scheduled for today, or a plan hasn't been assigned yet. Select a routine from the calendar or create a plan.
+              There are no workouts scheduled for today, or a plan hasn't been assigned yet. Select a routine from the
+              calendar or create a plan.
             </p>
           </div>
         </div>

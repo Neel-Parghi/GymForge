@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { AcceptInvitationComponent } from './features/auth/accept-invitation/accept-invitation.component';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { DashboardComponent } from './features/super-admin/dashboard/dashboard.component';
 import { GymOwners } from './features/super-admin/gym-management/gym-owners/gym-owners.component';
@@ -17,6 +19,8 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [loggedInGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [loggedInGuard] },
   { path: 'accept-invitation', component: AcceptInvitationComponent, canActivate: [loggedInGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [loggedInGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: 'super-admin',
     component: MainLayoutComponent,

@@ -56,6 +56,15 @@ export class AuthApiService extends BaseApiService {
     return this.post(API_CONSTANTS.AUTH.RESEND_OTP, data);
   }
 
+  forgotPassword(data: { email: string }): Observable<any> {
+    const payload = { ...data, clientUri: window.location.origin + '/reset-password' };
+    return this.post(API_CONSTANTS.AUTH.FORGOT_PASSWORD, payload);
+  }
+
+  resetPassword(data: { email: string; token: string; newPassword: string; confirmPassword: string }): Observable<any> {
+    return this.post(API_CONSTANTS.AUTH.RESET_PASSWORD, data);
+  }
+
   getMe() {
     return this.get<any>(API_CONSTANTS.AUTH.ME);
   }

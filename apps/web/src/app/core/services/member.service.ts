@@ -196,7 +196,13 @@ export class MemberService extends BaseApiService {
   }
 
   saveRecurringOverride(memberId: string, payload: { dayOfWeek: string, workoutPlanDayId: string | null, isRestDay: boolean }): Observable<ApiResponse<any>> {
-    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.RECURRING_OVERRIDE.replace('{memberId}', memberId), payload);
+    return this.post<ApiResponse<any>>(API_CONSTANTS.MEMBERS.RECURRING_OVERRIDE.replace('{memberId}', memberId), payload).pipe(
+      tap(() => {
+        this.activePlanCache.delete(memberId);
+        this.planAssignmentsCache.delete(memberId);
+        this.workoutLogsCache.delete(memberId);
+      })
+    );
   }
 
   getActiveDiet(memberId: string, forceRefresh = false): Observable<ApiResponse<any>> {

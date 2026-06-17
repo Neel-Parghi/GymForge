@@ -27,10 +27,11 @@ export class RegisterComponent {
 
   showPassword = false;
   isLoading = false;
-  selectedRole = 'GymOwner'; // default
+  selectedRole = 'User'; // default
 
   isOtpStep = false;
   otpCode = '';
+  otpArray: string[] = new Array(6).fill('');
   registeredEmail = '';
   resendCooldown = 0;
   resendTimer: any;
@@ -62,10 +63,11 @@ export class RegisterComponent {
 
       this.authApiService.register(payload).subscribe({
         next: (res) => {
-          if (res?.requiresOtp) {
+          const data = res?.data || res;
+          if (data?.requiresOtp) {
             this.isOtpStep = true;
-            this.registeredEmail = res.email;
-            this.notification.success(res.message || 'OTP sent successfully.');
+            this.registeredEmail = data.email;
+            this.notification.success(data.message || 'OTP sent successfully.');
             this.startResendCooldown();
           } else {
             this.notification.success(CONSTANTS.AUTH.REGISTER_SUCCESS);
@@ -82,6 +84,7 @@ export class RegisterComponent {
   }
 
   verifyOtp() {
+    this.otpCode = this.otpArray.join('');
     if (this.otpCode.length === 6) {
       this.isLoading = true;
       this.authApiService.verifyOtp({ email: this.registeredEmail, otpCode: this.otpCode }).subscribe({
@@ -96,6 +99,54 @@ export class RegisterComponent {
         }
       });
     }
+  }
+
+  onOtpKeyup(event: KeyboardEvent, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (event.key === 'Backspace' || event.key === 'Tab' || event.key === 'Shift') return;
+
+    if (input.value.length === 1 && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`) as HTMLInputElement;
+      if (nextInput) nextInput.focus();
+    }
+    this.updateOtpCode();
+  }
+
+  onOtpKeydown(event: KeyboardEvent, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (event.key === 'Backspace' && input.value === '' && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement;
+      if (prevInput) {
+        prevInput.focus();
+        this.otpArray[index - 1] = '';
+      }
+    }
+    this.updateOtpCode();
+  }
+
+  onOtpPaste(event: ClipboardEvent) {
+    event.preventDefault();
+    const pastedData = event.clipboardData?.getData('text');
+    if (pastedData) {
+      const digits = pastedData.replace(/\D/g, '').split('').slice(0, 6);
+      digits.forEach((digit, index) => {
+        this.otpArray[index] = digit;
+      });
+      if (digits.length > 0) {
+        const nextIndex = Math.min(digits.length, 5);
+        const nextInput = document.getElementById(`otp-${nextIndex}`) as HTMLInputElement;
+        if (nextInput) nextInput.focus();
+      }
+      this.updateOtpCode();
+    }
+  }
+
+  updateOtpCode() {
+    this.otpCode = this.otpArray.join('');
+  }
+
+  trackByIndex(index: number, obj: any): any {
+    return index;
   }
 
   resendOtp() {

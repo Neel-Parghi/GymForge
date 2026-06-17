@@ -60,6 +60,7 @@ namespace GymForge.Application.Modules.Workout.Services
             existingPlan.Level = request.Level;
             existingPlan.Goal = request.Goal;
             existingPlan.Type = request.Type;
+            existingPlan.IsCustom = request.IsCustom;
             existingPlan.ModifiedBy = modifiedById;
             existingPlan.ModifiedOn = DateTime.UtcNow;
 

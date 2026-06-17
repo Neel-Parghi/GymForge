@@ -156,12 +156,9 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
       });
 
       if (!templateDay && planToUse.days.length > 0) {
-        if (weekdayName === 'Monday') {
-          templateDay = planToUse.days[0];
-        } else if (weekdayName === 'Wednesday' && planToUse.days.length > 1) {
-          templateDay = planToUse.days[1];
-        } else if (weekdayName === 'Friday' && planToUse.days.length > 2) {
-          templateDay = planToUse.days[2];
+        const mondayBasedIndex = (dayOfWeek + 6) % 7;
+        if (mondayBasedIndex < planToUse.days.length) {
+          templateDay = planToUse.days[mondayBasedIndex];
         }
       }
 
@@ -279,7 +276,7 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
     if (this.activeSplit && this.activeSplit.days) {
       this.activeSplit.days.forEach((d: any) => {
         const labelText = d.category ? `${d.dayName} - ${d.category}` : d.dayName;
-        options.push({ label: labelText, value: d.dayName, icon: 'fa-solid fa-dumbbell' });
+        options.push({ label: labelText, value: d.id || d.dayName, icon: 'fa-solid fa-dumbbell' });
       });
     }
     options.push({ label: 'Rest Day', value: 'Rest Day', icon: 'fa-solid fa-bed' });
@@ -289,10 +286,23 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
 
     let initialVal = '';
     if (dayObj.override) {
-      const val = dayObj.override.templateDayName || dayObj.routineName;
-      initialVal = (val === 'Rest Day' || val === 'Cardio Workout') ? val : (dayObj.override.templateDayName || val);
+      const matchedDay = this.activeSplit?.days?.find((d: any) =>
+        d.dayName === (dayObj.override.templateDayName || dayObj.routineName) ||
+        d.category === dayObj.routineName
+      );
+      initialVal = matchedDay?.id || dayObj.override.templateDayName || dayObj.routineName;
+      if (dayObj.routineName === 'Rest Day' || dayObj.routineName === 'Cardio Workout') {
+        initialVal = dayObj.routineName;
+      }
     } else {
-      initialVal = dayObj.templateDayName || dayObj.routineName;
+      const matchedDay = this.activeSplit?.days?.find((d: any) =>
+        d.dayName === (dayObj.templateDayName || dayObj.routineName) ||
+        d.category === dayObj.routineName
+      );
+      initialVal = matchedDay?.id || dayObj.templateDayName || dayObj.routineName;
+      if (dayObj.routineName === 'Rest Day' || dayObj.routineName === 'Cardio Workout') {
+        initialVal = dayObj.routineName;
+      }
     }
     this.overrideValueControl.setValue(initialVal);
     this.showOverrideModal = true;
@@ -317,11 +327,13 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
         ]
       };
     } else {
-      const match = this.activeSplit?.days.find((d: any) => d.dayName === selectedOverrideValue);
+      const match = this.activeSplit?.days.find((d: any) => d.id === selectedOverrideValue)
+        || this.activeSplit?.days.find((d: any) => d.dayName === selectedOverrideValue);
       if (match) {
+        const displayName = match.category || match.dayName;
         selectedDay = {
           id: match.id,
-          dayName: match.category ? `${match.dayName} - ${match.category}` : match.dayName,
+          dayName: displayName,
           exercises: match.exercises,
           templateDayName: match.dayName
         };

@@ -79,10 +79,19 @@
 
           <form *ngIf="isOtpStep" (ngSubmit)="verifyOtp()" class="auth-form">
             <div class="form-item">
-              <label for="otp">Verification Code</label>
+              <label>Verification Code</label>
               <p class="otp-instruction">We've sent a 6-digit code to <strong>{{registeredEmail}}</strong>.</p>
-              <div class="input-wrapper">
-                <input type="text" id="otp" name="otp" [(ngModel)]="otpCode" placeholder="Enter 6-digit code" required maxlength="6" class="otp-input" />
+              <div class="otp-container" (paste)="onOtpPaste($event)">
+                <input *ngFor="let item of otpArray; let i = index; trackBy: trackByIndex" 
+                       type="text" 
+                       maxlength="1" 
+                       [id]="'otp-' + i" 
+                       [(ngModel)]="otpArray[i]" 
+                       name="otp-{{i}}"
+                       class="otp-box" 
+                       (keyup)="onOtpKeyup($event, i)" 
+                       (keydown)="onOtpKeydown($event, i)" 
+                       required />
               </div>
             </div>
 

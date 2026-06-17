@@ -182,6 +182,40 @@ namespace GymForge.Application.Modules.Auth.Service
             return await SaveTokens(user, newTokens);
         }
 
+        public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                return;
+                
+            string token = Guid.NewGuid().ToString("N");
+            user.OtpCode = token;
+            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            
+            await _unitOfWork.SaveChangesAsync();
+            
+            string resetLink = $"{dto.ClientUri.TrimEnd('/')}?email={Uri.EscapeDataString(user.Email)}&token={token}";
+            await _emailService.SendPasswordResetLinkEmailAsync(user.Email, user.FirstName, resetLink);
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("Invalid or expired reset token.");
+
+            if (user.OtpCode != dto.Token || user.OtpExpiry < DateTime.UtcNow)
+                throw new Exception("Invalid or expired reset token.");
+
+            user.PasswordHash = _passwordService.HashPassword(dto.NewPassword);
+            user.OtpCode = null;
+            user.OtpExpiry = null;
+            
+            user.RefreshTokens.Clear();
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         public async Task LogoutAsync(string refreshToken)
         {
             User? user = await _authRepository.GetByRefreshTokenAsync(refreshToken);
