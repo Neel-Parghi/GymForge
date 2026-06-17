@@ -377,3 +377,9 @@
     margin: 0;
   }
 }
+
+.macro-val-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}

@@ -56,7 +56,7 @@
                   <span class="macro-label-name">Protein</span>
                   <div class="macro-val-wrap">
                     <span class="macro-pct">{{ getMacroPercentage('protein') }}%</span>
-                    <strong>{{ activeDiet.protein }}g</strong>
+                    <strong>{{ activeDiet.macros?.protein || 0 }}g</strong>
                   </div>
                 </div>
                 <div class="bar-track">
@@ -68,7 +68,7 @@
                   <span class="macro-label-name">Carbs</span>
                   <div class="macro-val-wrap">
                     <span class="macro-pct">{{ getMacroPercentage('carbs') }}%</span>
-                    <strong>{{ activeDiet.carbs }}g</strong>
+                    <strong>{{ activeDiet.macros?.carbs || 0 }}g</strong>
                   </div>
                 </div>
                 <div class="bar-track">
@@ -80,7 +80,7 @@
                   <span class="macro-label-name">Fats</span>
                   <div class="macro-val-wrap">
                     <span class="macro-pct">{{ getMacroPercentage('fats') }}%</span>
-                    <strong>{{ activeDiet.fats }}g</strong>
+                    <strong>{{ activeDiet.macros?.fats || 0 }}g</strong>
                   </div>
                 </div>
                 <div class="bar-track">

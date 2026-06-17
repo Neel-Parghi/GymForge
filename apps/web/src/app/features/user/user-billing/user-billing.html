@@ -31,16 +31,7 @@
             </tr>
           </thead>
           <tbody>
-            @if (isLoading) {
-            <tr>
-              <td colspan="8" class="empty-state-cell">
-                <div class="empty-state-content">
-                  <i class="fa-solid fa-spinner fa-spin"></i> 
-                  <p>Loading...</p>
-                </div>
-              </td>
-            </tr>
-            } @else if (paymentHistory.length === 0) {
+            @if (paymentHistory.length === 0 && !isLoading) {
             <tr>
               <td colspan="8" class="empty-state-cell">
                 <div class="empty-state-content">
