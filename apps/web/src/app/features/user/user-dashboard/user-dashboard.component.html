@@ -1,5 +1,5 @@
 <div class="user-dashboard-container" [ngClass]="greetingTheme">
-  <!-- Dynamic Background Leaks -->
+  <!-- Dynamic Atmospheric Background Elements -->
   <div class="ambient-leaks-wrapper">
     <div class="ambient-leak-1"></div>
     <div class="ambient-leak-2"></div>
@@ -7,132 +7,191 @@
   </div>
 
   <header class="hero-section">
-    <div class="hero-content">
-      <div class="weather-icon-large">
-        <i class="fa-solid" [ngClass]="greetingIcon"></i>
+    <div class="weather-fx-layer">
+      <!-- Evening: Stars & Moon -->
+      <div class="stars-layer" *ngIf="greetingTheme === 'theme-evening'"></div>
+      <div class="moon-layer" *ngIf="greetingTheme === 'theme-evening'">
+        <div class="moon-glow"></div>
+        <div class="css-moon">
+          <div class="crater crater-1"></div>
+          <div class="crater crater-2"></div>
+          <div class="crater crater-3"></div>
+        </div>
       </div>
+
+      <!-- Morning/Afternoon: Sun & Lens Flare -->
+      <div class="sun-container" *ngIf="greetingTheme === 'theme-morning' || greetingTheme === 'theme-afternoon'">
+        <div class="sun-glow-outer"></div>
+        <div class="sun-glow-inner"></div>
+        <div class="sun-core"></div>
+        <div class="lens-flare"></div>
+      </div>
+
+      <!-- Volumetric Clouds -->
+      <div class="premium-clouds-layer" *ngIf="greetingTheme !== 'theme-afternoon'">
+        <div class="cloud-group cloud-back">
+          <div class="puff puff-1"></div>
+          <div class="puff puff-2"></div>
+          <div class="puff puff-3"></div>
+        </div>
+        <div class="cloud-group cloud-middle">
+          <div class="puff puff-1"></div>
+          <div class="puff puff-2"></div>
+          <div class="puff puff-3"></div>
+          <div class="puff puff-4"></div>
+        </div>
+        <div class="cloud-group cloud-front">
+          <div class="puff puff-1"></div>
+          <div class="puff puff-2"></div>
+          <div class="puff puff-3"></div>
+          <div class="puff puff-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-content">
       <div class="hero-text">
         <h1>{{ greeting }}, <span class="accent-text">{{ userName }}</span></h1>
         <p class="subtitle">Keep pushing, you're doing great this week!</p>
+      </div>
+
+      <div class="streak-counter" title="Workout Streak">
+        <span class="streak-icon">🔥</span>
+        <div class="streak-info">
+          <span class="streak-num">{{ workoutStreak }}</span>
+          <span class="streak-label">Day Streak</span>
+        </div>
       </div>
     </div>
   </header>
 
   <div class="dashboard-scrollable-content">
     <div class="dashboard-main-layout">
-       
-       <!-- Top Widgets Row -->
-       <div class="stats-widget-row">
-         <div class="stat-widget glass-card">
-           <div class="widget-icon primary"><i class="fa-solid fa-dumbbell"></i></div>
-           <div class="widget-info">
-             <span class="widget-label">Active Plan</span>
-             <h4 class="widget-value">Hypertrophy V1</h4>
-           </div>
-         </div>
-         <div class="stat-widget glass-card">
-           <div class="widget-icon success"><i class="fa-solid fa-bullseye"></i></div>
-           <div class="widget-info">
-             <span class="widget-label">Weekly Goals</span>
-             <h4 class="widget-value">3 / 5 Days</h4>
-           </div>
-         </div>
-         <div class="stat-widget glass-card">
-           <div class="widget-icon warning"><i class="fa-solid fa-fire"></i></div>
-           <div class="widget-info">
-             <span class="widget-label">Workout Streak</span>
-             <h4 class="widget-value">4 Days</h4>
-           </div>
-         </div>
-         <div class="stat-widget glass-card">
-           <div class="widget-icon info"><i class="fa-solid fa-fire-flame-curved"></i></div>
-           <div class="widget-info">
-             <span class="widget-label">Calories Burned</span>
-             <h4 class="widget-value">3,240 kcal</h4>
-             <span style="font-size: 0.75rem; color: rgba(17, 24, 39, 0.6); font-weight: 600; margin-top: 4px; display: block;">This week</span>
-           </div>
-         </div>
-       </div>
 
-       <!-- Main Area Split -->
-       <div class="main-b2c-grid">
-         
-         <!-- Left Column: Strength Progression Graph -->
-         <div class="action-plan-col">
-           <div class="glass-card strength-chart-card">
-              <div class="card-header">
-                <div class="title-area">
-                  <h2 style="margin: 0;">Strength Progression</h2>
-                  <p class="sub" style="margin: 0;">Track your main lift improvements</p>
+      <!-- Profile Completion Banner -->
+      <div class="profile-banner glass-card" *ngIf="showProfileAlert">
+        <div class="banner-content">
+          <div class="banner-icon"><i class="fa-solid fa-user-shield"></i></div>
+          <div class="banner-text">
+            <h4>Complete Your Profile</h4>
+            <p>Update your details and goals to get personalized recommendations and plans.</p>
+          </div>
+          <div class="banner-actions">
+            <button class="btn-primary btn-sm" routerLink="/user/settings">Update Now</button>
+            <button class="btn-icon btn-sm" (click)="dismissProfileAlert()"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Layout Split -->
+      <div class="main-b2c-grid">
+        <!-- Left Column: Quick Stats & Launch -->
+        <div class="action-plan-col">
+
+          <div class="stats-row">
+            <!-- Today's Workout -->
+            <div class="stat-card glass-card">
+              <div class="card-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.15);"><i class="fa-solid fa-calendar-day"></i></div>
+              <div class="card-info">
+                <span class="label">Today's Plan</span>
+                <h3 class="value">{{ todayWorkoutName || 'Loading...' }}</h3>
+                <span class="sub" *ngIf="activePlanName !== 'No active plan'">{{ activePlanName }}</span>
+              </div>
+            </div>
+
+            <!-- Calories Burned (Donut Widget) -->
+            <div class="stat-card glass-card calorie-card">
+              <div class="calorie-donut-wrapper">
+                <svg viewBox="0 0 160 160" class="donut-svg">
+                  <!-- Base ring -->
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--slate-200)" stroke-width="12"></circle>
+                  <!-- Value ring -->
+                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="#f59e0b" stroke-width="12"
+                    [attr.stroke-dasharray]="ringCircumference" [attr.stroke-dashoffset]="ringOffset" stroke-linecap="round"></circle>
+                </svg>
+                <div class="donut-content">
+                  <span class="val"><i class="fa-solid fa-fire"></i> {{ caloriesBurnedThisWeek }}</span>
+                  <span class="lbl">KCAL BURNED</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 16px;">
-                  <app-dropdown 
-                    [options]="liftOptions" 
-                    [value]="selectedLift" 
-                    (selectionChange)="onLiftChange($event)" 
-                    minWidth="140px">
-                  </app-dropdown>
-                  <div class="card-tabs">
-                    <button class="tab-btn" [class.active]="strengthPeriod === '1M'" (click)="strengthPeriod = '1M'">1M</button>
-                    <button class="tab-btn" [class.active]="strengthPeriod === '3M'" (click)="strengthPeriod = '3M'">3M</button>
-                    <button class="tab-btn" [class.active]="strengthPeriod === '6M'" (click)="strengthPeriod = '6M'">6M</button>
-                    <button class="tab-btn" [class.active]="strengthPeriod === '1Y'" (click)="strengthPeriod = '1Y'">1Y</button>
+              </div>
+              <div class="calorie-info">
+                <div class="target-edit-row">
+                  <span class="label">Weekly Goal</span>
+                  <button class="edit-target-btn" (click)="isEditingCalories = true" *ngIf="!isEditingCalories"><i class="fa-solid fa-pencil"></i></button>
+                </div>
+                <h3 class="value" *ngIf="!isEditingCalories">{{ targetCalories }} <span class="unit">kcal</span></h3>
+                
+                <div class="edit-target-input" *ngIf="isEditingCalories">
+                  <input type="number" [(ngModel)]="targetCalories" class="form-input-inline" />
+                  <button class="btn-primary btn-sm" (click)="saveCalorieTarget()"><i class="fa-solid fa-check"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Launch -->
+          <div class="glass-card quick-launch-card">
+            <h3>Quick Launch</h3>
+            <div class="launch-grid">
+              <button class="launch-btn" routerLink="/user/performance">
+                <div class="icon-bg" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fa-solid fa-chart-line"></i></div>
+                <span>Performance</span>
+              </button>
+              <button class="launch-btn" routerLink="/user/diet-planner">
+                <div class="icon-bg" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fa-solid fa-apple-whole"></i></div>
+                <span>Diet Planner</span>
+              </button>
+              <button class="launch-btn" routerLink="/user/workout-calendar">
+                <div class="icon-bg" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fa-solid fa-calendar-days"></i></div>
+                <span>Calendar</span>
+              </button>
+              <button class="launch-btn" routerLink="/user/billing">
+                <div class="icon-bg" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <span>Billing</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Daily Tracker -->
+        <div class="quick-links-col">
+          <div class="quests-card glass-card">
+            <div class="quests-header">
+              <h3><i class="fa-solid fa-list-check"></i> Daily Routine</h3>
+              <button class="btn-icon" (click)="isAddingRoutine = !isAddingRoutine" title="Add Item"><i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i></button>
+            </div>
+
+            <div class="add-routine-form" *ngIf="isAddingRoutine">
+              <input type="text" [(ngModel)]="newRoutineTitle" placeholder="What habit to build?" (keyup.enter)="addRoutine()" />
+              <button class="btn-primary" (click)="addRoutine()">Add</button>
+            </div>
+
+            <div class="quest-list">
+              <div class="quest-item" *ngFor="let quest of dailyRoutines" [class.completed]="quest.completed">
+                
+                <div class="item-left" (click)="toggleRoutine(quest)">
+                  <div class="check-box" [class.checked]="quest.completed">
+                    <i class="fa-solid fa-check" *ngIf="quest.completed"></i>
+                  </div>
+                  <div class="icon-box" [style.color]="quest.color" *ngIf="!quest.completed && quest.icon">
+                    <i class="fa-solid" [ngClass]="quest.icon"></i>
+                  </div>
+                  <div class="quest-text-block">
+                    <span class="quest-text">{{ quest.title }}</span>
+                    <span class="quest-sub" *ngIf="quest.time || quest.amount">{{ quest.time || quest.amount }}</span>
                   </div>
                 </div>
+
+                <div class="item-actions">
+                  <button class="delete-btn" (click)="removeRoutine(quest)" title="Remove"><i class="fa-solid fa-trash"></i></button>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <div class="chart-container" style="position: relative; height: 280px; width: 100%;">
-                <canvas baseChart
-                  [data]="lineChartData"
-                  [options]="lineChartOptions"
-                  [type]="lineChartType">
-                </canvas>
-              </div>
-           </div>
-         </div>
-
-         <!-- Right Column: Quests & Quick Links -->
-         <div class="quick-links-col">
-           
-           <!-- Daily Quests -->
-           <div class="quests-card glass-card">
-             <h3><i class="fa-solid fa-list-check" style="color: #3b82f6;"></i> Today's Quests</h3>
-             <div class="quest-list">
-               <div class="quest-item" *ngFor="let quest of dailyQuests" [class.completed]="quest.completed" (click)="toggleQuest(quest)">
-                 <div class="icon-box" [style.background]="quest.completed ? '#22c55e' : quest.color + '22'" [style.color]="quest.completed ? 'white' : quest.color">
-                   <i class="fa-solid" [ngClass]="quest.completed ? 'fa-check' : quest.icon"></i>
-                 </div>
-                 <div class="quest-text">{{ quest.title }}</div>
-               </div>
-             </div>
-           </div>
-
-           <div class="glass-card quick-launch-card">
-             <h3>Quick Launch</h3>
-             <div class="launch-grid">
-               <button class="launch-btn" routerLink="/user/performance">
-                 <div class="icon-bg" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fa-solid fa-chart-line"></i></div>
-                 <span>Performance</span>
-               </button>
-               <button class="launch-btn" routerLink="/user/diet-planner">
-                 <div class="icon-bg" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fa-solid fa-apple-whole"></i></div>
-                 <span>Diet Planner</span>
-               </button>
-               <button class="launch-btn" routerLink="/user/workout-calendar">
-                 <div class="icon-bg" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fa-solid fa-calendar-days"></i></div>
-                 <span>Calendar</span>
-               </button>
-               <button class="launch-btn" routerLink="/user/billing">
-                 <div class="icon-bg" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                 <span>Billing</span>
-               </button>
-             </div>
-           </div>
-
-         </div>
-
-       </div>
-
+      </div>
     </div>
   </div>
 </div>
