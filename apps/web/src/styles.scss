@@ -147,10 +147,16 @@ h6 {
 }
 
 input,
-button,
 select,
 textarea {
   font-family: inherit;
+}
+
+button {
+  font-family: inherit;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .btn-add {
@@ -158,8 +164,8 @@ textarea {
   color: var(--btn-add-text);
   border: none;
   border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
+  padding: 10px 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -254,10 +260,10 @@ textarea {
     background-color: var(--primary-navy);
     color: white;
     border: 1px solid var(--primary-navy);
-    padding: 10px 24px;
+    padding: 10px 12px;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -284,10 +290,10 @@ textarea {
     background-color: var(--slate-200);
     color: var(--text-main);
     border: none;
-    padding: 10px 20px;
+    padding: 10px 12px;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -310,10 +316,10 @@ textarea {
 }
 
 .primary-btn {
-  padding: 10px 20px;
+  padding: 10px 12px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   cursor: pointer;
   border: none;
   transition: all 0.2s;
@@ -340,10 +346,10 @@ textarea {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 10px 20px;
+    padding: 10px 12px;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
@@ -480,10 +486,10 @@ textarea {
   background: var(--primary-navy);
   border: 1px solid var(--primary-navy);
   color: #ffffff;
-  padding: 10px 18px;
+  padding: 10px 12px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -503,10 +509,10 @@ textarea {
   background: var(--slate-100);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  padding: 10px 18px;
+  padding: 10px 12px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -523,10 +529,10 @@ textarea {
   background: var(--error-bg);
   border: 1px solid var(--error-border);
   color: var(--error-color);
-  padding: 10px 18px;
+  padding: 10px 12px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -550,9 +556,9 @@ textarea {
   background: none;
   border: none;
   color: var(--accent-color);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   display: inline-flex;
   align-items: center;
   gap: 6px;

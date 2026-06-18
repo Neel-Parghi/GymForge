@@ -4,7 +4,7 @@ namespace GymForge.Application.Modules.Diet.Interface
 {
     public interface IDietPlanService
     {
-        Task<IEnumerable<DietPlanDto>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null);
+        Task<IEnumerable<DietPlanDto>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null, bool restrictToOwnPlans = false);
         
         Task<DietPlanDto?> GetPlanByIdAsync(Guid id);
         

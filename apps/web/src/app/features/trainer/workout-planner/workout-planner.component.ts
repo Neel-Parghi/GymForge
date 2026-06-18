@@ -70,10 +70,9 @@ export class WorkoutPlannerComponent implements OnInit {
     this.authService.userProfile$.subscribe(profile => {
       if (profile) {
         this.currentUserId = profile.id;
+        this.loadPlanners();
       }
     });
-
-    this.loadPlanners();
 
     // Fetch exercise reference lists from Master API
     this.workoutMasterService.getCategories().subscribe(cats => this.categories = cats);
@@ -90,11 +89,13 @@ export class WorkoutPlannerComponent implements OnInit {
   }
 
   loadPlanners(): void {
+    if (!this.currentUserId) return;
     this.workoutPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.splitPlanners = plans.filter(p => p.type === 'Split');
-        this.weeklyPlanners = plans.filter(p => p.type === 'Weekly');
-        this.dailyPlanners = plans.filter(p => p.type === 'Daily');
+        const templates = (plans || []).filter(p => !p.isCustom);
+        this.splitPlanners = templates.filter(p => p.type === 'Split');
+        this.weeklyPlanners = templates.filter(p => p.type === 'Weekly');
+        this.dailyPlanners = templates.filter(p => p.type === 'Daily');
       },
       error: (err) => {
         this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.LOAD_ERROR);

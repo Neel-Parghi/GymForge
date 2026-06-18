@@ -14,7 +14,7 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<DietPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null)
+        public async Task<IEnumerable<DietPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null, bool restrictToOwnPlans = false)
         {
             List<Guid> userGymIds = !gymId.HasValue ? await _dbContext.GymMembers.Where(m => m.UserId == userId).Select(m => m.GymId).ToListAsync() : [];
 
@@ -27,7 +27,7 @@ namespace GymForge.Infrastructure.Repositories
                                                     (!gymId.HasValue && p.CreatedBy == userId && !p.GymId.HasValue) ||
                                                     (!gymId.HasValue && p.GymId.HasValue && userGymIds.Contains(p.GymId.Value) && !p.IsCustom)
                                                 ) 
-                                                && p.IsTemplate && !p.IsDeleted
+                                                && p.IsTemplate && !p.IsDeleted && (!restrictToOwnPlans || p.CreatedBy == userId)
                                             );
 
             if (!string.IsNullOrWhiteSpace(goal))

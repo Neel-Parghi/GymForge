@@ -40,6 +40,7 @@ export class PTMemberDetailComponent implements OnInit {
   private dietPlanService = inject(DietPlanService);
 
   memberId = '';
+  currentUserId = '';
   memberInfo: any = null;
   workoutPlans: WorkoutPlan[] = [];
   workoutHistory: any[] = [];
@@ -69,14 +70,19 @@ export class PTMemberDetailComponent implements OnInit {
   todayWorkout: any = null;
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.memberId = params['memberId'];
-      this.loadMemberInfo();
-      this.loadMeasurementsLogs();
-      this.loadWorkoutPlans();
-      this.loadActivePlanAndWorkoutLogs();
-      this.loadDietPlans();
-      this.loadActiveDiet();
+    this.authService.userProfile$.subscribe(profile => {
+      if (profile) {
+        this.currentUserId = profile.id;
+        this.route.params.subscribe(params => {
+          this.memberId = params['memberId'];
+          this.loadMemberInfo();
+          this.loadMeasurementsLogs();
+          this.loadWorkoutPlans();
+          this.loadActivePlanAndWorkoutLogs();
+          this.loadDietPlans();
+          this.loadActiveDiet();
+        });
+      }
     });
   }
 
@@ -357,9 +363,10 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   loadWorkoutPlans(): void {
+    if (!this.currentUserId) return;
     this.workoutPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.workoutPlans = plans || [];
+        this.workoutPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
       },
       error: (err) => {
         console.error('Failed to load workout plans:', err);
@@ -582,9 +589,10 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   openAssignSplitModal(): void {
+    if (!this.currentUserId) return;
     this.workoutPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.workoutPlans = plans || [];
+        this.workoutPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
         if (this.workoutPlans.length === 0) {
           this.notification.warning('No workout plans available. Please create a plan first.');
         } else {
@@ -634,9 +642,10 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   loadDietPlans(): void {
+    if (!this.currentUserId) return;
     this.dietPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.dietPlans = plans || [];
+        this.dietPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
       },
       error: (err) => {
         console.error('Failed to load diet plans:', err);
@@ -674,9 +683,10 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   openAssignDietModal(): void {
+    if (!this.currentUserId) return;
     this.dietPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.dietPlans = plans || [];
+        this.dietPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
         if (this.dietPlans.length === 0) {
           this.notification.warning('No diet plans available. Please create a plan first.');
         } else {

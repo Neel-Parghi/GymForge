@@ -4,7 +4,7 @@ namespace GymForge.Domain.Interface
 {
     public interface IWorkoutPlanRepository
     {
-        Task<IEnumerable<WorkoutPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? type = null);
+        Task<IEnumerable<WorkoutPlan>> GetPlansAsync(Guid? gymId, Guid userId, string? type = null, bool restrictToOwnPlans = false);
         
         Task<WorkoutPlan?> GetPlanByIdAsync(Guid id);
         

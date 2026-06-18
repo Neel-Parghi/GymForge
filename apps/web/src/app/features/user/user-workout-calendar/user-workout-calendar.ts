@@ -110,7 +110,7 @@ export class UserWorkoutCalendar implements OnInit {
   openAssignSplitModal(): void {
     this.workoutPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.workoutPlans = plans || [];
+        this.workoutPlans = (plans || []).filter(p => !p.isCustom || p.createdBy === this.userId);
         this.showAssignSplitModal = true;
       },
       error: () => {

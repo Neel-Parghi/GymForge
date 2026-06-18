@@ -11,8 +11,6 @@ interface DailyRoutineItem {
   title: string;
   time?: string;
   amount?: string;
-  icon: string;
-  color: string;
   completed: boolean;
   isEditing?: boolean;
 }
@@ -37,16 +35,19 @@ export class UserDashboardComponent implements OnInit {
   // Data
   todayWorkoutName: string | null = null;
   workoutStreak = 0;
-  caloriesBurnedThisWeek = 0;
+  caloriesBurnedToday = 0;
   targetCalories = 2500;
+  activeTrainingTimeMinutes = 0;
   isEditingCalories = false;
   activePlanName = 'No active plan';
+  weeklyWorkoutsCount = 0;
 
   // Routine
   dailyRoutines: DailyRoutineItem[] = [];
   newRoutineTitle = '';
+  newRoutineValue = '';
   isAddingRoutine = false;
-  
+
   private routineStorageKey = 'gymforge_daily_routine';
   private routineDateKey = 'gymforge_daily_routine_date';
   private calorieTargetKey = 'gymforge_calorie_target';
@@ -84,7 +85,7 @@ export class UserDashboardComponent implements OnInit {
     if (hour < 12) {
       this.greeting = 'Good morning';
       this.greetingTheme = 'theme-morning';
-    } else if (hour < 18) {
+    } else if (hour < 19) {
       this.greeting = 'Good afternoon';
       this.greetingTheme = 'theme-afternoon';
     } else {
@@ -104,22 +105,22 @@ export class UserDashboardComponent implements OnInit {
       if (plan.data && plan.data.dietPlan) {
         // Handle if needed
       }
-      
+
       // Let's assume plan assignment might contain workout plan info or use a different endpoint if needed.
       // For now, if getActivePlan returns the member's plan assignments:
       // Since getActivePlan is somewhat ambiguous, let's just set some defaults if not found.
       // But typically we find active split here. For now let's leave it simple.
-      
+
       // Actually, let's use getPlanAssignments to get active workout plan.
       this.memberService.getPlanAssignments(this.userId).subscribe(assignmentsRes => {
         const assignments = assignmentsRes.data || [];
         const activeAssignment = assignments.slice(-1)[0];
-        
+
         if (activeAssignment && activeAssignment.workoutPlan) {
-           this.activePlanName = activeAssignment.workoutPlan.name;
-           this.determineTodayWorkout(activeAssignment);
+          this.activePlanName = activeAssignment.workoutPlan.name;
+          this.determineTodayWorkout(activeAssignment);
         } else {
-           this.todayWorkoutName = 'Rest Day';
+          this.todayWorkoutName = 'Rest Day';
         }
       });
 
@@ -137,21 +138,21 @@ export class UserDashboardComponent implements OnInit {
 
     const customDays = assignment.customScheduleDays || [];
     const customDay = customDays.find((d: any) => d.dayOfWeek === todayName);
-    
+
     if (customDay) {
-       if (customDay.isRestDay) {
-         this.todayWorkoutName = 'Rest Day';
-         return;
-       }
-       if (customDay.workoutPlanDayId) {
-         const planDay = assignment.workoutPlan?.days?.find((d: any) => d.id === customDay.workoutPlanDayId);
-         if (planDay) {
-            this.todayWorkoutName = planDay.dayName || planDay.category || 'Workout';
-            return;
-         }
-       }
+      if (customDay.isRestDay) {
+        this.todayWorkoutName = 'Rest Day';
+        return;
+      }
+      if (customDay.workoutPlanDayId) {
+        const planDay = assignment.workoutPlan?.days?.find((d: any) => d.id === customDay.workoutPlanDayId);
+        if (planDay) {
+          this.todayWorkoutName = planDay.dayName || planDay.category || 'Workout';
+          return;
+        }
+      }
     }
-    
+
     // Fallback to template days
     if (assignment.workoutPlan && assignment.workoutPlan.days) {
       const templateDay = assignment.workoutPlan.days.find((d: any) => d.dayName && d.dayName.toLowerCase().includes(todayName.toLowerCase()));
@@ -172,14 +173,14 @@ export class UserDashboardComponent implements OnInit {
 
     const dates = logs
       .filter(l => l.status === 'Completed' || l.status === 'RestDay')
-      .map(l => new Date(l.date).setHours(0,0,0,0))
+      .map(l => new Date(l.date).setHours(0, 0, 0, 0))
       .sort((a, b) => b - a);
 
     if (dates.length === 0) return;
 
     let streak = 0;
-    let currentDate = new Date().setHours(0,0,0,0);
-    
+    let currentDate = new Date().setHours(0, 0, 0, 0);
+
     // Check if today is logged
     if (dates[0] === currentDate) {
       streak = 1;
@@ -213,40 +214,58 @@ export class UserDashboardComponent implements OnInit {
     // Calculate for the last 7 days
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+
     const weeklyLogs = logs.filter(l => new Date(l.date) >= oneWeekAgo && l.status === 'Completed');
-    
-    let estimatedCalories = 0;
+    this.weeklyWorkoutsCount = weeklyLogs.length;
+
+    // Calculate Active Training Time
+    let totalMinutes = 0;
     weeklyLogs.forEach(log => {
-      // Estimate: 50 kcal per completed exercise
-      const completedExercises = (log.loggedExercises || []).filter((ex: any) => 
-         (ex.loggedSets || []).some((s: any) => s.completed)
+      const completedExercises = (log.loggedExercises || []).filter((ex: any) =>
+        (ex.loggedSets || []).some((s: any) => s.completed)
       ).length;
-      
-      // Rough estimate if no exercises are detailed but log is completed
+
       if (completedExercises === 0) {
-        estimatedCalories += 300; 
+        totalMinutes += 45; // Estimate 45m per generic completed workout
+      } else {
+        totalMinutes += (completedExercises * 10); // Estimate 10m per exercise
+      }
+    });
+    this.activeTrainingTimeMinutes = totalMinutes;
+
+    // Calculate Today's Calories
+    const todayStr = new Date().toDateString();
+    const todayLogs = logs.filter(l => new Date(l.date).toDateString() === todayStr && l.status === 'Completed');
+
+    let estimatedCalories = 0;
+    todayLogs.forEach(log => {
+      const completedExercises = (log.loggedExercises || []).filter((ex: any) =>
+        (ex.loggedSets || []).some((s: any) => s.completed)
+      ).length;
+
+      if (completedExercises === 0) {
+        estimatedCalories += 300;
       } else {
         estimatedCalories += (completedExercises * 50);
       }
     });
 
-    this.caloriesBurnedThisWeek = estimatedCalories;
+    this.caloriesBurnedToday = estimatedCalories;
   }
 
   // --- Calorie Ring SVG Calculations ---
   get caloriePercentage(): number {
     if (this.targetCalories === 0) return 0;
-    return Math.min((this.caloriesBurnedThisWeek / this.targetCalories) * 100, 100);
+    return Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100);
   }
 
-  get ringCircumference(): number {
-    return 2 * Math.PI * 60; // r=60
-  }
-
-  get ringOffset(): number {
-    const pct = this.caloriePercentage;
-    return this.ringCircumference - (pct / 100) * this.ringCircumference;
+  get formattedTrainingTime(): string {
+    const hours = Math.floor(this.activeTrainingTimeMinutes / 60);
+    const mins = this.activeTrainingTimeMinutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins > 0 ? mins + 'm' : ''}`;
+    }
+    return `${mins}m`;
   }
 
   loadCalorieTarget() {
@@ -268,17 +287,17 @@ export class UserDashboardComponent implements OnInit {
     const savedRoutine = localStorage.getItem(this.routineStorageKey);
 
     const defaultRoutine: DailyRoutineItem[] = [
-      { id: '1', title: 'Wake Up', time: '6:00 AM', icon: 'fa-sun', color: '#f59e0b', completed: false },
-      { id: '2', title: 'Drink Water', amount: '3L', icon: 'fa-glass-water', color: '#0ea5e9', completed: false },
-      { id: '3', title: 'Breakfast', icon: 'fa-bread-slice', color: '#d97706', completed: false },
-      { id: '4', title: 'Protein Shake', icon: 'fa-blender', color: '#6366f1', completed: false },
-      { id: '5', title: 'Workout', icon: 'fa-dumbbell', color: '#8b5cf6', completed: false },
-      { id: '6', title: 'Sleep', time: '10:00 PM', icon: 'fa-moon', color: '#4f46e5', completed: false }
+      { id: '1', title: 'Wake Up', time: '6:00 AM', completed: false },
+      { id: '2', title: 'Drink Water', amount: '3L', completed: false },
+      { id: '3', title: 'Breakfast', completed: false },
+      { id: '4', title: 'Protein Shake', completed: false },
+      { id: '5', title: 'Workout', completed: false },
+      { id: '6', title: 'Sleep', time: '10:00 PM', completed: false }
     ];
 
     if (savedDate !== today || !savedRoutine) {
       // Reset for new day or initialize
-      this.dailyRoutines = savedRoutine ? JSON.parse(savedRoutine).map((r: any) => ({...r, completed: false})) : defaultRoutine;
+      this.dailyRoutines = savedRoutine ? JSON.parse(savedRoutine).map((r: any) => ({ ...r, completed: false })) : defaultRoutine;
       localStorage.setItem(this.routineDateKey, today);
       this.saveRoutine();
     } else {
@@ -300,11 +319,11 @@ export class UserDashboardComponent implements OnInit {
     this.dailyRoutines.push({
       id: Date.now().toString(),
       title: this.newRoutineTitle.trim(),
-      icon: 'fa-check-circle',
-      color: '#10b981',
+      amount: this.newRoutineValue.trim() || undefined,
       completed: false
     });
     this.newRoutineTitle = '';
+    this.newRoutineValue = '';
     this.isAddingRoutine = false;
     this.saveRoutine();
   }

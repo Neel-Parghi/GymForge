@@ -27,25 +27,13 @@
         <div class="lens-flare"></div>
       </div>
 
-      <!-- Volumetric Clouds -->
-      <div class="premium-clouds-layer" *ngIf="greetingTheme !== 'theme-afternoon'">
-        <div class="cloud-group cloud-back">
-          <div class="puff puff-1"></div>
-          <div class="puff puff-2"></div>
-          <div class="puff puff-3"></div>
-        </div>
-        <div class="cloud-group cloud-middle">
-          <div class="puff puff-1"></div>
-          <div class="puff puff-2"></div>
-          <div class="puff puff-3"></div>
-          <div class="puff puff-4"></div>
-        </div>
-        <div class="cloud-group cloud-front">
-          <div class="puff puff-1"></div>
-          <div class="puff puff-2"></div>
-          <div class="puff puff-3"></div>
-          <div class="puff puff-4"></div>
-        </div>
+      <!-- Soft Floating Bubbles / Clouds -->
+      <div class="floating-bubbles-layer" *ngIf="greetingTheme !== 'theme-afternoon'">
+        <div class="bubble b-1"></div>
+        <div class="bubble b-2"></div>
+        <div class="bubble b-3"></div>
+        <div class="bubble b-4"></div>
+        <div class="bubble b-5"></div>
       </div>
     </div>
 
@@ -91,91 +79,80 @@
           <div class="stats-row">
             <!-- Today's Workout -->
             <div class="stat-card glass-card">
-              <div class="card-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.15);"><i class="fa-solid fa-calendar-day"></i></div>
-              <div class="card-info">
+              <div class="card-container">
+                <div class="card-icon icon-blue"><i class="fa-solid fa-calendar-day"></i></div>
                 <span class="label">Today's Plan</span>
+              </div>
+
+              <div class="card-info">
                 <h3 class="value">{{ todayWorkoutName || 'Loading...' }}</h3>
                 <span class="sub" *ngIf="activePlanName !== 'No active plan'">{{ activePlanName }}</span>
               </div>
             </div>
 
-            <!-- Calories Burned (Donut Widget) -->
-            <div class="stat-card glass-card calorie-card">
-              <div class="calorie-donut-wrapper">
-                <svg viewBox="0 0 160 160" class="donut-svg">
-                  <!-- Base ring -->
-                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="var(--slate-200)" stroke-width="12"></circle>
-                  <!-- Value ring -->
-                  <circle cx="80" cy="80" r="60" fill="transparent" stroke="#f59e0b" stroke-width="12"
-                    [attr.stroke-dasharray]="ringCircumference" [attr.stroke-dashoffset]="ringOffset" stroke-linecap="round"></circle>
-                </svg>
-                <div class="donut-content">
-                  <span class="val"><i class="fa-solid fa-fire"></i> {{ caloriesBurnedThisWeek }}</span>
-                  <span class="lbl">KCAL BURNED</span>
-                </div>
+            <!-- Calories Burned -->
+            <div class="stat-card glass-card">
+              <div class="card-container">
+                <div class="card-icon icon-orange"><i class="fa-solid fa-fire"></i></div>
+                <span class="label">Daily Goal</span>
               </div>
-              <div class="calorie-info">
-                <div class="target-edit-row">
-                  <span class="label">Weekly Goal</span>
-                  <button class="edit-target-btn" (click)="isEditingCalories = true" *ngIf="!isEditingCalories"><i class="fa-solid fa-pencil"></i></button>
-                </div>
-                <h3 class="value" *ngIf="!isEditingCalories">{{ targetCalories }} <span class="unit">kcal</span></h3>
-                
+              <div class="card-info">
+                <h3 class="value" *ngIf="!isEditingCalories">{{ caloriesBurnedToday }} <span class="unit">/ {{
+                    targetCalories }} kcal</span></h3>
+
                 <div class="edit-target-input" *ngIf="isEditingCalories">
                   <input type="number" [(ngModel)]="targetCalories" class="form-input-inline" />
-                  <button class="btn-primary btn-sm" (click)="saveCalorieTarget()"><i class="fa-solid fa-check"></i></button>
+                  <button class="btn-primary btn-sm" (click)="saveCalorieTarget()"><i
+                      class="fa-solid fa-check"></i></button>
                 </div>
+
+                <div class="progress-bar-mini">
+                  <div class="fill fill-orange" [style.width.%]="caloriePercentage"></div>
+                </div>
+                <button class="edit-target-btn" (click)="isEditingCalories = true" *ngIf="!isEditingCalories">
+                  <i class="fa-solid fa-pencil"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Active Training Time -->
+            <div class="stat-card glass-card">
+              <div class="card-container">
+                <div class="card-icon icon-green"><i class="fa-solid fa-stopwatch"></i></div>
+                <span class="label">Active This Week</span>
+              </div>
+              <div class="card-info">
+                <h3 class="value">{{ formattedTrainingTime }} </h3>
+                <span class="unit">Training Time</span>
               </div>
             </div>
           </div>
-
-          <!-- Quick Launch -->
-          <div class="glass-card quick-launch-card">
-            <h3>Quick Launch</h3>
-            <div class="launch-grid">
-              <button class="launch-btn" routerLink="/user/performance">
-                <div class="icon-bg" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fa-solid fa-chart-line"></i></div>
-                <span>Performance</span>
-              </button>
-              <button class="launch-btn" routerLink="/user/diet-planner">
-                <div class="icon-bg" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fa-solid fa-apple-whole"></i></div>
-                <span>Diet Planner</span>
-              </button>
-              <button class="launch-btn" routerLink="/user/workout-calendar">
-                <div class="icon-bg" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fa-solid fa-calendar-days"></i></div>
-                <span>Calendar</span>
-              </button>
-              <button class="launch-btn" routerLink="/user/billing">
-                <div class="icon-bg" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <span>Billing</span>
-              </button>
-            </div>
-          </div>
-
         </div>
 
+        <!-- Quick Launch Removed As Requested -->
         <!-- Right Column: Daily Tracker -->
         <div class="quick-links-col">
           <div class="quests-card glass-card">
             <div class="quests-header">
               <h3><i class="fa-solid fa-list-check"></i> Daily Routine</h3>
-              <button class="btn-icon" (click)="isAddingRoutine = !isAddingRoutine" title="Add Item"><i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i></button>
+              <button class="btn-icon" (click)="isAddingRoutine = !isAddingRoutine" title="Add Item"><i class="fa-solid"
+                  [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i></button>
             </div>
 
             <div class="add-routine-form" *ngIf="isAddingRoutine">
-              <input type="text" [(ngModel)]="newRoutineTitle" placeholder="What habit to build?" (keyup.enter)="addRoutine()" />
+              <input type="text" [(ngModel)]="newRoutineTitle" placeholder="What habit to build?" class="title-input"
+                (keyup.enter)="addRoutine()" />
+              <input type="text" [(ngModel)]="newRoutineValue" placeholder="Value (e.g. 3L, 30 mins)"
+                class="value-input" (keyup.enter)="addRoutine()" />
               <button class="btn-primary" (click)="addRoutine()">Add</button>
             </div>
 
             <div class="quest-list">
               <div class="quest-item" *ngFor="let quest of dailyRoutines" [class.completed]="quest.completed">
-                
+
                 <div class="item-left" (click)="toggleRoutine(quest)">
                   <div class="check-box" [class.checked]="quest.completed">
                     <i class="fa-solid fa-check" *ngIf="quest.completed"></i>
-                  </div>
-                  <div class="icon-box" [style.color]="quest.color" *ngIf="!quest.completed && quest.icon">
-                    <i class="fa-solid" [ngClass]="quest.icon"></i>
                   </div>
                   <div class="quest-text-block">
                     <span class="quest-text">{{ quest.title }}</span>
@@ -184,7 +161,8 @@
                 </div>
 
                 <div class="item-actions">
-                  <button class="delete-btn" (click)="removeRoutine(quest)" title="Remove"><i class="fa-solid fa-trash"></i></button>
+                  <button class="delete-btn" (click)="removeRoutine(quest)" title="Remove"><i
+                      class="fa-solid fa-trash"></i></button>
                 </div>
               </div>
             </div>
@@ -194,4 +172,3 @@
       </div>
     </div>
   </div>
-</div>

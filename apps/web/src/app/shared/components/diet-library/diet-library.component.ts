@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../../core/services/notification.service';
+import { AuthApiService } from '../../../core/services/auth-api.service';
 import { DietTemplateCreatorComponent } from './diet-template-creator/diet-template-creator.component';
 import { ConfirmationPopupComponent } from '../confirmation-popup/confirmation-popup.component';
 import { DietPlanService } from '../../../core/services/diet-plan.service';
@@ -17,11 +18,14 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
 export class DietLibraryComponent implements OnInit {
   private notification = inject(NotificationService);
   private dietPlanService = inject(DietPlanService);
+  private authService = inject(AuthApiService);
 
   @Input() currentUserId?: string;
   @Input() activeDietId?: string;
   @Input() isCardView: boolean = false;
   @Output() onAssign = new EventEmitter<any>();
+
+  loggedInUserId: string = '';
 
   dietPlans: any[] = [];
   showCreateModal = false;
@@ -40,13 +44,25 @@ export class DietLibraryComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDietPlans();
+    this.authService.userProfile$.subscribe(profile => {
+      if (profile) {
+        this.loggedInUserId = profile.id;
+        this.loadDietPlans();
+      }
+    });
   }
 
   loadDietPlans(forceRefresh = false): void {
+    if (!this.loggedInUserId) return;
     this.dietPlanService.getPlans(undefined, forceRefresh).subscribe({
       next: (plans) => {
-        this.dietPlans = plans || [];
+        if (!this.currentUserId) {
+          // Trainer mode: Trainer sees ONLY their own generic templates
+          this.dietPlans = (plans || []).filter(p => !p.isCustom);
+        } else {
+          // User mode: User sees global templates + their own plans
+          this.dietPlans = (plans || []).filter(p => !p.isCustom || p.createdBy === this.currentUserId);
+        }
       },
       error: (err) => {
         console.error('Failed to load diet templates:', err);

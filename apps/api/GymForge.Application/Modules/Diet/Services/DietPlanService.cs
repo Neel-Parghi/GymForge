@@ -19,9 +19,9 @@ namespace GymForge.Application.Modules.Diet.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<DietPlanDto>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null)
+        public async Task<IEnumerable<DietPlanDto>> GetPlansAsync(Guid? gymId, Guid userId, string? goal = null, bool restrictToOwnPlans = false)
         {
-            IEnumerable<DietPlan> plans = await _dietPlanRepository.GetPlansAsync(gymId, userId, goal);
+            IEnumerable<DietPlan> plans = await _dietPlanRepository.GetPlansAsync(gymId, userId, goal, restrictToOwnPlans);
             return _mapper.Map<IEnumerable<DietPlanDto>>(plans);
         }
 

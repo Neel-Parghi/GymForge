@@ -20,7 +20,8 @@ namespace GymForge.Api.Controllers.Gym
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorkoutPlanDto>>> GetPlans([FromQuery] string? type = null)
         {
-            IEnumerable<WorkoutPlanDto> plans = await _workoutPlanService.GetPlansAsync(GymId, UserId, type);
+            bool isTrainer = User.IsInRole("Trainer");
+            IEnumerable<WorkoutPlanDto> plans = await _workoutPlanService.GetPlansAsync(GymId, UserId, type, isTrainer);
             return Ok(plans);
         }
 
