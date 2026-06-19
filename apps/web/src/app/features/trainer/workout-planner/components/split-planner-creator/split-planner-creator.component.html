@@ -32,10 +32,10 @@
           <div class="form-row">
             <div class="form-group flex-2">
               <label><i class="fa-solid fa-tag"></i> Split Name <span class="required">*</span></label>
-              <input type="text" formControlName="name" class="form-input" placeholder="e.g. 3-Day Push Pull Legs">
+              <input type="text" formControlName="name" class="form-input" placeholder="e.g. 3-Day Push Pull Legs" maxlength="50">
               <span class="error-msg"
                 *ngIf="createSplitForm.get('name')?.touched && createSplitForm.get('name')?.invalid">Split name is
-                required (min 3 chars).</span>
+                required (3-50 chars).</span>
             </div>
 
             <div class="form-group">
@@ -52,12 +52,12 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="required">*</span></label>
-            <textarea formControlName="description" class="form-input textarea-short"
+            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted" style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <textarea formControlName="description" class="form-input textarea-short" maxlength="200"
               placeholder="Explain the focus of this split routine..."></textarea>
             <span class="error-msg"
               *ngIf="createSplitForm.get('description')?.touched && createSplitForm.get('description')?.invalid">Description
-              is required.</span>
+              cannot exceed 200 characters.</span>
           </div>
 
           <!-- Visibility Toggle -->
@@ -111,7 +111,7 @@
                   <div class="header-left">
                     <span class="panel-badge">Day #{{ dayIdx + 1 }}</span>
                     <input type="text" formControlName="name" class="day-title-input compact-input"
-                      placeholder="Day Name">
+                      placeholder="Day Name" maxlength="10">
 
                     <!-- Muscle Target Focus Pills - Multi-Select -->
                     <div class="panel-category-selector animate-scale-in">

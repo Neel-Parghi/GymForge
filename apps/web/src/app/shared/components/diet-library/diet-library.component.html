@@ -53,6 +53,10 @@
             </button>
           </div>
 
+          <p class="card-description" *ngIf="diet.description" [title]="diet.description">
+            {{ diet.description | truncate:80:true }}
+          </p>
+
           <!-- Macros Progress Grid -->
           <div class="macros-grid">
             <div class="macro-cell protein">

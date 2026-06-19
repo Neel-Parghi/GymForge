@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl, FormGroup, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
@@ -100,13 +100,26 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       }
       const setGroups = (ex.sets || []).map((set: any) => {
         const fg = new FormGroup({
-          weight: new FormControl(set.weight || 0),
-          reps: new FormControl(set.reps || 0),
+          weight: new FormControl(set.weight || 0, [Validators.min(0), Validators.max(300)]),
+          reps: new FormControl(set.reps || 0, [Validators.min(0), Validators.max(100)]),
           completed: new FormControl(set.completed || false)
         });
         fg.valueChanges.subscribe(changes => {
-          set.weight = changes.weight ?? 0;
-          set.reps = changes.reps ?? 0;
+          let newWeight = changes.weight ?? 0;
+          let newReps = changes.reps ?? 0;
+          let updated = false;
+
+          if (newWeight > 300) { newWeight = 300; updated = true; }
+          if (newWeight < 0) { newWeight = 0; updated = true; }
+          if (newReps > 100) { newReps = 100; updated = true; }
+          if (newReps < 0) { newReps = 0; updated = true; }
+
+          if (updated) {
+            fg.patchValue({ weight: newWeight, reps: newReps }, { emitEvent: false });
+          }
+
+          set.weight = newWeight;
+          set.reps = newReps;
           set.completed = !!changes.completed;
         });
         return fg;
@@ -201,13 +214,26 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
     const setsArray = this.getSetsFormArray(exerciseIndex);
     const fg = new FormGroup({
-      weight: new FormControl(newSetObj.weight),
-      reps: new FormControl(newSetObj.reps),
+      weight: new FormControl(newSetObj.weight, [Validators.min(0), Validators.max(300)]),
+      reps: new FormControl(newSetObj.reps, [Validators.min(0), Validators.max(100)]),
       completed: new FormControl(newSetObj.completed)
     });
     fg.valueChanges.subscribe(changes => {
-      newSetObj.weight = changes.weight ?? 20;
-      newSetObj.reps = changes.reps ?? 10;
+      let newWeight = changes.weight ?? 20;
+      let newReps = changes.reps ?? 10;
+      let updated = false;
+
+      if (newWeight > 300) { newWeight = 300; updated = true; }
+      if (newWeight < 0) { newWeight = 0; updated = true; }
+      if (newReps > 100) { newReps = 100; updated = true; }
+      if (newReps < 0) { newReps = 0; updated = true; }
+
+      if (updated) {
+        fg.patchValue({ weight: newWeight, reps: newReps }, { emitEvent: false });
+      }
+
+      newSetObj.weight = newWeight;
+      newSetObj.reps = newReps;
       newSetObj.completed = !!changes.completed;
     });
     setsArray.push(fg);
@@ -287,13 +313,26 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     const exArray = this.exercisesFormArray;
     const setGroups = newExObj.sets.map((set: any) => {
       const fg = new FormGroup({
-        weight: new FormControl(set.weight),
-        reps: new FormControl(set.reps),
+        weight: new FormControl(set.weight, [Validators.min(0), Validators.max(300)]),
+        reps: new FormControl(set.reps, [Validators.min(0), Validators.max(100)]),
         completed: new FormControl(set.completed)
       });
       fg.valueChanges.subscribe(changes => {
-        set.weight = changes.weight ?? 20;
-        set.reps = changes.reps ?? 10;
+        let newWeight = changes.weight ?? 20;
+        let newReps = changes.reps ?? 10;
+        let updated = false;
+
+        if (newWeight > 300) { newWeight = 300; updated = true; }
+        if (newWeight < 0) { newWeight = 0; updated = true; }
+        if (newReps > 100) { newReps = 100; updated = true; }
+        if (newReps < 0) { newReps = 0; updated = true; }
+
+        if (updated) {
+          fg.patchValue({ weight: newWeight, reps: newReps }, { emitEvent: false });
+        }
+
+        set.weight = newWeight;
+        set.reps = newReps;
         set.completed = !!changes.completed;
       });
       return fg;

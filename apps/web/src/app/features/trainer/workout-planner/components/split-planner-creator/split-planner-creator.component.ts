@@ -202,8 +202,8 @@ export class SplitPlannerCreatorComponent implements OnInit {
 
   private initSplitForm(): void {
     this.createSplitForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.maxLength(200)]],
       level: ['Beginner'],
       goal: ['Hypertrophy'],
       isCustom: [false],
@@ -230,7 +230,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
     (data.days || []).forEach((day: any) => {
       const categoriesList = day.category ? day.category.split(' + ') : [this.categories[0] || 'Back'];
       const dayGroup = this.fb.group({
-        name: [day.name, [Validators.required]],
+        name: [day.name, [Validators.required, Validators.maxLength(10)]],
         targetCategories: [categoriesList],
         exercises: this.fb.array(
           (day.exercises || []).map((ex: any) => this.fb.group({
@@ -249,7 +249,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
   addSplitDay(): void {
     const defaultCat = this.categories[0] || 'Back';
     const dayGroup = this.fb.group({
-      name: [`Day ${this.splitDays.length + 1} Split`, [Validators.required]],
+      name: [`Day ${this.splitDays.length + 1}`, [Validators.required, Validators.maxLength(10)]],
       targetCategories: [[defaultCat]],
       exercises: this.fb.array([])
     });

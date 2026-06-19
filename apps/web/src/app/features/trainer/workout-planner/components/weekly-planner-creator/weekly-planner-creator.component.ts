@@ -131,8 +131,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     this.createWeeklyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.maxLength(200)]],
       level: ['Beginner'],
       goal: ['Hypertrophy'],
       isCustom: [false],
@@ -161,7 +161,7 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
         dayName: [day.dayName],
         type: [day.type || 'workout', [Validators.required]],
         targetCategories: [categories],
-        splitDayName: [day.splitDayName || day.dayName],
+        splitDayName: [day.splitDayName || day.dayName, [Validators.maxLength(10)]],
         exercises: this.fb.array(
           (day.exercises || []).map((ex: any) => this.fb.group({
             exerciseName: [ex.name || '', [Validators.required]],
@@ -202,7 +202,7 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       dayName: [dayName],
       type: ['workout', [Validators.required]],
       targetCategories: [[defaultCat]],
-      splitDayName: [`${dayName}`],
+      splitDayName: [`${dayName}`, [Validators.maxLength(10)]],
       exercises: this.fb.array([
         this.fb.group({
           exerciseName: ['', [Validators.required]],

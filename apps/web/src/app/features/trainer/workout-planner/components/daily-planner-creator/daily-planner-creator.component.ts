@@ -116,8 +116,8 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   private initDailyForm(): void {
     this.createDailyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.maxLength(200)]],
       level: ['Beginner'],
       goal: ['Hypertrophy'],
       isCustom: [false],

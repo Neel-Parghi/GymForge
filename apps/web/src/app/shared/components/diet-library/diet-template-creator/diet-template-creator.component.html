@@ -30,10 +30,17 @@
         <div class="wizard-step-content animate-scale-in" *ngIf="activeFormTab === 'details'">
           <div class="form-group">
             <label><i class="fa-solid fa-tag"></i> Template Name <span class="required">*</span></label>
-            <input type="text" formControlName="name" class="form-input" placeholder="e.g. Lean Bulking 3000 kcal Plan">
+            <input type="text" formControlName="name" class="form-input" placeholder="e.g. Lean Bulking 3000 kcal Plan" maxlength="50">
             <span class="error-msg" *ngIf="createForm.get('name')?.touched && createForm.get('name')?.invalid">Template
               name is required
-              (min 3 chars).</span>
+              (3-50 chars).</span>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-align-left"></i> Description <span class="text-muted" style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <textarea formControlName="description" class="form-input textarea-short" maxlength="300"
+              placeholder="Provide a short description (max 300 chars)..."></textarea>
+            <span class="error-msg" *ngIf="createForm.get('description')?.touched && createForm.get('description')?.invalid">Description cannot exceed 300 chars.</span>
           </div>
 
           <div class="form-group">
@@ -153,9 +160,9 @@
                   <div class="form-group">
                     <label>Meal Title <span class="required">*</span></label>
                     <input type="text" formControlName="mealTitle" class="form-input form-input-sm"
-                      placeholder="e.g. Breakfast">
+                      placeholder="e.g. Breakfast" maxlength="30">
                     <span class="error-msg"
-                      *ngIf="meal.get('mealTitle')?.touched && meal.get('mealTitle')?.invalid">Title is required.</span>
+                      *ngIf="meal.get('mealTitle')?.touched && meal.get('mealTitle')?.invalid">Title is required (max 30 chars).</span>
                   </div>
                   <div class="form-group">
                     <label>Time <span class="required">*</span></label>
@@ -165,13 +172,13 @@
                 <div class="form-row mt-10">
                   <div class="form-group">
                     <label>Calories (kcal) <span class="required">*</span></label>
-                    <input type="number" formControlName="calories" min="0" class="form-input form-input-sm"
-                      placeholder="e.g. 500">
+                    <input type="number" formControlName="calories" min="0" max="5000" class="form-input form-input-sm"
+                      placeholder="e.g. 500" (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
                   </div>
                   <div class="form-group">
                     <label>Protein (g) <span class="required">*</span></label>
-                    <input type="number" formControlName="protein" min="0" class="form-input form-input-sm"
-                      placeholder="e.g. 30">
+                    <input type="number" formControlName="protein" min="0" max="300" class="form-input form-input-sm"
+                      placeholder="e.g. 30" (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
                   </div>
                 </div>
                 <div class="form-group mt-10">

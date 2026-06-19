@@ -38,7 +38,8 @@ export class DietTemplateCreatorComponent implements OnInit {
 
   initForm(plan?: any): void {
     this.createForm = this.fb.group({
-      name: [plan?.name || '', [Validators.required, Validators.minLength(3)]],
+      name: [plan?.name || '', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: [plan?.description || '', [Validators.maxLength(300)]],
       goal: [plan?.goal || 'Muscle Gain', [Validators.required]],
       protein: [plan?.protein ?? null, [Validators.required, Validators.min(0)]],
       carbs: [plan?.carbs ?? null, [Validators.required, Validators.min(0)]],
@@ -63,12 +64,32 @@ export class DietTemplateCreatorComponent implements OnInit {
     const parsedTime = rawTime ? this.to24h(rawTime) : '08:00';
 
     const mealGroup = this.fb.group({
-      mealTitle: [rawName, [Validators.required]],
+      mealTitle: [rawName, [Validators.required, Validators.maxLength(30)]],
       mealTime: [parsedTime, [Validators.required]],
-      calories: [meal?.calories ?? null, [Validators.required, Validators.min(0)]],
-      protein: [meal?.protein ?? null, [Validators.required, Validators.min(0)]],
+      calories: [meal?.calories ?? null, [Validators.required, Validators.min(0), Validators.max(5000)]],
+      protein: [meal?.protein ?? null, [Validators.required, Validators.min(0), Validators.max(300)]],
       items: [meal?.items || '']
     });
+
+    mealGroup.valueChanges.subscribe(changes => {
+      let newCalories = changes.calories;
+      let newProtein = changes.protein;
+      let updated = false;
+
+      if (newCalories !== null && newCalories !== undefined) {
+        if (newCalories > 5000) { newCalories = 5000; updated = true; }
+        if (newCalories < 0) { newCalories = 0; updated = true; }
+      }
+      if (newProtein !== null && newProtein !== undefined) {
+        if (newProtein > 300) { newProtein = 300; updated = true; }
+        if (newProtein < 0) { newProtein = 0; updated = true; }
+      }
+
+      if (updated) {
+        mealGroup.patchValue({ calories: newCalories, protein: newProtein }, { emitEvent: false });
+      }
+    });
+
     this.meals.push(mealGroup);
     this.expandedMealIndex = this.meals.length - 1;
 
@@ -211,7 +232,7 @@ export class DietTemplateCreatorComponent implements OnInit {
     const planData = {
       id: this.plan?.id,
       name: val.name,
-      description: '',
+      description: val.description || '',
       calories: this.computedCalories,
       protein: val.protein,
       carbs: val.carbs,

@@ -308,6 +308,13 @@
         }
       }
     }
+
+    .card-description {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin: -6px 0 2px 0;
+    }
   }
 }
 

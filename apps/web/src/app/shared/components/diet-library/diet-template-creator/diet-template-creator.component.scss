@@ -214,10 +214,17 @@
         color: white;
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
 
-        &:hover {
+        &:hover:not(:disabled) {
           background: var(--primary-navy-hover);
           transform: translateY(-1px);
           box-shadow: var(--card-shadow-precision);
+        }
+
+        &:disabled {
+          background: var(--slate-300);
+          color: var(--slate-500);
+          cursor: not-allowed;
+          box-shadow: none;
         }
       }
     }

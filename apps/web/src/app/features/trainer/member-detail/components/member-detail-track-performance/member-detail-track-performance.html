@@ -151,10 +151,10 @@
                   </div>
 
                   <div class="td-cell col-weight">
-                    <div class="premium-num-input" *ngIf="!s.completed">
+                    <div class="premium-num-input" *ngIf="!s.completed" [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.touched">
                       <input type="number"
-                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0"
-                        placeholder="0" step="0.1">
+                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0" max="300"
+                        placeholder="0" step="0.1" (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+') ? $event.preventDefault() : null">
                       <span class="unit">{{ selectedEx.isCardio ? 'km' : 'kg' }}</span>
                     </div>
                     <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span class="unit">{{
@@ -162,10 +162,10 @@
                   </div>
 
                   <div class="td-cell col-reps">
-                    <div class="premium-num-input" *ngIf="!s.completed">
+                    <div class="premium-num-input" *ngIf="!s.completed" [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.touched">
                       <input type="number"
-                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0"
-                        placeholder="0">
+                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0" max="100"
+                        placeholder="0" (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
                       <span class="unit">{{ selectedEx.isCardio ? 'mins' : 'reps' }}</span>
                     </div>
                     <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span class="unit">{{

@@ -32,10 +32,10 @@
             <div class="form-group flex-2">
               <label><i class="fa-solid fa-tag"></i> Workout Session Name <span class="required">*</span></label>
               <input type="text" formControlName="name" class="form-input"
-                placeholder="e.g. Heavy Pull Day / Arms Hypertrophy">
+                placeholder="e.g. Heavy Pull Day / Arms Hypertrophy" maxlength="50">
               <span class="error-msg"
                 *ngIf="createDailyForm.get('name')?.touched && createDailyForm.get('name')?.invalid">Workout
-                name is required.</span>
+                name is required (3-50 chars).</span>
             </div>
 
             <div class="form-group">
@@ -52,9 +52,12 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-align-left"></i> Short Description</label>
-            <textarea formControlName="description" class="form-input textarea-short"
-              placeholder="Explain the focus of this standalone workout... (Optional)"></textarea>
+            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted" style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <textarea formControlName="description" class="form-input textarea-short" maxlength="200"
+              placeholder="Explain the focus of this standalone workout..."></textarea>
+            <span class="error-msg"
+              *ngIf="createDailyForm.get('description')?.touched && createDailyForm.get('description')?.invalid">Description
+              cannot exceed 200 characters.</span>
           </div>
 
           <!-- Visibility Toggle -->
