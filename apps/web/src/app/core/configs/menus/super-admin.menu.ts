@@ -26,6 +26,12 @@ export const SuperAdminMenu: NavItem[] = [
         roles: ['SuperAdmin']
     },
     {
+        label: 'Users',
+        icon: 'fa-solid fa-users',
+        route: '/super-admin/users',
+        roles: ['SuperAdmin']
+    },
+    {
         label: 'FINANCIALS',
         icon: '',
         roles: ['SuperAdmin'],

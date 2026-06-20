@@ -30,4 +30,16 @@ export class UserService extends BaseApiService {
   getMySubscriptions(): Observable<any> {
     return this.get(API_CONSTANTS.USER.MY_SUBSCRIPTIONS);
   }
+
+  getMyGym(): Observable<any> {
+    return this.get(API_CONSTANTS.USER.MY_GYM);
+  }
+
+  getStandaloneUsers(pageNumber: number = 1, pageSize: number = 10, searchTerm: string = ''): Observable<any> {
+    const params: any = { pageNumber, pageSize };
+    if (searchTerm) {
+      params.searchTerm = searchTerm;
+    }
+    return this.get(API_CONSTANTS.USER.STANDALONE, { params });
+  }
 }

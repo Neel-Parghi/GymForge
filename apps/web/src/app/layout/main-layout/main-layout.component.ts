@@ -10,6 +10,10 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
 import { BranchContextService } from '../../core/services/branch-context.service';
 import { GymService } from '../../core/services/gym.service';
 import { GymSettingsService } from '../../core/services/gym-settings.service';
+import { AnnouncementService } from '../../core/services/announcement.service';
+import { UserNotificationApiService } from '../../core/services/user-notification-api.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
@@ -41,6 +45,13 @@ export class MainLayoutComponent implements OnInit {
   isStaffLocked = false;
   branches: any[] = [];
   isBranchDropdownOpen = false;
+
+  isNotificationsOpen = false;
+  announcements: any[] = [];
+  private activeRole: string = '';
+  private announcementService = inject(AnnouncementService);
+  private userNotificationService = inject(UserNotificationApiService);
+  unreadAnnouncementsCount = 0;
 
   constructor() {
     this.menuItems = this.navService.getMenuItems();
@@ -77,6 +88,8 @@ export class MainLayoutComponent implements OnInit {
     } else if (this.isGymOwner) {
       this.loadBranches();
     }
+
+    this.loadAnnouncements();
   }
 
   private setRoleName(): void {
@@ -115,6 +128,41 @@ export class MainLayoutComponent implements OnInit {
       this.branchContextService.setActiveBranch(null);
     }
     this.isBranchDropdownOpen = false;
+  }
+
+  loadAnnouncements(): void {
+    const role = this.authApiService.getUserRole();
+
+    if (role === 'User') {
+      forkJoin({
+        announcements: this.announcementService.getMyGymAnnouncements().pipe(catchError(() => of([]))),
+        notifications: this.userNotificationService.getMyNotifications().pipe(catchError(() => of([])))
+      }).subscribe({
+        next: (res) => {
+          const merged = [...(res.announcements || []), ...(res.notifications || [])]
+            .sort((a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime());
+
+          this.announcements = merged;
+          this.unreadAnnouncementsCount = this.announcements.filter((n: any) => n.isRead === false || n.isRead === undefined).length;
+        }
+      });
+    } else if (role === 'GymOwner' || role === 'Staff') {
+      this.announcementService.getAnnouncements().subscribe({
+        next: (res) => {
+          this.announcements = res || [];
+          this.unreadAnnouncementsCount = this.announcements.length;
+        }
+      });
+    }
+  }
+
+  toggleNotifications(event: Event): void {
+    event.stopPropagation();
+    this.isNotificationsOpen = !this.isNotificationsOpen;
+    if (this.isNotificationsOpen) {
+      this.unreadAnnouncementsCount = 0;
+      this.isBranchDropdownOpen = false;
+    }
   }
 
   toggleSidebar() {
@@ -166,5 +214,6 @@ export class MainLayoutComponent implements OnInit {
   @HostListener('document:click')
   closeDropdowns() {
     this.isBranchDropdownOpen = false;
+    this.isNotificationsOpen = false;
   }
 }

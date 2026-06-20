@@ -1,6 +1,9 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Application.Modules.Users.Interface;
+using GymForge.Contracts.Common;
+using GymForge.Contracts.Members;
 using GymForge.Contracts.Users;
+using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -100,6 +103,40 @@ namespace GymForge.Api.Controllers.User
         {
             var subscriptions = await _memberService.GetSubscriptionHistoryByUserIdAsync(UserId);
             return Ok(subscriptions);
+        }
+
+        [HttpGet("my-gym")]
+        [Authorize]
+        public async Task<IActionResult> GetMyGym()
+        {
+            MyGymMembershipResponse? myGymMembership = await _memberService.GetMyGymMembershipAsync(UserId);
+            if (myGymMembership == null)
+            {
+                return Ok(null);
+            }
+            return Ok(myGymMembership);
+        }
+
+        [HttpGet("deletion-requests")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetDeletionRequests()
+        {
+            IEnumerable<DeletionRequestDto> requests = await _userService.GetPendingDeletionRequestsAsync();
+            return Ok(requests);
+        }
+
+        [HttpGet("standalone")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetStandaloneUsers([FromQuery] PaginationParams pagination)
+        {
+            PagedResponse<StandaloneUserDto> users = await _userService.GetStandaloneUsersAsync(pagination);
+            
+            return Ok(new ApiResponse<PagedResponse<StandaloneUserDto>> 
+            {
+                Data = users,
+                Message = "Standalone users retrieved successfully",
+                Success = true
+            });
         }
     }
 }

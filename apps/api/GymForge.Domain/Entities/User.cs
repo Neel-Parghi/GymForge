@@ -38,6 +38,8 @@ namespace GymForge.Domain.Entities
 
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
+        public DateTime? DeletionRequestedOn { get; set; }
+
         public Address? Address { get; set; }
 
         public ICollection<Gym>? Gyms { get; set; } = [];

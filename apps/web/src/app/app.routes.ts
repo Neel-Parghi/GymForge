@@ -26,6 +26,10 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
+      {
+        path: 'users',
+        loadComponent: () => import('./features/super-admin/users/users-list/users-list.component').then(m => m.UsersListComponent)
+      },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'gym-owners', component: GymOwners },
       { path: 'gym-list', component: GymList },
@@ -96,6 +100,16 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./features/gym-owner/settings/settings.component').then(m => m.SettingsComponent),
+        canActivate: [roleGuard]
+      },
+      {
+        path: 'announcements',
+        loadComponent: () => import('./features/gym-owner/announcements/announcements').then(m => m.Announcements),
+        canActivate: [roleGuard]
+      },
+      {
+        path: 'announcements/templates',
+        loadComponent: () => import('./features/gym-owner/announcements/templates/templates').then(m => m.Templates),
         canActivate: [roleGuard]
       }
     ]

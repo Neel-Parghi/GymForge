@@ -1,0 +1,94 @@
+<div class="standard-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Notification Templates</h2>
+      <p>Design dynamic message templates for automated notifications.</p>
+    </div>
+    <div class="actions">
+      <button class="btn-outline" routerLink="..">
+        Back to Announcements
+      </button>
+      <button class="primary-btn" (click)="openDrawer()">Create Template</button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <app-data-grid [config]="gridConfig" [data]="templates" [totalItems]="totalItems" [pageSize]="pageSize"
+    [currentPage]="currentPage" (actionEvent)="onAction($event)" (pageChange)="onPageChanged($event)"
+    (pageSizeChange)="onPageSizeChanged($event)">
+  </app-data-grid>
+</div>
+
+<!-- Create/Edit Template Drawer -->
+<app-slide-drawer [isOpen]="isDrawerOpen" [title]="editingTemplateId ? 'Edit Template' : 'Create New Template'"
+  subtitle="Define automated message structures with dynamic variables." width="550px" (closeDrawer)="closeDrawer()">
+  <div drawer-body class="form-container" *ngIf="isDrawerOpen" [formGroup]="templateForm">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Template Name <span class="text-danger">*</span></label>
+        <input type="text" formControlName="name" placeholder="e.g., Follow-up Inactive Users" maxlength="100">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Template Type <span class="text-danger">*</span></label>
+        <app-dropdown [options]="templateTypes" formControlName="type" placeholder="Select template type" minWidth="100%"></app-dropdown>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Notification Title <span class="text-danger">*</span></label>
+        <div class="input-with-action">
+          <input type="text" formControlName="titleTemplate" [placeholder]="'e.g., We miss you, {{UserName}}!'"
+            maxlength="100">
+          <button class="btn-icon" type="button" (click)="insertVariable('UserName', 'titleTemplate')"
+            [title]="'Insert {{UserName}}'">
+            <i class="fa-solid fa-user-tag"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Message Content <span class="text-danger">*</span></label>
+        <textarea rows="4" formControlName="messageTemplate"
+          [placeholder]="'e.g., Hi {{UserName}}, your membership expires on {{ExpiryDate}}.'"
+          maxlength="1000"></textarea>
+
+        <div class="variable-toolbar">
+          <span class="variable-label"><i class="fa-solid fa-code"></i> Variables:</span>
+          <button type="button" class="variable-btn" (click)="insertVariable('UserName', 'messageTemplate')">
+            {{'{' + '{UserName}' + '}'}}
+          </button>
+          <button type="button" class="variable-btn" (click)="insertVariable('GymName', 'messageTemplate')">
+            {{'{' + '{GymName}' + '}'}}
+          </button>
+          <button type="button" class="variable-btn" (click)="insertVariable('ExpiryDate', 'messageTemplate')">
+            {{'{' + '{ExpiryDate}' + '}'}}
+          </button>
+          <button type="button" class="variable-btn" (click)="insertVariable('PlanName', 'messageTemplate')">
+            {{'{' + '{PlanName}' + '}'}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="visibility-toggle-row">
+      <div class="visibility-toggle-info">
+        <i class="fa-solid" [ngClass]="templateForm.get('isActive')?.value ? 'fa-eye' : 'fa-eye-slash'"></i>
+        <div>
+          <span class="toggle-label">Template Status</span>
+          <span class="toggle-sublabel">{{ templateForm.get('isActive')?.value ? 'Template is active and ready to be used' : 'Template is disabled and hidden' }}</span>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" formControlName="isActive">
+        <div class="toggle-slider"></div>
+      </label>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" (click)="closeDrawer()">Cancel</button>
+    <button class="btn-primary" type="button" [disabled]="templateForm.invalid || isSubmitting" (click)="onSubmit()">
+      {{ editingTemplateId ? 'Update Template' : 'Save Template' }}
+    </button>
+  </div>
+</app-slide-drawer>

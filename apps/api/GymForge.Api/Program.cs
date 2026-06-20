@@ -9,6 +9,8 @@ using GymForge.Infrastructure.Persistence;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +69,14 @@ builder.Services.AddAutoMapper(cfg => {}, typeof(Program).Assembly, typeof(GymFo
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+
+builder.Services.AddHangfireServer();
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("OtpPolicy", httpContext =>
@@ -120,11 +130,22 @@ app.UseRateLimiter();
 
 app.UseMiddleware<ResponseWrapperMiddleware>();
 
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.MapControllers();
+
+// Schedule automated notifications to run every day at 8:00 AM using Hangfire
+RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>(
+    "daily-notifications",
+    job => job.ExecuteAsync(),
+    "0 8 * * *");
 
 app.Run();

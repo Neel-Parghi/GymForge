@@ -71,10 +71,59 @@
         </div>
       </div>
 
+      <!-- Gym Announcements Banner -->
+      <div class="announcement-banners-container" *ngIf="announcements && announcements.length > 0">
+        <div class="announcement-banner premium-glass" *ngFor="let ann of announcements">
+          <div class="banner-icon-container">
+            <i class="fa-solid fa-bullhorn pulse-icon"></i>
+          </div>
+          <div class="banner-content">
+            <div class="banner-header">
+              <span class="banner-tag">Gym Announcement</span>
+              <span class="banner-date">{{ ann.createdAt | date:'mediumDate' }}</span>
+            </div>
+            <h4 class="banner-title">{{ ann.title }}</h4>
+            <p class="banner-message">{{ ann.message }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Main Layout Split -->
       <div class="main-b2c-grid">
         <!-- Left Column: Quick Stats & Launch -->
         <div class="action-plan-col">
+
+          <!-- Gym Membership Card -->
+          <div class="gym-membership-card glass-card" *ngIf="myGymInfo">
+            <div class="gym-header">
+              <div class="gym-info">
+                <div class="gym-logo" *ngIf="myGymInfo.gymLogoUrl">
+                  <img [src]="myGymInfo.gymLogoUrl" alt="Gym Logo">
+                </div>
+                <div class="gym-logo placeholder" *ngIf="!myGymInfo.gymLogoUrl">
+                  <i class="fa-solid fa-dumbbell"></i>
+                </div>
+                <div class="gym-details">
+                  <h3>{{ myGymInfo.gymName }}</h3>
+                  <span class="membership-id">ID: {{ myGymInfo.membershipNumber }}</span>
+                </div>
+              </div>
+              <div class="status-badge" [ngClass]="'status-' + (myGymInfo.status | lowercase)">
+                {{ myGymInfo.status }}
+              </div>
+            </div>
+            
+            <div class="plan-details" *ngIf="myGymInfo.currentSubscription">
+              <div class="plan-info">
+                <span class="label">Current Plan</span>
+                <span class="value">{{ myGymInfo.currentSubscription.planNameSnapshot }}</span>
+              </div>
+              <div class="plan-expiry">
+                <span class="label">Valid Until</span>
+                <span class="value">{{ myGymInfo.currentSubscription.endDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
 
           <div class="stats-row">
             <!-- Today's Workout -->

@@ -28,6 +28,19 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
     ],
     selectable: true
   },
+  StandaloneUsers: {
+    columns: [
+      { key: 'firstName', label: 'User Name', type: 'profile', subKey: 'email' },
+      { key: 'phone', label: 'Phone Number', type: 'text' },
+      { key: 'role', label: 'Role', type: 'badge' },
+      { key: 'createdOn', label: 'Joined Date', type: 'date' },
+      { key: 'isEmailVerified', label: 'Email Verified', type: 'bool' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'deletionRequestedOn', label: 'Deletion Scheduled On', type: 'date' },
+    ],
+    selectable: false,
+    excludeActions: ['edit', 'delete', 'view']
+  },
   PricingList: {
     columns: [
       { key: 'name', label: 'Plan Name', isClickable: true },
@@ -213,5 +226,27 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
     ],
     selectable: false,
     excludeActions: ['edit']
+  },
+  Announcements: {
+    columns: [
+      { key: 'title', label: 'Announcement Title', type: 'text' },
+      { key: 'message', label: 'Message', type: 'text' },
+      { key: 'createdOn', label: 'Broadcast Date', type: 'date' },
+      { key: 'isActive', label: 'Status', type: 'bool' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    excludeActions: ['view']
+  },
+  Templates: {
+    columns: [
+      { key: 'name', label: 'Template Name', type: 'text' },
+      { key: 'typeLabel', label: 'Type', type: 'badge' },
+      { key: 'titleTemplate', label: 'Title Template', type: 'text' },
+      { key: 'isActive', label: 'Status', type: 'bool' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    excludeActions: ['view']
   }
 };

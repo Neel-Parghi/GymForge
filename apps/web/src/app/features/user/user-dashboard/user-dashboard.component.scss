@@ -706,6 +706,258 @@
   align-items: center;
 }
 
+.gym-membership-card {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .gym-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    .gym-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .gym-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        &.placeholder {
+          font-size: 1.5rem;
+          color: #3b82f6;
+          background: rgba(59, 130, 246, 0.1);
+        }
+      }
+
+      .gym-details {
+        h3 {
+          margin: 0 0 4px 0;
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .membership-id {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #64748b;
+          text-transform: uppercase;
+        }
+      }
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+
+      &.status-active {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+      }
+
+      &.status-expired {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+      }
+
+      &.status-freeze {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+      }
+
+      &.status-pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+      }
+    }
+  }
+
+  .plan-details {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+
+    .plan-info, .plan-expiry {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+      }
+    }
+    
+    .plan-expiry {
+      text-align: right;
+    }
+  }
+}
+
+.theme-evening .gym-membership-card {
+  .gym-details h3, .plan-details .value {
+    color: #ffffff;
+  }
+  .gym-details .membership-id, .plan-details .label {
+    color: #cbd5e1;
+  }
+  .plan-details {
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Premium Announcement Banners
+.announcement-banners-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.announcement-banner {
+  display: flex;
+  padding: 20px 24px;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.45) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #3b82f6, #6366f1);
+    border-radius: 4px 0 0 4px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.12);
+
+    .pulse-icon {
+      animation: announcePulse 0.8s ease infinite;
+    }
+  }
+
+  .banner-icon-container {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.15));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    font-size: 1.2rem;
+  }
+
+  .banner-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .banner-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .banner-tag {
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+        padding: 3px 10px;
+        border-radius: 6px;
+      }
+
+      .banner-date {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 600;
+      }
+    }
+
+    .banner-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: -0.01em;
+    }
+
+    .banner-message {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Evening theme support for banners
+.theme-evening .announcement-banner {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  .banner-content .banner-title {
+    color: #f8fafc;
+  }
+
+  .banner-content .banner-message {
+    color: #cbd5e1;
+  }
+}
+
+@keyframes announcePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
 .stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

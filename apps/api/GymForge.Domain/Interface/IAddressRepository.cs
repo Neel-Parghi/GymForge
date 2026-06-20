@@ -7,5 +7,6 @@ namespace GymForge.Domain.Interface
         Task AddAsync(Address address);
         Task Update(Address address);
         Task<Address?> GetByIdAsync(Guid id);
+        Task DeleteAsync(Guid id);
     }
 }

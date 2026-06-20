@@ -63,6 +63,12 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<GymHoliday> GymHolidays { get; set; }
 
+        public DbSet<GymAnnouncement> GymAnnouncements { get; set; }
+        
+        public DbSet<AnnouncementTemplate> AnnouncementTemplates { get; set; }
+        
+        public DbSet<UserNotification> UserNotifications { get; set; }
+
         public DbSet<Exercise> Exercises { get; set; }
 
         public DbSet<MasterExercise> MasterExercises { get; set; }
@@ -287,6 +293,31 @@ namespace GymForge.Infrastructure.Persistence
             {
                 entity.HasIndex(x => x.GymId);
                 entity.HasIndex(x => x.BranchId);
+            });
+
+            modelBuilder.Entity<GymAnnouncement>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
+            });
+
+            modelBuilder.Entity<AnnouncementTemplate>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
+            });
+
+            modelBuilder.Entity<UserNotification>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => new { x.UserId, x.IsRead });
+
+                entity.HasOne(un => un.User)
+                      .WithMany()
+                      .HasForeignKey(un => un.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // WorkoutPlan configurations

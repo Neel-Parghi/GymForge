@@ -399,5 +399,29 @@ namespace GymForge.Application.Modules.Gym.Services
         {
             return _memberRepository.GetMemberDashboardDataAsync(gymId, branchId);
         }
+
+        public async Task<MyGymMembershipResponse?> GetMyGymMembershipAsync(Guid userId)
+        {
+            GymMember? member = await _memberRepository.GetByUserIdAsync(userId);
+            if (member == null) return null;
+
+            MemberSubscriptionResponse? currentSub = null;
+            MemberSubscription? activeSub = member.Subscriptions.OrderByDescending(s => s.CreatedOn).FirstOrDefault(s => s.IsActive);
+            if (activeSub != null)
+            {
+                currentSub = _mapper.Map<MemberSubscriptionResponse>(activeSub);
+            }
+
+            return new MyGymMembershipResponse
+            {
+                GymId = member.GymId,
+                GymName = member.Gym?.GymName ?? "Unknown Gym",
+                GymLogoUrl = member.Gym?.LogoUrl,
+                MembershipNumber = member.MembershipNumber,
+                Status = member.Status.ToString(),
+                JoiningDate = member.JoiningDate,
+                CurrentSubscription = currentSub
+            };
+        }
     }
 }

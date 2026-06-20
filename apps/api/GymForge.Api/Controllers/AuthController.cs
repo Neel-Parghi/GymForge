@@ -1,5 +1,7 @@
+using GymForge.Application.BackgroundJobs;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Contracts.Auth;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -137,6 +139,32 @@ namespace GymForge.Api.Controllers
             string? role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             return Ok(new { userId, email, role });
+        }
+
+        [Authorize]
+        [HttpDelete("request-deletion")]
+        public async Task<IActionResult> RequestAccountDeletion([FromServices] IBackgroundJobClient backgroundJobs)
+        {
+            string? userIdStr = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid user token." });
+            }
+
+            try
+            {
+                // 1. Mark the user's account with DeletionRequestedOn
+                await _authService.RequestAccountDeletionAsync(userId);
+
+                // 2. Schedule the job to run exactly 24 hours from now
+                backgroundJobs.Schedule<AccountDeletionJob>(job => job.ExecuteAsync(userId), TimeSpan.FromHours(24));
+
+                return Accepted(new { message = "Your account deletion has been scheduled and will be completed in 24 hours." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

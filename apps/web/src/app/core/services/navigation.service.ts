@@ -51,7 +51,8 @@ export class NavigationService {
             '/gym-owner/staff': 'staff',
             '/gym-owner/plans': 'plans',
             '/gym-owner/inventory': 'inventory',
-            '/gym-owner/billing': 'billing'
+            '/gym-owner/billing': 'billing',
+            '/gym-owner/announcements': 'announcements'
         };
 
         // Filter basic role array checking first

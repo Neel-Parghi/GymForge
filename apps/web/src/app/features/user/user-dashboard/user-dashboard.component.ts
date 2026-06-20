@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { MemberService } from '../../../core/services/member.service';
+import { UserService } from '../../../core/services/user.service';
+import { AnnouncementService } from '../../../core/services/announcement.service';
 import { forkJoin } from 'rxjs';
 
 interface DailyRoutineItem {
@@ -25,6 +27,8 @@ interface DailyRoutineItem {
 export class UserDashboardComponent implements OnInit {
   private authService = inject(AuthApiService);
   private memberService = inject(MemberService);
+  private userService = inject(UserService);
+  private announcementService = inject(AnnouncementService);
 
   showProfileAlert = false;
   userId: string = '';
@@ -41,6 +45,10 @@ export class UserDashboardComponent implements OnInit {
   isEditingCalories = false;
   activePlanName = 'No active plan';
   weeklyWorkoutsCount = 0;
+
+  // Gym info
+  myGymInfo: any = null;
+  announcements: any[] = [];
 
   // Routine
   dailyRoutines: DailyRoutineItem[] = [];
@@ -99,19 +107,20 @@ export class UserDashboardComponent implements OnInit {
 
     forkJoin({
       plan: this.memberService.getActivePlan(this.userId),
-      logs: this.memberService.getWorkoutLogs(this.userId)
-    }).subscribe(({ plan, logs }) => {
+      logs: this.memberService.getWorkoutLogs(this.userId),
+      myGym: this.userService.getMyGym()
+    }).subscribe(({ plan, logs, myGym }) => {
+      // 0. Process Gym Info
+      if (myGym && myGym.data) {
+        this.myGymInfo = myGym.data;
+        this.loadAnnouncements();
+      }
+
       // 1. Process Active Plan
       if (plan.data && plan.data.dietPlan) {
         // Handle if needed
       }
 
-      // Let's assume plan assignment might contain workout plan info or use a different endpoint if needed.
-      // For now, if getActivePlan returns the member's plan assignments:
-      // Since getActivePlan is somewhat ambiguous, let's just set some defaults if not found.
-      // But typically we find active split here. For now let's leave it simple.
-
-      // Actually, let's use getPlanAssignments to get active workout plan.
       this.memberService.getPlanAssignments(this.userId).subscribe(assignmentsRes => {
         const assignments = assignmentsRes.data || [];
         const activeAssignment = assignments.slice(-1)[0];
@@ -128,6 +137,22 @@ export class UserDashboardComponent implements OnInit {
       const allLogs = logs.data || [];
       this.calculateStreak(allLogs);
       this.calculateWeeklyCalories(allLogs);
+    });
+  }
+
+  loadAnnouncements() {
+    this.announcementService.getMyGymAnnouncements().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          const now = new Date();
+          this.announcements = res.data
+            .filter((a: any) => a.isActive && (!a.validUntil || new Date(a.validUntil) > now))
+            .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load announcements', err);
+      }
     });
   }
 

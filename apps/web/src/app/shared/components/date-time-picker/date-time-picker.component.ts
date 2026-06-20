@@ -315,7 +315,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
 
   decrementMinutes(event: MouseEvent) {
     event.stopPropagation();
-    this.minutes = this.minutes === 0 ? 55 : (this.minutes - 5) % 60;
+    this.minutes = ((this.minutes - 5) % 60 + 60) % 60;
   }
 
   togglePeriod(event: MouseEvent) {

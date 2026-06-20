@@ -8,6 +8,8 @@ using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Users.Services
 {
@@ -215,6 +217,43 @@ namespace GymForge.Application.Modules.Users.Services
             {
                 return await _fileStorageService.SaveFileAsync(stream, file.FileName, "avatars");
             }
+        }
+
+        public async Task<IEnumerable<DeletionRequestDto>> GetPendingDeletionRequestsAsync()
+        {
+            IEnumerable<User> users = await _authRepository.GetPendingDeletionRequestsAsync();
+
+            return [.. users.Select(u => new DeletionRequestDto
+            {
+                UserId = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                Role = u.Role.ToString(),
+                DeletionRequestedOn = u.DeletionRequestedOn!.Value,
+                ScheduledDeletionTime = u.DeletionRequestedOn!.Value.AddHours(24)
+            })];
+        }
+
+        public async Task<PagedResponse<StandaloneUserDto>> GetStandaloneUsersAsync(PaginationParams pagination)
+        {
+            (IEnumerable<User> Items, int TotalCount) result = await _authRepository.GetStandaloneUsersAsync(pagination.PageNumber, pagination.PageSize, pagination.SearchTerm);
+
+            IEnumerable<StandaloneUserDto> items = result.Items.Select(u => new StandaloneUserDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                Phone = u.Phone,
+                ProfilePictureUrl = u.ProfilePictureUrl,
+                Role = u.Role.ToString(),
+                CreatedOn = u.CreatedOn,
+                DeletionRequestedOn = u.DeletionRequestedOn,
+                IsEmailVerified = u.IsEmailVerified
+            });
+
+            return new PagedResponse<StandaloneUserDto>(items, result.TotalCount, pagination.PageNumber, pagination.PageSize);
         }
     }
 }

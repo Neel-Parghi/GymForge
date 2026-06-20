@@ -72,6 +72,16 @@ namespace GymForge.Application
             services.AddScoped<IDietPlanService, DietPlanService>();
 
             services.AddScoped<IMemberDietService, MemberDietService>();
+            
+            services.AddScoped<IGymAnnouncementService, GymAnnouncementService>();
+            
+            services.AddScoped<ITemplateService, TemplateService>();
+            
+            services.AddScoped<IUserNotificationService, UserNotificationService>();
+
+            services.AddScoped<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>();
+            
+            services.AddScoped<GymForge.Application.BackgroundJobs.AccountDeletionJob>();
 
             return services;
         }

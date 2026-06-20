@@ -38,6 +38,12 @@ export const GymOwnerMenu: NavItem[] = [
         roles: ['GymOwner'] // Gym Plans creation is restricted to Owner only
     },
     {
+        label: 'Announcements',
+        icon: 'fa-solid fa-bullhorn',
+        route: '/gym-owner/announcements',
+        roles: ['GymOwner', 'Staff']
+    },
+    {
         label: 'RESOURCES',
         icon: '',
         roles: ['GymOwner', 'Staff'],

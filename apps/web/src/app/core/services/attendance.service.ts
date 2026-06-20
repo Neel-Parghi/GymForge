@@ -88,10 +88,10 @@ export class AttendanceService extends BaseApiService {
   ): Observable<ApiResponse<PagedResponse<AttendanceLogResponse>>> {
     const todayStr = this.getTodayDateString();
     const isDefault = !params?.searchTerm &&
-                      (!params?.status || params.status === 'all') &&
-                      params?.pageNumber === 1 &&
-                      params?.pageSize === 10 &&
-                      (!params?.date || params.date === todayStr);
+      (!params?.status || params.status === 'all') &&
+      params?.pageNumber === 1 &&
+      params?.pageSize === 10 &&
+      (!params?.date || params.date === todayStr);
 
     if (forceRefresh) {
       this.clearCache();

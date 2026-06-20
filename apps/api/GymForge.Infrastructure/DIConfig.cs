@@ -4,6 +4,7 @@ using GymForge.Infrastructure.Persistence;
 using GymForge.Infrastructure.Persistence.Interceptos;
 using GymForge.Infrastructure.Repositories;
 using GymForge.Infrastructure.Services;
+using GymForge.Application.Modules.Gym.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,6 +102,9 @@ namespace GymForge.Infrastructure
             services.AddScoped<IMemberWorkoutRepository, MemberWorkoutRepository>();
             services.AddScoped<IDietPlanRepository, DietPlanRepository>();
             services.AddScoped<IMemberDietRepository, MemberDietRepository>();
+            services.AddScoped<IGymAnnouncementRepository, GymAnnouncementRepository>();
+            services.AddScoped<IAnnouncementTemplateRepository, AnnouncementTemplateRepository>();
+            services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

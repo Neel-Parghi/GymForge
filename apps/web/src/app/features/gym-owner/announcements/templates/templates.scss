@@ -1,0 +1,251 @@
+.template-type-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-color);
+}
+
+.variable-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.variable-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.variable-btn {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-color-transparent);
+  }
+}
+
+/* Base Form Styles */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 4px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input,
+    select,
+    textarea {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: var(--accent-color);
+      }
+    }
+
+    .input-with-action {
+      display: flex;
+      gap: 8px;
+
+      input {
+        flex: 1;
+      }
+    }
+  }
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 46px;
+    height: 24px;
+    background: #cbd5e1;
+    border-radius: 34px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.3s;
+    border: none;
+    padding: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    &:checked {
+      background: #6366f1;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    }
+
+    &:checked::after {
+      transform: translateX(22px);
+    }
+  }
+
+  label {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-transform: none;
+  }
+}
+
+.drawer-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+
+  button {
+    width: auto;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-outline {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+
+    &:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+  }
+
+  .btn-primary {
+    background: #0f172a;
+    color: white;
+
+    &:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+  }
+}
+
+.btn-icon {
+  background: var(--gray-50);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background: white;
+  }
+}
+
+.visibility-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+
+  .visibility-toggle-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    >i {
+      font-size: 1.1rem;
+      color: #6366f1;
+      width: 20px;
+      text-align: center;
+    }
+
+    .toggle-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .toggle-sublabel {
+      display: block;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color 0.2s;
+    }
+  }
+}

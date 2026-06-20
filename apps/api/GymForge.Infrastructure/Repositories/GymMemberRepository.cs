@@ -95,6 +95,7 @@ namespace GymForge.Infrastructure.Repositories
         public async Task<GymMember?> GetByUserIdAsync(Guid userId)
         {
             return await _dbContext.GymMembers
+                                    .Include(x => x.Gym)
                                     .Include(x => x.Subscriptions)
                                     .Include(x => x.Address)
                                     .FirstOrDefaultAsync(x => x.UserId == userId);
@@ -123,6 +124,16 @@ namespace GymForge.Infrastructure.Repositories
             {
                 _dbContext.GymMembers.Remove(member);
             }
+        }
+
+        public async Task<IEnumerable<MemberSubscription>> GetActiveSubscriptionsByGymIdAsync(Guid gymId)
+        {
+            return await _dbContext.MemberSubscriptions
+                .Include(ms => ms.Member)
+                    .ThenInclude(m => m.User)
+                .Include(ms => ms.GymPlan)
+                .Where(ms => ms.Member.GymId == gymId && ms.IsActive)
+                .ToListAsync();
         }
 
         public async Task<MemberDashboardResponse> GetMemberDashboardDataAsync(Guid gymId, Guid? branchId = null)

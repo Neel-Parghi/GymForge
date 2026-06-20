@@ -228,6 +228,16 @@ namespace GymForge.Application.Modules.Auth.Service
             }
         }
 
+        public async Task RequestAccountDeletionAsync(Guid userId)
+        {
+            User? user = await _authRepository.GetUserByIdAsync(userId);
+            if (user == null)
+                throw new Exception("User not found.");
+
+            user.DeletionRequestedOn = DateTime.UtcNow;
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         private async Task<Guid?> ResolveBranchIdAsync(User user)
         {
             if (user.Role == UserRole.Staff || user.Role == UserRole.Trainer)

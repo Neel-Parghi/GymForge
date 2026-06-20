@@ -19,5 +19,6 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         Task<IEnumerable<MemberSubscriptionResponse>> GetSubscriptionHistoryByUserIdAsync(Guid userId);
         Task<byte[]> ExportMembersAsync(Guid gymId, Guid? branchId = null);
         Task<MemberDashboardResponse> GetMemberDashboardDataAsync(Guid gymId, Guid? branchId = null);
+        Task<MyGymMembershipResponse?> GetMyGymMembershipAsync(Guid userId);
     }
 }

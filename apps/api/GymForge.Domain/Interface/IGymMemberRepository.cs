@@ -15,6 +15,7 @@ namespace GymForge.Domain.Interface
         Task UpdateAsync(GymMember member);
         Task DeactivateActiveSubscriptionsAsync(Guid memberId);
         Task DeleteAsync(Guid id);
+        Task<IEnumerable<MemberSubscription>> GetActiveSubscriptionsByGymIdAsync(Guid gymId);
         Task<MemberDashboardResponse> GetMemberDashboardDataAsync(Guid gymId, Guid? branchId = null);
     }
 }

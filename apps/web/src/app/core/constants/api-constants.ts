@@ -24,7 +24,9 @@ export const API_CONSTANTS = {
     CHANGE_PASSWORD: 'users/change-password',
     VALIDATE_INVITATION: 'users/validate-invitation',
     UPLOAD_AVATAR: 'users/profile/upload-avatar',
-    MY_SUBSCRIPTIONS: 'users/my-subscriptions'
+    MY_SUBSCRIPTIONS: 'users/my-subscriptions',
+    MY_GYM: 'users/my-gym',
+    STANDALONE: 'users/standalone'
   },
   GYM: {
     ONBOARD: 'gyms/onboard',
@@ -141,5 +143,15 @@ export const API_CONSTANTS = {
   DIET_PLAN: {
     BASE: 'diet-plan',
     BY_ID: 'diet-plan/{id}'
+  },
+  ANNOUNCEMENTS: {
+    BASE: 'announcements',
+    MY_GYM: 'announcements/my-gym'
+  },
+  ANNOUNCEMENT_TEMPLATES: {
+    BASE: 'announcement-templates'
+  },
+  USER_NOTIFICATIONS: {
+    BASE: 'notifications'
   }
 };
