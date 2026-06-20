@@ -44,7 +44,7 @@ namespace GymForge.Infrastructure.Repositories
             return await query.OrderByDescending(x => x.ModifiedOn).ToListAsync();
         }
 
-        public async Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        public async Task<(IEnumerable<GymMember> Items, int TotalCount)> GetPagedMembersAsync(Guid gymId, MemberFilterParams filter, Guid? branchId = null)
         {
             IQueryable<GymMember> query = _dbContext.GymMembers
                                   .AsNoTracking()
@@ -54,19 +54,31 @@ namespace GymForge.Infrastructure.Repositories
 
             query = query.WhereBranchContext(_dbContext.Branches, branchId);
 
-            if (!string.IsNullOrWhiteSpace(searchTerm))
+            if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
             {
-                searchTerm = searchTerm.ToLower();
+                string searchTerm = filter.SearchTerm.ToLower();
                 query = query.Where(x => x.FirstName.ToLower().Contains(searchTerm) ||
                                        x.LastName.ToLower().Contains(searchTerm) ||
                                        x.Email.ToLower().Contains(searchTerm) ||
                                        x.MembershipNumber.ToLower().Contains(searchTerm));
             }
 
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == filter.Status.Value);
+            }
+
+            if (filter.PlanId.HasValue || filter.PaymentStatus.HasValue)
+            {
+                query = query.Where(x => x.Subscriptions.Any(s => s.IsActive &&
+                    (!filter.PlanId.HasValue || s.GymPlanId == filter.PlanId.Value) &&
+                    (!filter.PaymentStatus.HasValue || s.PaymentStatus == filter.PaymentStatus.Value)));
+            }
+
             int totalCount = await query.CountAsync();
             List<GymMember> items = await query.OrderByDescending(x => x.CreatedOn)
-                                   .Skip((pageNumber - 1) * pageSize)
-                                   .Take(pageSize)
+                                   .Skip((filter.PageNumber - 1) * filter.PageSize)
+                                   .Take(filter.PageSize)
                                    .ToListAsync();
 
             return (items, totalCount);

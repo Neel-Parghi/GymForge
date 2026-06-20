@@ -14,7 +14,7 @@ export class AuthApiService extends BaseApiService {
   private router = inject(Router);
   private userProfileSubject = new BehaviorSubject<UserProfile | null>(this.loadStoredProfile());
   public userProfile$ = this.userProfileSubject.asObservable();
-  
+
   getUserProfile(): UserProfile | null {
     return this.userProfileSubject.value;
   }
@@ -24,7 +24,7 @@ export class AuthApiService extends BaseApiService {
   }
 
   private loadStoredProfile(): UserProfile | null {
-    const stored = localStorage.getItem('userProfile');
+    const stored = localStorage.getItem('userProfile') || sessionStorage.getItem('userProfile');
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -36,9 +36,9 @@ export class AuthApiService extends BaseApiService {
     return null;
   }
 
-  login(credentials: any): Observable<any> {
+  login(credentials: any, rememberMe: boolean = true): Observable<any> {
     return this.post(API_CONSTANTS.AUTH.LOGIN, credentials).pipe(
-      tap(res => this.saveTokens(res))
+      tap(res => this.saveTokens(res, rememberMe))
     );
   }
 
@@ -48,7 +48,7 @@ export class AuthApiService extends BaseApiService {
 
   verifyOtp(data: { email: string, otpCode: string }): Observable<any> {
     return this.post(API_CONSTANTS.AUTH.VERIFY_OTP, data).pipe(
-      tap(res => this.saveTokens(res))
+      tap(res => this.saveTokens(res, true))
     );
   }
 
@@ -69,25 +69,38 @@ export class AuthApiService extends BaseApiService {
     return this.get<any>(API_CONSTANTS.AUTH.ME);
   }
 
-  saveTokens(res: any) {
+  saveTokens(res: any, rememberMe: boolean = true) {
     const data = res?.data || res;
-    if (data?.accessToken) localStorage.setItem('token', data.accessToken);
-    if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+    const storage = rememberMe ? localStorage : sessionStorage;
+
+    if (rememberMe) {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('refreshToken');
+      sessionStorage.removeItem('userProfile');
+    } else {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userProfile');
+    }
+
+    if (data?.accessToken) storage.setItem('token', data.accessToken);
+    if (data?.refreshToken) storage.setItem('refreshToken', data.refreshToken);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem('refreshToken');
+    return localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
   }
 
   refreshToken(): Observable<any> {
     const accessToken = this.getToken();
     const refreshToken = this.getRefreshToken();
+    const rememberMe = !!localStorage.getItem('token');
     return this.post(API_CONSTANTS.AUTH.REFRESH, { accessToken, refreshToken }).pipe(
-      tap(res => this.saveTokens(res))
+      tap(res => this.saveTokens(res, rememberMe))
     );
   }
 
@@ -111,6 +124,9 @@ export class AuthApiService extends BaseApiService {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userProfile');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('userProfile');
     this.userProfileSubject.next(null);
     this.router.navigate(['/login']);
   }
@@ -176,10 +192,14 @@ export class AuthApiService extends BaseApiService {
   }
 
   setUserProfile(profile: UserProfile | null) {
+    const rememberMe = !!localStorage.getItem('token');
+    const storage = rememberMe ? localStorage : sessionStorage;
+
     if (profile) {
-      localStorage.setItem('userProfile', JSON.stringify(profile));
+      storage.setItem('userProfile', JSON.stringify(profile));
     } else {
       localStorage.removeItem('userProfile');
+      sessionStorage.removeItem('userProfile');
     }
     this.userProfileSubject.next(profile);
   }

@@ -105,18 +105,32 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<GymMemberResponse>(member);
         }
 
-        public async Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
+        public async Task<PagedResponse<GymMemberResponse>> GetGymMembersAsync(Guid gymId, MemberFilterParams filter, Guid? branchId = null)
         {
-            if (pagination.BypassPagination == true)
+            if (filter.BypassPagination == true)
             {
                 IEnumerable<GymMember> allMembers = await _memberRepository.GetAllByGymIdAsync(gymId, branchId);
-                if (!string.IsNullOrWhiteSpace(pagination.SearchTerm))
+                
+                // For simplicity, apply the same filters when bypass pagination is used
+                if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
                 {
-                    string term = pagination.SearchTerm.ToLower();
+                    string term = filter.SearchTerm.ToLower();
                     allMembers = allMembers.Where(x => x.FirstName.ToLower().Contains(term) ||
                                                        x.LastName.ToLower().Contains(term) ||
                                                        x.Email.ToLower().Contains(term) ||
                                                        x.MembershipNumber.ToLower().Contains(term));
+                }
+
+                if (filter.Status.HasValue)
+                {
+                    allMembers = allMembers.Where(x => x.Status == filter.Status.Value);
+                }
+
+                if (filter.PlanId.HasValue || filter.PaymentStatus.HasValue)
+                {
+                    allMembers = allMembers.Where(x => x.Subscriptions.Any(s => s.IsActive &&
+                        (!filter.PlanId.HasValue || s.GymPlanId == filter.PlanId.Value) &&
+                        (!filter.PaymentStatus.HasValue || s.PaymentStatus == filter.PaymentStatus.Value)));
                 }
                 
                 IEnumerable<GymMemberResponse> mapped = _mapper.Map<IEnumerable<GymMemberResponse>>(allMembers);
@@ -126,9 +140,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             (IEnumerable<GymMember> members, int totalCount) = await _memberRepository.GetPagedMembersAsync(
                 gymId,
-                pagination.PageNumber,
-                pagination.PageSize,
-                pagination.SearchTerm,
+                filter,
                 branchId);
 
             IEnumerable<GymMemberResponse> items = _mapper.Map<IEnumerable<GymMemberResponse>>(members);
@@ -136,8 +148,8 @@ namespace GymForge.Application.Modules.Gym.Services
             return new PagedResponse<GymMemberResponse>(
                 items,
                 totalCount,
-                pagination.PageNumber,
-                pagination.PageSize);
+                filter.PageNumber,
+                filter.PageSize);
         }
 
         public async Task<GymMemberResponse?> GetMemberByIdAsync(Guid id)

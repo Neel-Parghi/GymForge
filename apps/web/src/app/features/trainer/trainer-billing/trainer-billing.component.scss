@@ -22,8 +22,8 @@
 
     .header-info {
       h1 {
-        font-size: 2rem;
-        font-weight: 800;
+        font-size: 1.25rem;
+        font-weight: 700;
         color: var(--primary-navy);
         margin-bottom: 0.5rem;
         letter-spacing: -0.025em;
@@ -31,7 +31,7 @@
 
       .subtitle {
         color: var(--text-muted);
-        font-size: 0.95rem;
+        font-size: 0.85rem;
       }
     }
 
@@ -114,7 +114,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 
     .payout-id {
       font-size: 0.875rem;
@@ -148,7 +148,7 @@
 }
 
 .main-amount {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 
   .currency {
     font-size: 1.5rem;
@@ -158,7 +158,7 @@
   }
 
   .val {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: 0.025em;
     color: var(--text-main);
@@ -209,7 +209,7 @@
   h3 {
     font-size: 1.15rem;
     font-weight: 600;
-    margin-bottom: 1.5rem;
+    margin: 0px 0 1.5rem;
     color: var(--text-main);
   }
 
@@ -352,6 +352,7 @@
     margin-bottom: 1rem;
 
     h2 {
+      margin: 0px;
       font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
@@ -421,7 +422,6 @@
   }
 
   &:hover {
-    border-color: var(--accent-color);
     background: #ffffff;
   }
 

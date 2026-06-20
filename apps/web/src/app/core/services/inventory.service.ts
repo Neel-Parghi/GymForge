@@ -15,9 +15,9 @@ export class InventoryService extends BaseApiService {
   private branchContextService = inject(BranchContextService);
 
   private productsCache$: Observable<ApiResponse<PagedResponse<InventoryItem>>> | null = null;
-  private equipmentCache$: Observable<ApiResponse<Equipment[]>> | null = null;
-  private salesCache$: Observable<ApiResponse<SaleTransaction[]>> | null = null;
-  private maintenanceHistoryCache$: Observable<ApiResponse<any[]>> | null = null;
+  private equipmentCache$: Observable<ApiResponse<PagedResponse<Equipment>>> | null = null;
+  private salesCache$: Observable<ApiResponse<PagedResponse<SaleTransaction>>> | null = null;
+  private maintenanceHistoryCache$: Observable<ApiResponse<PagedResponse<any>>> | null = null;
   private statsCache$: Observable<ApiResponse<any>> | null = null;
 
   constructor() {
@@ -77,18 +77,19 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  getEquipment(forceRefresh = false): Observable<ApiResponse<Equipment[]>> {
+  getEquipment(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<Equipment>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh) {
-      const params: any = {};
+    if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
+      const params: any = { pageNumber: page, pageSize };
+      if (search) params.searchTerm = search;
       if (branchId) params.branchId = branchId;
-      return this.get<ApiResponse<Equipment[]>>(API_CONSTANTS.INVENTORY.EQUIPMENT, params);
+      return this.get<ApiResponse<PagedResponse<Equipment>>>(API_CONSTANTS.INVENTORY.EQUIPMENT, params);
     }
 
     if (!this.equipmentCache$) {
-      const params: any = {};
+      const params: any = { pageNumber: 1, pageSize: 10 };
       if (branchId) params.branchId = branchId;
-      this.equipmentCache$ = this.get<ApiResponse<Equipment[]>>(API_CONSTANTS.INVENTORY.EQUIPMENT, params).pipe(
+      this.equipmentCache$ = this.get<ApiResponse<PagedResponse<Equipment>>>(API_CONSTANTS.INVENTORY.EQUIPMENT, params).pipe(
         shareReplay(1)
       );
     }
@@ -124,18 +125,19 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  getSalesHistory(forceRefresh = false): Observable<ApiResponse<SaleTransaction[]>> {
+  getSalesHistory(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<SaleTransaction>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh) {
-      const params: any = {};
+    if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
+      const params: any = { pageNumber: page, pageSize };
+      if (search) params.searchTerm = search;
       if (branchId) params.branchId = branchId;
-      return this.get<ApiResponse<SaleTransaction[]>>(API_CONSTANTS.INVENTORY.SALES_HISTORY, params);
+      return this.get<ApiResponse<PagedResponse<SaleTransaction>>>(API_CONSTANTS.INVENTORY.SALES_HISTORY, params);
     }
 
     if (!this.salesCache$) {
-      const params: any = {};
+      const params: any = { pageNumber: 1, pageSize: 10 };
       if (branchId) params.branchId = branchId;
-      this.salesCache$ = this.get<ApiResponse<SaleTransaction[]>>(API_CONSTANTS.INVENTORY.SALES_HISTORY, params).pipe(
+      this.salesCache$ = this.get<ApiResponse<PagedResponse<SaleTransaction>>>(API_CONSTANTS.INVENTORY.SALES_HISTORY, params).pipe(
         shareReplay(1)
       );
     }
@@ -176,18 +178,19 @@ export class InventoryService extends BaseApiService {
     return this.maintenanceByEquipmentCache.get(equipmentId)!;
   }
 
-  getMaintenanceHistoryGlobal(forceRefresh = false): Observable<ApiResponse<any[]>> {
+  getMaintenanceHistoryGlobal(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<any>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (forceRefresh) {
-      const params: any = {};
+    if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
+      const params: any = { pageNumber: page, pageSize };
+      if (search) params.searchTerm = search;
       if (branchId) params.branchId = branchId;
-      return this.get<ApiResponse<any[]>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params);
+      return this.get<ApiResponse<PagedResponse<any>>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params);
     }
 
     if (!this.maintenanceHistoryCache$) {
-      const params: any = {};
+      const params: any = { pageNumber: 1, pageSize: 10 };
       if (branchId) params.branchId = branchId;
-      this.maintenanceHistoryCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params).pipe(
+      this.maintenanceHistoryCache$ = this.get<ApiResponse<PagedResponse<any>>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params).pipe(
         shareReplay(1)
       );
     }

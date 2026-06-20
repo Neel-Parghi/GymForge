@@ -1,5 +1,5 @@
-<app-slide-drawer [isOpen]="isOpen" title="Record New Sale" subtitle="Sell a product to a gym member"
-  width="500px" (closeDrawer)="closeDrawer.emit()">
+<app-slide-drawer [isOpen]="isOpen" title="Record New Sale" subtitle="Sell a product to a gym member" width="500px"
+  (closeDrawer)="closeDrawer.emit()">
   <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="saleForm">
     <div class="form-grid">
       <div class="form-group full-width">
@@ -16,7 +16,8 @@
 
       <div class="form-group">
         <label>Quantity</label>
-        <input type="number" formControlName="quantity" min="1">
+        <input type="number" formControlName="quantity" min="1"
+          onkeypress="return event.charCode >= 48 && event.charCode <= 57" (input)="clampQuantity()">
         <div class="error-message" *ngIf="saleForm.get('quantity')?.errors?.['insufficientStock']">
           Only {{saleForm.get('quantity')?.errors?.['max']}} units available in stock.
         </div>
@@ -24,7 +25,8 @@
 
       <div class="form-group">
         <label>Sale Date</label>
-        <app-date-time-picker formControlName="date" placeholder="Select sale date"></app-date-time-picker>
+        <app-date-time-picker formControlName="date" placeholder="Select sale date"
+          [maxDate]="today"></app-date-time-picker>
       </div>
 
       <div class="form-group full-width">
@@ -61,7 +63,7 @@
   </div>
   <div drawer-footer class="drawer-actions">
     <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
-    <button class="btn-primary" type="button" [disabled]="saleForm.invalid || loading" (click)="saveSale()">
+    <button class="btn-primary" type="button" [disabled]="loading" (click)="saveSale()">
       {{ loading ? 'Processing...' : 'Confirm Transaction' }}
     </button>
   </div>

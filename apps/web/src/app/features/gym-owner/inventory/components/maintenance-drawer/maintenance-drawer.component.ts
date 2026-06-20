@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SlideDrawerComponent } from '../../../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
@@ -9,6 +9,7 @@ import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { noFutureDateValidator } from '../../../../../shared/validators/custom-validators';
 
 @Component({
   selector: 'app-maintenance-drawer',
@@ -36,6 +37,7 @@ export class MaintenanceDrawerComponent implements OnInit, OnChanges {
   maintenanceForm!: FormGroup;
   maintenanceHistory: any[] = [];
   loading = false;
+  today = new Date();
 
   ngOnInit(): void {
     this.initForm();
@@ -52,12 +54,12 @@ export class MaintenanceDrawerComponent implements OnInit, OnChanges {
       id: [null],
       equipmentId: ['', Validators.required],
       serviceType: ['Routine', Validators.required],
-      description: ['', Validators.required],
-      technicianName: ['', Validators.required],
-      startDate: [new Date().toISOString().split('T')[0], Validators.required],
+      description: ['', [Validators.required, Validators.maxLength(300)]],
+      technicianName: ['', [Validators.required, Validators.maxLength(30)]],
+      startDate: [new Date().toISOString().split('T')[0], [Validators.required, noFutureDateValidator]],
       estimatedEndDate: [''],
       completedDate: [''],
-      cost: [0, [Validators.required, Validators.min(0)]],
+      cost: [0, [Validators.required, Validators.min(0), Validators.max(1000000)]],
       status: ['In Progress', Validators.required],
       notes: ['']
     });
@@ -124,7 +126,10 @@ export class MaintenanceDrawerComponent implements OnInit, OnChanges {
   }
 
   saveMaintenance() {
-    if (this.maintenanceForm.invalid) return;
+    if (this.maintenanceForm.invalid) {
+      this.maintenanceForm.markAllAsTouched();
+      return;
+    }
     this.loading = true;
 
     const formValue = this.maintenanceForm.value;
@@ -146,5 +151,12 @@ export class MaintenanceDrawerComponent implements OnInit, OnChanges {
         this.loading = false;
       }
     });
+  }
+
+  clampValue(controlName: string, max: number) {
+    const val = this.maintenanceForm.get(controlName)?.value;
+    if (val > max) {
+      this.maintenanceForm.get(controlName)?.setValue(max);
+    }
   }
 }

@@ -9,5 +9,6 @@ namespace GymForge.Domain.Interface
         void UpdateMaintenanceLog(MaintenanceLog log);
         Task<List<MaintenanceLog>> GetMaintenanceLogsByEquipmentIdAsync(Guid equipmentId);
         Task<List<MaintenanceLog>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null);
+        Task<(IEnumerable<MaintenanceLog> items, int totalCount)> GetPagedMaintenanceLogsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null);
     }
 }

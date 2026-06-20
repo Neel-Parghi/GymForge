@@ -54,7 +54,6 @@ export class InventoryComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
 
   activeTab: 'inventory' | 'equipment' | 'maintenance' | 'sales' = 'inventory';
-  viewMode: 'list' | 'dashboard' = 'list';
   equipmentViewMode: 'grid' | 'table' = 'grid';
   pageSize: number = 10;
   currentPage: number = 1;
@@ -135,15 +134,6 @@ export class InventoryComponent implements OnInit {
 
   memberOptions: DropdownOption[] = [];
   productOptions: DropdownOption[] = [];
-  stats: any = {
-    totalProducts: 0,
-    lowStockCount: 0,
-    maintenanceDueCount: 0,
-    todaySalesAmount: 0,
-    todaySalesCount: 0,
-    totalSalesAmount: 0,
-    totalSalesCount: 0
-  };
 
   ngOnInit(): void {
     this.branchContextService.activeBranch$.pipe(
@@ -184,8 +174,29 @@ export class InventoryComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.currentPage = 1;
-      this.loadProducts();
+      this.triggerActiveTabLoader();
     });
+  }
+
+  triggerActiveTabLoader() {
+    if (this.activeTab === 'inventory') this.loadProducts();
+    else if (this.activeTab === 'equipment') this.loadEquipment();
+    else if (this.activeTab === 'maintenance') this.loadServiceHistory();
+    else if (this.activeTab === 'sales') this.loadSalesHistory();
+  }
+
+  getSearchPlaceholder(): string {
+    switch (this.activeTab) {
+      case 'inventory': return 'Search inventory...';
+      case 'equipment': return 'Search Equipments...';
+      case 'maintenance': return 'Search logs...';
+      case 'sales': return 'Search Sale history...';
+      default: return 'Search...';
+    }
+  }
+
+  clearSearch() {
+    this.searchControl.setValue('');
   }
 
   loadData() {
@@ -194,15 +205,6 @@ export class InventoryComponent implements OnInit {
     this.loadSalesHistory();
     this.loadMembers();
     this.loadServiceHistory();
-    this.loadStats();
-  }
-
-  loadStats() {
-    this.inventoryService.getStats().subscribe({
-      next: (res) => {
-        this.stats = res.data;
-      }
-    });
   }
 
   loadMembers() {
@@ -239,28 +241,53 @@ export class InventoryComponent implements OnInit {
   }
 
   loadEquipment() {
-    this.inventoryService.getEquipment().subscribe({
+    this.loading = true;
+    const search = this.searchControl.value || '';
+    this.inventoryService.getEquipment(this.currentPage, this.pageSize, search).subscribe({
       next: (res) => {
-        const equipment = res.data || [];
-        this.allEquipmentItems = [...equipment];
-        this.equipmentItems = [...this.allEquipmentItems];
+        if (res.success && res.data) {
+          const equipment = res.data.items || [];
+          this.allEquipmentItems = [...equipment];
+          this.equipmentItems = [...this.allEquipmentItems];
+          this.totalItems = res.data.totalCount || 0;
 
-        this.maintenanceItems = this.allEquipmentItems.filter(item =>
-          item.health < 80 || item.status === 'Maintenance' || item.status === 'Needs Repair'
-        );
-      }
+          this.maintenanceItems = this.allEquipmentItems.filter(item =>
+            item.health < 80 || item.status === 'Maintenance' || item.status === 'Needs Repair'
+          );
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
   loadSalesHistory() {
-    this.inventoryService.getSalesHistory().subscribe({
-      next: (res) => { this.salesItems = res.data || []; }
+    this.loading = true;
+    const search = this.searchControl.value || '';
+    this.inventoryService.getSalesHistory(this.currentPage, this.pageSize, search).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.salesItems = res.data.items || [];
+          this.totalItems = res.data.totalCount || 0;
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
   loadServiceHistory() {
-    this.inventoryService.getMaintenanceHistoryGlobal().subscribe({
-      next: (res) => { this.serviceHistoryItems = res.data || []; }
+    this.loading = true;
+    const search = this.searchControl.value || '';
+    this.inventoryService.getMaintenanceHistoryGlobal(this.currentPage, this.pageSize, search).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.serviceHistoryItems = res.data.items || [];
+          this.totalItems = res.data.totalCount || 0;
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
@@ -282,24 +309,20 @@ export class InventoryComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadProducts();
+    this.triggerActiveTabLoader();
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
     this.currentPage = 1;
-    this.loadProducts();
-  }
-
-  toggleViewMode() {
-    this.viewMode = this.viewMode === 'list' ? 'dashboard' : 'list';
+    this.triggerActiveTabLoader();
   }
 
   setTab(tab: 'inventory' | 'equipment' | 'maintenance' | 'sales') {
     this.activeTab = tab;
-    if (tab === 'maintenance') {
-      this.loadServiceHistory();
-    }
+    this.currentPage = 1;
+    this.searchControl.setValue('', { emitEvent: false });
+    this.triggerActiveTabLoader();
   }
 
   onInventoryAction(event: { action: string, row: any }) {

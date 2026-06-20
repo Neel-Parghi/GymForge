@@ -3,6 +3,8 @@ using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -19,10 +21,17 @@ namespace GymForge.Application.Modules.Gym.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<EquipmentDto>> GetEquipmentAsync(Guid gymId, Guid? branchId = null)
+        public async Task<PagedResponse<EquipmentDto>> GetEquipmentAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
-            List<Equipment> equipment = await _equipmentRepository.GetEquipmentByGymIdAsync(gymId, branchId);
-            return _mapper.Map<List<EquipmentDto>>(equipment);
+            var (items, totalCount) = await _equipmentRepository.GetPagedEquipmentAsync(
+                gymId, 
+                pagination.PageNumber, 
+                pagination.PageSize, 
+                pagination.SearchTerm, 
+                branchId);
+
+            var dtos = _mapper.Map<List<EquipmentDto>>(items);
+            return new PagedResponse<EquipmentDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 
         public async Task<EquipmentDto> AddEquipmentAsync(CreateEquipmentDto dto, Guid gymId)

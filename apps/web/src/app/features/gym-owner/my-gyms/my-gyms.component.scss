@@ -140,7 +140,7 @@
       background-color: #1e293b;
       color: aliceblue;
 
-      &.btn-secondary {
+      &.secondary-btn {
         background: #f1f5f9;
         color: var(--text-dark);
 
@@ -149,17 +149,18 @@
         }
       }
 
-      &.btn-primary {
+      &.primary-btn {
         background: var(--primary-btn);
         color: white;
 
-        &:hover {
+        &:hover:not(:disabled) {
           background: #1e293b;
         }
 
         &:disabled {
-          opacity: 0.7;
+          opacity: 0.5;
           cursor: not-allowed;
+          background: #94a3b8;
         }
       }
     }

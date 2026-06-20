@@ -151,7 +151,7 @@
       flex: 1;
       max-width: 300px;
 
-      i {
+      .search-icon {
         position: absolute;
         left: 14px;
         top: 50%;
@@ -160,9 +160,31 @@
         font-size: 0.875rem;
       }
 
+      .clear-icon {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+
+        &:hover {
+          color: #ef4444;
+          background-color: rgba(239, 68, 68, 0.1);
+        }
+      }
+
       input {
         width: 100%;
-        padding: 10px 14px 10px 40px;
+        padding: 10px 40px 10px 40px;
         background: var(--bg-color);
         border: 1px solid var(--border-color);
         border-radius: 10px;
@@ -545,10 +567,10 @@
   background: var(--primary-navy);
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 12px;
   border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.75rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;

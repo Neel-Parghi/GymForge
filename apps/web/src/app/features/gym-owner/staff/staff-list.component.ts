@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataGrid, GridCellDirective } from "../../../shared/components/data-grid/data-grid.component";
@@ -40,7 +39,6 @@ export class StaffListComponent implements OnInit {
   isEditMode = false;
   isDrawerOpen = false;
   isConfirmDeleteOpen = false;
-  viewMode: 'list' | 'dashboard' = 'list';
   staffToDelete: StaffResponse | null = null;
   selectedStaff: StaffResponse | null = null;
   gridConfig = AppGridConfig['StaffList'];
@@ -204,39 +202,7 @@ export class StaffListComponent implements OnInit {
     this.isDrawerOpen = true;
   }
 
-  toggleViewMode(): void {
-    this.viewMode = this.viewMode === 'list' ? 'dashboard' : 'list';
-  }
-
   exportToCsv(): void {
     this.notification.info(CONSTANTS.STAFF_MODULE.EXPORT_INFO);
-  }
-
-  get totalCount(): number {
-    return this.staff.length;
-  }
-
-  get activeCount(): number {
-    return this.staff.filter(s => s.isActive).length;
-  }
-
-  get trainersCount(): number {
-    return this.staff.filter(s => s.isActive && (s.role === 1 || s.role === 5 || s.role === 6)).length;
-  }
-
-  get inactiveCount(): number {
-    return this.staff.filter(s => !s.isActive).length;
-  }
-
-  get totalStaffCount(): number {
-    return this.staff.length;
-  }
-
-  get activeTrainersCount(): number {
-    return this.staff.filter(s => s.isActive && (s.role === 1 || s.role === 5 || s.role === 6)).length;
-  }
-
-  get pendingInvitesCount(): number {
-    return this.staff.filter(s => !s.isActive).length;
   }
 }

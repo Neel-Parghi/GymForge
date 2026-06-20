@@ -1,17 +1,19 @@
-<div class="settings-container">
-  <!-- Fixed Header -->
-  <div class="settings-header">
-    <div class="header-content">
-      <h1>Gym Operations Settings</h1>
+<div class="standard-container settings-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Gym Operations Settings</h2>
       <p>Configure staff access rules, member check-in boundaries, notification schedules, and global closure calendars.
       </p>
     </div>
-    <!-- Hidden or disabled when activeTab is calendar, since calendar operates on its own button, but we let them save form values here -->
-    <button *ngIf="activeTab !== 'calendar'" class="save-btn"
-      [disabled]="settingsForm.invalid || saving || settingsForm.pristine" (click)="saveSettings()">
-      <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
-      {{ saving ? 'Saving Rules...' : 'Save' }}
-    </button>
+    <div class="header-actions">
+      <!-- Hidden or disabled when activeTab is calendar, since calendar operates on its own button, but we let them save form values here -->
+      <button *ngIf="activeTab !== 'calendar'" class="btn-primary"
+        [disabled]="settingsForm.invalid || saving || settingsForm.pristine" (click)="saveSettings()">
+        <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
+        {{ saving ? 'Saving Rules...' : 'Save' }}
+      </button>
+    </div>
   </div>
 
   <!-- Premium Navigation Tabs -->

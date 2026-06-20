@@ -27,7 +27,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> Login(LoginRequestDto userRequest)
         {
-            User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userRequest.Email);
+            User? user = await _context.Users
+                .Include(x => x.RefreshTokens)
+                .FirstOrDefaultAsync(x => x.Email == userRequest.Email);
 
             return user;
         }
@@ -48,6 +50,7 @@ namespace GymForge.Infrastructure.Repositories
         {
             RefreshToken? token = await _context.RefreshTokens
                 .Include(rt => rt.User)
+                .ThenInclude(u => u.RefreshTokens)
                 .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
             
             return token?.User;
@@ -55,7 +58,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> GetByUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users
+                .Include(u => u.RefreshTokens)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<Guid?> GetBranchIdByUserIdAsync(Guid userId)

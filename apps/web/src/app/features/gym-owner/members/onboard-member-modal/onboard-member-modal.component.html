@@ -39,16 +39,16 @@
           <div class="form-grid">
             <div class="form-group">
               <label>First Name *</label>
-              <input type="text" formControlName="firstName" placeholder="First Name"
+              <input type="text" formControlName="firstName" placeholder="First Name" maxlength="20"
                 [class.error]="isInvalid('firstName')">
-              <span class="error-msg" *ngIf="isInvalid('firstName')">First name is required (min 2 chars)</span>
+              <span class="error-msg" *ngIf="isInvalid('firstName')">Valid first name is required 2-20 chars</span>
             </div>
 
             <div class="form-group">
               <label>Last Name *</label>
-              <input type="text" formControlName="lastName" placeholder="Last Name"
+              <input type="text" formControlName="lastName" placeholder="Last Name" maxlength="20"
                 [class.error]="isInvalid('lastName')">
-              <span class="error-msg" *ngIf="isInvalid('lastName')">Last name is required (min 2 chars)</span>
+              <span class="error-msg" *ngIf="isInvalid('lastName')">Valid last name is required 2-20 chars</span>
             </div>
 
             <div class="form-group">
@@ -62,8 +62,8 @@
             <div class="form-group">
               <label>Date of Birth *</label>
               <app-date-time-picker formControlName="dateOfBirth" [class.error]="isInvalid('dateOfBirth')"
-                placeholder="Select DOB"></app-date-time-picker>
-              <span class="error-msg" *ngIf="isInvalid('dateOfBirth')">Date of birth is required</span>
+                placeholder="Select DOB" [maxDate]="maxDobDate" [startView]="'years'"></app-date-time-picker>
+              <span class="error-msg" *ngIf="isInvalid('dateOfBirth')">Date of birth is required (min age 10)</span>
             </div>
 
             <div class="form-section-title">Contact Details</div>
@@ -86,12 +86,17 @@
 
             <div class="form-group">
               <label>Emergency Contact Name</label>
-              <input type="text" formControlName="emergencyContactName" placeholder="Emergency Contact Name">
+              <input type="text" formControlName="emergencyContactName" placeholder="Emergency Contact Name"
+                maxlength="20" [class.error]="isInvalid('emergencyContactName')">
+              <span class="error-msg" *ngIf="isInvalid('emergencyContactName')">Name must be alphanumeric (max 20
+                chars)</span>
             </div>
 
             <div class="form-group">
               <label>Emergency Contact Phone</label>
-              <input type="tel" formControlName="emergencyContactPhone" placeholder="Emergency Contact Phone">
+              <input type="tel" formControlName="emergencyContactPhone" placeholder="Emergency Contact Phone"
+                [class.error]="isInvalid('emergencyContactPhone')">
+              <span class="error-msg" *ngIf="isInvalid('emergencyContactPhone')">Valid phone number is required</span>
             </div>
 
             <div class="form-section-title">Residential Address (Optional)</div>
@@ -99,32 +104,33 @@
             <ng-container formGroupName="address">
               <div class="form-group lg">
                 <label>Address Line 1</label>
-                <input type="text" formControlName="line1" placeholder="Street Address">
+                <input type="text" formControlName="line1" placeholder="Street Address" maxlength="100">
               </div>
 
               <div class="form-group lg">
                 <label>Address Line 2</label>
-                <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc. (optional)">
+                <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc. (optional)"
+                  maxlength="100">
               </div>
 
               <div class="form-group">
                 <label>City</label>
-                <input type="text" formControlName="city" placeholder="City">
+                <input type="text" formControlName="city" placeholder="City" maxlength="20">
               </div>
 
               <div class="form-group">
                 <label>State / Province</label>
-                <input type="text" formControlName="state" placeholder="State">
+                <input type="text" formControlName="state" placeholder="State" maxlength="20">
               </div>
 
               <div class="form-group">
                 <label>Country</label>
-                <input type="text" formControlName="country" placeholder="Country">
+                <input type="text" formControlName="country" placeholder="Country" maxlength="20">
               </div>
 
               <div class="form-group">
                 <label>Postal Code</label>
-                <input type="text" formControlName="postalCode" placeholder="ZIP / Postal Code">
+                <input type="text" formControlName="postalCode" placeholder="ZIP / Postal Code" maxlength="10">
               </div>
             </ng-container>
           </div>
@@ -244,10 +250,7 @@
                 form.get('emergencyContactPhone')?.value }})
               </div>
               <div *ngIf="form.get('address.line1')?.value" class="double-col">
-                <span>Address:</span> {{ form.get('address.line1')?.value }},
-                {{ form.get('address.city')?.value }},
-                {{ form.get('address.state')?.value }} {{ form.get('address.postalCode')?.value }},
-                {{ form.get('address.country')?.value }}
+                <span title="{{ getFullAddress() }}">Address:</span> {{ getFullAddress() | truncate:60 }}
               </div>
             </div>
           </div>
@@ -260,7 +263,8 @@
               <div *ngIf="form.get('fitnessGoals')?.value?.length"><span>Fitness Goals:</span> {{
                 form.get('fitnessGoals')?.value?.join(', ') }}</div>
               <div *ngIf="form.get('medicalConditions')?.value" class="double-col">
-                <span>Medical Notes:</span> {{ form.get('medicalConditions')?.value }}
+                <span title="{{ form.get('medicalConditions')?.value }}">Medical Notes:</span> {{
+                form.get('medicalConditions')?.value | truncate:100 }}
               </div>
             </div>
           </div>

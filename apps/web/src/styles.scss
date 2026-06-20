@@ -568,3 +568,12 @@ button {
     text-decoration: underline;
   }
 }
+
+/* Form Validation Global Styles */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+app-dropdown.ng-invalid.ng-touched > div,
+app-date-time-picker.ng-invalid.ng-touched > div {
+  border-color: var(--error-color) !important;
+}

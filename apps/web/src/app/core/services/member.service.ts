@@ -46,22 +46,24 @@ export class MemberService extends BaseApiService {
     );
   }
 
-  getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false, bypassPagination = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
+  getGymMembers(pageNumber: number = 1, pageSize: number = 10, search: string = '', status: string = 'all', planId: string = 'all', paymentStatus: string = 'all', forceRefresh = false, bypassPagination = false): Observable<ApiResponse<PagedResponse<GymMember>>> {
     const branchId = this.branchContextService.getActiveBranchId();
 
-    if (search || bypassPagination) {
-      const params: any = { pageNumber, pageSize };
-      if (search) params.searchTerm = search;
-      if (bypassPagination) params.bypassPagination = true;
-      if (branchId) params.branchId = branchId;
+    const params: any = { pageNumber, pageSize };
+    if (search) params.searchTerm = search;
+    if (bypassPagination) params.bypassPagination = true;
+    if (branchId) params.branchId = branchId;
+    if (status !== 'all') params.status = status;
+    if (planId !== 'all') params.planId = planId;
+    if (paymentStatus !== 'all') params.paymentStatus = paymentStatus;
+
+    if (search || bypassPagination || status !== 'all' || planId !== 'all' || paymentStatus !== 'all') {
       return this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params);
     }
 
     const cacheKey = `${pageNumber}-${pageSize}-${branchId || 'all'}`;
 
     if (forceRefresh || !this.membersListCache.has(cacheKey)) {
-      const params: any = { pageNumber, pageSize };
-      if (branchId) params.branchId = branchId;
       const request$ = this.get<ApiResponse<PagedResponse<GymMember>>>(API_CONSTANTS.MEMBERS.LIST, params).pipe(
         shareReplay(1)
       );

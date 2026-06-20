@@ -13,12 +13,12 @@
   box-sizing: border-box;
 
   .page-header {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     flex-shrink: 0;
 
     h1 {
-      font-size: 2rem;
-      font-weight: 800;
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--primary-navy);
       margin-bottom: 0.5rem;
       letter-spacing: -0.025em;
@@ -26,7 +26,7 @@
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
     }
   }
 }
@@ -257,15 +257,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .info-sub {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
   }
 }
 
@@ -285,9 +276,10 @@
     flex-shrink: 0;
 
     h2 {
-      font-size: 1.15rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--text-main);
+      margin: 0px;
     }
 
     .btn-refresh {

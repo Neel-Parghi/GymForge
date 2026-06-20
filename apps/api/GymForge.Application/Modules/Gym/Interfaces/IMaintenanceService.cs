@@ -1,4 +1,6 @@
 using GymForge.Contracts.Gym.Inventory;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Interfaces
 {
@@ -6,6 +8,6 @@ namespace GymForge.Application.Modules.Gym.Interfaces
     {
         Task<bool> LogMaintenanceAsync(LogMaintenanceDto dto);
         Task<List<MaintenanceLogDto>> GetMaintenanceHistoryAsync(Guid equipmentId);
-        Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null);
+        Task<PagedResponse<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null);
     }
 }

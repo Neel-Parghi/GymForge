@@ -47,15 +47,15 @@ export class ProductDrawerComponent implements OnInit, OnChanges {
 
   private initForm() {
     this.productForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      sku: ['', [Validators.required]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      sku: ['', [Validators.required, Validators.maxLength(25)]],
       category: ['Supplements', [Validators.required]],
-      buyingPrice: [0, [Validators.required, Validators.min(0)]],
-      sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      stockQuantity: [0, [Validators.required, Validators.min(0)]],
-      reorderLevel: [5],
+      buyingPrice: [0, [Validators.required, Validators.min(1), Validators.max(100000)]],
+      sellingPrice: [0, [Validators.required, Validators.min(1), Validators.max(100000)]],
+      stockQuantity: [0, [Validators.required, Validators.min(0), Validators.max(1000)]],
+      reorderLevel: [5, [Validators.min(0)]],
       imageUrl: [''],
-      description: ['']
+      description: ['', [Validators.maxLength(300)]]
     });
     this.updateFormState();
   }
@@ -100,7 +100,10 @@ export class ProductDrawerComponent implements OnInit, OnChanges {
   }
 
   saveProduct() {
-    if (this.productForm.invalid) return;
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
+      return;
+    }
 
     if (this.selectedFile) {
       this.loading = true;
@@ -137,5 +140,21 @@ export class ProductDrawerComponent implements OnInit, OnChanges {
         this.loading = false;
       }
     });
+  }
+
+  clampValue(controlName: string, max: number) {
+    const val = this.productForm.get(controlName)?.value;
+    if (val > max) {
+      this.productForm.get(controlName)?.setValue(max);
+    }
+  }
+
+  clampReorderLevel() {
+    const stock = this.productForm.get('stockQuantity')?.value || 0;
+    const maxVal = Math.max(0, stock - 1);
+    const val = this.productForm.get('reorderLevel')?.value;
+    if (val > maxVal) {
+      this.productForm.get('reorderLevel')?.setValue(maxVal);
+    }
   }
 }

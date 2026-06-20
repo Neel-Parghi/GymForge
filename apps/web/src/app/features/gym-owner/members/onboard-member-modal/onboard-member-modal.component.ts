@@ -10,11 +10,12 @@ import { DropdownComponent } from '../../../../shared/components/dropdown/dropdo
 import { DateTimePickerComponent } from '../../../../shared/components/date-time-picker/date-time-picker.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { BranchContextService } from '../../../../core/services/branch-context.service';
+import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-onboard-member-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, DropdownComponent, DateTimePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, DropdownComponent, DateTimePickerComponent, TruncatePipe],
   templateUrl: './onboard-member-modal.component.html',
   styleUrl: './onboard-member-modal.component.scss'
 })
@@ -48,8 +49,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   ];
 
   form: FormGroup = this.fb.group({
-    firstName: ['', [Validators.required, Validators.minLength(2)]],
-    lastName: ['', [Validators.required, Validators.minLength(2)]],
+    firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
+    lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)]],
     dateOfBirth: ['', Validators.required],
@@ -57,17 +58,17 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     bloodGroup: [''],
     branchId: [''],
     address: this.fb.group({
-      line1: [''],
-      line2: [''],
-      city: [''],
-      state: [''],
-      country: [''],
-      postalCode: ['']
+      line1: ['', [Validators.maxLength(100)]],
+      line2: ['', [Validators.maxLength(100)]],
+      city: ['', [Validators.maxLength(20)]],
+      state: ['', [Validators.maxLength(20)]],
+      country: ['', [Validators.maxLength(20)]],
+      postalCode: ['', [Validators.maxLength(10)]]
     }),
     medicalConditions: [''],
     fitnessGoals: [[]],
-    emergencyContactName: [''],
-    emergencyContactPhone: [''],
+    emergencyContactName: ['', [Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 ]*$/)]],
+    emergencyContactPhone: ['', [Validators.pattern(/^\+?[0-9]{7,15}$/)]],
     gymPlanId: ['', Validators.required],
     startDate: [''],
     paymentStatus: [PaymentStatus.Paid, Validators.required]
@@ -79,7 +80,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
 
   get filteredPlans(): GymPlan[] {
     const selectedPlanId = this.form.get('gymPlanId')?.value;
-    
+
     if (this.showArchived) {
       return this.plans.filter(plan => {
         if (!plan.isActive) return true;
@@ -124,8 +125,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   readonly paymentStatusOptions: DropdownOption[] = [
     { value: 1, label: 'Pending', icon: 'fa-solid fa-clock' },
     { value: 2, label: 'Paid', icon: 'fa-solid fa-circle-check' },
-    { value: 3, label: 'Partial', icon: 'fa-solid fa-circle-half-stroke' },
-    { value: 4, label: 'Refunded', icon: 'fa-solid fa-rotate-left' },
+    { value: 3, label: 'Partial', icon: 'fa-solid fa-circle-half-stroke' }
   ];
 
   readonly fitnessGoalOptions = [
@@ -139,6 +139,12 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   ];
 
   readonly today = new Date().toISOString().split('T')[0];
+
+  get maxDobDate(): Date {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 10);
+    return d;
+  }
 
   isFitnessGoalsOpen = false;
   isConfirmCancelOpen = false;
@@ -237,6 +243,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
         this.form.get('dateOfBirth')?.valid &&
         this.form.get('email')?.valid &&
         this.form.get('phoneNumber')?.valid &&
+        this.form.get('emergencyContactName')?.valid &&
+        this.form.get('emergencyContactPhone')?.valid &&
         this.form.get('gender')?.valid);
     }
     if (this.currentStep === 2) {
@@ -257,6 +265,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       this.form.get('gender')?.markAsTouched();
       this.form.get('email')?.markAsTouched();
       this.form.get('phoneNumber')?.markAsTouched();
+      this.form.get('emergencyContactName')?.markAsTouched();
+      this.form.get('emergencyContactPhone')?.markAsTouched();
     } else if (this.currentStep === 3) {
       this.form.get('gymPlanId')?.markAsTouched();
     }
@@ -283,6 +293,23 @@ export class OnboardMemberModal implements OnChanges, OnInit {
 
   onSubmit(): void {
     if (this.form.invalid || !this.isCurrentStepValid()) {
+      console.warn('Form validation failed. Details:');
+      Object.keys(this.form.controls).forEach(key => {
+        const control = this.form.get(key);
+        if (control?.invalid) {
+          console.warn(`Invalid field: ${key}`, control.errors);
+        }
+      });
+      const addressControl = this.form.get('address') as FormGroup;
+      if (addressControl?.invalid) {
+        Object.keys(addressControl.controls).forEach(key => {
+          const ac = addressControl.get(key);
+          if (ac?.invalid) {
+            console.warn(`Invalid field: address.${key}`, ac.errors);
+          }
+        });
+      }
+
       this.form.markAllAsTouched();
       return;
     }
@@ -378,5 +405,17 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     if (!branchId) return 'No Branch (General)';
     const branch = this.branches.find(b => b.id === branchId);
     return branch ? branch.name : 'Unknown Branch';
+  }
+
+  getFullAddress(): string {
+    const addr = this.form.get('address')?.value;
+    if (!addr || !addr.line1) return '';
+    return [
+      addr.line1,
+      addr.line2,
+      addr.city,
+      `${addr.state || ''} ${addr.postalCode || ''}`.trim(),
+      addr.country
+    ].filter(Boolean).join(', ');
   }
 }

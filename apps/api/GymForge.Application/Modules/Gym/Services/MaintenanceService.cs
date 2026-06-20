@@ -3,6 +3,8 @@ using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -71,10 +73,17 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<List<MaintenanceLogDto>>(logs);
         }
 
-        public async Task<List<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, Guid? branchId = null)
+        public async Task<PagedResponse<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
-            List<MaintenanceLog> logs = await _maintenanceRepository.GetAllMaintenanceLogsAsync(gymId, branchId);
-            return _mapper.Map<List<MaintenanceLogDto>>(logs);
+            var (items, totalCount) = await _maintenanceRepository.GetPagedMaintenanceLogsAsync(
+                gymId,
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm,
+                branchId);
+            
+            var dtos = _mapper.Map<List<MaintenanceLogDto>>(items);
+            return new PagedResponse<MaintenanceLogDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
     }
 }

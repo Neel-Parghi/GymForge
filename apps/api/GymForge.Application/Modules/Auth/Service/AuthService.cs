@@ -239,10 +239,6 @@ namespace GymForge.Application.Modules.Auth.Service
 
         private async Task<TokenResponseDto> GenerateAndSaveTokens(User user)
         {
-            // Optional: Strict single-session policy - remove all other active tokens for this user
-            // List<RefreshToken> activeTokens = [.. user.RefreshTokens.Where(t => t.IsActive)];
-            // foreach (var t in activeTokens) user.RefreshTokens.Remove(t);
-
             Guid? branchId = await ResolveBranchIdAsync(user);
             TokenResponseDto tokenResponse = _jwtService.GenerateToken(user, branchId);
             return await SaveTokens(user, tokenResponse);
@@ -266,6 +262,18 @@ namespace GymForge.Application.Modules.Auth.Service
             foreach (RefreshToken stale in staleTokens)
             {
                 user.RefreshTokens.Remove(stale);
+            }
+
+            List<RefreshToken> activeTokens = [.. user.RefreshTokens
+                .Where(t => t.IsActive)
+                .OrderByDescending(t => t.CreatedOn)];
+                
+            if (activeTokens.Count > 4)
+            {
+                foreach (var oldToken in activeTokens.Skip(4))
+                {
+                    user.RefreshTokens.Remove(oldToken);
+                }
             }
 
             await _unitOfWork.SaveChangesAsync();

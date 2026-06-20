@@ -169,6 +169,14 @@
       resize: vertical;
       min-height: 80px;
     }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.8rem;
+      margin-top: 6px;
+      font-weight: 500;
+      animation: fadeIn 0.2s ease-out;
+    }
   }
 
   .info-card {

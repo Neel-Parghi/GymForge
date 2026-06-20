@@ -28,6 +28,7 @@ export class LoginComponent {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false]
   });
 
   showPassword = false;
@@ -40,7 +41,8 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
-      this.authApiService.login(this.loginForm.value).subscribe({
+      const { rememberMe, ...credentials } = this.loginForm.value;
+      this.authApiService.login(credentials, rememberMe ?? false).subscribe({
         next: (response) => {
           const data = response?.data || response;
           const token = data?.accessToken;

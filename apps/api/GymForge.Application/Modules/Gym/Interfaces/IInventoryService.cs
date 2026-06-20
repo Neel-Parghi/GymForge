@@ -14,7 +14,7 @@ namespace GymForge.Application.Modules.Gym.Interfaces
 
         // Sales
         Task<bool> RecordSaleAsync(RecordSaleDto dto, Guid gymId);
-        Task<List<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId, Guid? branchId = null);
+        Task<PagedResponse<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null);
         Task<bool> SendSaleReceiptAsync(Guid saleId);
 
         // Aggregated Stats

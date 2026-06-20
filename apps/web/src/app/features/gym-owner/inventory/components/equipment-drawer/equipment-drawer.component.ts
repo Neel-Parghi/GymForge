@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { SlideDrawerComponent } from '../../../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DateTimePickerComponent } from '../../../../../shared/components/date-time-picker/date-time-picker.component';
@@ -9,6 +9,7 @@ import { InventoryService } from '../../../../../core/services/inventory.service
 import { FileUploadService } from '../../../../../core/services/file-upload.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { noFutureDateValidator } from '../../../../../shared/validators/custom-validators';
 
 @Component({
   selector: 'app-equipment-drawer',
@@ -36,6 +37,7 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
   imagePreview: string | null = null;
   loading = false;
   isEditingEquipment = false;
+  today = new Date();
 
   ngOnInit(): void {
     this.initForm();
@@ -49,13 +51,13 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
 
   private initForm() {
     this.equipmentForm = this.fb.group({
-      name: ['', Validators.required],
-      serialNumber: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      serialNumber: ['', [Validators.required, Validators.maxLength(20)]],
       category: ['', Validators.required],
-      purchaseDate: ['', Validators.required],
+      purchaseDate: ['', [Validators.required, noFutureDateValidator]],
       warrantyExpiry: ['', Validators.required],
       condition: ['New', Validators.required],
-      maintenanceInterval: [6, Validators.required],
+      maintenanceInterval: [6, [Validators.required, Validators.min(1), Validators.max(12)]],
       initialHealth: [100],
       imageUrl: ['']
     });
@@ -104,7 +106,10 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
   }
 
   saveEquipment() {
-    if (this.equipmentForm.invalid) return;
+    if (this.equipmentForm.invalid) {
+      this.equipmentForm.markAllAsTouched();
+      return;
+    }
 
     if (this.selectedFile) {
       this.loading = true;
@@ -141,5 +146,12 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
         this.loading = false;
       }
     });
+  }
+
+  clampValue(controlName: string, max: number) {
+    const val = this.equipmentForm.get(controlName)?.value;
+    if (val > max) {
+      this.equipmentForm.get(controlName)?.setValue(max);
+    }
   }
 }

@@ -58,15 +58,15 @@ export class GymPlansComponent implements OnInit {
 
   private initForm(): void {
     this.planForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      price: [0, [Validators.required, Validators.min(0)]],
-      durationMonths: [1, [Validators.required, Validators.min(1)]],
-      maxBranches: [null, [Validators.min(1)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.maxLength(300)]],
+      price: [0, [Validators.required, Validators.min(0), Validators.max(100000)]],
+      durationMonths: [1, [Validators.required, Validators.min(1), Validators.max(120)]],
+      maxBranches: [null, [Validators.min(1), Validators.max(50)]],
       isActive: [true],
       isOffer: [false],
-      discountedPrice: [null, [Validators.min(0)]],
-      extendedMonths: [null, [Validators.min(0)]]
+      discountedPrice: [null, [Validators.min(0), Validators.max(100000)]],
+      extendedMonths: [null, [Validators.min(0), Validators.max(120)]]
     });
   }
 
@@ -183,10 +183,32 @@ export class GymPlansComponent implements OnInit {
     this.showModal = false;
   }
 
+  onFeatureInput(): void {
+    const val = this.featureControl.value;
+    if (!val) return;
+
+    let changed = false;
+    const parts = val.split(',').map((part: string) => {
+      if (part.length > 50) {
+        changed = true;
+        return part.substring(0, 50);
+      }
+      return part;
+    });
+
+    if (changed) {
+      this.featureControl.setValue(parts.join(','), { emitEvent: false });
+    }
+  }
+
   addFeature(): void {
     const val = this.featureControl.value;
     if (val && val.trim()) {
-      this.featuresList.push(val.trim());
+      const items = val.split(',').map((s: string) => {
+        const trimmed = s.trim();
+        return trimmed.length > 50 ? trimmed.substring(0, 50) : trimmed;
+      }).filter((s: string) => s !== '');
+      this.featuresList.push(...items);
       this.featureControl.reset('');
     }
   }

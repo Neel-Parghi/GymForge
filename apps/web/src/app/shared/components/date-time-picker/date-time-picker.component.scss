@@ -497,3 +497,9 @@
     transform: translateY(0) scale(1);
   }
 }
+
+.disabled-date {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: not-allowed;
+}

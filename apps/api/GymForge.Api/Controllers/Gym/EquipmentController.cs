@@ -1,5 +1,7 @@
 using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,10 +20,10 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<EquipmentDto>>> GetEquipment()
+        public async Task<ActionResult<PagedResponse<EquipmentDto>>> GetEquipment([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _equipmentService.GetEquipmentAsync(GymId.Value, SecureBranchId));
+            return Ok(await _equipmentService.GetEquipmentAsync(GymId.Value, pagination, SecureBranchId));
         }
 
         [HttpPost]

@@ -1,6 +1,7 @@
 using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -69,10 +70,10 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet("sales/history")]
-        public async Task<ActionResult<List<SaleTransactionDto>>> GetSalesHistory()
+        public async Task<ActionResult<PagedResponse<SaleTransactionDto>>> GetSalesHistory([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _inventoryService.GetSalesHistoryAsync(GymId.Value, SecureBranchId));
+            return Ok(await _inventoryService.GetSalesHistoryAsync(GymId.Value, pagination, SecureBranchId));
         }
 
         [HttpPost("sales/{id}/receipt")]

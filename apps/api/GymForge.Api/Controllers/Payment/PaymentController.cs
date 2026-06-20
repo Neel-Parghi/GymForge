@@ -16,26 +16,6 @@ namespace GymForge.Api.Controllers.Payment
             _paymentService = saaSPaymentService;
         }
 
-        [HttpGet("subscription")]
-        [Authorize(Roles = "GymOwner,SuperAdmin")]
-        public async Task<IActionResult> GetSubscription()
-        {
-            if (GymId == null) return Unauthorized();
-
-            GymSubscriptionStatusDto subscription = await _paymentService.GetSubscriptionStatusAsync(GymId.Value);
-            return Ok(subscription);
-        }
-
-        [HttpPost("subscription/renew")]
-        [Authorize(Roles = "GymOwner")]
-        public async Task<IActionResult> RenewSubscription([FromQuery] string planName = "GymForge Pro Plan", [FromQuery] decimal price = 4999)
-        {
-            if (GymId == null) return Unauthorized();
-
-            GymSubscriptionStatusDto subscription = await _paymentService.RenewGymSubscriptionAsync(GymId.Value, planName, price);
-            return Ok(subscription);
-        }
-
         [HttpGet("history")]
         [Authorize(Roles = "GymOwner")]
         public async Task<IActionResult> GetGymTransactionHistory()
@@ -60,22 +40,6 @@ namespace GymForge.Api.Controllers.Payment
         {
             List<PaymentTransactionDto> transactions = await _paymentService.GetAllTransactionsAsync();
             return Ok(transactions);
-        }
-
-        [HttpPost("initiate")]
-        [Authorize]
-        public async Task<IActionResult> InitiatePayment([FromBody] CreatePaymentDto payload)
-        {
-            InitiatePaymentResponseDto transactionResponse = await _paymentService.InitiateSaaSPaymentAsync(payload);
-            return Ok(new { transactionResponse });
-        }
-
-        [HttpPost("verify")]
-        [Authorize]
-        public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentDto payload)
-        {
-            bool success = await _paymentService.ProcessSuccessfulPaymentAsync(payload.OrderId, payload.PaymentId, payload.Signature);
-            return success ? Ok() : BadRequest("Invalid Transaction");
         }
 
         [HttpGet("settings")]

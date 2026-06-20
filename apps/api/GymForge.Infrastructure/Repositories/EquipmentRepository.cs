@@ -34,6 +34,31 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(IEnumerable<Equipment> items, int totalCount)> GetPagedEquipmentAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        {
+            IQueryable<Equipment> query = _dbContext.Equipment
+                .AsNoTracking()
+                .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_dbContext.Branches, branchId);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerTerm = searchTerm.ToLower();
+                query = query.Where(x => x.Name.ToLower().Contains(lowerTerm) || x.Category.ToLower().Contains(lowerTerm));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task AddEquipmentAsync(Equipment equipment)
         {
             await _dbContext.Equipment.AddAsync(equipment);

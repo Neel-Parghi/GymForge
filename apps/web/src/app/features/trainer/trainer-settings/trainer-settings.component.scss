@@ -16,8 +16,8 @@
     margin-bottom: 1rem;
 
     h1 {
-      font-size: 2rem;
-      font-weight: 800;
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--primary-navy);
       margin-bottom: 0.5rem;
       letter-spacing: -0.025em;
@@ -25,7 +25,7 @@
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
     }
   }
 }
@@ -75,10 +75,13 @@
 }
 
 .settings-card {
+  display: flex;
+  flex-direction: column;
+
   h2 {
     font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin: 0px;
     color: var(--text-main);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.75rem;
@@ -211,6 +214,7 @@
 
 .btn-save {
   display: inline-flex;
+  align-self: flex-end;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;

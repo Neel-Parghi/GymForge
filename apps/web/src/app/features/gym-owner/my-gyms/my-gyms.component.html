@@ -55,11 +55,11 @@
           <div class="form-row">
             <div class="form-group">
               <label>GYM NAME</label>
-              <input type="text" formControlName="gymName" placeholder="Enter gym name">
+              <input type="text" formControlName="gymName" placeholder="Enter gym name" maxlength="25">
             </div>
             <div class="form-group">
               <label>BRAND NAME</label>
-              <input type="text" formControlName="brandName" placeholder="Enter brand name">
+              <input type="text" formControlName="brandName" placeholder="Enter brand name" maxlength="25">
             </div>
           </div>
 
@@ -76,7 +76,8 @@
 
           <div class="form-group full-width">
             <label>GYM DESCRIPTION</label>
-            <textarea formControlName="description" rows="4" placeholder="Briefly describe your facility..."></textarea>
+            <textarea formControlName="description" rows="4" placeholder="Briefly describe your facility..."
+              maxlength="300"></textarea>
           </div>
         </form>
       </div>
@@ -182,8 +183,7 @@
       </div>
 
       <!-- Branch Slide Drawer (Add & Settings) -->
-      <app-slide-drawer [isOpen]="isBranchDrawerOpen"
-        [title]="isEditingBranch ? 'Branch Settings' : 'Add New Branch'"
+      <app-slide-drawer [isOpen]="isBranchDrawerOpen" [title]="isEditingBranch ? 'Branch Settings' : 'Add New Branch'"
         [subtitle]="isEditingBranch ? 'Modify branch details, address and timings' : 'Setup a new physical location for your gym'"
         width="550px" (closeDrawer)="closeBranchDrawer()">
 
@@ -196,11 +196,8 @@
 
             <div class="form-group">
               <label>Branch Manager</label>
-              <app-dropdown
-                [options]="managerDropdownOptions"
-                formControlName="managerId"
-                placeholder="No Manager Assigned (Pending Hire)"
-                [isSearchable]="true">
+              <app-dropdown [options]="managerDropdownOptions" formControlName="managerId"
+                placeholder="No Manager Assigned (Pending Hire)" [isSearchable]="true">
               </app-dropdown>
             </div>
 
@@ -259,7 +256,8 @@
 
         <div drawer-footer class="drawer-actions">
           <button class="btn-outline" (click)="closeBranchDrawer()" [disabled]="isSavingBranch">Cancel</button>
-          <button class="btn-success" (click)="onSubmitBranch()" [disabled]="branchForm.invalid || isSavingBranch || (isEditingBranch && branchForm.pristine)">
+          <button class="btn-success" (click)="onSubmitBranch()"
+            [disabled]="branchForm.invalid || isSavingBranch || (isEditingBranch && branchForm.pristine)">
             <i class="fas fa-spinner fa-spin" *ngIf="isSavingBranch"></i>
             {{ isSavingBranch ? 'Saving...' : (isEditingBranch ? 'Save Changes' : 'Add Branch') }}
           </button>
@@ -280,7 +278,8 @@
           </div>
 
           <div class="plans-grid">
-            <div class="plan-card" *ngFor="let plan of pricingPlans" [class.active-plan]="gymData?.planName === plan.name">
+            <div class="plan-card" *ngFor="let plan of pricingPlans"
+              [class.active-plan]="gymData?.planName === plan.name">
               <div class="active-badge" *ngIf="gymData?.planName === plan.name">ACTIVE PLAN</div>
               <div class="plan-header">
                 <h3>{{ plan.name }}</h3>
@@ -311,11 +310,11 @@
                 </div>
               </div>
 
-              <button class="btn-upgrade-action" 
-                [disabled]="gymData?.planName === plan.name || isProcessingPayment" 
+              <button class="btn-upgrade-action" [disabled]="gymData?.planName === plan.name || isProcessingPayment"
                 (click)="payForPlan(plan)">
                 <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment && selectedUpgradePlanId === plan.id"></i>
-                {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' : 'UPGRADE NOW') }}
+                {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' : 'UPGRADE
+                NOW') }}
               </button>
             </div>
           </div>
