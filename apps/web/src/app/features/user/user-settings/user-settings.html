@@ -1,0 +1,67 @@
+<div class="settings-container">
+  <!-- Fixed Header -->
+  <div class="settings-header">
+    <div class="header-content">
+      <h1>Account Settings</h1>
+      <p>Configure your notification preferences, appearance, and account security.</p>
+    </div>
+    <button class="save-btn" (click)="saveChanges()">
+      <i class="fas fa-save"></i>
+      Save Changes
+    </button>
+  </div>
+
+  <div class="scroll-area">
+    <div class="tab-content">
+
+      <div class="settings-pane">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h3>Notifications & Preferences</h3>
+            <p>Control what alerts you receive and customize your app appearance.</p>
+          </div>
+        </div>
+
+        <div class="pane-body">
+          <div class="single-setting-container" style="max-width: 600px;">
+            <div class="toggle-list">
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <h4>Email Notifications</h4>
+                  <p>Receive daily summaries and updates via email.</p>
+                </div>
+                <label class="switch-premium">
+                  <input type="checkbox" [(ngModel)]="preferences.emailNotifications">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <h4>Push Notifications</h4>
+                  <p>Get instant alerts on your device for important events.</p>
+                </div>
+                <label class="switch-premium">
+                  <input type="checkbox" [(ngModel)]="preferences.pushNotifications">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <h4>Workout Reminders</h4>
+                  <p>We'll notify you 1 hour before scheduled workouts.</p>
+                </div>
+                <label class="switch-premium">
+                  <input type="checkbox" [(ngModel)]="preferences.workoutReminders">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

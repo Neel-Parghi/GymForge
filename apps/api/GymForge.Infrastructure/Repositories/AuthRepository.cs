@@ -2,52 +2,56 @@ using GymForge.Contracts.Auth;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
+using GymForge.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymForge.Infrastructure.Repositories
 {
     public class AuthRepository : IAuthRepository
     { 
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _dbContext;
 
-        public AuthRepository(AppDbContext context)
+        public AuthRepository(AppDbContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
         public async Task RegisterSuperAdmin(User user)
         {
-            await _context.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(user);
         }
 
         public async Task AddUserAsync(User user)
         {
-            await _context.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(user);
         }
 
         public async Task<User?> Login(LoginRequestDto userRequest)
         {
-            User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userRequest.Email);
+            User? user = await _dbContext.Users
+                .Include(x => x.RefreshTokens)
+                .FirstOrDefaultAsync(x => x.Email == userRequest.Email);
 
             return user;
         }
 
         public async Task<User?> GetByTokenAsync(string token)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.InvitationToken == token);
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.InvitationToken == token);
         }
 
         public async Task<User?> GetUserByIdAsync(Guid userId)
         {
-            return await _context.Users
+            return await _dbContext.Users
                 .Include(u => u.Address)
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
         {
-            RefreshToken? token = await _context.RefreshTokens
+            RefreshToken? token = await _dbContext.RefreshTokens
                 .Include(rt => rt.User)
+                .ThenInclude(u => u.RefreshTokens)
                 .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
             
             return token?.User;
@@ -55,15 +59,70 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> GetByUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _dbContext.Users
+                .Include(u => u.RefreshTokens)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<Guid?> GetBranchIdByUserIdAsync(Guid userId)
         {
-            return await _context.Staff
+            return await _dbContext.Staff
                 .Where(s => s.UserId == userId && s.IsActive)
                 .Select(s => s.BranchId)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task LinkUserToGymMembersAsync(User user)
+        {
+            string emailLower = user.Email.ToLower();
+            List<GymMember> unlinkedMembers = await _dbContext.GymMembers
+                .Where(m => m.Email.ToLower() == emailLower && m.UserId == null)
+                .ToListAsync();
+
+            foreach (GymMember member in unlinkedMembers)
+            {
+                member.UserId = user.Id;
+            }
+        }
+
+        public Task DeleteUserAsync(User user)
+        {
+            _dbContext.Users.Remove(user);
+            return Task.CompletedTask;
+        }
+
+        public async Task<IEnumerable<User>> GetPendingDeletionRequestsAsync()
+        {
+            return await _dbContext.Users
+                .Where(u => u.DeletionRequestedOn != null && 
+                            u.Role != UserRole.GymOwner && 
+                            u.GymId == null)
+                .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<User> Items, int TotalCount)> GetStandaloneUsersAsync(int pageNumber, int pageSize, string? searchTerm)
+        {
+            IQueryable<User> query = _dbContext.Users
+                .Where(u => u.Role != UserRole.GymOwner && u.GymId == null);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                string searchLower = searchTerm.ToLower();
+                query = query.Where(u => 
+                    u.FirstName.ToLower().Contains(searchLower) || 
+                    u.LastName.ToLower().Contains(searchLower) || 
+                    u.Email.ToLower().Contains(searchLower));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            List<User> items = await query
+                .OrderByDescending(u => u.CreatedOn)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
     }
 }

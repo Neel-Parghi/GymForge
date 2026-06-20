@@ -31,11 +31,11 @@
           <div class="form-group-premium">
             <label for="itemName">Item / Service Details</label>
             <input type="text" id="itemName" formControlName="itemName"
-              placeholder="e.g. Personal Trainer 12-session pack" class="form-input-premium">
+              placeholder="e.g. Personal Trainer 12-session pack" class="form-input-premium" maxlength="50">
             <div class="validation-error"
               *ngIf="createInvoiceForm.get('itemName')?.invalid && createInvoiceForm.get('itemName')?.touched">
               <i class="fa-solid fa-circle-exclamation error-icon"></i>
-              <span>Details must be at least 3 characters.</span>
+              <span>Details must be between 3 and 30 characters.</span>
             </div>
           </div>
 
@@ -44,8 +44,15 @@
             <label for="billingAmount">Total Cost (Incl. GST)</label>
             <div class="input-unit-wrapper">
               <input type="number" id="billingAmount" formControlName="amount"
-                class="form-input-premium unit-input unit-left">
+                class="form-input-premium unit-input unit-left" min="0" max="100000"
+                oninput="this.value = Math.abs(this.value)">
               <span class="unit-box left-unit">₹</span>
+            </div>
+            <div class="validation-error"
+              *ngIf="createInvoiceForm.get('amount')?.invalid && createInvoiceForm.get('amount')?.touched"
+              style="margin-top: 6px;">
+              <i class="fa-solid fa-circle-exclamation error-icon"></i>
+              <span>Amount must be up to ₹1,00,000.</span>
             </div>
             <span class="help-text">Applies default tax automatically.</span>
           </div>

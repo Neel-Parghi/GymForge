@@ -32,11 +32,12 @@ export const TrainerMenu: NavItem[] = [
         roles: ['Trainer']
     },
     {
-        label: 'Health Tracker',
-        icon: 'fa-solid fa-heart-pulse',
-        route: '/trainer/health-track',
+        label: 'Diet Planner',
+        icon: 'fa-solid fa-apple-whole',
+        route: '/trainer/diet-planner',
         roles: ['Trainer']
     },
+
     {
         label: 'ACCOUNT',
         icon: '',
@@ -47,6 +48,18 @@ export const TrainerMenu: NavItem[] = [
         label: 'My Profile',
         icon: 'fa-solid fa-user-circle',
         route: '/trainer/profile',
+        roles: ['Trainer']
+    },
+    {
+        label: 'Attendance',
+        icon: 'fa-solid fa-clock',
+        route: '/trainer/attendance',
+        roles: ['Trainer']
+    },
+    {
+        label: 'Bills & Payouts',
+        icon: 'fa-solid fa-file-invoice-dollar',
+        route: '/trainer/billing',
         roles: ['Trainer']
     },
     {

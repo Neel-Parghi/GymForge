@@ -1,41 +1,32 @@
 <div class="sidebar-container">
-      <div class="sidebar-header">
-        <h1 class="logo">Gym<span>Forge</span></h1>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <ul class="menu-list">
-          <li *ngFor="let item of menuItems" class="menu-item">
-            <div 
-              class="menu-link" 
-              [routerLink]="item.route ? [item.route] : null" 
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{exact: true}"
-              (click)="toggleExpand(item)"
-            >
-              <i class="icon" [class]="item.icon"></i>
-              <span class="label">{{ item.label }}</span>
-              <i *ngIf="item.children" class="chevron" [class.expanded]="item.expanded"></i>
-            </div>
-            
-            <ul *ngIf="item.children && item.expanded" class="submenu-list">
-              <li *ngFor="let child of item.children" class="submenu-item">
-                <a 
-                  class="submenu-link" 
-                  [routerLink]="[child.route]" 
-                  routerLinkActive="active"
-                >
-                  {{ child.label }}
-                </a>
-              </li>
-            </ul>
+  <div class="sidebar-header">
+    <h1 class="logo">Gym<span>Forge</span></h1>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul class="menu-list">
+      <li *ngFor="let item of menuItems" class="menu-item">
+        <div class="menu-link" [routerLink]="item.route ? [item.route] : null" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: true}" (click)="toggleExpand(item)">
+          <i class="icon" [class]="item.icon"></i>
+          <span class="label">{{ item.label }}</span>
+          <i *ngIf="item.children" class="chevron" [class.expanded]="item.expanded"></i>
+        </div>
+
+        <ul *ngIf="item.children && item.expanded" class="submenu-list">
+          <li *ngFor="let child of item.children" class="submenu-item">
+            <a class="submenu-link" [routerLink]="[child.route]" routerLinkActive="active">
+              {{ child.label }}
+            </a>
           </li>
         </ul>
-      </nav>
-      
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <!-- User info placeholder -->
-        </div>
-      </div>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <!-- User info placeholder -->
     </div>
+  </div>
+</div>

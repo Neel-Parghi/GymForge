@@ -40,7 +40,7 @@ namespace GymForge.Infrastructure.Services
             if (allowedExtensions.Contains(extension))
             {
                 compressedStream = new MemoryStream();
-                using var image = await SixLabors.ImageSharp.Image.LoadAsync(fileStream);
+                using SixLabors.ImageSharp.Image image = await SixLabors.ImageSharp.Image.LoadAsync(fileStream);
                 
                 
                 int maxDimension = 1200;
@@ -53,7 +53,7 @@ namespace GymForge.Infrastructure.Services
                     }));
                 }
 
-                var encoder = new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 75 };
+                SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder encoder = new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 75 };
                 await image.SaveAsync(compressedStream, encoder);
                 compressedStream.Position = 0;
                 uploadStream = compressedStream;

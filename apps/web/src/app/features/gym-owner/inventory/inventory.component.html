@@ -6,9 +6,6 @@
       <p>Manage your gym assets, products, and front-desk sales.</p>
     </div>
     <div class="actions header-actions">
-      <button class="secondary-btn" (click)="toggleViewMode()">
-        <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
-      </button>
       <button class="btn-primary" (click)="openProductDrawer()">
         Add New Product
       </button>
@@ -21,43 +18,7 @@
     </div>
   </header>
 
-  <!-- Stats Grid (Dashboard View) -->
-  <div class="stats-grid" *ngIf="viewMode === 'dashboard'">
-    <div class="stat-card teal">
-      <div class="stat-icon"><i class="fas fa-boxes"></i></div>
-      <div class="stat-info">
-        <span class="stat-label">Total Products</span>
-        <span class="stat-value">{{stats.totalProducts | number}}</span>
-        <span class="stat-meta text-teal">Stock units across all categories</span>
-      </div>
-    </div>
-    <div class="stat-card orange">
-      <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-      <div class="stat-info">
-        <span class="stat-label">Low Stock Alerts</span>
-        <span class="stat-value text-orange">{{stats.lowStockCount}}</span>
-        <span class="stat-meta">Items below reorder threshold</span>
-      </div>
-    </div>
-    <div class="stat-card violet">
-      <div class="stat-icon"><i class="fas fa-tools"></i></div>
-      <div class="stat-info">
-        <span class="stat-label">Maintenance Due</span>
-        <span class="stat-value text-violet">{{stats.maintenanceDueCount | number:'2.0-0'}}</span>
-        <span class="stat-meta">Equipment needing service</span>
-      </div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-icon"><i class="fas fa-receipt"></i></div>
-      <div class="stat-info">
-        <span class="stat-label">Total POS Sales</span>
-        <span class="stat-value">{{stats.totalSalesAmount | currency:'INR':'symbol'}}</span>
-        <span class="stat-meta">Total {{stats.totalSalesCount}} transactions across all time</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="inventory-content-wrapper" *ngIf="viewMode === 'list'">
+  <div class="inventory-content-wrapper">
     <!-- Main Management Area -->
     <main class="management-area">
       <nav class="content-nav">
@@ -69,8 +30,13 @@
         </div>
         <div class="list-header-actions">
           <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" [formControl]="searchControl" placeholder="Search inventory...">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" [formControl]="searchControl" [placeholder]="getSearchPlaceholder()">
+            <i class="fa-solid fa-xmark clear-icon" *ngIf="searchControl.value" (click)="clearSearch()"></i>
+          </div>
+          <div class="active-filter-pill" *ngIf="activeStockFilter" (click)="clearStockFilter()">
+            <span>{{ activeStockFilter === 'lowStock' ? 'Low Stock' : 'In Stock' }}</span>
+            <i class="fa-solid fa-xmark filter-clear-icon"></i>
           </div>
         </div>
       </nav>
@@ -152,8 +118,9 @@
 
         <!-- Standard Data Grid View -->
         <app-data-grid *ngIf="equipmentViewMode === 'table'" [config]="equipmentGridConfig" [data]="equipmentItems"
-          [totalItems]="equipmentItems.length" [pageSize]="pageSize" [currentPage]="currentPage"
-          (actionEvent)="onInventoryAction($event)">
+          [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+          (actionEvent)="onInventoryAction($event)" (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)">
         </app-data-grid>
       </div>
 
@@ -166,9 +133,9 @@
           </div>
         </div>
 
-        <app-data-grid [config]="serviceHistoryGridConfig" [data]="serviceHistoryItems"
-          [totalItems]="serviceHistoryItems.length" [pageSize]="pageSize" [currentPage]="currentPage"
-          (actionEvent)="onInventoryAction($event)">
+        <app-data-grid [config]="serviceHistoryGridConfig" [data]="serviceHistoryItems" [totalItems]="totalItems"
+          [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onInventoryAction($event)"
+          (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
         </app-data-grid>
       </div>
 
@@ -181,8 +148,9 @@
           </div>
         </div>
 
-        <app-data-grid [config]="salesGridConfig" [data]="salesItems" [totalItems]="salesItems.length"
-          [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onInventoryAction($event)">
+        <app-data-grid [config]="salesGridConfig" [data]="salesItems" [totalItems]="totalItems" [pageSize]="pageSize"
+          [currentPage]="currentPage" (actionEvent)="onInventoryAction($event)" (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)">
         </app-data-grid>
       </div>
     </main>
@@ -191,26 +159,26 @@
 
 <!-- Add / Edit Product Form Drawer -->
 <app-product-drawer [isOpen]="isProductDrawerOpen" [product]="selectedProduct" [categories]="productCategories"
-  (closeDrawer)="isProductDrawerOpen = false" (productSaved)="loadProducts(); loadStats()">
+  (closeDrawer)="isProductDrawerOpen = false" (productSaved)="loadProducts()">
 </app-product-drawer>
 
 <!-- Register / Edit Equipment Form Drawer -->
 <app-equipment-drawer [isOpen]="isEquipmentDrawerOpen" [equipment]="selectedEquipment"
   [categories]="equipmentCategories" [conditionOptions]="conditionOptions" (closeDrawer)="isEquipmentDrawerOpen = false"
-  (equipmentSaved)="loadEquipment(); loadStats()">
+  (equipmentSaved)="loadEquipment()">
 </app-equipment-drawer>
 
 <!-- Record POS Sale Drawer -->
 <app-record-sale-drawer [isOpen]="isSaleDrawerOpen" [product]="selectedProduct" [memberOptions]="memberOptions"
   [productOptions]="productOptions" [allProducts]="allInventoryItems" (closeDrawer)="isSaleDrawerOpen = false"
-  (saleRecorded)="loadProducts(); loadSalesHistory(); loadStats()">
+  (saleRecorded)="loadProducts(); loadSalesHistory()">
 </app-record-sale-drawer>
 
 <!-- Record Maintenance task Drawer -->
 <app-maintenance-drawer [isOpen]="isMaintenanceDrawerOpen" [equipment]="selectedEquipment"
   [log]="selectedMaintenanceLog" [serviceTypeOptions]="serviceTypeOptions" [statusOptions]="maintenanceStatusOptions"
   [activeTab]="activeTab" (closeDrawer)="isMaintenanceDrawerOpen = false"
-  (maintenanceSaved)="loadEquipment(); loadServiceHistory(); loadStats()">
+  (maintenanceSaved)="loadEquipment(); loadServiceHistory()">
 </app-maintenance-drawer>
 
 <!-- Product Details view Drawer -->

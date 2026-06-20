@@ -1,12 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-interface PlannerExercise {
-  name: string;
-  sets: number;
-  reps: string;
-  notes?: string;
-}
+import {
+  WorkoutPlan,
+  SplitPlanner,
+  WeeklyPlanner
+} from '../../../../../shared/models/workout-plan.model';
 
 @Component({
   selector: 'app-timetable-modal',
@@ -16,7 +15,7 @@ interface PlannerExercise {
   styleUrl: './timetable-modal.component.scss'
 })
 export class TimetableModalComponent implements OnInit {
-  @Input() planner: any = null;
+  @Input() planner: WorkoutPlan | null = null;
   @Input() type: 'split' | 'weekly' | 'daily' = 'split';
   @Output() close = new EventEmitter<void>();
   @Output() edit = new EventEmitter<void>();
@@ -25,6 +24,15 @@ export class TimetableModalComponent implements OnInit {
   activeDetailDayName = '';
   draggedDayIdx: number | null = null;
   draggedExIdx: number | null = null;
+
+  get tabs(): any[] {
+    if (!this.planner) return [];
+    if (this.type === 'split' || this.type === 'daily') {
+      return (this.planner as SplitPlanner).days || [];
+    } else {
+      return (this.planner as WeeklyPlanner).calendar || [];
+    }
+  }
 
   onDayDragStart(index: number, event: DragEvent): void {
     this.draggedDayIdx = index;
@@ -39,16 +47,18 @@ export class TimetableModalComponent implements OnInit {
 
   onDayDrop(targetIdx: number, event: DragEvent): void {
     event.preventDefault();
-    if (this.draggedDayIdx === null || this.draggedDayIdx === targetIdx) return;
+    if (this.draggedDayIdx === null || this.draggedDayIdx === targetIdx || !this.planner) return;
 
     if (this.type === 'split' || this.type === 'daily') {
-      const temp = this.planner.days[this.draggedDayIdx];
-      this.planner.days[this.draggedDayIdx] = this.planner.days[targetIdx];
-      this.planner.days[targetIdx] = temp;
-      this.activeDetailDayName = this.planner.days[targetIdx].name;
+      const p = this.planner as SplitPlanner;
+      const temp = p.days[this.draggedDayIdx];
+      p.days[this.draggedDayIdx] = p.days[targetIdx];
+      p.days[targetIdx] = temp;
+      this.activeDetailDayName = p.days[targetIdx].name;
     } else {
-      const day1 = this.planner.calendar[this.draggedDayIdx];
-      const day2 = this.planner.calendar[targetIdx];
+      const p = this.planner as WeeklyPlanner;
+      const day1 = p.calendar[this.draggedDayIdx];
+      const day2 = p.calendar[targetIdx];
 
       const temp = {
         type: day1.type,
@@ -102,12 +112,15 @@ export class TimetableModalComponent implements OnInit {
   ngOnInit(): void {
     if (this.planner) {
       if (this.type === 'split') {
-        this.activeDetailDayName = this.planner.days[0]?.name || 'Day 1';
+        const p = this.planner as SplitPlanner;
+        this.activeDetailDayName = p.days[0]?.name || 'Day 1';
       } else if (this.type === 'daily') {
-        this.activeDetailDayName = this.planner.days[0]?.name || 'Workout Session';
+        const p = this.planner as SplitPlanner;
+        this.activeDetailDayName = p.days[0]?.name || 'Workout Session';
       } else {
-        const firstWorkout = this.planner.calendar.find((c: any) => c.type === 'workout');
-        this.activeDetailDayName = firstWorkout ? firstWorkout.dayName : this.planner.calendar[0]?.dayName || 'Monday';
+        const p = this.planner as WeeklyPlanner;
+        const firstWorkout = p.calendar.find((c: any) => c.type === 'workout');
+        this.activeDetailDayName = firstWorkout ? firstWorkout.dayName : p.calendar[0]?.dayName || 'Monday';
       }
     }
   }
@@ -119,9 +132,11 @@ export class TimetableModalComponent implements OnInit {
   getSelectedDayDetails(): any {
     if (!this.planner) return null;
     if (this.type === 'split' || this.type === 'daily') {
-      return this.planner.days.find((d: any) => d.name === this.activeDetailDayName);
+      const p = this.planner as SplitPlanner;
+      return p.days.find((d: any) => d.name === this.activeDetailDayName);
     } else {
-      return this.planner.calendar.find((c: any) => c.dayName === this.activeDetailDayName);
+      const p = this.planner as WeeklyPlanner;
+      return p.calendar.find((c: any) => c.dayName === this.activeDetailDayName);
     }
   }
 

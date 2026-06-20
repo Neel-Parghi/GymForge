@@ -1,7 +1,10 @@
+using GymForge.Application.BackgroundJobs;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Contracts.Auth;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace GymForge.Api.Controllers
@@ -23,6 +26,51 @@ namespace GymForge.Api.Controllers
         //     TokenResponseDto response = await _authService.RegisterSuperAdmin(dto);
         //     return Ok(response);
         // }
+
+        [HttpPost("register")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> Register(RegisterRequestDto dto)
+        {
+            try
+            {
+                RegisterResponseDto response = await _authService.RegisterAsync(dto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpRequestDto dto)
+        {
+            try
+            {
+                TokenResponseDto response = await _authService.VerifyOtpAsync(dto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("resend-otp")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> ResendOtp(ResendOtpRequestDto dto)
+        {
+            try
+            {
+                await _authService.ResendOtpAsync(dto);
+                return Ok(new { message = "OTP resent successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDto dto)
@@ -52,6 +100,36 @@ namespace GymForge.Api.Controllers
             return NoContent();
         }
 
+        [HttpPost("forgot-password")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto dto)
+        {
+            try
+            {
+                await _authService.ForgotPasswordAsync(dto);
+                return Ok(new { message = "If the email is registered, a password reset link has been sent." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        [EnableRateLimiting("OtpPolicy")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto dto)
+        {
+            try
+            {
+                await _authService.ResetPasswordAsync(dto);
+                return Ok(new { message = "Password reset successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [Authorize]
         [HttpGet("me")]
         public IActionResult Me()
@@ -61,6 +139,32 @@ namespace GymForge.Api.Controllers
             string? role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             return Ok(new { userId, email, role });
+        }
+
+        [Authorize]
+        [HttpDelete("request-deletion")]
+        public async Task<IActionResult> RequestAccountDeletion([FromServices] IBackgroundJobClient backgroundJobs)
+        {
+            string? userIdStr = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid user token." });
+            }
+
+            try
+            {
+                // 1. Mark the user's account with DeletionRequestedOn
+                await _authService.RequestAccountDeletionAsync(userId);
+
+                // 2. Schedule the job to run exactly 24 hours from now
+                backgroundJobs.Schedule<AccountDeletionJob>(job => job.ExecuteAsync(userId), TimeSpan.FromHours(24));
+
+                return Accepted(new { message = "Your account deletion has been scheduled and will be completed in 24 hours." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

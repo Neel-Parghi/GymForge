@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GymForge.Api.Controllers.Members
 {
     [Route("api/members")]
-    [Authorize(Roles = "GymOwner,Staff")]
+    [Authorize(Roles = "GymOwner,Staff,Trainer")]
     public class MembersController : BaseApiController
     {
         private readonly IGymMemberService _memberService;
@@ -44,10 +44,10 @@ namespace GymForge.Api.Controllers.Members
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGymMembers([FromQuery] PaginationParams pagination)
+        public async Task<ActionResult> GetGymMembers([FromQuery] MemberFilterParams filter)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _memberService.GetGymMembersAsync(GymId.Value, pagination, SecureBranchId));
+            return Ok(await _memberService.GetGymMembersAsync(GymId.Value, filter, SecureBranchId));
         }
 
         [HttpGet("dashboard")]

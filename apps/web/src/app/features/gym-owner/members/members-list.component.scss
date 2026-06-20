@@ -47,18 +47,18 @@
         }
 
         &.active {
-          background: rgba(34, 197, 94, 0.12);
-          color: #22c55e;
+          background: rgba(16, 185, 129, 0.12);
+          color: var(--success-color);
         }
 
         &.frozen {
           background: rgba(59, 130, 246, 0.12);
-          color: #3b82f6;
+          color: var(--info-color);
         }
 
         &.expired {
           background: rgba(239, 68, 68, 0.10);
-          color: #ef4444;
+          color: var(--error-color);
         }
       }
 
@@ -110,12 +110,12 @@
 
         &:hover {
           color: var(--text-main);
-          border-color: #1f2937;
+          border-color: var(--slate-800);
         }
 
         &.active {
-          background: #0d3278;
-          border-color: #0d3278;
+          background: var(--primary-navy-hover);
+          border-color: var(--primary-navy-hover);
           color: white;
         }
       }
@@ -163,6 +163,10 @@
       .dropdown-filters {
         display: flex;
         gap: 12px;
+
+        app-dropdown {
+          min-width: 160px;
+        }
       }
     }
 
@@ -303,24 +307,24 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: #e2e8f0;
-  color: #0f172a;
+  background-color: var(--slate-200);
+  color: var(--slate-900);
   border: none;
   padding: 10px 20px;
   border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
   i {
     font-size: 1rem;
-    color: #0f172a;
+    color: var(--slate-900);
   }
 
   &:hover {
-    background-color: #e2e8f0;
+    background-color: var(--slate-300);
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
@@ -381,8 +385,8 @@
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
+        background: var(--error-bg);
+        color: var(--error-color);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -398,7 +402,7 @@
 
         &.success {
           background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.15));
-          color: #059669;
+          color: var(--success-color);
           border: 1px solid rgba(16, 185, 129, 0.25);
         }
       }
@@ -412,8 +416,8 @@
         justify-content: center;
 
         &.gold {
-          background: rgba(234, 179, 8, 0.1);
-          color: #eab308;
+          background: var(--warning-bg);
+          color: var(--warning-color);
         }
       }
     }
@@ -434,7 +438,7 @@
         }
 
         &::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
+          background: var(--slate-300);
           border-radius: 10px;
         }
       }
@@ -473,7 +477,7 @@
       flex-shrink: 0;
 
       &.critical {
-        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        background: linear-gradient(135deg, var(--error-color), #b91c1c);
         box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
       }
 
@@ -483,7 +487,7 @@
       }
 
       &.warning {
-        background: linear-gradient(135deg, #eab308, #a16207);
+        background: linear-gradient(135deg, var(--warning-color), #a16207);
         box-shadow: 0 2px 4px rgba(234, 179, 8, 0.2);
       }
     }
@@ -523,12 +527,12 @@
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
         &:hover {
-          background: rgba(234, 179, 8, 0.12);
-          border-color: rgba(234, 179, 8, 0.4);
+          background: var(--warning-bg);
+          border-color: var(--warning-border);
           transform: scale(1.12);
 
           i {
-            color: #d97706 !important;
+            color: var(--warning-color) !important;
             animation: bellRing 0.6s ease-in-out;
           }
         }
@@ -558,6 +562,12 @@
       width: 100%;
       display: flex;
 
+      &.expired-step {
+        .step-bar {
+          width: 100%;
+        }
+      }
+
       .step-bar {
         background: var(--bg-color, #f8fafc);
         border-radius: 12px;
@@ -566,6 +576,8 @@
         justify-content: space-between;
         align-items: center;
         transition: transform 0.2s;
+        min-width: max-content;
+        white-space: nowrap;
 
         &:hover {
           transform: translateX(4px);
@@ -585,7 +597,7 @@
       }
 
       &.expired-step .step-bar {
-        background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+        background: linear-gradient(90deg, var(--slate-800), var(--info-color));
         box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
       }
 
@@ -595,7 +607,7 @@
       }
 
       &.renewed-step .step-bar {
-        background: linear-gradient(90deg, #065f46, #10b981);
+        background: linear-gradient(90deg, #065f46, var(--success-color));
         box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15);
       }
     }
@@ -629,8 +641,8 @@
       justify-content: center;
       font-size: 0.75rem;
       font-weight: 800;
-      color: #64748b;
-      background: #f1f5f9;
+      color: var(--slate-500);
+      background: var(--slate-100);
 
       &.rank-1 {
         background: #fef08a;
@@ -639,8 +651,8 @@
       }
 
       &.rank-2 {
-        background: #e2e8f0;
-        color: #475569;
+        background: var(--slate-200);
+        color: var(--slate-600);
       }
 
       &.rank-3 {
@@ -653,7 +665,7 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: #3b82f6;
+      background: var(--info-color);
       color: white;
       display: flex;
       align-items: center;
@@ -686,7 +698,7 @@
       gap: 6px;
       font-size: 0.8125rem;
       font-weight: 800;
-      color: #ef4444;
+      color: var(--error-color);
 
       i {
         font-size: 0.875rem;

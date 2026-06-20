@@ -1,0 +1,36 @@
+.user-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+
+  ::ng-deep {
+    .workout-tracker-dashboard {
+      height: calc(100vh - 110px);
+
+      &.backdated-height {
+        height: calc(100vh - 180px);
+      }
+    }
+  }
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 4px 0;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+}

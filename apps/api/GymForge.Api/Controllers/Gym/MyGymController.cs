@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Application.Modules.Users.Interface;
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -12,15 +13,33 @@ namespace GymForge.Api.Controllers.Gym
     public class MyGymController : BaseApiController
     {
         private readonly IGymManagementService _gymManagementService;
+        private readonly IUserService _userService;
 
-        public MyGymController(IGymManagementService gymManagementService)
+        public MyGymController(IGymManagementService gymManagementService, IUserService userService)
         {
             _gymManagementService = gymManagementService;
+            _userService = userService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetMyGym()
         {
+            if (User.IsInRole("User") || User.IsInRole("Trainer") || User.IsInRole("Staff") || User.IsInRole("Admin"))
+            {
+                Guid? targetGymId = GymId;
+                if (targetGymId == null || targetGymId == Guid.Empty)
+                {
+                    var userProfile = await _userService.GetUserProfileAsync(UserId);
+                    targetGymId = userProfile?.GymId;
+                }
+
+                if (targetGymId == null || targetGymId == Guid.Empty) return NotFound("Gym not found.");
+                
+                GymListResponseDto? gymDto = await _gymManagementService.GetGymDetailsByIdAsync(targetGymId.Value);
+                if (gymDto == null) return NotFound("Gym not found.");
+                return Ok(gymDto);
+            }
+
             GymListResponseDto? gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
             if (gym == null) return NotFound("Gym not found for this owner.");
             return Ok(gym);

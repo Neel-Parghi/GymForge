@@ -1,0 +1,69 @@
+<div class="panel-header">
+  <div class="header-left">
+    <h3>Health & Progress Tracker</h3>
+    <p class="subtitle">View member composition history and trend logs</p>
+  </div>
+  <div class="header-right">
+    <button type="button" class="btn-action-primary" (click)="recordNewEntry.emit()">
+      <i class="fa-solid fa-plus"></i> Record New Entry
+    </button>
+  </div>
+</div>
+
+<div class="progress-tab-layout history-layout">
+  <div class="logs-panel full-width-panel">
+
+    <div class="table-container-responsive" *ngIf="measurements.length > 0">
+      <table class="premium-history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Weight (kg)</th>
+            <th>Height (cm)</th>
+            <th>Body Fat (%)</th>
+            <th>BMI</th>
+            <th>Type</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of measurements" class="clickable-row" (click)="openDetails.emit(log)">
+            <td>
+              <span class="table-date">
+                <i class="fa-regular fa-calendar"></i>
+                {{ log.date | date:'mediumDate' }}
+              </span>
+            </td>
+            <td><strong>{{ log.weight }} kg</strong></td>
+            <td>{{ log.height }} cm</td>
+            <td>{{ log.bodyFatPercentage ? log.bodyFatPercentage + '%' : '--' }}</td>
+            <td>
+              <span class="bmi-badge-inline" [ngClass]="getBmiClass(log.bmi)">
+                {{ log.bmi }} ({{ getBmiText(log.bmi) }})
+              </span>
+            </td>
+            <td>
+              <span class="mode-badge-inline" [class.advanced]="log.isAdvanced">
+                {{ log.isAdvanced ? 'Advanced' : 'Basic' }}
+              </span>
+            </td>
+            <td class="actions-col">
+              <button type="button" class="btn-table-action" title="View details"
+                (click)="openDetails.emit(log); $event.stopPropagation()">
+                <i class="fa-solid fa-eye"></i>
+                <span>Details</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" *ngIf="measurements.length === 0">
+      <div class="empty-state-icon">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+      <p>No health tracker history logs found for this client.</p>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,5 @@
 .receipt-container {
   background: var(--gray-50);
-  height: 100%;
-  padding: 24px;
 }
 
 .receipt-card {
@@ -247,47 +245,6 @@
   }
 }
 
-.receipt-footer {
-  padding: 24px;
-  background: var(--gray-50);
-  border-top: 1px solid var(--border-color);
-  text-align: center;
-
-  p {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin: 0 0 16px 0;
-  }
-
-  .footer-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
-
-  .btn-icon-text {
-    background: white;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-
-    &:hover {
-      border-color: var(--accent-color);
-      color: var(--accent-color);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    }
-  }
-}
-
 .badge {
   padding: 6px 12px;
   border-radius: 20px;
@@ -352,13 +309,17 @@
     }
   }
 }
+
 @media print {
   body * {
     visibility: hidden;
   }
-  .receipt-card, .receipt-card * {
+
+  .receipt-card,
+  .receipt-card * {
     visibility: visible;
   }
+
   .receipt-card {
     position: absolute;
     left: 0;
@@ -367,7 +328,5 @@
     box-shadow: none;
     border: none;
   }
-  .receipt-footer {
-    display: none;
-  }
+
 }

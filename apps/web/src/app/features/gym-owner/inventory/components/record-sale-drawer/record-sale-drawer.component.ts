@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SlideDrawerComponent } from '../../../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
@@ -9,6 +9,7 @@ import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { InventoryService } from '../../../../../core/services/inventory.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { noFutureDateValidator } from '../../../../../shared/validators/custom-validators';
 
 @Component({
   selector: 'app-record-sale-drawer',
@@ -36,6 +37,7 @@ export class RecordSaleDrawerComponent implements OnInit, OnChanges {
   selectedSaleProduct: any = null;
   saleTotal: number = 0;
   loading = false;
+  today = new Date();
 
   ngOnInit(): void {
     this.initForm();
@@ -53,7 +55,7 @@ export class RecordSaleDrawerComponent implements OnInit, OnChanges {
       productId: ['', [Validators.required]],
       quantity: [1, [Validators.required, Validators.min(1)]],
       paymentMethod: ['Card'],
-      date: [new Date().toISOString().split('T')[0]]
+      date: [new Date().toISOString().split('T')[0], [Validators.required, noFutureDateValidator]]
     });
 
     this.saleForm.valueChanges.pipe(
@@ -106,7 +108,10 @@ export class RecordSaleDrawerComponent implements OnInit, OnChanges {
   }
 
   saveSale() {
-    if (this.saleForm.invalid) return;
+    if (this.saleForm.invalid) {
+      this.saleForm.markAllAsTouched();
+      return;
+    }
     this.loading = true;
 
     this.inventoryService.recordSale(this.saleForm.value).subscribe({
@@ -121,5 +126,15 @@ export class RecordSaleDrawerComponent implements OnInit, OnChanges {
         this.loading = false;
       }
     });
+  }
+
+  clampQuantity() {
+    if (this.selectedSaleProduct) {
+      const stock = this.selectedSaleProduct.stockQuantity || 0;
+      const val = this.saleForm.get('quantity')?.value;
+      if (val > stock) {
+        this.saleForm.get('quantity')?.setValue(stock);
+      }
+    }
   }
 }

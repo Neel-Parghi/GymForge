@@ -1,6 +1,5 @@
 <app-slide-drawer [isOpen]="isOpen" title="Equipment Maintenance Log"
-  subtitle="Record service details, costs and technician info" width="550px"
-  (closeDrawer)="closeDrawer.emit()">
+  subtitle="Record service details, costs and technician info" width="550px" (closeDrawer)="closeDrawer.emit()">
   <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="maintenanceForm">
 
     <div class="asset-mini-profile mb-4" *ngIf="equipment">
@@ -22,38 +21,42 @@
 
       <div class="form-group">
         <label>Status</label>
-        <app-dropdown formControlName="status" [options]="statusOptions"
-          placeholder="Select Status"></app-dropdown>
+        <app-dropdown formControlName="status" [options]="statusOptions" placeholder="Select Status"></app-dropdown>
       </div>
 
       <div class="form-group">
         <label>Technician / Vendor</label>
-        <input type="text" formControlName="technicianName" placeholder="e.g. John Doe / TechFit Solutions">
+        <input type="text" formControlName="technicianName" placeholder="e.g. John Doe / TechFit Solutions"
+          maxlength="30">
       </div>
 
       <div class="form-group">
         <label>Cost (₹)</label>
-        <input type="number" formControlName="cost">
+        <input type="number" formControlName="cost" min="0" max="1000000"
+          onkeypress="return event.charCode >= 48 && event.charCode <= 57" (input)="clampValue('cost', 1000000)">
       </div>
 
       <div class="form-group">
         <label>Start Date</label>
-        <app-date-time-picker formControlName="startDate" placeholder="Select start date"></app-date-time-picker>
+        <app-date-time-picker formControlName="startDate" placeholder="Select start date"
+          [maxDate]="today"></app-date-time-picker>
       </div>
 
       <div class="form-group">
         <label>Est. Completion</label>
-        <app-date-time-picker formControlName="estimatedEndDate" placeholder="Select estimated end date"></app-date-time-picker>
+        <app-date-time-picker formControlName="estimatedEndDate"
+          placeholder="Select estimated end date"></app-date-time-picker>
       </div>
 
       <div class="form-group full-width" *ngIf="maintenanceForm.get('status')?.value === 'Completed'">
         <label>Actual Completion Date</label>
-        <app-date-time-picker formControlName="completedDate" placeholder="Select completion date"></app-date-time-picker>
+        <app-date-time-picker formControlName="completedDate"
+          placeholder="Select completion date"></app-date-time-picker>
       </div>
 
       <div class="form-group full-width">
         <label>Description of Work</label>
-        <textarea formControlName="description" rows="3" placeholder="What was done?"></textarea>
+        <textarea formControlName="description" rows="3" placeholder="What was done?" maxlength="300"></textarea>
       </div>
     </div>
 
@@ -77,7 +80,7 @@
   <div drawer-footer>
     <div class="drawer-actions">
       <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
-      <button class="btn-primary" type="button" [disabled]="maintenanceForm.invalid || loading" (click)="saveMaintenance()">
+      <button class="btn-primary" type="button" [disabled]="loading" (click)="saveMaintenance()">
         <i class="fas fa-save"></i>
         {{ loading ? 'Saving...' : 'Record Maintenance' }}
       </button>

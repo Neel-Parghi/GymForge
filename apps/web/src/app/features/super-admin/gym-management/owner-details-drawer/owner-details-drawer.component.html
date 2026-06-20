@@ -41,12 +41,12 @@
         <input type="text" [value]="ownerContext?.joinedDate | date:'mediumDate'" placeholder="N/A" disabled />
       </div>
 
-      <div class="form-group lg" style="display: flex; flex-direction: row; gap: 16px; align-items: flex-end;">
-        <div style="flex: 1; display: flex; flex-direction: column;">
+      <div class="form-group lg status-row">
+        <div class="status-input-container">
           <label>Invite Status</label>
           <input type="text" [value]="ownerContext?.invitationStatus || 'N/A'" placeholder="Status" disabled />
         </div>
-        <button *ngIf="ownerContext?.invitationStatus === 'Pending'" class="secondary-btn" style="height: 44px; white-space: nowrap; padding: 0 16px;" (click)="onResendInvite()">Resend Invite Email</button>
+        <button *ngIf="ownerContext?.invitationStatus === 'Pending'" class="secondary-btn resend-btn" (click)="onResendInvite()">Resend Invite Email</button>
       </div>
     </form>
   </div>

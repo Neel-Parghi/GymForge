@@ -201,10 +201,10 @@ export class MembersListComponent implements OnInit {
     }
 
     this.loading = true;
-    const { search } = this.filterForm.value;
+    const { search, plan, payment } = this.filterForm.value;
     const bypass = false;
 
-    this.memberService.getGymMembers(this.currentPage, this.pageSize, search, refresh, bypass)
+    this.memberService.getGymMembers(this.currentPage, this.pageSize, search, this.activeFilter.toString(), plan, payment, refresh, bypass)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (res) => {
@@ -272,25 +272,15 @@ export class MembersListComponent implements OnInit {
 
   // Filtering
   applyLocalFilters(): void {
-    let result = [...this.members];
-
-    const { plan, payment } = this.filterForm.value;
-
-    if (this.activeFilter !== 'all')
-      result = result.filter(m => m.status === this.activeFilter);
-
-    if (plan !== 'all')
-      result = result.filter(m => m.currentSubscription?.gymPlanId === plan);
-
-    if (payment !== 'all')
-      result = result.filter(m => m.currentSubscription?.paymentStatus.toString() === payment);
-
-    this.filteredMembers = result;
+    // Local filtering is no longer needed as we're filtering on the backend
+    // Just map members to filteredMembers directly
+    this.filteredMembers = [...this.members];
   }
 
   setFilter(f: MemberStatus | 'all'): void {
     this.activeFilter = f;
-    this.applyLocalFilters();
+    this.currentPage = 1;
+    this.loadMembers();
   }
 
   // Grid events

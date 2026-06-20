@@ -42,7 +42,7 @@
       <div class="membership-card-wrap">
         <div class="membership-card" *ngIf="sub; else noSub">
           <div class="card-top">
-            <div class="brand">GYMFORGE PREMIER</div>
+            <div class="brand">{{ gymName | uppercase }}</div>
             <div class="chip"></div>
           </div>
 
@@ -50,7 +50,10 @@
             <div class="plan-name">{{ sub.planNameSnapshot }}</div>
             <div class="plan-price">
               ₹{{ sub.pricePaid | number:'1.0-0' }}
-              <small>/ {{ sub.durationMonths }} Months</small>
+              <small>
+                / {{ sub.durationMonths }} Months<span *ngIf="sub.extendedMonths && sub.extendedMonths > 0"> ({{
+                  sub.extendedMonths }} Month{{ sub.extendedMonths > 1 ? 's' : '' }} Bonus)</span>
+              </small>
             </div>
           </div>
 
@@ -96,11 +99,11 @@
               <span class="label">Phone Number</span>
               <span class="value">{{ member.phoneNumber }}</span>
             </div>
-            <div class="info-tile" style="grid-column: span 2;">
+            <div class="info-tile double-col">
               <span class="label">Email Address</span>
               <span class="value">{{ member.email }}</span>
             </div>
-            <div class="info-tile" style="grid-column: span 2;" *ngIf="branches.length > 0">
+            <div class="info-tile double-col" *ngIf="branches.length > 0">
               <span class="label">Assigned Branch</span>
               <span class="value">{{ getBranchName(member.branchId) }}</span>
             </div>
@@ -123,7 +126,7 @@
               <span class="label">Fitness Goals</span>
               <span class="value">{{ member.fitnessGoals!.join(', ') }}</span>
             </div>
-            <div class="info-tile" style="grid-column: span 2;" *ngIf="member.medicalConditions">
+            <div class="info-tile double-col" *ngIf="member.medicalConditions">
               <span class="label">Medical Conditions</span>
               <span class="value">{{ member.medicalConditions }}</span>
             </div>
@@ -200,7 +203,7 @@
   </div>
 
   <div drawer-footer class="drawer-actions" *ngIf="member">
-    <div style="display: flex; gap: 12px;">
+    <div class="actions-flex">
       <button class="btn-outline" (click)="onFreezeToggle()">
         <i class="fa-solid" [ngClass]="isFrozen ? 'fa-fire' : 'fa-snowflake'"></i>
         {{ isFrozen ? 'Unfreeze' : 'Freeze' }} Member

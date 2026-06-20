@@ -1,6 +1,6 @@
 <div class="modal-overlay">
   <div class="modal-card wide-card animate-scale-in">
-    
+
     <div class="modal-header">
       <div class="header-title-group">
         <i class="fa-solid fa-cubes"></i>
@@ -25,15 +25,17 @@
 
     <form [formGroup]="createSplitForm" (ngSubmit)="onSubmitSplit()" class="premium-form">
       <div class="form-scroll-content" [class.no-scroll]="activeStep === 'plan'">
-        
+
         <!-- STEP 1: Basic Info -->
         <div class="wizard-step-content animate-scale-in" *ngIf="activeStep === 'details'">
           <!-- Meta Row -->
           <div class="form-row">
             <div class="form-group flex-2">
               <label><i class="fa-solid fa-tag"></i> Split Name <span class="required">*</span></label>
-              <input type="text" formControlName="name" class="form-input" placeholder="e.g. 3-Day Push Pull Legs">
-              <span class="error-msg" *ngIf="createSplitForm.get('name')?.touched && createSplitForm.get('name')?.invalid">Split name is required (min 3 chars).</span>
+              <input type="text" formControlName="name" class="form-input" placeholder="e.g. 3-Day Push Pull Legs" maxlength="50">
+              <span class="error-msg"
+                *ngIf="createSplitForm.get('name')?.touched && createSplitForm.get('name')?.invalid">Split name is
+                required (3-50 chars).</span>
             </div>
 
             <div class="form-group">
@@ -50,27 +52,49 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="required">*</span></label>
-            <textarea formControlName="description" class="form-input textarea-short" placeholder="Explain the focus of this split routine..."></textarea>
-            <span class="error-msg" *ngIf="createSplitForm.get('description')?.touched && createSplitForm.get('description')?.invalid">Description is required.</span>
+            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted" style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <textarea formControlName="description" class="form-input textarea-short" maxlength="200"
+              placeholder="Explain the focus of this split routine..."></textarea>
+            <span class="error-msg"
+              *ngIf="createSplitForm.get('description')?.touched && createSplitForm.get('description')?.invalid">Description
+              cannot exceed 200 characters.</span>
+          </div>
+
+          <!-- Visibility Toggle -->
+          <div class="visibility-toggle-row" *ngIf="!isStandaloneUser">
+            <div class="visibility-toggle-info">
+              <i class="fa-solid fa-eye"></i>
+              <div>
+                <span class="toggle-label">Plan Visibility</span>
+                <span class="toggle-sublabel">
+                  {{ createSplitForm.get('isCustom')?.value ? 'Personal PT Plan — visible only to your assigned members'
+                  : 'Public — all gym members can access this plan' }}
+                </span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="isCustom">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
 
           <!-- Quick Tip Graphic -->
           <div class="details-tip-panel">
             <div class="tip-icon"><i class="fa-solid fa-circle-info"></i></div>
             <div class="tip-body">
-              <strong>Tip from Designer:</strong> In the next step, you can configure split days dynamically, choose category targets for each split day, copy splits, and assemble your spreadsheet list of exercises.
+              In the next step, you can configure split days dynamically, choose
+              category targets for each split day, copy splits, and assemble your spreadsheet list of exercises.
             </div>
           </div>
         </div>
 
         <!-- STEP 2: Workout Calendar Setup -->
         <div class="wizard-step-content animate-scale-in" *ngIf="activeStep === 'plan'">
-          
+
           <!-- Split Days Configuration Tabs -->
           <div class="calendar-tabs">
-            <button type="button" *ngFor="let dayGroup of splitDays.controls; let dayIdx = index"
-              class="tab-btn" [class.active]="activeDayTab === dayIdx" (click)="activeDayTab = dayIdx">
+            <button type="button" *ngFor="let dayGroup of splitDays.controls; let dayIdx = index" class="tab-btn"
+              [class.active]="activeDayTab === dayIdx" (click)="activeDayTab = dayIdx">
               <span class="tab-day-short">Day {{ dayIdx + 1 }}</span>
             </button>
             <button type="button" class="tab-btn-add" (click)="addSplitDay()" title="Add Split Day">
@@ -82,12 +106,13 @@
           <div formArrayName="days" class="sections-container">
             <ng-container *ngFor="let dayGroup of splitDays.controls; let dayIdx = index">
               <div class="section-panel" *ngIf="activeDayTab === dayIdx" [formGroupName]="dayIdx">
-                
+
                 <div class="panel-header">
                   <div class="header-left">
                     <span class="panel-badge">Day #{{ dayIdx + 1 }}</span>
-                    <input type="text" formControlName="name" class="day-title-input compact-input" placeholder="Day Name">
-                    
+                    <input type="text" formControlName="name" class="day-title-input compact-input"
+                      placeholder="Day Name" maxlength="10">
+
                     <!-- Muscle Target Focus Pills - Multi-Select -->
                     <div class="panel-category-selector animate-scale-in">
                       <div class="muscle-pills-container">
@@ -100,7 +125,8 @@
                     </div>
                   </div>
 
-                  <button type="button" class="panel-btn-delete" *ngIf="splitDays.length > 1" (click)="removeSplitDay(dayIdx)" title="Delete Split Day">
+                  <button type="button" class="panel-btn-delete" *ngIf="splitDays.length > 1"
+                    (click)="removeSplitDay(dayIdx)" title="Delete Split Day">
                     <i class="fa-solid fa-trash-can"></i> Delete Day
                   </button>
                 </div>
@@ -118,23 +144,27 @@
                         </tr>
                       </thead>
                       <tbody formArrayName="exercises">
-                        <tr *ngFor="let ex of getSplitExercises(dayIdx).controls; let exIdx = index" [formGroupName]="exIdx">
+                        <tr *ngFor="let ex of getSplitExercises(dayIdx).controls; let exIdx = index"
+                          [formGroupName]="exIdx">
                           <td>
-                            <app-dropdown [options]="getExercisesDropdownOptions(dayIdx, exIdx)" formControlName="exerciseName"
-                              placeholder="Select Exercise" [isSearchable]="true" minWidth="100%"
-                              direction="auto"></app-dropdown>
+                            <app-dropdown [options]="getExercisesDropdownOptions(dayIdx, exIdx)"
+                              formControlName="exerciseName" placeholder="Select Exercise" [isSearchable]="true"
+                              minWidth="100%" direction="auto"></app-dropdown>
                           </td>
                           <td>
-                            <input type="number" formControlName="targetSets" class="table-input col-sets-input" min="1" max="10">
+                            <input type="number" formControlName="targetSets" class="table-input col-sets-input" min="1"
+                              max="10">
                           </td>
                           <td>
-                            <input type="text" formControlName="targetReps" class="table-input" placeholder="e.g. 10-12 reps">
+                            <input type="text" formControlName="targetReps" class="table-input"
+                              placeholder="e.g. 10-12 reps">
                           </td>
                           <td>
                             <input type="text" formControlName="notes" class="table-input" placeholder="Notes">
                           </td>
                           <td>
-                            <button type="button" class="row-btn-delete" (click)="removeSplitExercise(dayIdx, exIdx)" title="Remove Exercise">
+                            <button type="button" class="row-btn-delete" (click)="removeSplitExercise(dayIdx, exIdx)"
+                              title="Remove Exercise">
                               <i class="fa-solid fa-xmark"></i>
                             </button>
                           </td>
@@ -148,10 +178,12 @@
                       <i class="fa-solid fa-circle-plus"></i> Add Exercise Row
                     </button>
                     <div class="panel-copy-paste-actions">
-                      <button type="button" class="btn-secondary-action btn-copy" (click)="copyWorkout(dayIdx)" title="Copy Workout Split">
+                      <button type="button" class="btn-secondary-action btn-copy" (click)="copyWorkout(dayIdx)"
+                        title="Copy Workout Split">
                         <i class="fa-solid fa-copy"></i> Copy Workout
                       </button>
-                      <button type="button" class="btn-secondary-action btn-paste" *ngIf="copiedWorkout" (click)="pasteWorkout(dayIdx)" title="Paste Copied Workout Split">
+                      <button type="button" class="btn-secondary-action btn-paste" *ngIf="copiedWorkout"
+                        (click)="pasteWorkout(dayIdx)" title="Paste Copied Workout Split">
                         <i class="fa-solid fa-paste"></i> Paste Workout
                       </button>
                     </div>

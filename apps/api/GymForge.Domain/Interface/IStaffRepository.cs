@@ -23,12 +23,12 @@ namespace GymForge.Domain.Interface
         
         // Measurements
         Task AddMeasurementAsync(MemberMeasurement measurement);
-        Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberId);
+        Task<IEnumerable<MemberMeasurement>> GetMeasurementsByMemberIdAsync(Guid memberOrUserId);
 
         // Staff Attendance
         Task AddStaffAttendanceLogAsync(StaffAttendanceLog log);
         Task<StaffAttendanceLog?> GetActiveStaffAttendanceLogAsync(Guid staffId);
-        Task<IEnumerable<StaffAttendanceLog>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null);
-        Task<PagedResponse<StaffAttendanceLog>> GetStaffAttendanceLogsPagedAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null);
+        Task<IEnumerable<StaffAttendanceLog>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null, Guid? staffId = null);
+        Task<PagedResponse<StaffAttendanceLog>> GetStaffAttendanceLogsPagedAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null, Guid? staffId = null);
     }
 }

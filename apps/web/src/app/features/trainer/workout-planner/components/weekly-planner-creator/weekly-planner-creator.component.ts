@@ -6,6 +6,9 @@ import { DropdownComponent } from '../../../../../shared/components/dropdown/dro
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { ConfirmationPopupComponent } from '../../../../../shared/components/confirmation-popup/confirmation-popup.component';
+import { WeeklyPlanner } from '../../../../../shared/models/workout-plan.model';
+import { CONSTANTS } from '../../../../../core/constants/constants';
+import { AuthApiService } from '../../../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-weekly-planner-creator',
@@ -17,6 +20,11 @@ import { ConfirmationPopupComponent } from '../../../../../shared/components/con
 export class WeeklyPlannerCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
+  private authService = inject(AuthApiService);
+
+  get isStandaloneUser(): boolean {
+    return this.authService.getUserRole() === 'User';
+  }
 
   copiedWorkout: any = null;
   showConfirmPopup = false;
@@ -24,9 +32,9 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
 
   @Input() categories: string[] = [];
   @Input() exercisesMap: { [category: string]: Exercise[] } = {};
-  @Input() editData: any = null;
+  @Input() editData: WeeklyPlanner | null = null;
 
-  @Output() save = new EventEmitter<any>();
+  @Output() save = new EventEmitter<WeeklyPlanner>();
   @Output() close = new EventEmitter<void>();
 
   createWeeklyForm!: FormGroup;
@@ -50,14 +58,28 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     { label: 'Rest', value: 'rest' }
   ];
 
+  getCategoryForExercise(exerciseName: string): string | null {
+    if (!exerciseName) return null;
+    for (const cat of Object.keys(this.exercisesMap)) {
+      const found = this.exercisesMap[cat].some(e => e.name === exerciseName);
+      if (found) return cat;
+    }
+    return null;
+  }
+
   getExercisesDropdownOptions(dayIdx: number, currentExIdx?: number): DropdownOption[] {
     const dayGroup = this.weeklyCalendarDays.at(dayIdx);
     const categories = dayGroup.get('targetCategories')?.value || ['Back'];
     const exercises = this.getExercisesForCategories(categories);
 
-    // Collect names already selected in other exercise rows for this day
     const usedNames = new Set<string>();
     const exArray = this.getWeeklyExercises(dayIdx);
+    let currentSelectedName = '';
+    if (currentExIdx !== undefined) {
+      const currentCtrl = exArray.at(currentExIdx);
+      currentSelectedName = currentCtrl?.get('exerciseName')?.value || '';
+    }
+
     exArray.controls.forEach((ctrl, idx) => {
       if (idx !== currentExIdx) {
         const name = ctrl.get('exerciseName')?.value;
@@ -65,12 +87,29 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       }
     });
 
-    return exercises
+    const options = exercises
       .filter(e => !usedNames.has(e.name))
       .map(e => ({
         label: `${e.name} (${e.equipment})`,
         value: e.name
       }));
+
+    if (currentSelectedName && !options.some(opt => opt.value === currentSelectedName)) {
+      let exerciseDetail: Exercise | undefined;
+      for (const cat of Object.keys(this.exercisesMap)) {
+        const found = this.exercisesMap[cat].find(e => e.name === currentSelectedName);
+        if (found) {
+          exerciseDetail = found;
+          break;
+        }
+      }
+      options.unshift({
+        label: exerciseDetail ? `${exerciseDetail.name} (${exerciseDetail.equipment})` : currentSelectedName,
+        value: currentSelectedName
+      });
+    }
+
+    return options;
   }
 
   ngOnInit(): void {
@@ -92,10 +131,11 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     this.createWeeklyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.maxLength(200)]],
       level: ['Beginner'],
       goal: ['Hypertrophy'],
+      isCustom: [false],
       calendar: this.fb.array(
         weekdays.map(day => this.createWeeklyDayGroup(day))
       )
@@ -107,20 +147,21 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       name: data.name,
       description: data.description,
       level: data.level,
-      goal: data.goal
+      goal: data.goal,
+      isCustom: data.isCustom ?? false
     });
 
     const calendarArray = this.weeklyCalendarDays;
     calendarArray.clear();
 
-    data.calendar.forEach((day: any) => {
+    (data.calendar || []).forEach((day: any) => {
       const categories = day.targetCategory ? day.targetCategory.split(' + ') : ['Back'];
 
       const dayGroup = this.fb.group({
         dayName: [day.dayName],
         type: [day.type || 'workout', [Validators.required]],
         targetCategories: [categories],
-        splitDayName: [day.splitDayName || day.dayName],
+        splitDayName: [day.splitDayName || day.dayName, [Validators.maxLength(10)]],
         exercises: this.fb.array(
           (day.exercises || []).map((ex: any) => this.fb.group({
             exerciseName: [ex.name || '', [Validators.required]],
@@ -131,7 +172,6 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
         )
       });
 
-      // Monitor type changes for the edited day as well
       dayGroup.get('type')?.valueChanges.subscribe(val => {
         const exercisesArray = dayGroup.get('exercises') as FormArray;
         if (val === 'rest') {
@@ -142,8 +182,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
             const av = this.getExercisesForCategories(cats);
             exercisesArray.push(this.fb.group({
               exerciseName: [av[0]?.name || '', [Validators.required]],
-              targetSets: [3, [Validators.required, Validators.min(1)]],
-              targetReps: ['10-12 reps', [Validators.required]],
+              targetSets: [4, [Validators.required, Validators.min(1)]],
+              targetReps: ['10-12', [Validators.required]],
               notes: ['']
             }));
           }
@@ -160,20 +200,19 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
 
     const dayGroup = this.fb.group({
       dayName: [dayName],
-      type: ['workout', [Validators.required]], // 'workout' | 'rest'
-      targetCategories: [[defaultCat]], // Changed to support multiple target categories
-      splitDayName: [`${dayName}`],
+      type: ['workout', [Validators.required]],
+      targetCategories: [[defaultCat]],
+      splitDayName: [`${dayName}`, [Validators.maxLength(10)]],
       exercises: this.fb.array([
         this.fb.group({
           exerciseName: ['', [Validators.required]],
-          targetSets: [3, [Validators.required, Validators.min(1)]],
-          targetReps: ['10-12 reps', [Validators.required]],
+          targetSets: [4, [Validators.required, Validators.min(1)]],
+          targetReps: ['10-12', [Validators.required]],
           notes: ['']
         })
       ])
     });
 
-    // Monitor type ('workout' vs 'rest') to toggle controls or reset exercises
     dayGroup.get('type')?.valueChanges.subscribe(val => {
       const exercisesArray = dayGroup.get('exercises') as FormArray;
       if (val === 'rest') {
@@ -184,8 +223,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
           const av = this.getExercisesForCategories(categories);
           exercisesArray.push(this.fb.group({
             exerciseName: ['', [Validators.required]],
-            targetSets: [3, [Validators.required, Validators.min(1)]],
-            targetReps: ['10-12 reps', [Validators.required]],
+            targetSets: [4, [Validators.required, Validators.min(1)]],
+            targetReps: ['10-12', [Validators.required]],
             notes: ['']
           }));
         }
@@ -200,22 +239,26 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     const categories = day.get('targetCategories')?.value || ['Back'];
     const available = this.getExercisesForCategories(categories);
 
-    // Pick first exercise not already used in this day
     const usedNames = new Set<string>();
     this.getWeeklyExercises(dayIndex).controls.forEach(ctrl => {
       const name = ctrl.get('exerciseName')?.value;
       if (name) usedNames.add(name);
     });
-    const nextExercise = available.find(e => !usedNames.has(e.name));
 
     const exGroup = this.fb.group({
       exerciseName: ['', [Validators.required]],
-      targetSets: [3, [Validators.required, Validators.min(1)]],
-      targetReps: ['10-12 reps', [Validators.required]],
+      targetSets: [4, [Validators.required, Validators.min(1)]],
+      targetReps: ['10-12', [Validators.required]],
       notes: ['']
     });
 
     this.getWeeklyExercises(dayIndex).push(exGroup);
+    setTimeout(() => {
+      const wrapper = document.querySelector('.exercise-table-scroll-wrapper');
+      if (wrapper) {
+        wrapper.scrollTop = wrapper.scrollHeight;
+      }
+    }, 200);
   }
 
   removeWeeklyExercise(dayIndex: number, exIndex: number): void {
@@ -228,14 +271,13 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
   copyWorkout(dayIndex: number): void {
     const dayGroup = this.weeklyCalendarDays.at(dayIndex);
     const exercisesArray = dayGroup.get('exercises') as FormArray;
-    
+
     this.copiedWorkout = {
       targetCategories: [...(dayGroup.get('targetCategories')?.value || [])],
       splitDayName: dayGroup.get('splitDayName')?.value || '',
       exercises: exercisesArray.value.map((ex: any) => ({ ...ex }))
     };
-    
-    this.notification.success(`Workout plan from ${dayGroup.get('dayName')?.value} copied!`);
+    this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_COPY_SUCCESS.replace('{day}', dayGroup.get('dayName')?.value));
   }
 
   pasteWorkout(dayIndex: number): void {
@@ -258,7 +300,10 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       }));
     });
 
-    this.notification.success(`Workout plan pasted to ${dayGroup.get('dayName')?.value}!`);
+    this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_PASTE_SUCCESS.replace('{day}', dayGroup.get('dayName')?.value));
+
+    // Clear clipboard so paste button disappears — user must copy again to re-enable
+    this.copiedWorkout = null;
   }
 
   getExercisesForCategory(category: string): Exercise[] {
@@ -270,7 +315,6 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     return key ? this.exercisesMap[key] : [];
   }
 
-  // Get merged list of exercises for multiple selected categories
   getExercisesForCategories(categories: string[]): Exercise[] {
     if (!categories || categories.length === 0) return [];
     let combined: Exercise[] = [];
@@ -278,20 +322,17 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       const list = this.getExercisesForCategory(cat);
       combined = [...combined, ...list];
     });
-    // Remove duplicates by name
     return combined.filter((ex, index, self) =>
       self.findIndex(e => e.name === ex.name) === index
     );
   }
 
-  // Toggle category pill/chip selection
   toggleCategory(dayIndex: number, category: string): void {
     const dayGroup = this.weeklyCalendarDays.at(dayIndex);
     const currentCats: string[] = dayGroup.get('targetCategories')?.value || [];
     let newCats: string[];
 
     if (currentCats.includes(category)) {
-      // Don't allow toggling off if it's the last selected category
       if (currentCats.length <= 1) return;
       newCats = currentCats.filter(c => c !== category);
     } else {
@@ -300,7 +341,6 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
 
     dayGroup.get('targetCategories')?.setValue(newCats);
 
-    // Automatically dynamic update: ensure first exercise is valid if we modify categories
     const exercisesArray = this.getWeeklyExercises(dayIndex);
     if (exercisesArray.length === 1) {
       const currentEx = exercisesArray.at(0).get('exerciseName')?.value;
@@ -318,7 +358,6 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     return currentCats.includes(category);
   }
 
-  // Wizard Step Navigation
   nextStep(): void {
     this.createWeeklyForm.get('name')?.markAsTouched();
 
@@ -332,28 +371,31 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
   }
 
   onSubmitWeekly(): void {
-    // 1. Check if name is invalid (Step 1 Basic Info)
     if (this.createWeeklyForm.get('name')?.invalid) {
       this.createWeeklyForm.get('name')?.markAsTouched();
       this.activeStep = 'details';
       return;
     }
 
-    // 2. Identify days with pending/unconfigured workouts
+    if (this.createWeeklyForm.invalid) {
+      this.proceedWithSave();
+      return;
+    }
+
     const valBefore = this.createWeeklyForm.getRawValue();
     const pendingDays: string[] = [];
 
     valBefore.calendar.forEach((c: any) => {
       if (c.type === 'workout') {
-        const hasEmptyExercise = !c.exercises || c.exercises.length === 0 || c.exercises.some((e: any) => !e.exerciseName);
-        if (hasEmptyExercise) {
+        const hasZeroExercises = !c.exercises || c.exercises.length === 0;
+        if (hasZeroExercises) {
           pendingDays.push(c.dayName);
         }
       }
     });
 
     if (pendingDays.length > 0) {
-      this.confirmMessage = `You have pending (unconfigured) workouts on the following days: ${pendingDays.join(', ')}. Are you sure you want to save?`;
+      this.confirmMessage = CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_PENDING_CONFIRM.replace('{days}', pendingDays.join(', '));
       this.showConfirmPopup = true;
       return;
     }
@@ -364,18 +406,31 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
   onConfirmSave(): void {
     this.showConfirmPopup = false;
 
-    // Temporarily clear validators on empty exercise fields so Angular marks the form as valid
-    this.weeklyCalendarDays.controls.forEach((dayCtrl: any) => {
+    this.weeklyCalendarDays.controls.forEach((dayCtrl) => {
       const exercisesArray = dayCtrl.get('exercises') as FormArray;
       if (exercisesArray) {
-        exercisesArray.controls.forEach((exCtrl: any) => {
-          if (!exCtrl.get('exerciseName')?.value) {
-            exCtrl.get('exerciseName')?.clearValidators();
-            exCtrl.get('exerciseName')?.updateValueAndValidity();
+        exercisesArray.controls.forEach((exCtrl) => {
+          const nameCtrl = exCtrl.get('exerciseName');
+          const setsCtrl = exCtrl.get('targetSets');
+          const repsCtrl = exCtrl.get('targetReps');
+          if (!nameCtrl?.value) {
+            nameCtrl?.clearValidators();
+            nameCtrl?.updateValueAndValidity({ onlySelf: true });
+            setsCtrl?.clearValidators();
+            setsCtrl?.updateValueAndValidity({ onlySelf: true });
+            repsCtrl?.clearValidators();
+            repsCtrl?.updateValueAndValidity({ onlySelf: true });
+
+            (exCtrl as FormGroup).updateValueAndValidity({ onlySelf: true });
           }
         });
+        exercisesArray.updateValueAndValidity({ onlySelf: true });
       }
+      dayCtrl.updateValueAndValidity({ onlySelf: true });
     });
+
+    this.weeklyCalendarDays.updateValueAndValidity({ onlySelf: true });
+    this.createWeeklyForm.updateValueAndValidity();
 
     this.proceedWithSave();
   }
@@ -385,22 +440,54 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     this.createWeeklyForm.markAllAsTouched();
   }
 
+  private logFormErrors(form: FormGroup | FormArray, name = 'root'): void {
+    Object.keys(form.controls).forEach(key => {
+      const control = (form.controls as any)[key];
+      if (control.invalid) {
+        console.warn(`Control "${name}.${key}" is INVALID. Errors:`, control.errors);
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.logFormErrors(control, `${name}.${key}`);
+        }
+      }
+    });
+  }
+
   proceedWithSave(): void {
-    // Check for standard form validation errors
     if (this.createWeeklyForm.invalid) {
+      this.logFormErrors(this.createWeeklyForm);
       this.createWeeklyForm.markAllAsTouched();
+      
+      let hasInvalidExercises = false;
+      for (let i = 0; i < this.weeklyCalendarDays.length; i++) {
+        const day = this.weeklyCalendarDays.at(i);
+        if (day.get('type')?.value === 'workout') {
+          const exercises = this.getWeeklyExercises(i);
+          if (exercises.controls.some(ctrl => ctrl.get('exerciseName')?.invalid)) {
+            hasInvalidExercises = true;
+            break;
+          }
+        }
+      }
+
+      if (hasInvalidExercises) {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.SELECT_EXERCISE_WARNING);
+      } else {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_INVALID_FORM);
+      }
       return;
     }
 
     const val = this.createWeeklyForm.getRawValue();
     const activeDays = val.calendar.filter((c: any) => c.type === 'workout').length;
 
-    const weeklyData = {
+    const weeklyData: WeeklyPlanner = {
       ...(this.editData ? { id: this.editData.id } : {}),
       name: val.name,
       description: val.description,
       level: val.level,
       goal: val.goal,
+      type: 'Weekly',
+      isCustom: val.isCustom ?? false,
       activeDaysCount: activeDays,
       calendar: val.calendar.map((c: any) => {
         if (c.type === 'rest') {
@@ -410,13 +497,21 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
             exercises: []
           };
         } else {
+          // Auto-detect categories based on selected exercises to ensure none are missed
+          const categoriesSet = new Set<string>(c.targetCategories || []);
+          c.exercises.forEach((ex: any) => {
+            if (ex.exerciseName) {
+              const cat = this.getCategoryForExercise(ex.exerciseName);
+              if (cat) categoriesSet.add(cat);
+            }
+          });
           return {
             dayName: c.dayName,
             type: 'workout',
-            targetCategory: (c.targetCategories || []).join(' + '), // e.g. "Back + Biceps"
+            targetCategory: Array.from(categoriesSet).join(' + '),
             splitDayName: c.splitDayName || `${c.dayName} Focus`,
             exercises: c.exercises
-              .filter((e: any) => e.exerciseName) // Filter out empty unconfigured exercises
+              .filter((e: any) => e.exerciseName)
               .map((e: any) => ({
                 name: e.exerciseName,
                 sets: e.targetSets,

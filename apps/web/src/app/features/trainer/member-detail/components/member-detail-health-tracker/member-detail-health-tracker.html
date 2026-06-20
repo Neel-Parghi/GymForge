@@ -1,0 +1,21 @@
+<div class="tab-pane-content">
+  <div class="health-tracker-panel glass-card">
+
+    <!-- View 1: History Timeline -->
+    <app-health-tracker-history *ngIf="!showForm" [measurements]="measurements"
+      (openDetails)="openDetailsDrawer($event)" (recordNewEntry)="showForm = true">
+    </app-health-tracker-history>
+
+    <!-- View 2: Record Form (Full Width) -->
+    <app-health-tracker-form *ngIf="showForm" [measurementForm]="measurementForm"
+      [activeTrackerMode]="activeTrackerMode" [isSubmittingProgress]="isSubmittingProgress"
+      (changeMode)="setTrackerMode($event)" (cancel)="showForm = false" (submitForm)="submitProgress()">
+    </app-health-tracker-form>
+
+  </div>
+
+  <!-- Frosted-Glass Comparative Details Modal -->
+  <app-health-tracker-report *ngIf="showDrawer" [selectedLog]="selectedLog" [previousLog]="previousLog"
+    (close)="closeDetailsDrawer()">
+  </app-health-tracker-report>
+</div>

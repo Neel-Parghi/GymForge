@@ -4,6 +4,7 @@ using GymForge.Infrastructure.Persistence;
 using GymForge.Infrastructure.Persistence.Interceptos;
 using GymForge.Infrastructure.Repositories;
 using GymForge.Infrastructure.Services;
+using GymForge.Application.Modules.Gym.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +37,7 @@ namespace GymForge.Infrastructure
                     if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) || 
                         connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
                     {
-                        var uri = new Uri(connectionString);
+                        Uri uri = new Uri(connectionString);
                         string[] userInfo = uri.UserInfo.Split(':');
                         string? host = uri.Host;
                         int port = uri.IsDefaultPort ? 5432 : uri.Port;
@@ -70,7 +71,11 @@ namespace GymForge.Infrastructure
                     options.AddInterceptors(auditableInterceptor);
                 }
 
-                options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+                options.ConfigureWarnings(w =>
+                {
+                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning);
+                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
+                });
             });
 
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
@@ -93,6 +98,13 @@ namespace GymForge.Infrastructure
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
             services.AddScoped<IMemberBillingRepository, MemberBillingRepository>();
             services.AddScoped<IWorkoutRepository, WorkoutRepository>();
+            services.AddScoped<IWorkoutPlanRepository, WorkoutPlanRepository>();
+            services.AddScoped<IMemberWorkoutRepository, MemberWorkoutRepository>();
+            services.AddScoped<IDietPlanRepository, DietPlanRepository>();
+            services.AddScoped<IMemberDietRepository, MemberDietRepository>();
+            services.AddScoped<IGymAnnouncementRepository, GymAnnouncementRepository>();
+            services.AddScoped<IAnnouncementTemplateRepository, AnnouncementTemplateRepository>();
+            services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

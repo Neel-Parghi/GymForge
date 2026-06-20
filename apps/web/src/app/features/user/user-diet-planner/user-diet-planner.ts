@@ -1,0 +1,95 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { PTMemberDetailDietChartComponent } from '../../trainer/member-detail/components/member-detail-diet-chart/member-detail-diet-chart';
+import { DietLibraryComponent } from '../../../shared/components/diet-library/diet-library.component';
+import { MemberService } from '../../../core/services/member.service';
+import { DietPlanService } from '../../../core/services/diet-plan.service';
+import { AuthApiService } from '../../../core/services/auth-api.service';
+import { NotificationService } from '../../../core/services/notification.service';
+
+@Component({
+  selector: 'app-user-diet-planner',
+  standalone: true,
+  imports: [CommonModule, PTMemberDetailDietChartComponent, DietLibraryComponent],
+  templateUrl: './user-diet-planner.html',
+  styleUrl: './user-diet-planner.scss'
+})
+export class UserDietPlanner implements OnInit {
+  private memberService = inject(MemberService);
+  private dietPlanService = inject(DietPlanService);
+  private authService = inject(AuthApiService);
+  private notification = inject(NotificationService);
+
+  userId = '';
+  memberInfo: any = { firstName: 'User' };
+
+  viewMode: 'active' | 'library' = 'active';
+  activeDiet: any = null;
+  dietPlans: any[] = [];
+  showAssignDietModal = false;
+
+  ngOnInit() {
+    this.authService.userProfile$.subscribe(profile => {
+      if (profile) {
+        this.userId = profile.id;
+        this.memberInfo = { firstName: profile.firstName };
+        this.loadActiveDiet();
+      }
+    });
+  }
+
+  loadActiveDiet(): void {
+    this.memberService.getActiveDiet(this.userId).subscribe({
+      next: (res: any) => {
+        const assignment = res?.data;
+        if (assignment?.dietPlan) {
+          const dp = assignment.dietPlan;
+          this.activeDiet = {
+            planId: dp.id,
+            planName: dp.name,
+            calories: dp.calories,
+            macros: { protein: dp.protein, carbs: dp.carbs, fats: dp.fats },
+            meals: (dp.meals || []).map((m: any) => ({
+              name: m.name,
+              time: m.time,
+              calories: m.calories,
+              protein: m.protein,
+              items: m.items
+            }))
+          };
+        } else {
+          this.activeDiet = null;
+        }
+      },
+      error: () => {
+        this.activeDiet = null;
+      }
+    });
+  }
+
+  assignDietPlan(plan: any): void {
+    this.memberService.assignDiet(this.userId, plan.id).subscribe({
+      next: () => {
+        this.activeDiet = {
+          planId: plan.id,
+          planName: plan.name,
+          calories: plan.calories,
+          macros: { protein: plan.protein, carbs: plan.carbs, fats: plan.fats },
+          meals: (plan.meals || []).map((m: any) => ({
+            name: m.name,
+            time: m.time,
+            calories: m.calories,
+            protein: m.protein,
+            items: m.items
+          }))
+        };
+        this.notification.success(`Successfully assigned ${plan.name} to yourself!`);
+        this.viewMode = 'active';
+      },
+      error: (err) => {
+        console.error('Failed to assign diet plan:', err);
+        this.notification.error('Failed to assign diet plan. Please try again later.');
+      }
+    });
+  }
+}

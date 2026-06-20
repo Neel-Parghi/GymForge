@@ -49,7 +49,7 @@ namespace GymForge.Infrastructure.Repositories
             return await query.OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn).ToListAsync();
         }
 
-        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        public async Task<(IEnumerable<InventoryItem> items, int totalCount)> GetPagedProductsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null, string? stockStatus = null)
         {
             IQueryable<InventoryItem> query = _context.InventoryItems
                 .AsNoTracking()
@@ -62,6 +62,11 @@ namespace GymForge.Infrastructure.Repositories
                 searchTerm = searchTerm.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.SKU.ToLower().Contains(searchTerm));
             }
+
+            if (stockStatus == "LowStock")
+                query = query.Where(x => x.StockQuantity <= x.ReorderLevel);
+            else if (stockStatus == "InStock")
+                query = query.Where(x => x.StockQuantity > x.ReorderLevel);
 
             int totalCount = await query.CountAsync();
 
@@ -109,6 +114,36 @@ namespace GymForge.Infrastructure.Repositories
             return await query
                 .OrderByDescending(x => x.TransactionDate)
                 .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<SaleTransaction> items, int totalCount)> GetPagedSalesAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        {
+            IQueryable<SaleTransaction> query = _context.SaleTransactions
+                .AsNoTracking()
+                .Include(x => x.InventoryItem)
+                .Include(x => x.Member)
+                .Where(x => x.GymId == gymId);
+
+            query = query.WhereBranchContext(_context.Branches, branchId);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerTerm = searchTerm.ToLower();
+                query = query.Where(x => 
+                    (x.InventoryItem != null && x.InventoryItem.Name.ToLower().Contains(lowerTerm)) || 
+                    (x.Member != null && (x.Member.FirstName.ToLower().Contains(lowerTerm) || x.Member.LastName.ToLower().Contains(lowerTerm)))
+                );
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.TransactionDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<SaleTransaction?> GetSaleByIdAsync(Guid id)

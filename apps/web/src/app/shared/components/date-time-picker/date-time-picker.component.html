@@ -80,6 +80,8 @@
       <div class="calendar-grid">
         <button type="button" *ngFor="let day of calendarDays" class="calendar-day"
           [class.other-month]="!day.isCurrentMonth" [class.today]="day.isToday" [class.selected-day]="day.isSelected"
+          [class.disabled-date]="isDateDisabled(day.date)"
+          [disabled]="isDateDisabled(day.date)"
           (click)="selectDate(day, $event)">
           {{ day.dayNumber }}
         </button>
@@ -90,7 +92,10 @@
     <ng-container *ngIf="currentPickerView === 'months'">
       <div class="months-grid">
         <button type="button" *ngFor="let monthName of monthsList; let i = index" class="month-item"
-          [class.active]="currentViewDate.getMonth() === i" (click)="selectMonth(i, $event)">
+          [class.active]="currentViewDate.getMonth() === i"
+          [class.disabled-date]="isMonthDisabled(i)"
+          [disabled]="isMonthDisabled(i)"
+          (click)="selectMonth(i, $event)">
           {{ monthName }}
         </button>
       </div>
@@ -100,7 +105,10 @@
     <ng-container *ngIf="currentPickerView === 'years'">
       <div class="years-grid">
         <button type="button" *ngFor="let yr of getYearsRangeList()" class="year-item"
-          [class.active]="currentViewDate.getFullYear() === yr" (click)="selectYear(yr, $event)">
+          [class.active]="currentViewDate.getFullYear() === yr"
+          [class.disabled-date]="isYearDisabled(yr)"
+          [disabled]="isYearDisabled(yr)"
+          (click)="selectYear(yr, $event)">
           {{ yr }}
         </button>
       </div>

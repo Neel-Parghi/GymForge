@@ -14,8 +14,14 @@ export class StaffService extends BaseApiService {
 
   private branchContextService = inject(BranchContextService);
   private staffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
+  private staffCacheLarge$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
+  private unscopedStaffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
   private staffLogsCache$: Observable<ApiResponse<any>> | null = null;
+  private staffBypassedLogsCache$: Observable<ApiResponse<any>> | null = null;
+  private measurementsCache = new Map<string, Observable<ApiResponse<MeasurementResponse[]>>>();
+  private staffDetailsCache = new Map<string, Observable<ApiResponse<StaffResponse>>>();
+  private attendanceLogsCache = new Map<string, Observable<ApiResponse<any>>>();
 
   constructor() {
     super();
@@ -24,32 +30,66 @@ export class StaffService extends BaseApiService {
     });
   }
 
-
   getGymStaff(page: number = 1, pageSize: number = 10, searchTerm: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
     const branchId = this.branchContextService.getActiveBranchId();
-    if (searchTerm || page !== 1 || pageSize !== 10 || forceRefresh) {
+
+    if (forceRefresh) {
+      this.clearCache();
+    }
+
+    if (searchTerm || page !== 1 || (pageSize !== 10 && pageSize !== 100)) {
       const params: any = { pageNumber: page, pageSize };
       if (searchTerm) params.searchTerm = searchTerm;
       if (branchId) params.branchId = branchId;
       return this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params);
     }
 
-    if (!this.staffCache$) {
-      const params: any = { pageNumber: 1, pageSize: 10 };
-      if (branchId) params.branchId = branchId;
-      this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params).pipe(
+    if (pageSize === 10) {
+      if (!this.staffCache$) {
+        const params: any = { pageNumber: 1, pageSize: 10 };
+        if (branchId) params.branchId = branchId;
+        this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params).pipe(
+          shareReplay(1)
+        );
+      }
+      return this.staffCache$;
+    } else {
+      if (!this.staffCacheLarge$) {
+        const params: any = { pageNumber: 1, pageSize: 100 };
+        if (branchId) params.branchId = branchId;
+        this.staffCacheLarge$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params).pipe(
+          shareReplay(1)
+        );
+      }
+      return this.staffCacheLarge$;
+    }
+  }
+
+  getUnscopedGymStaff(page: number = 1, pageSize: number = 100, forceRefresh = false): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
+    if (forceRefresh) {
+      this.clearCache();
+    }
+
+    if (page !== 1 || pageSize !== 100) {
+      return this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, { pageNumber: page, pageSize });
+    }
+
+    if (!this.unscopedStaffCache$) {
+      this.unscopedStaffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, { pageNumber: 1, pageSize: 100 }).pipe(
         shareReplay(1)
       );
     }
-    return this.staffCache$;
+    return this.unscopedStaffCache$;
   }
 
-  getUnscopedGymStaff(page: number = 1, pageSize: number = 100): Observable<ApiResponse<PagedResponse<StaffResponse>>> {
-    return this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, { pageNumber: page, pageSize });
-  }
-
-  getStaffById(id: string): Observable<ApiResponse<StaffResponse>> {
-    return this.get<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${id}`);
+  getStaffById(id: string, forceRefresh = false): Observable<ApiResponse<StaffResponse>> {
+    if (forceRefresh || !this.staffDetailsCache.has(id)) {
+      const request$ = this.get<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
+        shareReplay(1)
+      );
+      this.staffDetailsCache.set(id, request$);
+    }
+    return this.staffDetailsCache.get(id)!;
   }
 
   addStaff(payload: AddStaffRequest): Observable<ApiResponse<StaffResponse>> {
@@ -64,13 +104,19 @@ export class StaffService extends BaseApiService {
 
   updateStaff(id: string, payload: AddStaffRequest): Observable<ApiResponse<any>> {
     return this.put<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/${id}`, payload).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(id);
+        this.clearCache();
+      })
     );
   }
 
   deleteStaff(id: string): Observable<ApiResponse<any>> {
     return this.delete<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(id);
+        this.clearCache();
+      })
     );
   }
 
@@ -111,23 +157,35 @@ export class StaffService extends BaseApiService {
 
   recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<any>> {
     const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
-    return this.post<ApiResponse<any>>(url, payload);
+    return this.post<ApiResponse<any>>(url, payload).pipe(
+      tap(() => this.measurementsCache.delete(memberId))
+    );
   }
 
-  getMemberMeasurements(memberId: string): Observable<ApiResponse<MeasurementResponse[]>> {
-    const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
-    return this.get<ApiResponse<MeasurementResponse[]>>(url);
+  getMemberMeasurements(memberId: string, forceRefresh = false): Observable<ApiResponse<MeasurementResponse[]>> {
+    if (forceRefresh || !this.measurementsCache.has(memberId)) {
+      const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
+      const obs = this.get<ApiResponse<MeasurementResponse[]>>(url).pipe(shareReplay(1));
+      this.measurementsCache.set(memberId, obs);
+    }
+    return this.measurementsCache.get(memberId)!;
   }
 
   checkInStaff(staffId: string, notes?: string): Observable<ApiResponse<StaffResponse>> {
     return this.post<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${staffId}/check-in`, { notes }).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(staffId);
+        this.clearCache();
+      })
     );
   }
 
   checkOutStaff(staffId: string): Observable<ApiResponse<StaffResponse>> {
     return this.post<ApiResponse<StaffResponse>>(`${API_CONSTANTS.STAFF.BASE}/${staffId}/check-out`, {}).pipe(
-      tap(() => this.clearCache())
+      tap(() => {
+        this.staffDetailsCache.delete(staffId);
+        this.clearCache();
+      })
     );
   }
 
@@ -144,32 +202,27 @@ export class StaffService extends BaseApiService {
   }
 
   getStaffAttendanceLogs(params?: any, forceRefresh = false): Observable<ApiResponse<any>> {
-    if (forceRefresh) {
-      this.clearCache();
-    }
-    
-    const isDefault = !params?.searchTerm &&
-                      (!params?.status || params.status === 'all') &&
-                      params?.pageNumber === 1 &&
-                      params?.pageSize === 10 &&
-                      !params?.date &&
-                      !params?.bypassPagination;
+    const cacheKey = JSON.stringify(params || {});
 
-    if (isDefault) {
-      if (!this.staffLogsCache$) {
-        this.staffLogsCache$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
-          shareReplay(1)
-        );
-      }
-      return this.staffLogsCache$;
+    if (forceRefresh || !this.attendanceLogsCache.has(cacheKey)) {
+      const request$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
+        shareReplay(1)
+      );
+      this.attendanceLogsCache.set(cacheKey, request$);
     }
 
-    return this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params);
+    return this.attendanceLogsCache.get(cacheKey)!;
   }
 
   clearCache(): void {
     this.staffCache$ = null;
+    this.staffCacheLarge$ = null;
+    this.unscopedStaffCache$ = null;
     this.membersCache.clear();
+    this.measurementsCache.clear();
     this.staffLogsCache$ = null;
+    this.staffBypassedLogsCache$ = null;
+    this.staffDetailsCache.clear();
+    this.attendanceLogsCache.clear();
   }
 }

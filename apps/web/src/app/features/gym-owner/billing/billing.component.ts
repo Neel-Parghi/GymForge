@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,17 +12,14 @@ import { MemberService } from '../../../core/services/member.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { GymService } from '../../../core/services/gym.service';
 import { PricingService } from '../../../core/services/pricing.service';
-import { PricingPlan } from '../../../shared/models/pricing.model';
 import { InvoiceDetailModalComponent } from './components/invoice-detail-modal/invoice-detail-modal.component';
 import { CreateInvoiceModalComponent } from './components/create-invoice-modal/create-invoice-modal.component';
-import { UpgradePlansModalComponent } from './components/upgrade-plans-modal/upgrade-plans-modal.component';
-import { UpiPaymentModalComponent } from './components/upi-payment-modal/upi-payment-modal.component';
 import { PayrollRulesModalComponent } from './components/payroll-rules-modal/payroll-rules-modal.component';
-import { MerchantSettingsComponent } from './components/merchant-settings/merchant-settings.component';
 import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { CONSTANTS } from '../../../core/constants/constants';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 
 @Component({
   selector: 'app-gym-owner-billing',
@@ -33,10 +31,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
     DropdownComponent,
     InvoiceDetailModalComponent,
     CreateInvoiceModalComponent,
-    UpgradePlansModalComponent,
-    UpiPaymentModalComponent,
     PayrollRulesModalComponent,
-    MerchantSettingsComponent,
     DataGrid,
     GridCellDirective
   ],
@@ -59,8 +54,11 @@ export class BillingComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
-
   private configService = inject(ConfigurationService);
+  private branchContextService = inject(BranchContextService);
+  private destroyRef = inject(DestroyRef);
+
+  private isInitialBranchLoad = true;
 
   prefillInvoiceData: any = null;
 
@@ -76,7 +74,6 @@ export class BillingComponent implements OnInit {
   getTaxAmount(amount: number, taxRate: number = 18): number {
     return amount - this.getTaxableAmount(amount, taxRate);
   }
-
   activeTab: 'member' | 'saas' | 'settings' | 'staff' = 'member';
   selectedInvoice: any | null = null;
   invoiceSearch = '';
@@ -84,18 +81,6 @@ export class BillingComponent implements OnInit {
   statusFilter: 'All' | 'Paid' | 'Pending' | 'Overdue' = 'All';
   showCreateInvoiceModal = false;
 
-  showUpiPaymentModal = false;
-  nextBillingDate = new Date(2026, 5, 1);
-
-  enableOnlineMemberPayments = true;
-  merchantUpiVpa = 'fitlife@okaxis';
-  razorpayKeyId = 'rzp_live_9A2f8K1d3z9x';
-  razorpaySecretKey = '••••••••••••••••••••••••';
-
-  showUpgradeModal = false;
-  checkoutPlanName = 'GymForge Pro Plan';
-  checkoutPrice = 4999;
-  availablePlans: PricingPlan[] = [];
   showPayrollRulesModal = false;
   selectedPayrollStaff: StaffPayout | null = null;
 
@@ -117,7 +102,7 @@ export class BillingComponent implements OnInit {
   settingsForm!: FormGroup;
 
   memberInvoices: MemberInvoice[] = [];
-  showBillingOverview: boolean = true;
+  showBillingOverview: boolean = false;
 
   memberInvoicesCurrentPage: number = 1;
   memberInvoicesPageSize: number = 10;
@@ -142,10 +127,21 @@ export class BillingComponent implements OnInit {
     this.generatePayrollMonths();
     this.initPeriodForm();
     this.loadGymMembers();
-    this.loadSubscriptionStatus();
     this.loadPlatformInvoices();
     this.loadGymSettingsAndMonths();
     this.loadPlatformConfig();
+
+    this.branchContextService.activeBranch$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      if (this.isInitialBranchLoad) {
+        this.isInitialBranchLoad = false;
+        return;
+      }
+      this.loadGymMembers();
+      this.loadMemberBillingOverview(this.selectedPayrollMonth);
+      this.loadStaffPayoutsForMonth(this.selectedPayrollMonth);
+    });
 
     this.invoiceSearchControl.valueChanges.subscribe(val => {
       this.invoiceSearch = val || '';
@@ -302,31 +298,6 @@ export class BillingComponent implements OnInit {
     this.selectedPayrollMonth = options[0].value;
   }
 
-  loadSubscriptionStatus(): void {
-    this.paymentService.getSubscriptionStatus().subscribe({
-      next: (res) => {
-        if (res.data) {
-          this.subscriptionStatus = res.data;
-        }
-      }
-    });
-  }
-
-  loadPlatformInvoices(): void {
-    this.paymentService.getSubscriptionHistory().subscribe({
-      next: (res) => {
-        if (res.data) {
-          this.platformInvoices = res.data.map(tx => ({
-            id: tx.gatewayTransactionId || tx.id.substring(0, 8),
-            planName: tx.planName || 'GymForge Pro Plan',
-            amount: tx.amount,
-            status: tx.status as any,
-            billingDate: new Date(tx.createdAt)
-          }));
-        }
-      }
-    });
-  }
 
   loadGymMembers(): void {
     this.memberService.getGymMembers(1, 100).subscribe({
@@ -456,8 +427,8 @@ export class BillingComponent implements OnInit {
 
   initSettingsForm(): void {
     this.settingsForm = this.fb.group({
-      gymGstin: ['', [Validators.required, Validators.pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)]],
-      invoicePrefix: ['', Validators.required],
+      gymGstin: ['', [Validators.required, Validators.maxLength(15), Validators.pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)]],
+      invoicePrefix: ['', [Validators.required, Validators.maxLength(10)]],
       taxPercentage: [18, [Validators.required, Validators.min(0), Validators.max(50)]],
       autoEmailReceipts: [true],
       overdueGraceDays: [3, [Validators.required, Validators.min(0)]]
@@ -626,42 +597,20 @@ export class BillingComponent implements OnInit {
     this.activeTab = tab;
   }
 
-  openUpiPaymentModal(planName: string = 'GymForge Pro Plan', price: number = 4999): void {
-    this.showUpgradeModal = false;
-    this.checkoutPlanName = planName;
-    this.checkoutPrice = price;
-    this.showUpiPaymentModal = true;
-  }
-
-  closeUpiPaymentModal(): void {
-    this.showUpiPaymentModal = false;
-  }
-
-  openUpgradeModal(): void {
-    this.showUpgradeModal = true;
-    if (this.availablePlans.length === 0) {
-      this.pricingService.getAllPlans().subscribe({
-        next: (res) => { if (res.data) this.availablePlans = res.data.filter(p => p.isActive && !p.isTrial); },
-        error: () => this.notification.error(CONSTANTS.BILLING_MODULE.LOAD_PLANS_ERROR)
-      });
-    }
-  }
-
-  closeUpgradeModal(): void {
-    this.showUpgradeModal = false;
-  }
-
-  saveMerchantGatewaySettings(settings: {
-    enableOnlineMemberPayments: boolean;
-    merchantUpiVpa: string;
-    razorpayKeyId: string;
-    razorpaySecretKey: string;
-  }): void {
-    this.enableOnlineMemberPayments = settings.enableOnlineMemberPayments;
-    this.merchantUpiVpa = settings.merchantUpiVpa;
-    this.razorpayKeyId = settings.razorpayKeyId;
-    this.razorpaySecretKey = settings.razorpaySecretKey;
-    this.notification.success(CONSTANTS.BILLING_MODULE.MERCHANT_GATEWAY_SUCCESS);
+  loadPlatformInvoices(): void {
+    this.paymentService.getSubscriptionHistory().subscribe({
+      next: (res) => {
+        if (res.data) {
+          this.platformInvoices = res.data.map(tx => ({
+            id: tx.gatewayTransactionId || tx.id.substring(0, 8),
+            planName: tx.planName || 'GymForge Pro Plan',
+            amount: tx.amount,
+            status: tx.status as any,
+            billingDate: new Date(tx.createdAt)
+          }));
+        }
+      }
+    });
   }
 
 

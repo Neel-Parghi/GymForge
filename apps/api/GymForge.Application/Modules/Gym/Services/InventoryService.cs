@@ -63,7 +63,8 @@ namespace GymForge.Application.Modules.Gym.Services
                 pagination.PageNumber,
                 pagination.PageSize,
                 pagination.SearchTerm,
-                branchId);
+                branchId,
+                pagination.StockStatus);
 
             List<InventoryItemDto> dtos = _mapper.Map<List<InventoryItemDto>>(items);
 
@@ -133,10 +134,17 @@ namespace GymForge.Application.Modules.Gym.Services
             return success;
         }
 
-        public async Task<List<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId, Guid? branchId = null)
+        public async Task<PagedResponse<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
-            List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId, branchId);
-            return _mapper.Map<List<SaleTransactionDto>>(sales);
+            var (items, totalCount) = await _inventoryRepository.GetPagedSalesAsync(
+                gymId,
+                pagination.PageNumber,
+                pagination.PageSize,
+                pagination.SearchTerm,
+                branchId);
+
+            var dtos = _mapper.Map<List<SaleTransactionDto>>(items);
+            return new PagedResponse<SaleTransactionDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 
         public async Task<InventoryStatsDto> GetInventoryStatsAsync(Guid gymId, Guid? branchId = null)

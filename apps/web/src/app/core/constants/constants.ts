@@ -243,10 +243,10 @@ export const CONSTANTS = {
 
     //#region Gym Owner Settings
     GYM_OWNER_SETTINGS: {
-        LOAD_ERROR: 'Failed to load settings from backend.',
+        LOAD_ERROR: 'Failed to load settings.',
         VALIDATION_ERROR: 'Please fix the validation errors before saving.',
         UPDATE_SUCCESS: 'Operations & Role Rights settings updated successfully!',
-        UPDATE_ERROR: 'Failed to save settings to the backend.',
+        UPDATE_ERROR: 'Failed to save settings.',
         HOLIDAY_VALIDATION_ERROR: 'Please enter a holiday name and select a date.',
         HOLIDAY_CREATE_SUCCESS: 'Holiday closure scheduled successfully!',
         HOLIDAY_CREATE_ERROR: 'Failed to add holiday closure.',
@@ -343,6 +343,134 @@ export const CONSTANTS = {
     //#region Subscription Expired
     SUBSCRIPTION_EXPIRED: {
         ACCESS_RESTORED: 'Access restored! Successfully subscribed to the {name}.'
+    },
+    //#endregion
+
+    //#region Workout Planner
+    WORKOUT_PLANNER_MODULE: {
+
+        LOAD_ERROR: 'Failed to load workout plans.',
+
+        // Split Planner Creator
+        SPLIT_INVALID_NAME: 'Please enter a valid split name (min 3 characters).',
+        SPLIT_DESCRIPTION_REQUIRED: 'Description is required.',
+        SPLIT_INVALID_FORM: 'Please fill in all required fields (e.g. Split Name and Exercise choices) before saving.',
+        SPLIT_COPY_SUCCESS: 'Workout split copied to clipboard!',
+        SPLIT_PASTE_SUCCESS: 'Workout split pasted successfully!',
+        SPLIT_PASTE_ERROR: 'Error pasting workout split.',
+        SPLIT_NO_CLIPBOARD: 'No copied workout split found on clipboard.',
+        SPLIT_MIN_CATEGORY: 'At least one target muscle category must be selected.',
+        SPLIT_CREATE_SUCCESS: 'Workout Split Planner template created successfully!',
+        SPLIT_CREATE_ERROR: 'Failed to create Workout Split Planner.',
+        SPLIT_UPDATE_SUCCESS: 'Workout Split Planner template updated successfully!',
+        SPLIT_UPDATE_ERROR: 'Failed to update Workout Split Planner.',
+
+        // Weekly Planner Creator
+        WEEKLY_INVALID_FORM: 'Please fill in all required fields (e.g. Schedule Name and Exercise choices) before saving.',
+        WEEKLY_PENDING_CONFIRM: 'You have pending workouts on the following days: {days}. Are you sure you want to save?',
+        WEEKLY_COPY_SUCCESS: 'Workout plan from {day} copied!',
+        WEEKLY_PASTE_SUCCESS: 'Workout plan pasted to {day}!',
+        WEEKLY_CREATE_SUCCESS: 'Weekly Calendar Planner template created successfully!',
+        WEEKLY_CREATE_ERROR: 'Failed to create Weekly Calendar Planner.',
+        WEEKLY_UPDATE_SUCCESS: 'Weekly Calendar Planner template updated successfully!',
+        WEEKLY_UPDATE_ERROR: 'Failed to update Weekly Calendar Planner.',
+
+        // Daily Planner Creator
+        DAILY_INVALID_NAME: 'Please enter a valid workout planner name (min 3 characters).',
+        DAILY_INVALID_FORM: 'Form is invalid. Please check all fields.',
+        DAILY_COPY_SUCCESS: 'Workout copied to clipboard!',
+        DAILY_PASTE_SUCCESS: 'Workout split pasted successfully!',
+        DAILY_PASTE_ERROR: 'Error pasting workout.',
+        DAILY_NO_CLIPBOARD: 'No copied workout split found on clipboard.',
+        DAILY_MIN_CATEGORY: 'At least one target muscle category must be selected.',
+        DAILY_MIN_EXERCISE: 'Workout split must have at least one exercise.',
+        DAILY_CREATE_SUCCESS: 'Standalone Workout template created successfully!',
+        DAILY_CREATE_ERROR: 'Failed to create Standalone Workout template.',
+        DAILY_UPDATE_SUCCESS: 'Standalone Workout template updated successfully!',
+        DAILY_UPDATE_ERROR: 'Failed to update Standalone Workout template.',
+
+        // Shared / Timetable
+        DELETE_SUCCESS: 'Planner template deleted.',
+        DELETE_ERROR: 'Failed to delete planner template.',
+        DELETE_CONFIRM: 'Are you sure you want to delete this workout planner template?',
+        PLAN_SAVE_ERROR: 'Failed to save updated plan order.',
+        SELECT_EXERCISE_WARNING: 'Please select an exercise for all rows.',
+    },
+    //#endregion
+
+    //#region Member Detail Module
+    MEMBER_DETAIL_MODULE: {
+        SAVE_RECURRING_OVERRIDE_ERROR: 'Failed to save recurring override schedule.',
+        SAVE_OVERRIDE_ERROR: 'Failed to save override schedule to backend.',
+        LOG_WORKOUT_READY_PREFIX: 'Ready to log workout for: ',
+        EDIT_WORKOUT_PREFIX: 'Editing workout session for: ',
+        
+        PROGRESS_RECORD_ADDED: 'Progress record added!',
+        PROGRESS_RECORD_ERROR: 'Failed to save progress record.',
+        MIN_COMPLETED_SET_WARNING: 'Please log at least one completed set before logging the session.',
+        LOG_WORKOUT_SUCCESS: 'Successfully logged workout session!',
+        LOG_WORKOUT_ERROR: 'Failed to log workout session to database.',
+        CANNOT_ASSIGN_CUSTOM_PLAN_WARNING: 'Cannot assign custom string plans in dynamic mode.',
+        ASSIGN_PLAN_SUCCESS_PREFIX: 'Assigned ',
+        ASSIGN_PLAN_SUCCESS_SUFFIX: ' to member!',
+        ASSIGN_PLAN_ERROR: 'Failed to assign plan on backend.',
+        INVALID_PLAN_ID_ERROR: 'Invalid Workout Plan ID.',
+        ASSIGN_DIET_SUCCESS_PREFIX: 'Assigned ',
+        ASSIGN_DIET_SUCCESS_MID: ' diet template to ',
+        ASSIGN_DIET_SUCCESS_SUFFIX: '!',
+        ASSIGN_DIET_ERROR: 'Failed to assign diet plan. Please try again.',
+        
+        TRACK_PERFORMANCE: {
+            SWITCH_WORKOUT_DAY_PREFIX: 'Switched workout day to: ',
+            ADDED_NEW_SET: 'Added new set.',
+            MIN_SET_WARNING: 'An exercise must have at least one set.',
+            SET_REMOVED: 'Set removed.',
+            MARKED_SKIPPED_SUFFIX: ' marked as skipped.',
+            MARKED_ACTIVE_SUFFIX: ' marked as active.',
+            INVALID_EXERCISE_NAME: 'Please enter a valid exercise name.',
+            ADDED_EXERCISE_PREFIX: 'Added ',
+            ADDED_EXERCISE_SUFFIX: " to today's workout tracker!",
+            SWITCHED_MODE_PREFIX: 'Switched ',
+            SWITCHED_MODE_MID: ' to ',
+            SWITCHED_MODE_SUFFIX: ' tracking mode.',
+            
+            CARDIO_KEYWORDS: [
+                'treadmill', 'cycling', 'cardio', 'elliptical', 'jog', 'swimming', 'rowing', 'aerobic', 'hiit', 'spin class'
+            ],
+            CARDIO_NAME_REGEXP: /\b(run|running|runs|walk|walking|walks|bike|biking|bikes|cycle|cycling|cycles|swim|swimming|swims|rowing|jog|jogging|jogs)\b/,
+            CARDIO_TARGET_REGEXP: /\b\d*\s*(min|minute|sec|second|km|kilometer|mile|meter|mtr|hr|hour)s?\b/
+        },
+        
+        WORKOUT_CALENDAR: {
+            CANNOT_OVERRIDE_PAST: 'Cannot override workouts in the past.'
+        }
+    },
+    //#endregion
+
+    //#region Diet Planner
+    DIET_PLANNER_MODULE: {
+        LOAD_ERROR: 'Failed to load diet templates.',
+        CREATE_SUCCESS: 'Diet template created successfully in your library!',
+        CREATE_ERROR: 'Failed to create diet template.',
+        UPDATE_SUCCESS: 'Diet template updated successfully!',
+        UPDATE_ERROR: 'Failed to update diet template.',
+        DELETE_CONFIRM: 'Are you sure you want to delete this diet template?',
+        DELETE_SUCCESS: 'Template deleted successfully.',
+        DELETE_ERROR: 'Failed to delete diet template.',
+        MIN_MEAL_WARNING: 'A diet template must have at least one meal.'
+    },
+    //#endregion
+
+    //#region Health Tracker
+    HEALTH_TRACKER_MODULE: {
+        LOAD_LOGS_ERROR: 'Failed to load health tracking logs',
+        RECORD_SUCCESS: 'Health measurement recorded successfully!'
+    },
+    //#endregion
+
+    //#region Trainer Settings
+    TRAINER_SETTINGS: {
+        SAVE_SUCCESS: 'Preferences saved successfully!'
     }
     //#endregion
 }

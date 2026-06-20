@@ -27,7 +27,10 @@
         <li>
           @if (item.isHeading) {
           @if (!isSidebarCollapsed) {
-          <div class="nav-heading">{{ item.label }}</div>
+          <div class="nav-heading">
+            @if (item.icon) { <i [class]="item.icon + ' heading-icon'"></i> }
+            {{ item.label }}
+          </div>
           } @else {
           <div class="nav-divider"></div>
           }
@@ -136,15 +139,43 @@
       </div>
 
       <div class="topbar-right">
-        <button class="icon-btn" title="Notifications">
-          <i class="far fa-bell"></i>
-          <span class="dot"></span>
-        </button>
+        <div class="notifications-container" (click)="$event.stopPropagation()">
+          <button class="icon-btn" title="Notifications" (click)="toggleNotifications($event)">
+            <i class="far fa-bell"></i>
+            <span class="dot" *ngIf="unreadAnnouncementsCount > 0"></span>
+            <span class="badge" *ngIf="unreadAnnouncementsCount > 0">{{ unreadAnnouncementsCount }}</span>
+          </button>
+          
+          <div class="notifications-dropdown" *ngIf="isNotificationsOpen">
+            <div class="dropdown-header">
+              <h3>Notifications</h3>
+              <span class="mark-read" (click)="unreadAnnouncementsCount = 0">Mark all read</span>
+            </div>
+            <div class="dropdown-body">
+              <div class="notification-item" *ngFor="let ann of announcements">
+                <div class="noti-icon">
+                  <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="noti-content">
+                  <h4 class="noti-title">{{ ann.title }}</h4>
+                  <p class="noti-text">{{ ann.message }}</p>
+                  <span class="noti-time">{{ ann.createdOn | date:'short' }}</span>
+                </div>
+              </div>
+              <div class="empty-state" *ngIf="announcements.length === 0">
+                <i class="far fa-bell-slash"></i>
+                <p>No new notifications</p>
+              </div>
+            </div>
+            <div class="dropdown-footer" *ngIf="announcements.length > 0">
+              <a href="javascript:void(0)">View All</a>
+            </div>
+          </div>
+        </div>
         <button class="icon-btn" title="Help">
           <i class="far fa-question-circle"></i>
         </button>
-        <div class="topbar-profile" [routerLink]="profileRoute" style="cursor: pointer;"
-          *ngIf="userProfile$ | async as profile">
+        <div class="topbar-profile" [routerLink]="profileRoute" *ngIf="userProfile$ | async as profile">
           @if (profile.profilePictureUrl) {
           <img [src]="getImageUrl(profile.profilePictureUrl)" alt="Profile" class="profile-avatar">
           } @else {

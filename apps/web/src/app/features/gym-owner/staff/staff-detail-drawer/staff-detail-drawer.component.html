@@ -28,10 +28,10 @@
         </button>
         <button [class.active]="activeTab === 'shifts'" (click)="setActiveTab('shifts')">
           <i class="fa-solid fa-business-time"></i> Shifts
-          <span class="count-badge active-duty-badge" *ngIf="staff.isCheckedIn" style="background: #22c55e;">ON</span>
+          <span class="count-badge active-duty-badge" *ngIf="staff.isCheckedIn">ON</span>
         </button>
       </div>
-
+ 
       <div class="tab-content" *ngIf="activeTab === 'details'">
         <div class="quick-stats">
           <div class="stat-item">
@@ -44,7 +44,7 @@
           </div>
           <div class="stat-item">
             <span class="stat-label">Status</span>
-            <span class="stat-value" [style.color]="staff.isActive ? '#22c55e' : '#ef4444'">
+            <span class="stat-value" [class.status-active]="staff.isActive" [class.status-inactive]="!staff.isActive">
               {{ staff.isActive ? 'Active' : 'Inactive' }}
             </span>
           </div>
@@ -102,13 +102,13 @@
               <div class="line"></div>
             </div>
             <div class="info-grid">
-              <div class="info-tile" *ngIf="staff.specializations?.length" style="grid-column: span 2;">
+              <div class="info-tile double-col" *ngIf="staff.specializations?.length">
                 <span class="label">Specializations</span>
                 <div class="tags">
                   <span class="tag" *ngFor="let spec of staff.specializations">{{ spec }}</span>
                 </div>
               </div>
-              <div class="info-tile" style="grid-column: span 2;" *ngIf="staff.bio">
+              <div class="info-tile double-col" *ngIf="staff.bio">
                 <span class="label">Biography</span>
                 <span class="value bio-text">{{ staff.bio }}</span>
               </div>
@@ -145,9 +145,18 @@
       <!-- Members View -->
       <div class="tab-content" *ngIf="activeTab === 'members'">
         <div class="members-list-container">
-          <!-- Assign Member Trigger -->
-          <div class="assign-trigger-container" *ngIf="!isLoadingMembers">
-            <button class="btn-assign-trigger" *ngIf="!isAssignFormOpen" (click)="openAssignForm()">
+          <!-- Action row with Toggle & Assign Member Button -->
+          <div class="assign-trigger-container" *ngIf="!isLoadingMembers && !isAssignFormOpen">
+            <!-- Custom Styled Toggle Switch -->
+            <div class="history-toggle">
+              <label class="switch-label">
+                <input type="checkbox" [(ngModel)]="showPastAssignments">
+                <span class="switch-slider"></span>
+              </label>
+              <span class="toggle-text">Show PT History</span>
+            </div>
+
+            <button class="btn-assign-trigger" (click)="openAssignForm()">
               <i class="fa-solid fa-plus"></i> Assign Member
             </button>
           </div>
@@ -158,7 +167,7 @@
             <div class="assign-form-grid">
               <div class="form-group">
                 <label>Select Member</label>
-                <div *ngIf="isLoadingMembersList" class="loading-members-list" style="margin: 8px 0; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">
+                <div *ngIf="isLoadingMembersList" class="loading-members-list loading-members-list-alert">
                   <i class="fa-solid fa-circle-notch fa-spin"></i> Loading members...
                 </div>
                 <app-dropdown 
@@ -197,13 +206,13 @@
             <p>Fetching assigned members...</p>
           </div>
 
-          <div *ngIf="!isLoadingMembers && assignedMembers.length === 0 && !isAssignFormOpen" class="no-data-state">
+          <div *ngIf="!isLoadingMembers && displayedMembers.length === 0 && !isAssignFormOpen" class="no-data-state">
             <i class="fa-solid fa-user-group"></i>
-            <p>No members assigned to this trainer yet.</p>
+            <p>{{ showPastAssignments ? 'No past PT assignments found.' : 'No active members assigned to this trainer yet.' }}</p>
           </div>
 
-          <div *ngIf="!isLoadingMembers && assignedMembers.length > 0 && !isAssignFormOpen" class="member-cards">
-            <div class="member-mini-card" *ngFor="let m of assignedMembers" [class.completed]="m.status !== 'Active'">
+          <div *ngIf="!isLoadingMembers && displayedMembers.length > 0 && !isAssignFormOpen" class="member-cards">
+            <div class="member-mini-card" *ngFor="let m of displayedMembers" [class.completed]="m.status !== 'Active'">
               <div class="member-avatar">
                 {{ m.firstName[0] }}{{ m.lastName[0] }}
               </div>
@@ -237,53 +246,53 @@
       <!-- Tab 3: Shift Log History -->
       <div class="tab-content" *ngIf="activeTab === 'shifts'">
         <div class="assigned-section">
-          <div class="section-header" style="margin-bottom: 20px;">
+          <div class="section-header shifts-section-header">
             <h3>Shift History Timeline</h3>
             <p>Chronological history of recent check-ins and completed shifts.</p>
           </div>
 
           <!-- Loading State -->
-          <div *ngIf="isLoadingShifts" class="loading-state" style="padding: 40px; text-align: center; color: var(--text-muted);">
-            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 12px; color: #3b82f6;"></i>
+          <div *ngIf="isLoadingShifts" class="loading-state shifts-loading">
+            <i class="fa-solid fa-circle-notch fa-spin shifts-loading-icon"></i>
             <p>Retrieving shift logs...</p>
           </div>
 
           <!-- Empty State -->
-          <div *ngIf="!isLoadingShifts && staffShifts.length === 0" class="empty-state" style="padding: 40px; text-align: center; color: var(--text-muted); border: 1.5px dashed var(--border-color); border-radius: 12px;">
-            <i class="fa-solid fa-business-time" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4;"></i>
+          <div *ngIf="!isLoadingShifts && staffShifts.length === 0" class="empty-state shifts-empty">
+            <i class="fa-solid fa-business-time shifts-empty-icon"></i>
             <h4>No Shift History</h4>
             <p>This staff member has not logged any shifts yet.</p>
           </div>
 
           <!-- Timeline -->
-          <div *ngIf="!isLoadingShifts && staffShifts.length > 0" class="shift-timeline" style="display: flex; flex-direction: column; gap: 16px; position: relative; padding-left: 20px; border-left: 2px solid var(--border-color); margin-left: 8px;">
-            <div class="timeline-item" *ngFor="let s of staffShifts" style="position: relative;">
+          <div *ngIf="!isLoadingShifts && staffShifts.length > 0" class="shift-timeline">
+            <div class="timeline-item" *ngFor="let s of staffShifts">
               <!-- Timeline node dot -->
-              <span class="timeline-dot" [style.background]="s.checkOutTime ? '#3b82f6' : '#22c55e'" style="position: absolute; left: -26px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-surface); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);"></span>
+              <span class="timeline-dot" [style.background]="s.checkOutTime ? '#3b82f6' : '#22c55e'"></span>
               
-              <div class="shift-log-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
-                <div class="card-header-row" style="display: flex; justify-content: space-between; align-items: center;">
-                  <span class="shift-date" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">
+              <div class="shift-log-card">
+                <div class="card-header-row">
+                  <span class="shift-date">
                     {{ s.checkInTime | date:'EEE, MMM dd, yyyy' }}
                   </span>
-                  <span class="shift-status-badge" [style.background]="s.checkOutTime ? 'rgba(59, 130, 246, 0.12)' : 'rgba(34, 197, 94, 0.12)'" [style.color]="s.checkOutTime ? '#3b82f6' : '#22c55e'" style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">
+                  <span class="shift-status-badge" [style.background]="s.checkOutTime ? 'rgba(59, 130, 246, 0.12)' : 'rgba(34, 197, 94, 0.12)'" [style.color]="s.checkOutTime ? '#3b82f6' : '#22c55e'">
                     {{ s.checkOutTime ? 'Completed' : 'On-Duty' }}
                   </span>
                 </div>
                 
-                <div class="time-range-row" style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-main); font-weight: 800;">
-                  <span><i class="fa-regular fa-clock" style="color: var(--text-muted);"></i> {{ s.checkInTime | date:'shortTime' }}</span>
-                  <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem; color: var(--text-muted);"></i>
+                <div class="time-range-row">
+                  <span><i class="fa-regular fa-clock"></i> {{ s.checkInTime | date:'shortTime' }}</span>
+                  <i class="fa-solid fa-arrow-right"></i>
                   <span>{{ s.checkOutTime ? (s.checkOutTime | date:'shortTime') : 'Active' }}</span>
                 </div>
-
-                <div class="duration-and-notes" style="display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 4px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
-                    <span style="color: var(--text-muted);">Hours Worked:</span>
-                    <strong style="color: var(--text-main);">{{ s.checkOutTime ? (s.hoursWorked + ' hrs') : 'Active Shift' }}</strong>
+ 
+                <div class="duration-and-notes">
+                  <div class="hours-worked-row">
+                    <span>Hours Worked:</span>
+                    <strong>{{ s.checkOutTime ? (s.hoursWorked + ' hrs') : 'Active Shift' }}</strong>
                   </div>
-                  <div *ngIf="s.notes" style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg-color); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #3b82f6;">
-                    <span style="display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; color: var(--text-muted);">Notes</span>
+                  <div *ngIf="s.notes" class="shift-notes-box">
+                    <span>Notes</span>
                     "{{ s.notes }}"
                   </div>
                 </div>
@@ -294,16 +303,15 @@
       </div>
     </ng-container>
   </div>
-
+ 
   <div drawer-footer class="drawer-actions" *ngIf="staff">
-    <div style="display: flex; gap: 12px;">
+    <div class="actions-flex">
       <button class="btn-outline" (click)="toggleStatus()">
         <i class="fa-solid" [ngClass]="staff.isActive ? 'fa-user-slash' : 'fa-user-check'"></i>
         {{ staff.isActive ? 'Deactivate' : 'Activate' }} Staff
       </button>
     </div>
     <button class="btn-primary" (click)="onEdit()">
-
       Edit Profile
     </button>
   </div>

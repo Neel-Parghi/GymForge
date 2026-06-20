@@ -11,6 +11,8 @@ using GymForge.Application.Modules.Users.Services;
 using GymForge.Application.Modules.Common.Interfaces;
 using GymForge.Application.Modules.Workout.Interface;
 using GymForge.Application.Modules.Workout.Services;
+using GymForge.Application.Modules.Diet.Interface;
+using GymForge.Application.Modules.Diet.Services;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +64,24 @@ namespace GymForge.Application
             services.AddScoped<IStaffPayrollService, StaffPayrollService>();
 
             services.AddScoped<IWorkoutService, WorkoutService>();
+           
+            services.AddScoped<IWorkoutPlanService, WorkoutPlanService>();
+            
+            services.AddScoped<IMemberWorkoutService, MemberWorkoutService>();
+
+            services.AddScoped<IDietPlanService, DietPlanService>();
+
+            services.AddScoped<IMemberDietService, MemberDietService>();
+            
+            services.AddScoped<IGymAnnouncementService, GymAnnouncementService>();
+            
+            services.AddScoped<ITemplateService, TemplateService>();
+            
+            services.AddScoped<IUserNotificationService, UserNotificationService>();
+
+            services.AddScoped<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>();
+            
+            services.AddScoped<GymForge.Application.BackgroundJobs.AccountDeletionJob>();
 
             return services;
         }

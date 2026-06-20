@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { AcceptInvitationComponent } from './features/auth/accept-invitation/accept-invitation.component';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { DashboardComponent } from './features/super-admin/dashboard/dashboard.component';
 import { GymOwners } from './features/super-admin/gym-management/gym-owners/gym-owners.component';
@@ -17,11 +19,17 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [loggedInGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [loggedInGuard] },
   { path: 'accept-invitation', component: AcceptInvitationComponent, canActivate: [loggedInGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [loggedInGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: 'super-admin',
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
+      {
+        path: 'users',
+        loadComponent: () => import('./features/super-admin/users/users-list/users-list.component').then(m => m.UsersListComponent)
+      },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'gym-owners', component: GymOwners },
       { path: 'gym-list', component: GymList },
@@ -93,6 +101,103 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () => import('./features/gym-owner/settings/settings.component').then(m => m.SettingsComponent),
         canActivate: [roleGuard]
+      },
+      {
+        path: 'announcements',
+        loadComponent: () => import('./features/gym-owner/announcements/announcements').then(m => m.Announcements),
+        canActivate: [roleGuard]
+      },
+      {
+        path: 'announcements/templates',
+        loadComponent: () => import('./features/gym-owner/announcements/templates/templates').then(m => m.Templates),
+        canActivate: [roleGuard]
+      }
+    ]
+  },
+  {
+    path: 'trainer',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/trainer/dashboard/dashboard.component').then(m => m.TrainerDashboardComponent)
+      },
+      {
+        path: 'members',
+        loadComponent: () => import('./features/trainer/members/members.component').then(m => m.PTMembersTrackComponent)
+      },
+      {
+        path: 'members/:memberId',
+        loadComponent: () => import('./features/trainer/member-detail/member-detail.component').then(m => m.PTMemberDetailComponent)
+      },
+      {
+        path: 'workout-planner',
+        loadComponent: () => import('./features/trainer/workout-planner/workout-planner.component').then(m => m.WorkoutPlannerComponent)
+      },
+      {
+        path: 'diet-planner',
+        loadComponent: () => import('./features/trainer/diet-planner/diet-planner.component').then(m => m.PTDietPlannerComponent)
+      },
+
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/trainer/trainer-settings/trainer-settings.component').then(m => m.TrainerSettingsComponent)
+      },
+      {
+        path: 'attendance',
+        loadComponent: () => import('./features/trainer/trainer-attendance/trainer-attendance.component').then(m => m.TrainerAttendanceComponent)
+      },
+      {
+        path: 'billing',
+        loadComponent: () => import('./features/trainer/trainer-billing/trainer-billing.component').then(m => m.TrainerBillingComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
+      }
+    ]
+  },
+  {
+    path: 'user',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/user/user-dashboard/user-dashboard.component').then(m => m.UserDashboardComponent)
+      },
+      {
+        path: 'performance',
+        loadComponent: () => import('./features/user/user-performance/user-performance').then(m => m.UserPerformance)
+      },
+      {
+        path: 'workout-calendar',
+        loadComponent: () => import('./features/user/user-workout-calendar/user-workout-calendar').then(m => m.UserWorkoutCalendar)
+      },
+      {
+        path: 'workout-planner',
+        loadComponent: () => import('./features/user/user-workout-planner/user-workout-planner').then(m => m.UserWorkoutPlanner)
+      },
+      {
+        path: 'diet-planner',
+        loadComponent: () => import('./features/user/user-diet-planner/user-diet-planner').then(m => m.UserDietPlanner)
+      },
+      {
+        path: 'health-tracker',
+        loadComponent: () => import('./features/user/user-health-tracker/user-health-tracker').then(m => m.UserHealthTracker)
+      },
+      {
+        path: 'billing',
+        loadComponent: () => import('./features/user/user-billing/user-billing').then(m => m.UserBilling)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/user/user-settings/user-settings').then(m => m.UserSettings)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
       }
     ]
   },

@@ -1,6 +1,17 @@
 :host {
   display: block;
   width: 100%;
+
+  &.ng-invalid.ng-touched {
+    .select-trigger {
+      border-color: var(--error-color, #ef4444) !important;
+      background-color: var(--error-bg, rgba(239, 68, 68, 0.03)) !important;
+
+      &:hover {
+        border-color: #dc2626 !important;
+      }
+    }
+  }
 }
 
 .custom-select {
@@ -36,7 +47,7 @@
     align-items: center;
     padding: 10px 16px;
     background: var(--bg-color);
-    border: 1px solid #07142526;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -47,16 +58,43 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex: 1;
+      min-width: 0;
 
-      span {
-        font-size: 0.875rem;
-        font-weight: 700;
-        color: var(--text-main);
+      .text-grid {
+        display: inline-grid;
+        grid-template-areas: "content";
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        min-width: 0;
+
+        .selected-text {
+          grid-area: content;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: var(--text-main);
+        }
+
+        .sizer-hidden {
+          grid-area: content;
+          visibility: hidden;
+          height: 0;
+          overflow: hidden;
+          pointer-events: none;
+          white-space: nowrap;
+          font-size: 0.875rem;
+          font-weight: 700;
+        }
       }
 
       i {
         font-size: 0.9rem;
         color: var(--accent-color);
+        flex-shrink: 0;
       }
     }
 
@@ -73,17 +111,18 @@
   }
 
   .select-options {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(16px);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--card-shadow);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overflow-y: auto;
     max-height: 280px;
     padding: 8px;
+    max-width: 90vw;
 
     &.fixed-position {
       position: fixed;
@@ -152,13 +191,13 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--slate-200);
       border-radius: 10px;
       transition: all 0.2s;
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.2);
+      background: var(--slate-300);
     }
 
     .option {
@@ -274,7 +313,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: white;
+  background: var(--bg-surface);
   position: sticky;
   top: 0;
   z-index: 10;

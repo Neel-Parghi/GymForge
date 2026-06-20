@@ -4,13 +4,14 @@ import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { MemberService } from '../../../core/services/member.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { ProductDrawerComponent } from './components/product-drawer/product-drawer.component';
@@ -48,15 +49,17 @@ export class InventoryComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private memberService = inject(MemberService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private branchContextService = inject(BranchContextService);
+  private confirmationService = inject(ConfirmationService);
 
   activeTab: 'inventory' | 'equipment' | 'maintenance' | 'sales' = 'inventory';
-  viewMode: 'list' | 'dashboard' = 'list';
   equipmentViewMode: 'grid' | 'table' = 'grid';
   pageSize: number = 10;
   currentPage: number = 1;
   totalItems: number = 0;
   loading = false;
+  activeStockFilter: 'lowStock' | 'inStock' | null = null;
 
   // Drawer Opening States
   isProductDrawerOpen = false;
@@ -131,15 +134,6 @@ export class InventoryComponent implements OnInit {
 
   memberOptions: DropdownOption[] = [];
   productOptions: DropdownOption[] = [];
-  stats: any = {
-    totalProducts: 0,
-    lowStockCount: 0,
-    maintenanceDueCount: 0,
-    todaySalesAmount: 0,
-    todaySalesCount: 0,
-    totalSalesAmount: 0,
-    totalSalesCount: 0
-  };
 
   ngOnInit(): void {
     this.branchContextService.activeBranch$.pipe(
@@ -154,15 +148,23 @@ export class InventoryComponent implements OnInit {
         this.activeTab = params['tab'];
       }
       if (params['filter'] === 'lowStock') {
-        this.searchControl.setValue('');
-        setTimeout(() => {
-          this.inventoryItems = this.allInventoryItems.filter(p => p.stockQuantity <= p.reorderLevel);
-        }, 500);
+        this.activeStockFilter = 'lowStock';
+        this.searchControl.setValue('', { emitEvent: false });
+        this.currentPage = 1;
+        this.loadProducts();
+      } else if (params['filter'] === 'inStock') {
+        this.activeStockFilter = 'inStock';
+        this.searchControl.setValue('', { emitEvent: false });
+        this.currentPage = 1;
+        this.loadProducts();
       } else if (params['filter'] === 'maintenance') {
+        this.activeStockFilter = null;
         this.equipmentViewMode = 'grid';
         setTimeout(() => {
           this.equipmentItems = this.allEquipmentItems.filter(e => e.health < 70 || e.status === 'Needs Repair');
         }, 500);
+      } else {
+        this.activeStockFilter = null;
       }
     });
 
@@ -172,8 +174,29 @@ export class InventoryComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.currentPage = 1;
-      this.loadProducts();
+      this.triggerActiveTabLoader();
     });
+  }
+
+  triggerActiveTabLoader() {
+    if (this.activeTab === 'inventory') this.loadProducts();
+    else if (this.activeTab === 'equipment') this.loadEquipment();
+    else if (this.activeTab === 'maintenance') this.loadServiceHistory();
+    else if (this.activeTab === 'sales') this.loadSalesHistory();
+  }
+
+  getSearchPlaceholder(): string {
+    switch (this.activeTab) {
+      case 'inventory': return 'Search inventory...';
+      case 'equipment': return 'Search Equipments...';
+      case 'maintenance': return 'Search logs...';
+      case 'sales': return 'Search Sale history...';
+      default: return 'Search...';
+    }
+  }
+
+  clearSearch() {
+    this.searchControl.setValue('');
   }
 
   loadData() {
@@ -182,15 +205,6 @@ export class InventoryComponent implements OnInit {
     this.loadSalesHistory();
     this.loadMembers();
     this.loadServiceHistory();
-    this.loadStats();
-  }
-
-  loadStats() {
-    this.inventoryService.getStats().subscribe({
-      next: (res) => {
-        this.stats = res.data;
-      }
-    });
   }
 
   loadMembers() {
@@ -208,7 +222,7 @@ export class InventoryComponent implements OnInit {
   loadProducts() {
     this.loading = true;
     const search = this.searchControl.value || '';
-    this.inventoryService.getProducts(this.currentPage, this.pageSize, search).subscribe({
+    this.inventoryService.getProducts(this.currentPage, this.pageSize, search, false, this.activeStockFilter ?? undefined).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.inventoryItems = res.data.items || [];
@@ -227,28 +241,53 @@ export class InventoryComponent implements OnInit {
   }
 
   loadEquipment() {
-    this.inventoryService.getEquipment().subscribe({
+    this.loading = true;
+    const search = this.searchControl.value || '';
+    this.inventoryService.getEquipment(this.currentPage, this.pageSize, search).subscribe({
       next: (res) => {
-        const equipment = res.data || [];
-        this.allEquipmentItems = [...equipment];
-        this.equipmentItems = [...this.allEquipmentItems];
+        if (res.success && res.data) {
+          const equipment = res.data.items || [];
+          this.allEquipmentItems = [...equipment];
+          this.equipmentItems = [...this.allEquipmentItems];
+          this.totalItems = res.data.totalCount || 0;
 
-        this.maintenanceItems = this.allEquipmentItems.filter(item =>
-          item.health < 80 || item.status === 'Maintenance' || item.status === 'Needs Repair'
-        );
-      }
+          this.maintenanceItems = this.allEquipmentItems.filter(item =>
+            item.health < 80 || item.status === 'Maintenance' || item.status === 'Needs Repair'
+          );
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
   loadSalesHistory() {
-    this.inventoryService.getSalesHistory().subscribe({
-      next: (res) => { this.salesItems = res.data || []; }
+    this.loading = true;
+    const search = this.searchControl.value || '';
+    this.inventoryService.getSalesHistory(this.currentPage, this.pageSize, search).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.salesItems = res.data.items || [];
+          this.totalItems = res.data.totalCount || 0;
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
   loadServiceHistory() {
-    this.inventoryService.getMaintenanceHistoryGlobal().subscribe({
-      next: (res) => { this.serviceHistoryItems = res.data || []; }
+    this.loading = true;
+    const search = this.searchControl.value || '';
+    this.inventoryService.getMaintenanceHistoryGlobal(this.currentPage, this.pageSize, search).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.serviceHistoryItems = res.data.items || [];
+          this.totalItems = res.data.totalCount || 0;
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
     });
   }
 
@@ -257,26 +296,33 @@ export class InventoryComponent implements OnInit {
     this.loadProducts();
   }
 
+  clearStockFilter() {
+    this.activeStockFilter = null;
+    this.currentPage = 1;
+    this.loadProducts();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { filter: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadProducts();
+    this.triggerActiveTabLoader();
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
     this.currentPage = 1;
-    this.loadProducts();
-  }
-
-  toggleViewMode() {
-    this.viewMode = this.viewMode === 'list' ? 'dashboard' : 'list';
+    this.triggerActiveTabLoader();
   }
 
   setTab(tab: 'inventory' | 'equipment' | 'maintenance' | 'sales') {
     this.activeTab = tab;
-    if (tab === 'maintenance') {
-      this.loadServiceHistory();
-    }
+    this.currentPage = 1;
+    this.searchControl.setValue('', { emitEvent: false });
+    this.triggerActiveTabLoader();
   }
 
   onInventoryAction(event: { action: string, row: any }) {
@@ -347,14 +393,22 @@ export class InventoryComponent implements OnInit {
   }
 
   deleteProduct(id: string) {
-    if (confirm(CONSTANTS.CONFIRMATIONS.DELETE_PRODUCT_CONFIRM)) {
-      this.inventoryService.deleteProduct(id).subscribe({
-        next: () => {
-          this.notificationService.success(CONSTANTS.INVENTORY_MODULE.PRODUCT_DELETE_SUCCESS);
-          this.loadProducts();
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      title: 'Delete Product',
+      message: 'Are you sure you want to delete this product? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.inventoryService.deleteProduct(id).subscribe({
+          next: () => {
+            this.notificationService.success(CONSTANTS.INVENTORY_MODULE.PRODUCT_DELETE_SUCCESS);
+            this.loadProducts();
+          }
+        });
+      }
+    });
   }
 
   onEditProductFromView(product: any) {

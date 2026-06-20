@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable, of } from 'rxjs';
+import { Observable, of, shareReplay } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Exercise } from '../../shared/models/exercise.model';
 
@@ -9,6 +9,9 @@ import { Exercise } from '../../shared/models/exercise.model';
   providedIn: 'root'
 })
 export class WorkoutMasterService extends BaseApiService {
+  private categoriesCache$: Observable<string[]> | null = null;
+  private exercisesCache$: Observable<Exercise[]> | null = null;
+  private categoryExercisesCache = new Map<string, Observable<Exercise[]>>();
 
   // Premium Offline Fallback: a complete standard list of gym exercises with full metadata
   private readonly offlineExercises: Exercise[] = [
@@ -272,20 +275,25 @@ export class WorkoutMasterService extends BaseApiService {
 
   // Get list of all target muscle group categories
   getCategories(): Observable<string[]> {
-    return this.get<any>(API_CONSTANTS.WORKOUT_MASTER.CATEGORIES).pipe(
-      map(res => res?.data || res),
-      catchError(err => {
+    if (!this.categoriesCache$) {
+      this.categoriesCache$ = this.get<any>(API_CONSTANTS.WORKOUT_MASTER.CATEGORIES).pipe(
+        map(res => res?.data || res),
+        catchError(err => {
         console.warn('WorkoutMaster API offline, loading categories fallback:', err);
-        const categories = Array.from(new Set(this.offlineExercises.map(e => e.category)));
-        return of(categories);
-      })
-    );
+          const categories = Array.from(new Set(this.offlineExercises.map(e => e.category)));
+          return of(categories);
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.categoriesCache$;
   }
 
   // Get full exercise list (supports searching and filtering)
   getExercises(filters?: { category?: string; equipment?: string; search?: string }): Observable<Exercise[]> {
-    let url = API_CONSTANTS.WORKOUT_MASTER.EXERCISES;
-    const queryParams: string[] = [];
+    if (filters && (filters.category || filters.equipment || filters.search)) {
+      let url = API_CONSTANTS.WORKOUT_MASTER.EXERCISES;
+      const queryParams: string[] = [];
 
     if (filters) {
       if (filters.category) queryParams.push(`category=${encodeURIComponent(filters.category)}`);
@@ -293,15 +301,15 @@ export class WorkoutMasterService extends BaseApiService {
       if (filters.search) queryParams.push(`search=${encodeURIComponent(filters.search)}`);
     }
 
-    if (queryParams.length > 0) {
-      url += `?${queryParams.join('&')}`;
-    }
+      if (queryParams.length > 0) {
+        url += `?${queryParams.join('&')}`;
+      }
 
-    return this.get<any>(url).pipe(
-      map(res => res?.data || res),
-      catchError(err => {
+      return this.get<any>(url).pipe(
+        map(res => res?.data || res),
+        catchError(err => {
         console.warn('WorkoutMaster API offline, loading exercises fallback:', err);
-        let list = [...this.offlineExercises];
+          let list = [...this.offlineExercises];
         if (filters) {
           if (filters.category) {
             list = list.filter(e => e.category.toLowerCase() === filters.category!.toLowerCase());
@@ -313,24 +321,47 @@ export class WorkoutMasterService extends BaseApiService {
             list = list.filter(e => e.name.toLowerCase().includes(filters.search!.toLowerCase()));
           }
         }
-        return of(list);
-      })
-    );
+          return of(list);
+        })
+      );
+    }
+
+    if (!this.exercisesCache$) {
+      this.exercisesCache$ = this.get<any>(API_CONSTANTS.WORKOUT_MASTER.EXERCISES).pipe(
+        map(res => res?.data || res),
+        catchError(err => {
+          return of([...this.offlineExercises]);
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.exercisesCache$;
   }
 
   // Get exercise lists for a specific category
   getExercisesByCategory(category: string): Observable<Exercise[]> {
     if (!category) return of([]);
-    const url = API_CONSTANTS.WORKOUT_MASTER.BY_CATEGORY.replace('{category}', encodeURIComponent(category));
-    return this.get<any>(url).pipe(
-      map(res => res?.data || res),
-      catchError(err => {
+    if (!this.categoryExercisesCache.has(category)) {
+      const url = API_CONSTANTS.WORKOUT_MASTER.BY_CATEGORY.replace('{category}', encodeURIComponent(category));
+      const obs = this.get<any>(url).pipe(
+        map(res => res?.data || res),
+        catchError(err => {
         console.warn(`WorkoutMaster API offline, loading fallback for category '${category}':`, err);
-        const match = this.offlineExercises.filter(
-          e => e.category.toLowerCase() === category.toLowerCase()
-        );
-        return of(match);
-      })
-    );
+          const match = this.offlineExercises.filter(
+            e => e.category.toLowerCase() === category.toLowerCase()
+          );
+          return of(match);
+        }),
+        shareReplay(1)
+      );
+      this.categoryExercisesCache.set(category, obs);
+    }
+    return this.categoryExercisesCache.get(category)!;
+  }
+
+  clearCache(): void {
+    this.categoriesCache$ = null;
+    this.exercisesCache$ = null;
+    this.categoryExercisesCache.clear();
   }
 }

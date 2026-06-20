@@ -1,0 +1,92 @@
+<div class="user-page-wrapper">
+  <!-- <div class="header-section">
+    <div>
+      <h1 class="page-title">Billing & Payments</h1>
+      <p class="page-subtitle">Manage your payment history</p>
+    </div>
+  </div> -->
+
+  <div class="content-grid">
+    <!-- Payment History -->
+    <div class="history-card glass-card">
+      <div class="section-header">
+        <h2>Payment History</h2>
+        <button class="btn-outline btn-small">
+          <i class="fa-solid fa-download"></i> Download All
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Plan Name</th>
+              <th>Price</th>
+              <th>Duration</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Payment Status</th>
+              <th>Status</th>
+              <th>Invoice</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (paymentHistory.length === 0 && !isLoading) {
+            <tr>
+              <td colspan="8" class="empty-state-cell">
+                <div class="empty-state-content">
+                  <i class="fa-solid fa-receipt"></i>
+                  <p>No payment history found.</p>
+                </div>
+              </td>
+            </tr>
+            } @else {
+            @for (payment of paymentHistory; track payment.id) {
+            <tr>
+              <td>
+                <span class="desc">{{ payment.planNameSnapshot || 'Plan Subscription' }}</span>
+              </td>
+              <td class="amount-cell">₹{{ payment.pricePaid }}</td>
+              <td>
+                {{ payment.durationMonths }} Months
+                @if (payment.extendedMonths > 0) {
+                  <span class="bonus-text">(+{{ payment.extendedMonths }} Bonus)</span>
+                }
+              </td>
+              <td>{{ payment.startDate | date:'mediumDate' }}</td>
+              <td>{{ payment.endDate | date:'mediumDate' }}</td>
+              <td>
+                <span class="status-pill" [class]="getPaymentStatusText(payment.paymentStatus).toLowerCase()">
+                  {{ payment.paymentStatusLabel || getPaymentStatusText(payment.paymentStatus) }}
+                </span>
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="payment.isActive" [class.inactive]="!payment.isActive">
+                  {{ payment.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions-cell-wrapper">
+                  <button class="table-action-btn view" (click)="openInvoice(payment, $event)" title="View Invoice">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (selectedInvoice) {
+  <app-invoice-detail-modal
+    [invoice]="selectedInvoice"
+    [gymDetails]="myGymDetails"
+    [invoicePrefix]="myGymDetails?.invoicePrefix || 'GF-'"
+    (close)="closeInvoiceModal()">
+  </app-invoice-detail-modal>
+}

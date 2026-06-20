@@ -6,10 +6,14 @@ export const API_CONSTANTS = {
   AUTH: {
     LOGIN: 'auth/login',
     REGISTER: 'auth/register',
+    VERIFY_OTP: 'auth/verify-otp',
+    RESEND_OTP: 'auth/resend-otp',
     REGISTER_SUPERADMIN: 'auth/register-superadmin',
     LOGOUT: 'auth/logout',
     REFRESH: 'auth/refresh',
-    ME: 'auth/me'
+    ME: 'auth/me',
+    FORGOT_PASSWORD: 'auth/forgot-password',
+    RESET_PASSWORD: 'auth/reset-password'
   },
   USER: {
     PROFILE: 'users/profile',
@@ -19,7 +23,10 @@ export const API_CONSTANTS = {
     SET_PASSWORD: 'users/set-password',
     CHANGE_PASSWORD: 'users/change-password',
     VALIDATE_INVITATION: 'users/validate-invitation',
-    UPLOAD_AVATAR: 'users/profile/upload-avatar'
+    UPLOAD_AVATAR: 'users/profile/upload-avatar',
+    MY_SUBSCRIPTIONS: 'users/my-subscriptions',
+    MY_GYM: 'users/my-gym',
+    STANDALONE: 'users/standalone'
   },
   GYM: {
     ONBOARD: 'gyms/onboard',
@@ -28,7 +35,9 @@ export const API_CONSTANTS = {
     DELETE: 'gyms',
     BRANCHES: 'gyms/{id}/branches',
     MY_GYM: 'my-gym',
-    MY_BRANCHES: 'my-gym/branches'
+    MY_BRANCHES: 'my-gym/branches',
+    SETTINGS: 'my-gym/settings',
+    HOLIDAYS: 'my-gym/holidays'
   },
   GYM_OWNER: {
     LIST: 'gym-owners',
@@ -65,6 +74,14 @@ export const API_CONSTANTS = {
     EXPORT: 'members/export',
     MEASUREMENTS: 'members/{memberId}/measurements',
     DASHBOARD: 'members/dashboard',
+    ACTIVE_PLAN: 'members/{memberId}/active-plan',
+    ASSIGN_PLAN: 'members/{memberId}/assign-plan',
+    WORKOUT_LOGS: 'members/{memberId}/workout-logs',
+    RECURRING_OVERRIDE: 'members/{memberId}/recurring-override',
+    PLAN_ASSIGNMENTS: 'members/{memberId}/plan-assignments',
+    ACTIVE_DIET: 'members/{memberId}/active-diet',
+    ASSIGN_DIET: 'members/{memberId}/assign-diet',
+    CUSTOM_DIET: 'members/{memberId}/custom-diet',
   },
   STAFF: {
     BASE: 'staff',
@@ -118,5 +135,23 @@ export const API_CONSTANTS = {
     CATEGORIES: 'workout-master/categories',
     EXERCISES: 'workout-master/exercises',
     BY_CATEGORY: 'workout-master/exercises/{category}'
+  },
+  WORKOUT_PLAN: {
+    BASE: 'workout-plan',
+    BY_ID: 'workout-plan/{id}'
+  },
+  DIET_PLAN: {
+    BASE: 'diet-plan',
+    BY_ID: 'diet-plan/{id}'
+  },
+  ANNOUNCEMENTS: {
+    BASE: 'announcements',
+    MY_GYM: 'announcements/my-gym'
+  },
+  ANNOUNCEMENT_TEMPLATES: {
+    BASE: 'announcement-templates'
+  },
+  USER_NOTIFICATIONS: {
+    BASE: 'notifications'
   }
 };

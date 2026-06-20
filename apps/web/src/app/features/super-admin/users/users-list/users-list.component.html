@@ -1,0 +1,15 @@
+<div class="standard-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Users</h2>
+      <p>Manage standalone platform users and deletion requests.</p>
+    </div>
+  </div>
+
+  <app-filter-bar [placeholder]="'Search users...'" (filterChanged)="onFilterChanged($event)">
+  </app-filter-bar>
+
+  <app-data-grid [config]="gridConfig" [data]="displayData" [totalItems]="totalItems" [pageSize]="pageSize"
+    [currentPage]="currentPage" (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
+  </app-data-grid>
+</div>

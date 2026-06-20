@@ -1,0 +1,23 @@
+<div class="user-page-wrapper">
+
+  <!-- Toggle Template -->
+  <ng-template #toggleTemplate>
+    <div class="view-toggle-container" style="margin-bottom: 0;">
+      <div class="segmented-control">
+        <button [class.active]="viewMode === 'active'" (click)="viewMode = 'active'">Active Plan</button>
+        <button [class.active]="viewMode === 'library'" (click)="viewMode = 'library'">Diet Library</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <app-member-detail-diet-chart *ngIf="viewMode === 'active'" [activeDiet]="activeDiet" [memberId]="userId"
+    [memberInfo]="memberInfo" (openAssignModal)="viewMode = 'library'" (customDietSaved)="loadActiveDiet()">
+    <div user-toggle *ngTemplateOutlet="toggleTemplate"></div>
+  </app-member-detail-diet-chart>
+
+  <app-diet-library *ngIf="viewMode === 'library'" [currentUserId]="userId" [activeDietId]="activeDiet?.planId"
+    [isCardView]="true" (onAssign)="assignDietPlan($event)">
+    <div user-toggle *ngTemplateOutlet="toggleTemplate"></div>
+  </app-diet-library>
+
+</div>

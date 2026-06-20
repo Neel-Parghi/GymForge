@@ -1,0 +1,78 @@
+<div class="standard-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Announcements</h2>
+      <p>Broadcast important updates and news directly to your gym members.</p>
+    </div>
+    <div class="actions">
+      <button class="btn-outline" routerLink="templates">
+        Manage Templates
+      </button>
+      <button class="primary-btn" (click)="openDrawer()">New Announcement</button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <app-data-grid [config]="gridConfig" [data]="announcements" [totalItems]="totalItems" [pageSize]="pageSize"
+    [currentPage]="currentPage" (actionEvent)="onAction($event)" (pageChange)="onPageChanged($event)"
+    (pageSizeChange)="onPageSizeChanged($event)">
+  </app-data-grid>
+</div>
+
+<!-- Create Announcement Drawer -->
+<app-slide-drawer [isOpen]="isDrawerOpen" [title]="editingAnnouncementId ? 'Edit Announcement' : 'Create New Announcement'"
+  subtitle="Send a new announcement to your members" width="550px" (closeDrawer)="closeDrawer()">
+  <div drawer-body class="form-container" *ngIf="isDrawerOpen" [formGroup]="announcementForm">
+    <div class="form-grid">
+      <div class="form-group full-width" *ngIf="templateOptions.length > 0">
+        <label>Use a Template <span class="text-hint">(Optional)</span></label>
+        <app-dropdown [options]="templateOptions" formControlName="templateId" placeholder="Select a pre-made template to auto-fill" minWidth="100%"></app-dropdown>
+        <span class="field-hint">Choosing a template will overwrite the title and message fields below.</span>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Announcement Title <span class="text-danger">*</span></label>
+        <input type="text" formControlName="title" placeholder="e.g., Gym Closed for Maintenance Tomorrow"
+          maxlength="100">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Message Content <span class="text-danger">*</span></label>
+        <textarea rows="5" formControlName="message" placeholder="Type your detailed message here..."
+          maxlength="1000"></textarea>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Valid Until <span class="text-hint">(Optional)</span></label>
+        <app-date-time-picker formControlName="validUntil" placeholder="Select expiry date & time..."
+          [enableTime]="true" [minDate]="minDate">
+        </app-date-time-picker>
+        <span class="field-hint">Leave empty for no expiry. Announcement will auto-hide after this date.</span>
+      </div>
+    </div>
+
+    <div class="visibility-toggle-row">
+      <div class="visibility-toggle-info">
+        <i class="fa-solid" [ngClass]="announcementForm.get('isActive')?.value ? 'fa-eye' : 'fa-eye-slash'"></i>
+        <div>
+          <span class="toggle-label">Announcement Status</span>
+          <span class="toggle-sublabel">{{ announcementForm.get('isActive')?.value ? 'Active (Visible)' : 'Hidden' }}</span>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" formControlName="isActive">
+        <div class="toggle-slider"></div>
+      </label>
+    </div>
+  </div>
+  <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" (click)="closeDrawer()">Cancel</button>
+    <button class="btn-primary" type="button" [disabled]="announcementForm.invalid || isSubmitting"
+      (click)="onSubmit()">
+      {{ editingAnnouncementId ? 'Update' : 'Broadcast' }}
+    </button>
+  </div>
+</app-slide-drawer>

@@ -244,6 +244,58 @@ namespace GymForge.Infrastructure.Repositories
                 })
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<GymListResponseDto?> GetGymDetailsResponseByIdAsync(Guid gymId)
+        {
+            return await _dbContext.Gyms
+                .Where(g => g.Id == gymId)
+                .Include(x => x.Owner)
+                .Include(x => x.Branches)
+                .Select(g => new GymListResponseDto
+                {
+                    Id = g.Id,
+                    GymName = g.GymName,
+                    BrandName = g.BrandName,
+                    OwnerName = g.Owner.FirstName + " " + g.Owner.LastName,
+                    Email = g.Email,
+                    Phone = g.Phone,
+                    IsActive = g.IsActive,
+                    IsVerified = g.IsVerified,
+                    BranchesCount = g.Branches != null ? g.Branches.Count : 0,
+                    Description = g.Description,
+                    WebsiteUrl = g.WebsiteUrl,
+                    GstNumber = g.GstNumber,
+                    RegistrationNumber = g.RegistrationNumber,
+                    EstablishedDate = g.EstablishedDate,
+                    LogoUrl = g.LogoUrl,
+                    BannerUrl = g.BannerUrl,
+                    InvoicePrefix = g.InvoicePrefix,
+                    DefaultTaxRate = g.DefaultTaxRate,
+                    OverdueGraceDays = g.OverdueGraceDays,
+                    AutoEmailReceipts = g.AutoEmailReceipts,
+                    CreatedOn = g.CreatedOn,
+                    ModifiedOn = (DateTime)g.ModifiedOn!,
+                    PlanName = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.Plan.Name)
+                        .FirstOrDefault(),
+                    SubscriptionExpiry = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => (DateTime?)s.EndDate)
+                        .FirstOrDefault(),
+                    IsTrialPlan = _dbContext.SubscriptionRecords
+                        .Where(s => s.GymId == g.Id && s.IsActive)
+                        .OrderByDescending(s => s.CreatedOn)
+                        .Select(s => s.IsTrial)
+                        .FirstOrDefault(),
+                    PaymentStatus = _dbContext.SaaSPaymentTransactions
+                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
+                })
+                .FirstOrDefaultAsync();
+        }
         public async Task<List<GymListResponseDto>> GetAllGymsAsync()
         {
             return await _dbContext.Gyms

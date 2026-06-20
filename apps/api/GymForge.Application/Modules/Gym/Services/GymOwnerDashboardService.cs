@@ -3,7 +3,6 @@ using GymForge.Contracts.Gym.Dashboard;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
-using System.Collections.Generic;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -160,7 +159,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 { "2 PM", 0 }, { "4 PM", 0 }, { "6 PM", 0 }, { "8 PM", 0 }, { "10 PM", 0 }
             };
 
-            foreach (var log in todayLogs)
+            foreach (AttendanceLog log in todayLogs)
             {
                 int hr = log.CheckInTime.ToLocalTime().Hour;
                 string key;
@@ -180,7 +179,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 }
             }
 
-            foreach (var hr in hoursList)
+            foreach (string hr in hoursList)
             {
                 hourlyData.Add(new HourlyOccupancyDto
                 {
@@ -200,9 +199,9 @@ namespace GymForge.Application.Modules.Gym.Services
                 .Where(x => x.CheckInTime.AddHours(5.5).Date >= thirtyDaysAgo)
                 .ToList();
 
-            foreach (var log in recentMonthLogs)
+            foreach (AttendanceLog log in recentMonthLogs)
             {
-                var dayKey = log.CheckInTime.AddHours(5.5).ToString("ddd");
+                string dayKey = log.CheckInTime.AddHours(5.5).ToString("ddd");
                 if (dayMap.ContainsKey(dayKey))
                 {
                     dayMap[dayKey]++;
@@ -210,7 +209,7 @@ namespace GymForge.Application.Modules.Gym.Services
             }
 
             List<WeeklyOccupancyDto> weeklyData = [];
-            foreach (var d in daysList)
+            foreach (string d in daysList)
             {
                 double rawAverage = dayMap[d] / 4.2;
                 int avgCount = (int)Math.Max(Math.Round(rawAverage), 0);
@@ -233,9 +232,9 @@ namespace GymForge.Application.Modules.Gym.Services
                 .Where(s => s != null && s.IsActive)
                 .ToList();
 
-            var planGroups = activeSubs
+            List<(string PlanName, int Count)> planGroups = activeSubs
                 .GroupBy(s => s!.PlanNameSnapshot)
-                .Select(g => new { PlanName = g.Key, Count = g.Count() })
+                .Select(g => (PlanName: g.Key, Count: g.Count()))
                 .OrderByDescending(x => x.Count)
                 .ToList();
 
@@ -247,7 +246,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 string[] colors = new[] { "#0b2545", "#7a9acb", "#d4e1fa", "#64748b" };
                 for (int i = 0; i < planGroups.Count; i++)
                 {
-                    var group = planGroups[i];
+                    (string PlanName, int Count) group = planGroups[i];
                     double pct = totalActive > 0 ? Math.Round((double)group.Count / totalActive * 100) : 0;
                     distributionData.Add(new MembershipDistributionDto
                     {

@@ -48,5 +48,37 @@ namespace GymForge.Infrastructure.Repositories
                 .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
         }
+
+        public async Task<(IEnumerable<MaintenanceLog> items, int totalCount)> GetPagedMaintenanceLogsAsync(Guid gymId, int pageNumber, int pageSize, string? searchTerm, Guid? branchId = null)
+        {
+            IQueryable<MaintenanceLog> query = _dbContext.MaintenanceLogs
+                .Include(x => x.Equipment)
+                .Where(x => x.Equipment.GymId == gymId);
+
+            if (branchId.HasValue)
+            {
+                query = query.Where(x => x.Equipment.BranchId == branchId.Value || (x.Equipment.BranchId == null && _dbContext.Branches.Any(b => b.Id == branchId.Value && b.IsMainBranch)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerTerm = searchTerm.ToLower();
+                query = query.Where(x => 
+                    x.TechnicianName.ToLower().Contains(lowerTerm) || 
+                    x.ServiceType.ToLower().Contains(lowerTerm) || 
+                    x.Equipment.Name.ToLower().Contains(lowerTerm)
+                );
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.StartDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }

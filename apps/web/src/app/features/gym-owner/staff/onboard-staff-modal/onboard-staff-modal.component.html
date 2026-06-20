@@ -4,7 +4,8 @@
     <div class="modal-header">
       <div class="header-titles">
         <h2>{{ isEdit ? 'Edit Staff Profile' : 'Onboard New Staff' }}</h2>
-        <p>{{ isEdit ? 'Update staff information and professional details.' : 'Send an invitation to a new staff member or trainer.' }}</p>
+        <p>{{ isEdit ? 'Update staff information and professional details.' : 'Send an invitation to a new staff member
+          or trainer.' }}</p>
       </div>
       <button class="close-btn" (click)="onTopClose()" title="Cancel">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -16,7 +17,7 @@
 
     <div class="modal-body">
       <form [formGroup]="onboardForm" (ngSubmit)="submit()" class="onboard-form">
-        
+
         <!-- Basic Information Section -->
         <div class="form-section">
           <h3>Basic Information</h3>
@@ -24,12 +25,14 @@
             <div class="form-group">
               <label>First Name *</label>
               <input type="text" formControlName="firstName" placeholder="Enter first name">
-              <app-validation-message [control]="onboardForm.get('firstName')" fieldName="First name"></app-validation-message>
+              <app-validation-message [control]="onboardForm.get('firstName')"
+                fieldName="First name"></app-validation-message>
             </div>
             <div class="form-group">
               <label>Last Name *</label>
               <input type="text" formControlName="lastName" placeholder="Enter last name">
-              <app-validation-message [control]="onboardForm.get('lastName')" fieldName="Last name"></app-validation-message>
+              <app-validation-message [control]="onboardForm.get('lastName')"
+                fieldName="Last name"></app-validation-message>
             </div>
             <div class="form-group">
               <label>Email Address *</label>
@@ -39,7 +42,12 @@
             <div class="form-group">
               <label>Phone Number *</label>
               <input type="text" formControlName="phoneNumber" placeholder="+1 234 567 8900">
-              <app-validation-message [control]="onboardForm.get('phoneNumber')" fieldName="Phone number"></app-validation-message>
+              <app-validation-message [control]="onboardForm.get('phoneNumber')"
+                fieldName="Phone number"></app-validation-message>
+              <span class="error-msg"
+                *ngIf="onboardForm.get('phoneNumber')?.hasError('pattern') && onboardForm.get('phoneNumber')?.touched">
+                Valid phone number is required
+              </span>
             </div>
           </div>
         </div>
@@ -50,43 +58,60 @@
           <div class="form-grid">
             <div class="form-group">
               <label>Role *</label>
-              <app-dropdown [options]="roles" formControlName="role" placeholder="Select Role" direction="auto" minWidth="100%"></app-dropdown>
+              <app-dropdown [options]="roles" formControlName="role" placeholder="Select Role" direction="auto"
+                minWidth="100%"></app-dropdown>
               <app-validation-message [control]="onboardForm.get('role')" fieldName="Role"></app-validation-message>
             </div>
             <div class="form-group" *ngIf="isGymOwner && branches.length > 0">
               <label>Assign to Branch</label>
-              <app-dropdown [options]="branchOptions" formControlName="branchId" placeholder="Select Branch (Optional)" direction="auto" minWidth="100%"></app-dropdown>
+              <app-dropdown [options]="branchOptions" formControlName="branchId" placeholder="Select Branch (Optional)"
+                direction="auto" minWidth="100%"></app-dropdown>
             </div>
             <div class="form-group">
               <label>Experience (Years)</label>
-              <input type="number" formControlName="experienceYears" placeholder="e.g. 5">
+              <input type="number" formControlName="experienceYears" placeholder="e.g. 5" min="0" max="80" step="1"
+                onkeypress="return event.charCode >= 48 && event.charCode <= 57">
             </div>
             <div class="form-group">
               <label>Specializations (Comma separated)</label>
               <input type="text" formControlName="specializations" placeholder="e.g. HIIT, Yoga, Boxing">
             </div>
             <div class="form-group">
-              <label>Shift Timings</label>
-              <input type="text" formControlName="shiftTimings" placeholder="e.g. 6 AM - 2 PM">
+              <label>Shift Start Time</label>
+              <input type="time" formControlName="shiftStartTime">
+            </div>
+            <div class="form-group">
+              <label>Shift End Time</label>
+              <input type="time" formControlName="shiftEndTime">
             </div>
             <div class="form-group full-width">
               <label>Short Bio / About</label>
-              <textarea formControlName="bio" placeholder="Tell us about the staff member's background..." rows="3"></textarea>
+              <textarea formControlName="bio" placeholder="Tell us about the staff member's background..." rows="3"
+                maxlength="300"></textarea>
             </div>
           </div>
         </div>
 
         <!-- Social & Online Presence (Only for trainers/instructors) -->
-        <div class="form-section" *ngIf="onboardForm.get('role')?.value === 1 || onboardForm.get('role')?.value === 5 || onboardForm.get('role')?.value === 6">
+        <div class="form-section"
+          *ngIf="onboardForm.get('role')?.value === 1 || onboardForm.get('role')?.value === 5 || onboardForm.get('role')?.value === 6">
           <h3>Social & Online Presence</h3>
           <div class="form-grid">
             <div class="form-group">
               <label><i class="fa-brands fa-instagram"></i> Instagram Profile URL</label>
               <input type="text" formControlName="instagramUrl" placeholder="https://instagram.com/username">
+              <span class="error-msg"
+                *ngIf="onboardForm.get('instagramUrl')?.invalid && onboardForm.get('instagramUrl')?.touched">
+                Please enter a valid URL
+              </span>
             </div>
             <div class="form-group">
               <label><i class="fa-solid fa-globe"></i> Portfolio / Website</label>
               <input type="text" formControlName="portfolioUrl" placeholder="https://example.com">
+              <span class="error-msg"
+                *ngIf="onboardForm.get('portfolioUrl')?.invalid && onboardForm.get('portfolioUrl')?.touched">
+                Please enter a valid URL
+              </span>
             </div>
           </div>
         </div>
@@ -107,7 +132,8 @@
       </div>
       <div class="footer-right">
         <button class="primary-btn" (click)="submit()" [disabled]="onboardForm.invalid || isSubmitting">
-          {{ isSubmitting ? (isEdit ? 'Saving...' : 'Sending Invitation...') : (isEdit ? 'Save Changes' : 'Send Invitation') }}
+          {{ isSubmitting ? (isEdit ? 'Saving...' : 'Sending Invitation...') : (isEdit ? 'Save Changes' : 'Send
+          Invitation') }}
         </button>
       </div>
     </div>

@@ -6,10 +6,6 @@
       <p>Manage your gym staff, roles and trainer assignments.</p>
     </div>
     <div class="actions">
-      <button class="secondary-btn" (click)="toggleViewMode()"
-        [title]="viewMode === 'list' ? 'Dashboard View' : 'List View'">
-        <i class="fa-solid" [ngClass]="viewMode === 'list' ? 'fa-chart-pie' : 'fa-list'"></i>
-      </button>
       <button class="btn-export" (click)="exportToCsv()" [disabled]="staff.length === 0">
         <i class="fa-solid fa-download"></i> Export Report
       </button>
@@ -17,50 +13,17 @@
     </div>
   </div>
 
-  <!-- Stats Bar -->
-  <div class="stats-bar" *ngIf="viewMode === 'dashboard'">
-    <div class="stat-card">
-      <div class="stat-icon total"><i class="fa-solid fa-users"></i></div>
-      <div class="stat-info">
-        <span class="stat-value">{{ totalCount }}</span>
-        <span class="stat-label">Total Staff</span>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon trainers"><i class="fa-solid fa-dumbbell"></i></div>
-      <div class="stat-info">
-        <span class="stat-value">{{ trainersCount }}</span>
-        <span class="stat-label">Active Trainers</span>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon active"><i class="fa-solid fa-circle-check"></i></div>
-      <div class="stat-info">
-        <span class="stat-value">{{ activeCount }}</span>
-        <span class="stat-label">Active Staff</span>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon inactive"><i class="fa-solid fa-circle-xmark"></i></div>
-      <div class="stat-info">
-        <span class="stat-value">{{ inactiveCount }}</span>
-        <span class="stat-label">Inactive</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filter Bar (List View) -->
-  <!-- Filter Bar (List View) -->
-  <app-filter-bar *ngIf="viewMode === 'list'" [filterConfigs]="filterConfigs"
-    placeholder="Search staff by name or email..." [debounce]="2000" (filterChanged)="onFilterChanged($event)">
+  <!-- Filter Bar -->
+  <app-filter-bar [filterConfigs]="filterConfigs" placeholder="Search staff by name or email..." [debounce]="2000"
+    (filterChanged)="onFilterChanged($event)">
   </app-filter-bar>
 
-  <!-- Data Grid (Only in List View) -->
-  <app-data-grid *ngIf="viewMode === 'list'" [config]="gridConfig" [data]="staff" [totalItems]="totalItems"
-    [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onAction($event)"
-    (pageChange)="onPageChanged($event)" (pageSizeChange)="onPageSizeChanged($event)">
+  <!-- Data Grid -->
+  <app-data-grid [config]="gridConfig" [data]="staff" [totalItems]="totalItems" [pageSize]="pageSize"
+    [currentPage]="currentPage" (actionEvent)="onAction($event)" (pageChange)="onPageChanged($event)"
+    (pageSizeChange)="onPageSizeChanged($event)">
     <ng-template [gridCell]="'fullName'" let-row>
-      <div class="staff-profile-cell">
+      <div class="staff-profile-cell clickable" (click)="onViewStaff(row)">
         <div class="avatar-container">
           <div class="avatar-circle">
             <img *ngIf="row.profilePictureUrl" [src]="row.profilePictureUrl" alt="avatar">

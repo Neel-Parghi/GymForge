@@ -11,6 +11,7 @@ namespace GymForge.Contracts.Gym.Billing
         public decimal Amount { get; set; }
         public DateTime DateIssued { get; set; }
         public DateTime DueDate { get; set; }
+        public DateTime CreatedOn { get; set; }
         public string Status { get; set; } = "Paid";
         public string MembershipNumber { get; set; } = string.Empty;
         public Guid RealRecordId { get; set; }

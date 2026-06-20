@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
@@ -16,7 +16,6 @@ import { CONSTANTS } from '../../../core/constants/constants';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private notification = inject(NotificationService);
 
@@ -29,6 +28,7 @@ export class LoginComponent {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false]
   });
 
   showPassword = false;
@@ -41,7 +41,8 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
-      this.authApiService.login(this.loginForm.value).subscribe({
+      const { rememberMe, ...credentials } = this.loginForm.value;
+      this.authApiService.login(credentials, rememberMe ?? false).subscribe({
         next: (response) => {
           const data = response?.data || response;
           const token = data?.accessToken;
@@ -55,7 +56,12 @@ export class LoginComponent {
           this.isLoading = false;
         },
         error: (err) => {
-          this.notification.error(err.error?.message || CONSTANTS.AUTH.LOGIN_ERROR);
+          const errorMessage = err.error?.message || CONSTANTS.AUTH.LOGIN_ERROR;
+          if (errorMessage === 'EMAIL_NOT_VERIFIED') {
+            this.notification.error('Your email is not verified. Please register again to receive a new verification code.');
+          } else {
+            this.notification.error(errorMessage);
+          }
           this.isLoading = false;
         },
       });

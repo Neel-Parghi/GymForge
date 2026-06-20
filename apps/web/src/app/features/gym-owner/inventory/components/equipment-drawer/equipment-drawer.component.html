@@ -1,12 +1,11 @@
-<app-slide-drawer [isOpen]="isOpen"
-  [title]="isEditingEquipment ? 'Edit Equipment' : 'Register Equipment'"
+<app-slide-drawer [isOpen]="isOpen" [title]="isEditingEquipment ? 'Edit Equipment' : 'Register Equipment'"
   [subtitle]="isEditingEquipment ? 'Update gym asset details and health' : 'Add new gym assets to the tracking system'"
   width="550px" (closeDrawer)="closeDrawer.emit()">
   <div drawer-body class="form-container" *ngIf="isOpen" [formGroup]="equipmentForm">
 
     <!-- Image Upload Section for Equipment -->
     <div class="image-upload-section" (click)="fileInputEq.click()">
-      <input type="file" #fileInputEq (change)="onFileSelected($event)" accept="image/*" style="display: none">
+      <input type="file" #fileInputEq (change)="onFileSelected($event)" accept="image/*" class="hidden-file-input">
 
       <div class="image-placeholder" *ngIf="!imagePreview && !loading">
         <i class="fas fa-camera"></i>
@@ -31,12 +30,12 @@
     <div class="form-grid">
       <div class="form-group full-width">
         <label>Equipment Name</label>
-        <input type="text" formControlName="name" placeholder="e.g. Matrix Treadmill T7xe">
+        <input type="text" formControlName="name" placeholder="e.g. Matrix Treadmill T7xe" maxlength="100">
       </div>
 
       <div class="form-group">
         <label>Serial Number</label>
-        <input type="text" formControlName="serialNumber" placeholder="SN-XXXXXXX">
+        <input type="text" formControlName="serialNumber" placeholder="SN-XXXXXXX" maxlength="20">
       </div>
 
       <div class="form-group">
@@ -47,12 +46,14 @@
 
       <div class="form-group">
         <label>Purchase Date</label>
-        <app-date-time-picker formControlName="purchaseDate" placeholder="Select purchase date"></app-date-time-picker>
+        <app-date-time-picker formControlName="purchaseDate" placeholder="Select purchase date"
+          [maxDate]="today"></app-date-time-picker>
       </div>
 
       <div class="form-group">
         <label>Warranty Expiry</label>
-        <app-date-time-picker formControlName="warrantyExpiry" placeholder="Select warranty expiry"></app-date-time-picker>
+        <app-date-time-picker formControlName="warrantyExpiry"
+          placeholder="Select warranty expiry"></app-date-time-picker>
       </div>
 
       <div class="form-group">
@@ -63,7 +64,9 @@
 
       <div class="form-group">
         <label>Maintenance Interval (Months)</label>
-        <input type="number" formControlName="maintenanceInterval">
+        <input type="number" formControlName="maintenanceInterval" min="1" max="12"
+          onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+          (input)="clampValue('maintenanceInterval', 12)">
       </div>
 
       <div class="form-group full-width">
@@ -75,8 +78,7 @@
   <div drawer-footer class="drawer-actions">
     <button class="btn-outline" type="button" (click)="closeDrawer.emit()">Cancel</button>
     <button class="btn-primary" type="button"
-      [disabled]="equipmentForm.invalid || loading || (isEditingEquipment && equipmentForm.pristine && !selectedFile)"
-      (click)="saveEquipment()">
+      [disabled]="loading || (isEditingEquipment && equipmentForm.pristine && !selectedFile)" (click)="saveEquipment()">
       {{isEditingEquipment ? 'Update Equipment' : 'Register Equipment'}}
     </button>
   </div>

@@ -33,7 +33,7 @@ namespace GymForge.Infrastructure.Persistence.Interceptos
         
             try 
             {
-                foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
+                foreach (EntityEntry<BaseEntity> entry in context.ChangeTracker.Entries<BaseEntity>())
                 {
                     DateTime now = DateTime.UtcNow;
                     Guid? userId = _currentUserService.UserId;

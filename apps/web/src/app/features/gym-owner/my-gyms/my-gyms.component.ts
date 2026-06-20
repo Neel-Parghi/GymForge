@@ -1,4 +1,3 @@
-declare var Razorpay: any;
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -66,14 +65,14 @@ export class MyGymsComponent implements OnInit {
 
   private initForm(): void {
     this.profileForm = this.fb.group({
-      gymName: ['', [Validators.required]],
-      brandName: [''],
+      gymName: ['', [Validators.required, Validators.maxLength(25)]],
+      brandName: ['', [Validators.maxLength(25)]],
       email: ['', [Validators.email]],
-      phone: [''],
-      websiteUrl: [''],
-      description: [''],
-      gstNumber: [''],
-      registrationNumber: [''],
+      phone: ['', [Validators.pattern('^\\+?[0-9]{10,15}$')]],
+      websiteUrl: ['', [Validators.pattern('^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$')]],
+      description: ['', [Validators.maxLength(300)]],
+      gstNumber: ['', [Validators.pattern('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$')]],
+      registrationNumber: ['', [Validators.pattern('^[a-zA-Z0-9-]+$')]],
       logoUrl: ['']
     });
     this.profileForm.disable();
@@ -156,7 +155,7 @@ export class MyGymsComponent implements OnInit {
 
   private loadBranches(gymId: string): void {
     this.isLoadingBranches = true;
-    this.gymService.getMyBranches(true).subscribe({
+    this.gymService.getMyBranches().subscribe({
       next: (res) => {
         this.branches = res.data || [];
         this.isLoadingBranches = false;

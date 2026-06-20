@@ -12,6 +12,7 @@ namespace GymForge.Infrastructure.Persistence
 
         }
 
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Gym> Gyms { get; set; }
@@ -62,9 +63,37 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<GymHoliday> GymHolidays { get; set; }
 
+        public DbSet<GymAnnouncement> GymAnnouncements { get; set; }
+        
+        public DbSet<AnnouncementTemplate> AnnouncementTemplates { get; set; }
+        
+        public DbSet<UserNotification> UserNotifications { get; set; }
+
         public DbSet<Exercise> Exercises { get; set; }
 
         public DbSet<MasterExercise> MasterExercises { get; set; }
+
+        public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
+
+        public DbSet<WorkoutPlanDay> WorkoutPlanDays { get; set; }
+
+        public DbSet<WorkoutPlanExercise> WorkoutPlanExercises { get; set; }
+        
+        public DbSet<WorkoutSessionLog> WorkoutSessionLogs { get; set; }
+        
+        public DbSet<LoggedExercise> LoggedExercises { get; set; }
+        
+        public DbSet<LoggedSet> LoggedSets { get; set; }
+        
+        public DbSet<MemberPlanAssignment> MemberPlanAssignments { get; set; }
+       
+        public DbSet<MemberWorkoutScheduleDay> MemberWorkoutScheduleDays { get; set; }
+        
+        public DbSet<DietPlan> DietPlans { get; set; }
+        
+        public DbSet<DietPlanMeal> DietPlanMeals { get; set; }
+
+        public DbSet<MemberDietAssignment> MemberDietAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -156,6 +185,11 @@ namespace GymForge.Infrastructure.Persistence
                       .WithMany()
                       .HasForeignKey(mm => mm.RecordedById)
                       .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(mm => mm.User)
+                      .WithMany()
+                      .HasForeignKey(mm => mm.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(mm => mm.Weight).HasPrecision(5, 2);
                 entity.Property(mm => mm.Height).HasPrecision(5, 2);
@@ -261,6 +295,124 @@ namespace GymForge.Infrastructure.Persistence
                 entity.HasIndex(x => x.BranchId);
             });
 
+            modelBuilder.Entity<GymAnnouncement>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
+            });
+
+            modelBuilder.Entity<AnnouncementTemplate>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
+            });
+
+            modelBuilder.Entity<UserNotification>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => x.BranchId);
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => new { x.UserId, x.IsRead });
+
+                entity.HasOne(un => un.User)
+                      .WithMany()
+                      .HasForeignKey(un => un.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // WorkoutPlan configurations
+            modelBuilder.Entity<WorkoutPlan>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => new { x.CreatedBy, x.Type, x.IsDeleted });
+                entity.HasQueryFilter(p => !p.IsDeleted);
+                
+                entity.HasMany(wp => wp.Days)
+                      .WithOne(d => d.WorkoutPlan)
+                      .HasForeignKey(d => d.WorkoutPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<WorkoutPlanDay>(entity =>
+            {
+                entity.HasIndex(x => x.WorkoutPlanId);
+                
+                entity.HasMany(d => d.Exercises)
+                      .WithOne(e => e.WorkoutPlanDay)
+                      .HasForeignKey(e => e.WorkoutPlanDayId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<WorkoutPlanExercise>(entity =>
+            {
+                entity.HasIndex(x => x.WorkoutPlanDayId);
+                entity.HasIndex(x => x.ExerciseId);
+
+                entity.HasOne(e => e.Exercise)
+                      .WithMany()
+                      .HasForeignKey(e => e.ExerciseId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<WorkoutSessionLog>(entity =>
+            {
+                entity.HasOne(l => l.Member)
+                      .WithMany()
+                      .HasForeignKey(l => l.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(l => l.User)
+                      .WithMany()
+                      .HasForeignKey(l => l.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(l => l.LoggedExercises)
+                      .WithOne(le => le.WorkoutSessionLog)
+                      .HasForeignKey(le => le.WorkoutSessionLogId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<LoggedExercise>(entity =>
+            {
+                entity.HasMany(le => le.LoggedSets)
+                      .WithOne(ls => ls.LoggedExercise)
+                      .HasForeignKey(ls => ls.LoggedExerciseId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MemberPlanAssignment>(entity =>
+            {
+                entity.HasOne(mpa => mpa.Member)
+                      .WithMany()
+                      .HasForeignKey(mpa => mpa.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mpa => mpa.User)
+                      .WithMany()
+                      .HasForeignKey(mpa => mpa.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mpa => mpa.WorkoutPlan)
+                      .WithMany()
+                      .HasForeignKey(mpa => mpa.WorkoutPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MemberWorkoutScheduleDay>(entity =>
+            {
+                entity.HasIndex(x => new { x.MemberPlanAssignmentId, x.DayOfWeek }).IsUnique();
+
+                entity.HasOne(x => x.MemberPlanAssignment)
+                      .WithMany(x => x.CustomScheduleDays)
+                      .HasForeignKey(x => x.MemberPlanAssignmentId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.WorkoutPlanDay)
+                      .WithMany()
+                      .HasForeignKey(x => x.WorkoutPlanDayId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
             // Seed default settings
             modelBuilder.Entity<SaaSConfiguration>().HasData(new SaaSConfiguration
             {
@@ -272,6 +424,45 @@ namespace GymForge.Infrastructure.Persistence
                 Currency = "INR",
                 CreatedOn = new DateTime(2026, 4, 25, 0, 0, 0, DateTimeKind.Utc),
                 CreatedBy = Guid.Empty
+            });
+
+            // DietPlan configurations
+            modelBuilder.Entity<DietPlan>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => new { x.CreatedBy, x.IsDeleted });
+                entity.HasQueryFilter(p => !p.IsDeleted);
+                
+                entity.HasMany(wp => wp.Meals)
+                      .WithOne(d => d.DietPlan)
+                      .HasForeignKey(d => d.DietPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DietPlanMeal>(entity =>
+            {
+                entity.HasIndex(x => x.DietPlanId);
+            });
+
+            modelBuilder.Entity<MemberDietAssignment>(entity =>
+            {
+                entity.HasIndex(x => x.MemberId);
+                entity.HasIndex(x => new { x.MemberId, x.IsActive });
+
+                entity.HasOne(mda => mda.Member)
+                      .WithMany()
+                      .HasForeignKey(mda => mda.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mda => mda.User)
+                      .WithMany()
+                      .HasForeignKey(mda => mda.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(mda => mda.DietPlan)
+                      .WithMany()
+                      .HasForeignKey(mda => mda.DietPlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

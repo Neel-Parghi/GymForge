@@ -1,5 +1,7 @@
 using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,10 +20,10 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpGet("history")]
-        public async Task<ActionResult<List<MaintenanceLogDto>>> GetAllMaintenanceHistory()
+        public async Task<ActionResult<PagedResponse<MaintenanceLogDto>>> GetAllMaintenanceHistory([FromQuery] PaginationParams pagination)
         {
             if (GymId == null) return Unauthorized();
-            return Ok(await _maintenanceService.GetAllMaintenanceLogsAsync(GymId.Value, SecureBranchId));
+            return Ok(await _maintenanceService.GetAllMaintenanceLogsAsync(GymId.Value, pagination, SecureBranchId));
         }
 
         [HttpPost]

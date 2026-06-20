@@ -44,7 +44,7 @@
 
     i {
       font-size: 0.95rem;
-      color: #0d3278;
+      color: var(--primary-navy-hover);
     }
 
     .trigger-text {
@@ -60,7 +60,7 @@
     }
 
     &:hover {
-      border-color: #1f2937;
+      border-color: var(--slate-800);
       background: var(--bg-color);
     }
 
@@ -84,7 +84,7 @@
 
       &:hover {
         background: rgba(var(--accent-rgb), 0.08);
-        color: #ef4444;
+        color: var(--error-color);
       }
     }
   }
@@ -456,7 +456,7 @@
 
       .time-apply-btn {
         width: 100%;
-        background: #1f2937;
+        background: var(--slate-800);
         color: white;
         border: none;
         padding: 8px;
@@ -467,7 +467,7 @@
         transition: all 0.2s;
 
         &:hover {
-          background: #374151;
+          background: var(--slate-700);
         }
       }
     }
@@ -496,4 +496,10 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+.disabled-date {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: not-allowed;
 }

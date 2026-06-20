@@ -3,7 +3,7 @@ export interface StaffResponse {
   staffNumber: string;
   firstName: string;
   lastName: string;
-  fullName?: string; // Virtual field for UI
+  fullName?: string;
   email: string;
   phoneNumber: string;
   role: number;
@@ -43,6 +43,22 @@ export interface MeasurementResponse {
   height?: number;
   bodyFatPercentage?: number;
   bmi?: number;
+  isAdvanced?: boolean;
+  neck?: number;
+  shoulders?: number;
+  chest?: number;
+  leftBicep?: number;
+  rightBicep?: number;
+  leftForearm?: number;
+  rightForearm?: number;
+  upperAbs?: number;
+  lowerAbs?: number;
+  waist?: number;
+  hips?: number;
+  leftThigh?: number;
+  rightThigh?: number;
+  leftCalf?: number;
+  rightCalf?: number;
   notes?: string;
   date: string;
   recordedBy?: string;
@@ -53,6 +69,22 @@ export interface AddMeasurementRequest {
   height?: number;
   bodyFatPercentage?: number;
   bmi?: number;
+  isAdvanced?: boolean;
+  neck?: number;
+  shoulders?: number;
+  chest?: number;
+  leftBicep?: number;
+  rightBicep?: number;
+  leftForearm?: number;
+  rightForearm?: number;
+  upperAbs?: number;
+  lowerAbs?: number;
+  waist?: number;
+  hips?: number;
+  leftThigh?: number;
+  rightThigh?: number;
+  leftCalf?: number;
+  rightCalf?: number;
   notes?: string;
 }
 

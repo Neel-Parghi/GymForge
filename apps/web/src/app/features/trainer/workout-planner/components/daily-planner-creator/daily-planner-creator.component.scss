@@ -413,10 +413,15 @@
 /* Panel Spreadsheet Table Customization */
 .panel-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.86rem;
 
   th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
     text-align: left;
     font-weight: 700;
     color: var(--slate-500);
@@ -455,6 +460,16 @@
       border-color: var(--accent-color);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
       background: #ffffff;
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: var(--error-color, #ef4444) !important;
+      background-color: var(--error-bg, rgba(239, 68, 68, 0.03)) !important;
+
+      &:focus {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+      }
     }
   }
 
@@ -771,4 +786,5 @@
     }
   }
 }
+
 

@@ -2,6 +2,9 @@ using GymForge.Contracts.Users;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using GymForge.Contracts.Common;
+using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Users.Interface
 {
@@ -28,5 +31,9 @@ namespace GymForge.Application.Modules.Users.Interface
         Task ChangeMyPasswordAsync(ChangePasswordRequestDto dto);
 
         Task<string> UploadAvatarAsync(IFormFile file);
+
+        Task<IEnumerable<DeletionRequestDto>> GetPendingDeletionRequestsAsync();
+
+        Task<PagedResponse<StandaloneUserDto>> GetStandaloneUsersAsync(PaginationParams pagination);
     }
 }

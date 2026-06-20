@@ -23,6 +23,7 @@ namespace GymForge.Domain.Interface
         Task<Branch?> GetBranchByIdAsync(Guid id);
         Branch UpdateBranch(Branch branch);
         Task<GymListResponseDto?> GetGymByOwnerIdAsync(Guid ownerId);
+        Task<GymListResponseDto?> GetGymDetailsResponseByIdAsync(Guid gymId);
         Task<List<Staff>> GetBranchManagersAsync(Guid gymId);
         Task<List<GymHoliday>> GetHolidaysAsync(Guid gymId);
         Task AddHolidayAsync(GymHoliday holiday);

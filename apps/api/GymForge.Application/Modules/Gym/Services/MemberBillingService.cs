@@ -80,6 +80,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     Status = sub.PaymentStatus.ToString(),
                     MembershipNumber = sub.Member.MembershipNumber ?? string.Empty,
                     RealRecordId = sub.Id,
+                    CreatedOn = sub.CreatedOn,
 
                     // Branch scoping details
                     BranchId = resolvedBranch?.Id,
@@ -115,6 +116,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     Status = tx.PaymentMethod.StartsWith("Pending") ? "Pending" : "Paid",
                     MembershipNumber = tx?.Member?.MembershipNumber ?? string.Empty,
                     RealRecordId = tx.Id,
+                    CreatedOn = tx.CreatedOn,
 
                     BranchId = resolvedBranch?.Id,
                     BranchName = resolvedBranch?.Name ?? "Main Outlet",
@@ -149,6 +151,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     Status = invoice.PaymentMethod.StartsWith("Pending") ? "Pending" : "Paid",
                     MembershipNumber = invoice?.Member?.MembershipNumber ?? string.Empty,
                     RealRecordId = invoice.Id,
+                    CreatedOn = invoice.CreatedOn,
 
                     // Branch scoping details
                     BranchId = resolvedBranch?.Id,
@@ -161,7 +164,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 });
             }
 
-            List<MemberInvoiceDto> sortedInvoices = [..unifiedInvoices.OrderByDescending(x => x.DateIssued)];
+            List<MemberInvoiceDto> sortedInvoices = [..unifiedInvoices.OrderByDescending(x => x.CreatedOn)];
 
             decimal totalCollected = sortedInvoices.Where(x => x.Status == "Paid").Sum(x => x.Amount);
             decimal pendingReceivables = sortedInvoices.Where(x => x.Status == "Pending").Sum(x => x.Amount);

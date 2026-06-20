@@ -113,13 +113,24 @@ namespace GymForge.Application.Modules.Gym.Services
         public async Task<StaffResponse?> GetStaffByIdAsync(Guid id)
         {
             Staff? staff = await _staffRepository.GetByIdAsync(id);
+            if (staff == null)
+            {
+                staff = await _staffRepository.GetByUserIdAsync(id);
+            }
             return staff != null ? _mapper.Map<StaffResponse>(staff) : null;
         }
 
         public async Task UpdateStaffAsync(Guid id, AddStaffRequest request)
         {
-            Staff? staff = await _staffRepository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("Staff not found.");
+            Staff? staff = await _staffRepository.GetByIdAsync(id);
+            if (staff == null)
+            {
+                staff = await _staffRepository.GetByUserIdAsync(id);
+            }
+            if (staff == null)
+            {
+                throw new KeyNotFoundException("Staff not found.");
+            }
 
             _mapper.Map(request, staff);
             await _staffRepository.UpdateAsync(staff);
@@ -209,19 +220,40 @@ namespace GymForge.Application.Modules.Gym.Services
             }
         }
 
-        public async Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request)
+        public async Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request, Guid? gymId)
         {
+            Staff? staff = await _staffRepository.GetByUserIdAsync(recordedById);
+            Guid? staffId = staff?.Id;
+
             MemberMeasurement measurement = new()
             {
-                MemberId = memberId,
-                RecordedById = recordedById == Guid.Empty ? null : recordedById,
+                RecordedById = staffId,
                 Weight = request.Weight,
                 Height = request.Height,
                 BodyFatPercentage = request.BodyFatPercentage,
                 BMI = request.BMI,
+                IsAdvanced = request.IsAdvanced,
+                Neck = request.Neck,
+                Shoulders = request.Shoulders,
+                Chest = request.Chest,
+                LeftBicep = request.LeftBicep,
+                RightBicep = request.RightBicep,
+                LeftForearm = request.LeftForearm,
+                RightForearm = request.RightForearm,
+                UpperAbs = request.UpperAbs,
+                LowerAbs = request.LowerAbs,
+                Waist = request.Waist,
+                Hips = request.Hips,
+                LeftThigh = request.LeftThigh,
+                RightThigh = request.RightThigh,
+                LeftCalf = request.LeftCalf,
+                RightCalf = request.RightCalf,
                 Notes = request.Notes,
                 Date = DateTime.UtcNow
             };
+
+            if (gymId.HasValue) measurement.MemberId = memberId;
+            else measurement.UserId = memberId;
 
             await _staffRepository.AddMeasurementAsync(measurement);
             await _unitOfWork.SaveChangesAsync();
@@ -238,6 +270,10 @@ namespace GymForge.Application.Modules.Gym.Services
             Staff? staff = await _staffRepository.GetByIdAsync(staffId);
             if (staff == null)
             {
+                staff = await _staffRepository.GetByUserIdAsync(staffId);
+            }
+            if (staff == null)
+            {
                 throw new KeyNotFoundException("Staff member not found.");
             }
 
@@ -251,7 +287,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             StaffAttendanceLog log = new()
             {
-                StaffId = staffId,
+                StaffId = staff.Id,
                 GymId = gymId,
                 BranchId = branchId,
                 CheckInTime = DateTime.UtcNow,
@@ -270,6 +306,10 @@ namespace GymForge.Application.Modules.Gym.Services
             Staff? staff = await _staffRepository.GetByIdAsync(staffId);
             if (staff == null)
             {
+                staff = await _staffRepository.GetByUserIdAsync(staffId);
+            }
+            if (staff == null)
+            {
                 throw new KeyNotFoundException("Staff member not found.");
             }
 
@@ -280,7 +320,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             staff.IsCheckedIn = false;
 
-            StaffAttendanceLog? log = await _staffRepository.GetActiveStaffAttendanceLogAsync(staffId);
+            StaffAttendanceLog? log = await _staffRepository.GetActiveStaffAttendanceLogAsync(staff.Id);
             if (log != null)
             {
                 log.CheckOutTime = DateTime.UtcNow;
@@ -292,9 +332,9 @@ namespace GymForge.Application.Modules.Gym.Services
             return _mapper.Map<StaffResponse>(staff);
         }
 
-        public async Task<IEnumerable<StaffAttendanceLogResponse>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null)
+        public async Task<IEnumerable<StaffAttendanceLogResponse>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null, Guid? staffId = null)
         {
-            IEnumerable<StaffAttendanceLog> logs = await _staffRepository.GetStaffAttendanceLogsAsync(gymId, branchId);
+            IEnumerable<StaffAttendanceLog> logs = await _staffRepository.GetStaffAttendanceLogsAsync(gymId, branchId, staffId);
             return logs.Select(log => {
                 double? hours = log.CheckOutTime.HasValue 
                     ? (log.CheckOutTime.Value - log.CheckInTime).TotalHours 
@@ -320,9 +360,10 @@ namespace GymForge.Application.Modules.Gym.Services
         public async Task<PagedResponse<StaffAttendanceLogResponse>> GetStaffAttendanceLogsPagedAsync(
             Guid gymId,
             PaginationParams pagination,
-            Guid? branchId = null)
+            Guid? branchId = null,
+            Guid? staffId = null)
         {
-            PagedResponse<StaffAttendanceLog> pagedLogs = await _staffRepository.GetStaffAttendanceLogsPagedAsync(gymId, pagination, branchId);
+            PagedResponse<StaffAttendanceLog> pagedLogs = await _staffRepository.GetStaffAttendanceLogsPagedAsync(gymId, pagination, branchId, staffId);
             
             IEnumerable<StaffAttendanceLogResponse> itemsResponse = pagedLogs.Items.Select(log => {
                 double? hours = log.CheckOutTime.HasValue 

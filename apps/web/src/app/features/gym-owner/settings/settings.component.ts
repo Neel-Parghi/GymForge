@@ -66,9 +66,9 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.loadBackendSettings();
+    this.loadSettings();
     this.loadBranches();
-    this.loadBackendHolidays();
+    this.loadHolidays();
   }
 
   private initForm(savedRights: any = {}, savedSettings: any = {}) {
@@ -106,7 +106,8 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  private loadBackendSettings() {
+  private loadSettings() {
+    // 1. Check if settings are already preloaded in cache
     const cache = this.settingsService.getSettingsSync();
     if (cache) {
       this.initForm(cache.roleRights || {}, cache.operations || {});
@@ -132,6 +133,7 @@ export class SettingsComponent implements OnInit {
 
     this.saving = true;
 
+    // Gather Role Rights Matrix
     const rightsMatrix: any = {};
     this.roles.forEach(role => {
       this.modules.forEach(mod => {
@@ -140,6 +142,7 @@ export class SettingsComponent implements OnInit {
       });
     });
 
+    // Gather Automations Settings
     const automationsSettings = {
       expiryWarningDays: this.settingsForm.value.expiryWarningDays
     };
@@ -172,7 +175,7 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  loadBackendHolidays() {
+  loadHolidays() {
     this.settingsService.getHolidays().subscribe({
       next: (res) => {
         this.holidays = res.data || res || [];
@@ -189,6 +192,7 @@ export class SettingsComponent implements OnInit {
 
     const formVal = this.holidayForm.value;
 
+    // Resolve branchId (if 'All Locations', it is null)
     const branchId = formVal.newHolidayBranch === 'All Locations' ? null : formVal.newHolidayBranch;
 
     const payload = {
@@ -205,7 +209,7 @@ export class SettingsComponent implements OnInit {
           newHolidayDate: '',
           newHolidayBranch: 'All Locations'
         });
-        this.loadBackendHolidays();
+        this.loadHolidays();
       },
       error: () => this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_CREATE_ERROR)
     });
@@ -215,7 +219,7 @@ export class SettingsComponent implements OnInit {
     this.settingsService.deleteHoliday(id).subscribe({
       next: () => {
         this.notification.success(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_DELETE_SUCCESS);
-        this.loadBackendHolidays();
+        this.loadHolidays();
       },
       error: () => this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.HOLIDAY_DELETE_ERROR)
     });

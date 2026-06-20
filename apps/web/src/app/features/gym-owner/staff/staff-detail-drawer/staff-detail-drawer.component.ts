@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StaffResponse } from '../../../../core/models/staff.model';
 import { StaffService } from '../../../../core/services/staff.service';
@@ -15,7 +15,7 @@ import { ConfirmationService } from '../../../../core/services/confirmation.serv
 @Component({
   selector: 'app-staff-detail-drawer',
   standalone: true,
-  imports: [CommonModule, SlideDrawerComponent, ReactiveFormsModule, DropdownComponent],
+  imports: [CommonModule, SlideDrawerComponent, FormsModule, ReactiveFormsModule, DropdownComponent],
   templateUrl: './staff-detail-drawer.component.html',
   styleUrl: './staff-detail-drawer.component.scss'
 })
@@ -27,17 +27,52 @@ export class StaffDetailDrawerComponent {
   private confirmationService = inject(ConfirmationService);
 
   @Input() isOpen = false;
-  @Input() staff: StaffResponse | null = null;
   @Input() branches: any[] = [];
   @Output() close = new EventEmitter<void>();
   @Output() edit = new EventEmitter<StaffResponse>();
   @Output() statusChanged = new EventEmitter<void>();
 
+  private _staff: StaffResponse | null = null;
+
+  @Input()
+  set staff(val: StaffResponse | null) {
+    this._staff = val;
+    this.onStaffChanged();
+  }
+
+  get staff(): StaffResponse | null {
+    return this._staff;
+  }
+
+  private onStaffChanged() {
+    this.allAssignedMembers = [];
+    this.assignedMembers = [];
+    this.staffShifts = [];
+    this.showPastAssignments = false;
+    if (this.staff) {
+      if (this.isTrainer) {
+        this.loadMembers();
+      }
+      if (this.activeTab === 'shifts') {
+        this.loadStaffShifts();
+      }
+    }
+  }
+
   activeTab: 'details' | 'members' | 'shifts' = 'details';
+  allAssignedMembers: any[] = [];
   assignedMembers: any[] = [];
+  showPastAssignments = false;
   isLoadingMembers = false;
   staffShifts: any[] = [];
   isLoadingShifts = false;
+
+  get displayedMembers(): any[] {
+    if (this.showPastAssignments) {
+      return this.allAssignedMembers.filter((m: any) => m.status !== 'Active');
+    }
+    return this.assignedMembers;
+  }
 
   members: any[] = [];
   isLoadingMembersList = false;
@@ -111,7 +146,8 @@ export class StaffDetailDrawerComponent {
     this.isLoadingMembers = true;
     this.staffService.getAssignedMembers(this.staff.id).subscribe({
       next: (res) => {
-        this.assignedMembers = res.data || [];
+        this.allAssignedMembers = res.data || [];
+        this.assignedMembers = this.allAssignedMembers.filter((m: any) => m.status === 'Active');
         this.isLoadingMembers = false;
       },
       error: () => {

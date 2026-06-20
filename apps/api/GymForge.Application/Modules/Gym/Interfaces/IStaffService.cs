@@ -18,13 +18,13 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         Task DeallocateMemberFromTrainerAsync(Guid trainerId, Guid memberId);
         
         // Measurements
-        Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request);
+        Task RecordMeasurementAsync(Guid memberId, Guid recordedById, AddMeasurementRequest request, Guid? gymId);
         Task<IEnumerable<MeasurementResponse>> GetMemberMeasurementsAsync(Guid memberId);
 
         // Trainer Shift / Presence
         Task<StaffResponse> CheckInStaffAsync(Guid staffId, Guid gymId, Guid? branchId, string? notes);
         Task<StaffResponse> CheckOutStaffAsync(Guid staffId, Guid gymId, Guid? branchId);
-        Task<IEnumerable<StaffAttendanceLogResponse>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null);
-        Task<PagedResponse<StaffAttendanceLogResponse>> GetStaffAttendanceLogsPagedAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null);
+        Task<IEnumerable<StaffAttendanceLogResponse>> GetStaffAttendanceLogsAsync(Guid gymId, Guid? branchId = null, Guid? staffId = null);
+        Task<PagedResponse<StaffAttendanceLogResponse>> GetStaffAttendanceLogsPagedAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null, Guid? staffId = null);
     }
 }

@@ -70,7 +70,7 @@
             <ul class="features-list">
               <li *ngFor="let feature of plan.features">
                 <i class="fa-solid fa-circle-check"></i>
-                <span>{{ feature }}</span>
+                <span [title]="feature">{{ feature.length > 100 ? (feature | slice:0:100) + '...' : feature }}</span>
               </li>
               <li *ngIf="!plan.features || plan.features.length === 0" class="no-features">
                 No specific features listed
@@ -128,7 +128,7 @@
                 <div class="input-with-icon">
                   <i class="fa-solid fa-tag"></i>
                   <input type="text" id="name" formControlName="name" placeholder="e.g. Platinum Yearly Membership"
-                    [class.error]="planForm.get('name')?.invalid && planForm.get('name')?.touched">
+                    [class.error]="planForm.get('name')?.invalid && planForm.get('name')?.touched" maxlength="50">
                 </div>
                 <span class="error-msg" *ngIf="planForm.get('name')?.invalid && planForm.get('name')?.touched">Name is
                   required (min 3 chars)</span>
@@ -139,7 +139,7 @@
               <div class="form-group">
                 <label for="description">Description (Optional)</label>
                 <textarea id="description" formControlName="description" rows="2"
-                  placeholder="Tell members what makes this plan special..."></textarea>
+                  placeholder="Tell members what makes this plan special..." maxlength="300"></textarea>
               </div>
             </div>
           </div>
@@ -155,21 +155,27 @@
                 <label for="price">Standard Price (₹) <span class="required">*</span></label>
                 <div class="input-with-icon">
                   <i class="fa-solid fa-wallet"></i>
-                  <input type="number" id="price" formControlName="price" placeholder="0.00">
+                  <input type="number" id="price" formControlName="price" placeholder="0.00" min="0" max="100000"
+                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    oninput="if(this.value > 100000) this.value = 100000; planForm.get('price').setValue(this.value)">
                 </div>
               </div>
               <div class="form-group">
                 <label for="duration">Duration (Months) <span class="required">*</span></label>
                 <div class="input-with-icon">
                   <i class="fa-solid fa-calendar-days"></i>
-                  <input type="number" id="duration" formControlName="durationMonths" placeholder="1">
+                  <input type="number" id="duration" formControlName="durationMonths" placeholder="1" min="1" max="120"
+                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    oninput="if(this.value > 120) this.value = 120; planForm.get('durationMonths').setValue(this.value)">
                 </div>
               </div>
               <div class="form-group">
                 <label for="branches">Max Branches Access</label>
                 <div class="input-with-icon">
                   <i class="fa-solid fa-building-circle-check"></i>
-                  <input type="number" id="branches" formControlName="maxBranches" placeholder="Unlimited">
+                  <input type="number" id="branches" formControlName="maxBranches" placeholder="Unlimited" min="1"
+                    max="50" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    oninput="if(this.value > 50) this.value = 50; planForm.get('maxBranches').setValue(this.value)">
                 </div>
               </div>
             </div>
@@ -183,15 +189,15 @@
             </div>
             <div class="features-input-container">
               <div class="feature-input-group">
-                <input type="text" [formControl]="featureControl"
-                  placeholder="e.g. Personal Trainer, Steam Room..." (keyup.enter)="addFeature()">
+                <input type="text" [formControl]="featureControl" placeholder="e.g. Personal Trainer, Steam Room..."
+                  (keyup.enter)="addFeature()" (input)="onFeatureInput()" maxlength="200">
                 <button type="button" class="btn-add-feature" (click)="addFeature()">
                   <i class="fa-solid fa-plus"></i>
                 </button>
               </div>
               <div class="features-chips">
                 <div *ngFor="let feature of featuresList; let i = index" class="feature-chip">
-                  <span>{{ feature }}</span>
+                  <span [title]="feature">{{ feature.length > 50 ? (feature | slice:0:50) + '...' : feature }}</span>
                   <button type="button" (click)="removeFeature(i)"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="empty-chips" *ngIf="featuresList.length === 0">
@@ -221,14 +227,18 @@
                   <label for="discountedPrice">Offer Price (₹)</label>
                   <div class="input-with-icon">
                     <i class="fa-solid fa-percent"></i>
-                    <input type="number" id="discountedPrice" formControlName="discountedPrice" placeholder="e.g. 999">
+                    <input type="number" id="discountedPrice" formControlName="discountedPrice" placeholder="e.g. 999"
+                      min="0" max="100000" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                      oninput="if(this.value > 100000) this.value = 100000; planForm.get('discountedPrice').setValue(this.value)">
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="extendedMonths">Bonus Months</label>
                   <div class="input-with-icon">
                     <i class="fa-solid fa-plus"></i>
-                    <input type="number" id="extendedMonths" formControlName="extendedMonths" placeholder="e.g. 1">
+                    <input type="number" id="extendedMonths" formControlName="extendedMonths" placeholder="e.g. 1"
+                      min="0" max="120" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                      oninput="if(this.value > 120) this.value = 120; planForm.get('extendedMonths').setValue(this.value)">
                   </div>
                 </div>
               </div>

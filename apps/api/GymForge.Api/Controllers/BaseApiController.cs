@@ -19,7 +19,20 @@ namespace GymForge.Api.Controllers
             get
             {
                 string? id = User.FindFirst("gymId")?.Value;
-                return string.IsNullOrEmpty(id) ? null : Guid.Parse(id);
+                if (!string.IsNullOrEmpty(id))
+                    return Guid.Parse(id);
+
+                if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("User"))
+                {
+                    var userService = HttpContext.RequestServices.GetService(typeof(GymForge.Application.Modules.Users.Interface.IUserService)) as GymForge.Application.Modules.Users.Interface.IUserService;
+                    if (userService != null)
+                    {
+                        var profile = userService.GetUserProfileAsync(UserId).GetAwaiter().GetResult();
+                        return profile?.GymId;
+                    }
+                }
+
+                return null;
             }
         }
 
@@ -37,5 +50,7 @@ namespace GymForge.Api.Controllers
                 return string.IsNullOrEmpty(branchClaim) ? null : Guid.Parse(branchClaim);
             }
         }
+
+        protected bool IsStandaloneUser => User.IsInRole("User");
     }
 }

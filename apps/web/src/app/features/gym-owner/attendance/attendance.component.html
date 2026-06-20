@@ -79,7 +79,6 @@
 
         <!-- Idle State -->
         <div class="idle-state" *ngIf="verificationState === 'idle'">
-          <div class="scanner-laser"></div>
           <div class="scanner-target">
             <i class="fa-solid fa-qrcode"></i>
           </div>
@@ -385,7 +384,7 @@
 
         <ng-template gridCell="duration" let-row>
           <span class="duration-badge" [class.active]="row.checkOutTime === null">
-            <i class="fa-solid fa-stopwatch" [class.fa-spin]="row.checkOutTime === null"></i> {{ row.duration }}
+            <i class="fa-solid fa-stopwatch"></i> {{ row.duration }}
           </span>
         </ng-template>
 
@@ -530,7 +529,6 @@
 
         <!-- Idle State -->
         <div class="idle-state" *ngIf="staffVerificationState === 'idle'">
-          <div class="scanner-laser"></div>
           <div class="scanner-target">
             <i class="fa-solid fa-fingerprint"></i>
           </div>

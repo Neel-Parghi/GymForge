@@ -41,7 +41,6 @@
             <div class="form-item">
               <div class="label-row">
                 <label for="password">Password</label>
-                <a routerLink="/forgot-password" class="label-link">Forgot password?</a>
               </div>
               <div class="input-wrapper">
                 <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
@@ -54,9 +53,10 @@
 
             <div class="form-options">
               <label class="checkbox-container">
-                <input type="checkbox" id="remember" />
+                <input type="checkbox" id="remember" formControlName="rememberMe" />
                 Keep me signed in
               </label>
+              <a routerLink="/forgot-password" class="label-link">Forgot password?</a>
             </div>
 
             <button type="submit" class="submit-btn" [disabled]="loginForm.invalid || isLoading">

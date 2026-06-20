@@ -80,6 +80,9 @@ export class DashboardComponent implements OnInit {
     if (filter === 'lowStock') {
       queryParams.tab = 'inventory';
       queryParams.filter = 'lowStock';
+    } else if (filter === 'inStock') {
+      queryParams.tab = 'inventory';
+      queryParams.filter = 'inStock';
     } else if (filter === 'maintenance') {
       queryParams.tab = 'equipment';
       queryParams.filter = 'maintenance';

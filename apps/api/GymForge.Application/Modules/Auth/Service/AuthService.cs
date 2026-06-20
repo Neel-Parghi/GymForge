@@ -12,13 +12,15 @@ namespace GymForge.Application.Modules.Auth.Service
         private readonly IJwtService _jwtService;
         private readonly IAuthRepository _authRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
-        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUnitOfWork unitOfWork)
+        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _passwordService = passwordService;
             _jwtService = jwtService;
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         public async Task<TokenResponseDto> RegisterSuperAdmin(RegisterRequestDto userDto)
@@ -40,12 +42,105 @@ namespace GymForge.Application.Modules.Auth.Service
             return await GenerateAndSaveTokens(user);
         }
 
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto userDto)
+        {
+            if (userDto.Role != UserRole.User && userDto.Role != UserRole.GymOwner)
+            {
+                throw new Exception("Invalid role for registration. Only User or GymOwner roles are allowed.");
+            }
+
+            User? existingUser = await _authRepository.GetByUserByEmailAsync(userDto.Email);
+            if (existingUser != null)
+            {
+                if (!existingUser.IsEmailVerified)
+                {
+                    // Allow re-registering or just regenerating OTP if email is not verified
+                    string existingOtp = new Random().Next(100000, 999999).ToString();
+                    existingUser.OtpCode = existingOtp;
+                    existingUser.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+                    
+                    await _unitOfWork.SaveChangesAsync();
+                    await _emailService.SendOtpEmailAsync(existingUser.Email, existingUser.FirstName, existingOtp);
+                    
+                    return new RegisterResponseDto { Message = "OTP sent to email.", RequiresOtp = true, Email = existingUser.Email };
+                }
+                throw new Exception("A user with this email already exists.");
+            }
+
+            string otp = new Random().Next(100000, 999999).ToString();
+
+            User user = new()
+            {
+                FirstName = userDto.FirstName,
+                LastName = userDto.LastName ?? string.Empty,
+                Email = userDto.Email,
+                PasswordHash = _passwordService.HashPassword(userDto.Password),
+                Phone = userDto.Phone ?? string.Empty,
+                Role = userDto.Role,
+                IsActive = true,
+                IsEmailVerified = false,
+                OtpCode = otp,
+                OtpExpiry = DateTime.UtcNow.AddMinutes(10)
+            };
+
+            await _authRepository.AddUserAsync(user);
+            await _authRepository.LinkUserToGymMembersAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            await _emailService.SendOtpEmailAsync(user.Email, user.FirstName, otp);
+
+            return new RegisterResponseDto { Message = "OTP sent to email.", RequiresOtp = true, Email = user.Email };
+        }
+
+        public async Task<TokenResponseDto> VerifyOtpAsync(VerifyOtpRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+            
+            if (user.IsEmailVerified)
+                throw new Exception("Email is already verified.");
+                
+            if (user.OtpCode != dto.OtpCode || user.OtpExpiry < DateTime.UtcNow)
+                throw new Exception("Invalid or expired OTP code.");
+                
+            user.IsEmailVerified = true;
+            user.OtpCode = null;
+            user.OtpExpiry = null;
+            
+            await _unitOfWork.SaveChangesAsync();
+            
+            return await GenerateAndSaveTokens(user);
+        }
+
+        public async Task<bool> ResendOtpAsync(ResendOtpRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+                
+            if (user.IsEmailVerified)
+                throw new Exception("Email is already verified.");
+                
+            string otp = new Random().Next(100000, 999999).ToString();
+            user.OtpCode = otp;
+            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            
+            await _unitOfWork.SaveChangesAsync();
+            await _emailService.SendOtpEmailAsync(user.Email, user.FirstName, otp);
+            
+            return true;
+        }
+
         public async Task<TokenResponseDto> Login(LoginRequestDto userDto)
         {
             User? user = await _authRepository.Login(userDto);
 
             if (user == null)
                 throw new Exception("Invalid credentials");
+
+            if (!user.IsEmailVerified)
+                throw new Exception("EMAIL_NOT_VERIFIED");
 
             bool validPassword = _passwordService.VerifyPasword(userDto.Password, user.PasswordHash!);
 
@@ -87,6 +182,40 @@ namespace GymForge.Application.Modules.Auth.Service
             return await SaveTokens(user, newTokens);
         }
 
+        public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                return;
+                
+            string token = Guid.NewGuid().ToString("N");
+            user.OtpCode = token;
+            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            
+            await _unitOfWork.SaveChangesAsync();
+            
+            string resetLink = $"{dto.ClientUri.TrimEnd('/')}?email={Uri.EscapeDataString(user.Email)}&token={token}";
+            await _emailService.SendPasswordResetLinkEmailAsync(user.Email, user.FirstName, resetLink);
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordRequestDto dto)
+        {
+            User? user = await _authRepository.GetByUserByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("Invalid or expired reset token.");
+
+            if (user.OtpCode != dto.Token || user.OtpExpiry < DateTime.UtcNow)
+                throw new Exception("Invalid or expired reset token.");
+
+            user.PasswordHash = _passwordService.HashPassword(dto.NewPassword);
+            user.OtpCode = null;
+            user.OtpExpiry = null;
+            
+            user.RefreshTokens.Clear();
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         public async Task LogoutAsync(string refreshToken)
         {
             User? user = await _authRepository.GetByRefreshTokenAsync(refreshToken);
@@ -97,6 +226,16 @@ namespace GymForge.Application.Modules.Auth.Service
                 user!.RefreshTokens.Remove(token);
                 await _unitOfWork.SaveChangesAsync();
             }
+        }
+
+        public async Task RequestAccountDeletionAsync(Guid userId)
+        {
+            User? user = await _authRepository.GetUserByIdAsync(userId);
+            if (user == null)
+                throw new Exception("User not found.");
+
+            user.DeletionRequestedOn = DateTime.UtcNow;
+            await _unitOfWork.SaveChangesAsync();
         }
 
         private async Task<Guid?> ResolveBranchIdAsync(User user)
@@ -110,10 +249,6 @@ namespace GymForge.Application.Modules.Auth.Service
 
         private async Task<TokenResponseDto> GenerateAndSaveTokens(User user)
         {
-            // Optional: Strict single-session policy - remove all other active tokens for this user
-            // List<RefreshToken> activeTokens = [.. user.RefreshTokens.Where(t => t.IsActive)];
-            // foreach (var t in activeTokens) user.RefreshTokens.Remove(t);
-
             Guid? branchId = await ResolveBranchIdAsync(user);
             TokenResponseDto tokenResponse = _jwtService.GenerateToken(user, branchId);
             return await SaveTokens(user, tokenResponse);
@@ -137,6 +272,18 @@ namespace GymForge.Application.Modules.Auth.Service
             foreach (RefreshToken stale in staleTokens)
             {
                 user.RefreshTokens.Remove(stale);
+            }
+
+            List<RefreshToken> activeTokens = [.. user.RefreshTokens
+                .Where(t => t.IsActive)
+                .OrderByDescending(t => t.CreatedOn)];
+                
+            if (activeTokens.Count > 4)
+            {
+                foreach (var oldToken in activeTokens.Skip(4))
+                {
+                    user.RefreshTokens.Remove(oldToken);
+                }
             }
 
             await _unitOfWork.SaveChangesAsync();

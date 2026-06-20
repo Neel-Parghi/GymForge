@@ -14,5 +14,6 @@ namespace GymForge.Contracts.Common
 
         public string? SearchTerm { get; set; }
         public bool? BypassPagination { get; set; }
+        public string? StockStatus { get; set; }  // "LowStock" | "InStock"
     }
 }

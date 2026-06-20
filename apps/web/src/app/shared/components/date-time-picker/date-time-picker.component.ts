@@ -23,6 +23,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
   @Input() enableTime: boolean = false;
   @Input() minDate?: Date;
   @Input() maxDate?: Date;
+  @Input() startView: 'days' | 'months' | 'years' = 'days';
 
   @Output() dateChange = new EventEmitter<Date | null>();
 
@@ -65,8 +66,20 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
     if (!this.disabled) {
       this.showCalendarDropdown = !this.showCalendarDropdown;
       if (this.showCalendarDropdown) {
-        this.currentViewDate = this.selectedDate ? new Date(this.selectedDate) : new Date();
-        this.currentPickerView = 'days';
+        if (this.selectedDate) {
+          this.currentViewDate = new Date(this.selectedDate);
+        } else if (this.maxDate && this.maxDate < new Date()) {
+          this.currentViewDate = new Date(this.maxDate);
+        } else {
+          this.currentViewDate = new Date();
+        }
+
+        this.currentPickerView = this.startView;
+        if (this.startView === 'years') {
+          const currentYear = this.currentViewDate.getFullYear();
+          this.startYearRange = currentYear - 15;
+        }
+
         this.updateTimeFromSelectedDate();
         this.generateCalendarDays();
 
@@ -159,6 +172,27 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
     this.calendarDays = days;
   }
 
+  isDateDisabled(d: Date): boolean {
+    if (this.minDate && d < this.minDate) return true;
+    if (this.maxDate && d > this.maxDate) return true;
+    return false;
+  }
+
+  isMonthDisabled(monthIndex: number): boolean {
+    const year = this.currentViewDate.getFullYear();
+    if (this.maxDate && year === this.maxDate.getFullYear() && monthIndex > this.maxDate.getMonth()) return true;
+    if (this.minDate && year === this.minDate.getFullYear() && monthIndex < this.minDate.getMonth()) return true;
+    if (this.maxDate && year > this.maxDate.getFullYear()) return true;
+    if (this.minDate && year < this.minDate.getFullYear()) return true;
+    return false;
+  }
+
+  isYearDisabled(year: number): boolean {
+    if (this.maxDate && year > this.maxDate.getFullYear()) return true;
+    if (this.minDate && year < this.minDate.getFullYear()) return true;
+    return false;
+  }
+
   isSameDay(d1: Date, d2: Date): boolean {
     return d1.getFullYear() === d2.getFullYear() &&
       d1.getMonth() === d2.getMonth() &&
@@ -194,6 +228,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
 
   selectMonth(monthIndex: number, event: MouseEvent) {
     event.stopPropagation();
+    if (this.isMonthDisabled(monthIndex)) return;
     const currentYear = this.currentViewDate.getFullYear();
     const currentDay = Math.min(this.currentViewDate.getDate(), new Date(currentYear, monthIndex + 1, 0).getDate());
     this.currentViewDate = new Date(currentYear, monthIndex, currentDay);
@@ -203,6 +238,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
 
   selectYear(year: number, event: MouseEvent) {
     event.stopPropagation();
+    if (this.isYearDisabled(year)) return;
     const currentMonth = this.currentViewDate.getMonth();
     const currentDay = Math.min(this.currentViewDate.getDate(), new Date(year, currentMonth + 1, 0).getDate());
     this.currentViewDate = new Date(year, currentMonth, currentDay);
@@ -240,6 +276,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
 
   selectDate(day: CalendarDay, event: MouseEvent): void {
     event.stopPropagation();
+    if (this.isDateDisabled(day.date)) return;
 
     const d = new Date(day.date);
 
@@ -278,7 +315,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
 
   decrementMinutes(event: MouseEvent) {
     event.stopPropagation();
-    this.minutes = this.minutes === 0 ? 55 : (this.minutes - 5) % 60;
+    this.minutes = ((this.minutes - 5) % 60 + 60) % 60;
   }
 
   togglePeriod(event: MouseEvent) {

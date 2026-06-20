@@ -28,6 +28,19 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
     ],
     selectable: true
   },
+  StandaloneUsers: {
+    columns: [
+      { key: 'firstName', label: 'User Name', type: 'profile', subKey: 'email' },
+      { key: 'phone', label: 'Phone Number', type: 'text' },
+      { key: 'role', label: 'Role', type: 'badge' },
+      { key: 'createdOn', label: 'Joined Date', type: 'date' },
+      { key: 'isEmailVerified', label: 'Email Verified', type: 'bool' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'deletionRequestedOn', label: 'Deletion Scheduled On', type: 'date' },
+    ],
+    selectable: false,
+    excludeActions: ['edit', 'delete', 'view']
+  },
   PricingList: {
     columns: [
       { key: 'name', label: 'Plan Name', isClickable: true },
@@ -78,7 +91,8 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'isActive', label: 'Status', type: 'bool' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
-    selectable: true
+    selectable: false,
+    excludeActions: ['delete']
   },
   InventoryItems: {
     columns: [
@@ -100,6 +114,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
+    excludeActions: ['delete']
   },
   MaintenanceTasks: {
     columns: [
@@ -110,6 +125,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Record Service', type: 'action' }
     ],
     selectable: false,
+    excludeActions: ['delete', 'view']
   },
   SalesHistory: {
     columns: [
@@ -122,7 +138,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
-    excludeActions: ['edit']
+    excludeActions: ['edit', 'delete']
   },
   ServiceHistory: {
     columns: [
@@ -135,6 +151,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
     selectable: false,
+    excludeActions: ['delete']
   },
   MemberInvoices: {
     columns: [
@@ -147,7 +164,8 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'status', label: 'Status', type: 'badge' },
       { key: 'actions', label: 'Actions', type: 'action' }
     ],
-    selectable: false
+    selectable: false,
+    excludeActions: ['delete']
   },
   PlatformInvoices: {
     columns: [
@@ -195,5 +213,40 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'notes', label: 'Shift Notes', type: 'text' }
     ],
     selectable: false
+  },
+  PTClients: {
+    columns: [
+      { key: 'firstName', label: 'Client Name', type: 'profile', subKey: 'email' },
+      { key: 'membershipNumber', label: 'Membership No.', type: 'text' },
+      { key: 'assignedSlot', label: 'Preferred Slot', type: 'text' },
+      { key: 'assignedDate', label: 'Assigned Date', type: 'date' },
+      { key: 'endDate', label: 'Expiration', type: 'date' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    excludeActions: ['edit']
+  },
+  Announcements: {
+    columns: [
+      { key: 'title', label: 'Announcement Title', type: 'text' },
+      { key: 'message', label: 'Message', type: 'text' },
+      { key: 'createdOn', label: 'Broadcast Date', type: 'date' },
+      { key: 'isActive', label: 'Status', type: 'bool' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    excludeActions: ['view']
+  },
+  Templates: {
+    columns: [
+      { key: 'name', label: 'Template Name', type: 'text' },
+      { key: 'typeLabel', label: 'Type', type: 'badge' },
+      { key: 'titleTemplate', label: 'Title Template', type: 'text' },
+      { key: 'isActive', label: 'Status', type: 'bool' },
+      { key: 'actions', label: 'Actions', type: 'action' }
+    ],
+    selectable: false,
+    excludeActions: ['view']
   }
 };

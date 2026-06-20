@@ -29,5 +29,14 @@ namespace GymForge.Infrastructure.Repositories
             _dbContext.Addresses.Update(address);
             return Task.CompletedTask;
         }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            Address? address = await _dbContext.Addresses.FindAsync(id);
+            if (address != null)
+            {
+                _dbContext.Addresses.Remove(address);
+            }
+        }
     }
 }

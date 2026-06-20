@@ -1,0 +1,204 @@
+<div class="diet-planner-container" [class.is-card-view]="isCardView">
+  <header class="page-header">
+    <div class="header-info">
+      <h3>Diet Templates Library</h3>
+      <p class="subtitle">Create standard nutrition plans and meal schedules</p>
+    </div>
+    <div class="toggle-slot">
+      <ng-content select="[user-toggle]"></ng-content>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" (click)="openCreateModal()">
+        Create Diet Template
+      </button>
+    </div>
+  </header>
+
+  <!-- DIET TEMPLATES CATALOG SCROLL WRAPPER -->
+  <div class="catalog-wrapper">
+    <div class="catalog-grid animate-fade-in" *ngIf="dietPlans.length > 0">
+      <div class="template-card diet-card" *ngFor="let diet of dietPlans">
+        <div class="card-top">
+          <div class="badge-row">
+            <span class="badge calories"><i class="fa-solid fa-fire-flame-curved"></i> {{ diet.calories }} kcal</span>
+            <span class="badge goal">{{ diet.goal }}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-view" (click)="openMealDrawer(diet)" title="View Meal Outline">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="btn-edit" *ngIf="canEdit(diet)" (click)="openEditModal(diet)" title="Edit Template">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn-edit" *ngIf="!canEdit(diet)" (click)="openEditModal(diet)" title="Inherit & Edit Template">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <button class="btn-delete" *ngIf="canEdit(diet)" (click)="deleteTemplate(diet.id, $event)"
+              title="Delete Template">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="title-row">
+            <h3 class="card-title" [title]="diet.name">{{ diet.name | truncate:50:true }}</h3>
+            <button class="btn-primary-sm" *ngIf="currentUserId && activeDietId !== diet.id"
+              (click)="assignTemplate(diet, $event)" title="Set as Active Plan">
+              Assign
+            </button>
+            <button class="btn-assigned" *ngIf="currentUserId && activeDietId === diet.id" disabled
+              title="Currently Active Plan">
+              Assigned
+            </button>
+          </div>
+
+          <p class="card-description" *ngIf="diet.description" [title]="diet.description">
+            {{ diet.description | truncate:80:true }}
+          </p>
+
+          <!-- Macros Progress Grid -->
+          <div class="macros-grid">
+            <div class="macro-cell protein">
+              <span class="macro-val">{{ diet.protein }}g</span>
+              <span class="macro-lbl">Protein</span>
+              <div class="macro-progress-bar">
+                <div class="bar-fill" [style.width.%]="getMacroPercentageForCard(diet, 'protein')"></div>
+              </div>
+              <span class="macro-pct">{{ getMacroPercentageForCard(diet, 'protein') }}% kcal</span>
+            </div>
+            <div class="macro-cell carbs">
+              <span class="macro-val">{{ diet.carbs }}g</span>
+              <span class="macro-lbl">Carbs</span>
+              <div class="macro-progress-bar">
+                <div class="bar-fill" [style.width.%]="getMacroPercentageForCard(diet, 'carbs')"></div>
+              </div>
+              <span class="macro-pct">{{ getMacroPercentageForCard(diet, 'carbs') }}% kcal</span>
+            </div>
+            <div class="macro-cell fats">
+              <span class="macro-val">{{ diet.fats }}g</span>
+              <span class="macro-lbl">Fat</span>
+              <div class="macro-progress-bar">
+                <div class="bar-fill" [style.width.%]="getMacroPercentageForCard(diet, 'fats')"></div>
+              </div>
+              <span class="macro-pct">{{ getMacroPercentageForCard(diet, 'fats') }}% kcal</span>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <div class="empty-state-catalog" *ngIf="dietPlans.length === 0">
+      <i class="fa-solid fa-apple-whole"></i>
+      <h2>No Diet Templates Found</h2>
+      <p>Get started by creating your first reusable nutrition diet template.</p>
+      <button class="btn-primary mt-15" (click)="openCreateModal()">
+        Create Template
+      </button>
+    </div>
+  </div>
+
+  <!-- MEAL DETAIL SIDE DRAWER -->
+  <div class="meal-drawer-backdrop" *ngIf="drawerPlan" (click)="closeMealDrawer()"></div>
+  <aside class="meal-detail-drawer" [class.open]="drawerPlan" *ngIf="drawerPlan">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <div class="icon-wrap"><i class="fa-solid fa-utensils"></i></div>
+        <div class="title-text">
+          <h3>{{ drawerPlan?.name }}</h3>
+          <p class="drawer-subtitle">{{ drawerPlan?.meals?.length }} prescribed meals &bull; {{ drawerPlan?.calories }}
+            kcal daily</p>
+        </div>
+      </div>
+      <button class="btn-close-drawer" (click)="closeMealDrawer()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Macro summary strip -->
+    <div class="drawer-macro-strip">
+      <div class="strip-macro protein">
+        <div class="strip-val-row">
+          <span class="strip-val">{{ drawerPlan?.protein }}</span>
+          <span class="strip-unit">g</span>
+        </div>
+        <span class="strip-lbl">Protein</span>
+      </div>
+      <div class="strip-macro carbs">
+        <div class="strip-val-row">
+          <span class="strip-val">{{ drawerPlan?.carbs }}</span>
+          <span class="strip-unit">g</span>
+        </div>
+        <span class="strip-lbl">Carbs</span>
+      </div>
+      <div class="strip-macro fats">
+        <div class="strip-val-row">
+          <span class="strip-val">{{ drawerPlan?.fats }}</span>
+          <span class="strip-unit">g</span>
+        </div>
+        <span class="strip-lbl">Fat</span>
+      </div>
+    </div>
+
+    <p class="drawer-section-label">Prescribed Meals</p>
+
+    <!-- Meal Timeline -->
+    <div class="drawer-meal-timeline">
+      <div class="timeline-meal" *ngFor="let m of drawerPlan?.meals; let i = index">
+        <div class="timeline-dot">
+          <span class="dot-num">{{ i + 1 }}</span>
+          <div class="timeline-line" *ngIf="i < drawerPlan!.meals.length - 1"></div>
+        </div>
+        <div class="timeline-content">
+          <div class="meal-card">
+            <div class="meal-card-header">
+              <div class="meal-name-group">
+                <span class="tc-time"><i class="fa-regular fa-clock"></i> {{ getMealTime(m) }}</span>
+                <h4 class="tc-name">{{ getMealTitle(m) || 'Meal ' + (i + 1) }}</h4>
+              </div>
+              <div class="tc-badges">
+                <span class="tc-badge kcal"><i class="fa-solid fa-fire"></i> {{ m.calories }} kcal</span>
+                <span class="tc-badge prot" *ngIf="m.protein"><i class="fa-solid fa-dumbbell"></i> {{ m.protein
+                  }}g</span>
+              </div>
+            </div>
+            <p class="tc-items" *ngIf="m.items">{{ m.items }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-footer-actions">
+      <button class="btn-primary-sm" *ngIf="currentUserId && activeDietId !== drawerPlan?.id"
+        (click)="assignTemplate(drawerPlan!, $event); closeMealDrawer()">
+        Assign Plan
+      </button>
+      <button class="btn-assigned" *ngIf="currentUserId && activeDietId === drawerPlan?.id" disabled>
+        Currently Assigned
+      </button>
+      <button class="btn-outline-sm" *ngIf="canEdit(drawerPlan!)"
+        (click)="openEditModal(drawerPlan!); closeMealDrawer()">
+        <i class="fa-solid fa-pen-to-square"></i> Edit Template
+      </button>
+    </div>
+  </aside>
+
+  <!-- DIET CREATOR DIALOG COMPONENT -->
+  <app-diet-template-creator *ngIf="showCreateModal" [plan]="editingPlan" (save)="onSaveTemplate($event)"
+    (close)="closeCreateModal()">
+  </app-diet-template-creator>
+
+  <!-- CONFIRMATION POPUP -->
+  <app-confirmation-popup
+    *ngIf="showDeleteConfirm"
+    title="Delete Diet Template"
+    message="Are you sure you want to delete this diet template? This action cannot be undone."
+    confirmText="Delete"
+    cancelText="Cancel"
+    type="danger"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteConfirm()">
+  </app-confirmation-popup>
+</div>

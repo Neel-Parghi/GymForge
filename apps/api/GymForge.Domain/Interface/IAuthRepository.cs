@@ -20,5 +20,13 @@ namespace GymForge.Domain.Interface
         Task<User?> Login(LoginRequestDto user);
         
         Task<Guid?> GetBranchIdByUserIdAsync(Guid userId);
+        
+        Task LinkUserToGymMembersAsync(User user);
+        
+        Task DeleteUserAsync(User user);
+        
+        Task<IEnumerable<User>> GetPendingDeletionRequestsAsync();
+        
+        Task<(IEnumerable<User> Items, int TotalCount)> GetStandaloneUsersAsync(int pageNumber, int pageSize, string? searchTerm);
     }
 }

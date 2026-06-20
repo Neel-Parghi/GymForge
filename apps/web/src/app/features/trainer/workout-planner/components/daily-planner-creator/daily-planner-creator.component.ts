@@ -5,6 +5,9 @@ import { Exercise } from '../../../../../shared/models/exercise.model';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { DailyPlanner } from '../../../../../shared/models/workout-plan.model';
+import { CONSTANTS } from '../../../../../core/constants/constants';
+import { AuthApiService } from '../../../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-daily-planner-creator',
@@ -16,6 +19,11 @@ import { NotificationService } from '../../../../../core/services/notification.s
 export class DailyPlannerCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
+  private authService = inject(AuthApiService);
+
+  get isStandaloneUser(): boolean {
+    return this.authService.getUserRole() === 'User';
+  }
 
   copiedWorkout: any = null;
   showConfirmPopup = false;
@@ -23,9 +31,9 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   @Input() categories: string[] = [];
   @Input() exercisesMap: { [category: string]: Exercise[] } = {};
-  @Input() editData: any = null;
+  @Input() editData: DailyPlanner | null = null;
 
-  @Output() save = new EventEmitter<any>();
+  @Output() save = new EventEmitter<DailyPlanner>();
   @Output() close = new EventEmitter<void>();
 
   createDailyForm!: FormGroup;
@@ -43,11 +51,26 @@ export class DailyPlannerCreatorComponent implements OnInit {
     { label: 'Fat Loss', value: 'Fat Loss' }
   ];
 
+  getCategoryForExercise(exerciseName: string): string | null {
+    if (!exerciseName) return null;
+    for (const cat of Object.keys(this.exercisesMap)) {
+      const found = this.exercisesMap[cat].some(e => e.name === exerciseName);
+      if (found) return cat;
+    }
+    return null;
+  }
+
   getExercisesDropdownOptions(currentExIdx?: number): DropdownOption[] {
     const selectedCats = this.createDailyForm.get('targetCategories')?.value || ['Back'];
     const exercises = this.getExercisesForCategories(selectedCats);
 
     const usedNames = new Set<string>();
+    let currentSelectedName = '';
+    if (currentExIdx !== undefined) {
+      const currentCtrl = this.dailyExercises.at(currentExIdx);
+      currentSelectedName = currentCtrl?.get('exerciseName')?.value || '';
+    }
+
     this.dailyExercises.controls.forEach((ctrl, idx) => {
       if (idx !== currentExIdx) {
         const name = ctrl.get('exerciseName')?.value;
@@ -55,12 +78,29 @@ export class DailyPlannerCreatorComponent implements OnInit {
       }
     });
 
-    return exercises
+    const options = exercises
       .filter(e => !usedNames.has(e.name))
       .map(e => ({
         label: `${e.name} (${e.equipment})`,
         value: e.name
       }));
+
+    if (currentSelectedName && !options.some(opt => opt.value === currentSelectedName)) {
+      let exerciseDetail: Exercise | undefined;
+      for (const cat of Object.keys(this.exercisesMap)) {
+        const found = this.exercisesMap[cat].find(e => e.name === currentSelectedName);
+        if (found) {
+          exerciseDetail = found;
+          break;
+        }
+      }
+      options.unshift({
+        label: exerciseDetail ? `${exerciseDetail.name} (${exerciseDetail.equipment})` : currentSelectedName,
+        value: currentSelectedName
+      });
+    }
+
+    return options;
   }
 
   ngOnInit(): void {
@@ -76,10 +116,11 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   private initDailyForm(): void {
     this.createDailyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.maxLength(200)]],
       level: ['Beginner'],
       goal: ['Hypertrophy'],
+      isCustom: [false],
       targetCategories: [['Back']],
       exercises: this.fb.array([
         this.createExerciseGroup()
@@ -96,6 +137,7 @@ export class DailyPlannerCreatorComponent implements OnInit {
       description: data.description,
       level: data.level,
       goal: data.goal,
+      isCustom: data.isCustom ?? false,
       targetCategories: categories
     });
 
@@ -105,8 +147,8 @@ export class DailyPlannerCreatorComponent implements OnInit {
     (data.exercises || []).forEach((ex: any) => {
       exArray.push(this.fb.group({
         exerciseName: [ex.name || '', [Validators.required]],
-        targetSets: [ex.sets || 3, [Validators.required, Validators.min(1)]],
-        targetReps: [ex.reps || '10-12 reps', [Validators.required]],
+        targetSets: [ex.sets || 4, [Validators.required, Validators.min(1)]],
+        targetReps: [ex.reps || '10-12', [Validators.required]],
         notes: [ex.notes || '']
       }));
     });
@@ -119,8 +161,8 @@ export class DailyPlannerCreatorComponent implements OnInit {
   private createExerciseGroup(): FormGroup {
     return this.fb.group({
       exerciseName: ['', [Validators.required]],
-      targetSets: [3, [Validators.required, Validators.min(1)]],
-      targetReps: ['10-12 reps', [Validators.required]],
+      targetSets: [4, [Validators.required, Validators.min(1)]],
+      targetReps: ['10-12', [Validators.required]],
       notes: ['']
     });
   }
@@ -144,7 +186,7 @@ export class DailyPlannerCreatorComponent implements OnInit {
       if (current.length > 1) {
         current.splice(idx, 1);
       } else {
-        this.notification.warning('At least one target muscle category must be selected.');
+        this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_MIN_CATEGORY);
         return;
       }
     } else {
@@ -160,13 +202,19 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   addDailyExercise(): void {
     this.dailyExercises.push(this.createExerciseGroup());
+    setTimeout(() => {
+      const wrapper = document.querySelector('.exercise-table-scroll-wrapper');
+      if (wrapper) {
+        wrapper.scrollTop = wrapper.scrollHeight;
+      }
+    }, 200);
   }
 
   removeDailyExercise(index: number): void {
     if (this.dailyExercises.length > 1) {
       this.dailyExercises.removeAt(index);
     } else {
-      this.notification.warning('Workout split must have at least one exercise.');
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_MIN_EXERCISE);
     }
   }
 
@@ -187,20 +235,20 @@ export class DailyPlannerCreatorComponent implements OnInit {
     }));
 
     const categories = this.createDailyForm.get('targetCategories')?.value || [];
-    
+
     this.copiedWorkout = {
       categories: [...categories],
       exercises: exercisesData
     };
-    
+
     localStorage.setItem('gymforge_copied_workout_split', JSON.stringify(this.copiedWorkout));
-    this.notification.success('Workout copied to clipboard!');
+    this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_COPY_SUCCESS);
   }
 
   pasteWorkout(): void {
     const raw = localStorage.getItem('gymforge_copied_workout_split');
     if (!raw) {
-      this.notification.warning('No copied workout split found on clipboard.');
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_NO_CLIPBOARD);
       return;
     }
 
@@ -208,8 +256,14 @@ export class DailyPlannerCreatorComponent implements OnInit {
       const data = JSON.parse(raw);
       if (!data.exercises || data.exercises.length === 0) return;
 
+      let categories = ['Back'];
+      if (data.categories) {
+        categories = data.categories;
+      } else if (data.category) {
+        categories = data.category.split(' + ');
+      }
       this.createDailyForm.patchValue({
-        targetCategories: data.categories || ['Back']
+        targetCategories: categories
       });
 
       const exArray = this.dailyExercises;
@@ -218,23 +272,23 @@ export class DailyPlannerCreatorComponent implements OnInit {
       data.exercises.forEach((ex: any) => {
         exArray.push(this.fb.group({
           exerciseName: [ex.name || '', [Validators.required]],
-          targetSets: [ex.sets || 3, [Validators.required, Validators.min(1)]],
-          targetReps: [ex.reps || '10-12 reps', [Validators.required]],
+          targetSets: [ex.sets || 4, [Validators.required, Validators.min(1)]],
+          targetReps: [ex.reps || '10-12', [Validators.required]],
           notes: [ex.notes || '']
         }));
       });
 
-      this.notification.success('Workout split pasted successfully!');
+      this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_PASTE_SUCCESS);
     } catch (e) {
       console.error(e);
-      this.notification.error('Error pasting workout.');
+      this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_PASTE_ERROR);
     }
   }
 
   nextStep(): void {
     if (this.createDailyForm.get('name')?.invalid) {
       this.createDailyForm.get('name')?.markAsTouched();
-      this.notification.warning('Please enter a valid workout planner name (min 3 characters).');
+      this.notification.warning(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_INVALID_NAME);
       return;
     }
     this.activeStep = 'plan';
@@ -246,7 +300,13 @@ export class DailyPlannerCreatorComponent implements OnInit {
 
   onSubmitDaily(): void {
     if (this.createDailyForm.invalid) {
-      this.notification.error('Form is invalid. Please check all fields.');
+      this.createDailyForm.markAllAsTouched();
+      const hasInvalidExercises = this.dailyExercises.controls.some(ctrl => ctrl.get('exerciseName')?.invalid);
+      if (hasInvalidExercises) {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.SELECT_EXERCISE_WARNING);
+      } else {
+        this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_INVALID_FORM);
+      }
       return;
     }
 
@@ -254,7 +314,15 @@ export class DailyPlannerCreatorComponent implements OnInit {
     const description = this.createDailyForm.value.description;
     const level = this.createDailyForm.value.level;
     const goal = this.createDailyForm.value.goal;
-    const categories = this.createDailyForm.value.targetCategories || [];
+
+    const categoriesSet = new Set<string>(this.createDailyForm.value.targetCategories || []);
+    this.dailyExercises.value.forEach((ex: any) => {
+      if (ex.exerciseName) {
+        const cat = this.getCategoryForExercise(ex.exerciseName);
+        if (cat) categoriesSet.add(cat);
+      } 1
+    });
+    const categories = Array.from(categoriesSet);
     const targetCategory = categories.join(' + ');
 
     const exercises = this.dailyExercises.value.map((ex: any) => ({
@@ -264,12 +332,14 @@ export class DailyPlannerCreatorComponent implements OnInit {
       notes: ex.notes
     }));
 
-    const result = {
+    const result: DailyPlanner = {
       id: this.editData?.id,
       name,
       description,
       level,
       goal,
+      type: 'Daily',
+      isCustom: this.createDailyForm.value.isCustom ?? false,
       targetCategory,
       exercises
     };

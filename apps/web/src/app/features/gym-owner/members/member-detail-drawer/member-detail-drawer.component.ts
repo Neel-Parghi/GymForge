@@ -1,10 +1,11 @@
 import {
-  Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef
+  Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SlideDrawerComponent } from '../../../../shared/components/slide-drawer/slide-drawer.component';
 import { MemberService } from '../../../../core/services/member.service';
+import { GymService } from '../../../../core/services/gym.service';
 import { GymMember, MemberSubscription, RenewSubscriptionRequest } from '../../../../shared/models/member.model';
 import { GymPlan } from '../../../../shared/models/gym-plan.model';
 import { MemberStatus, PaymentStatus } from '../../../../shared/enums/member-enums';
@@ -16,7 +17,7 @@ import { MemberStatus, PaymentStatus } from '../../../../shared/enums/member-enu
   templateUrl: './member-detail-drawer.component.html',
   styleUrl: './member-detail-drawer.component.scss'
 })
-export class MemberDetailDrawer implements OnChanges {
+export class MemberDetailDrawer implements OnChanges, OnInit {
   @Input() isOpen = false;
   @Input() member: GymMember | null = null;
   @Input() plans: GymPlan[] = [];
@@ -31,10 +32,29 @@ export class MemberDetailDrawer implements OnChanges {
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private memberService = inject(MemberService);
+  private gymService = inject(GymService);
 
   MemberStatus = MemberStatus;
   subscriptionHistory: MemberSubscription[] = [];
   loadingHistory = false;
+  gymName = 'GYMFORGE';
+
+  ngOnInit(): void {
+    this.loadGymName();
+  }
+
+  loadGymName(): void {
+    this.gymService.getMyGym().subscribe({
+      next: (res) => {
+        const gym = res?.data || res;
+        if (gym && gym.gymName) {
+          this.gymName = gym.gymName;
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => { }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['member'] && this.member) {

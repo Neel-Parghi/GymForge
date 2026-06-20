@@ -38,8 +38,8 @@ export class CreateInvoiceModalComponent implements OnInit {
     this.createInvoiceForm = this.fb.group({
       memberIndex: [this.prefillData?.memberIndex ?? 0, Validators.required],
       type: [this.prefillData?.type ?? 'Personal Training', Validators.required],
-      itemName: [this.prefillData?.itemName ?? '', [Validators.required, Validators.minLength(3)]],
-      amount: [this.prefillData ? this.prefillData.amount : 1000, [Validators.required, Validators.min(1)]],
+      itemName: [this.prefillData?.itemName ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      amount: [this.prefillData ? this.prefillData.amount : 1000, [Validators.required, Validators.min(0), Validators.max(100000)]],
       status: [this.prefillData?.status ?? 'Pending', Validators.required]
     });
   }
