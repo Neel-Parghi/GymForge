@@ -11,14 +11,16 @@ namespace GymForge.Application.Modules.Auth.Service
         private readonly IPasswordService _passwordService;
         private readonly IJwtService _jwtService;
         private readonly IAuthRepository _authRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
 
-        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUnitOfWork unitOfWork, IEmailService emailService)
+        public AuthService(IPasswordService passwordService, IJwtService jwtService, IAuthRepository authRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _passwordService = passwordService;
             _jwtService = jwtService;
             _authRepository = authRepository;
+            _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _emailService = emailService;
         }
@@ -31,9 +33,12 @@ namespace GymForge.Application.Modules.Auth.Service
                 LastName = userDto.LastName,
                 Email = userDto.Email,
                 PasswordHash = _passwordService.HashPassword(userDto.Password),
-                Phone = userDto.Phone,
                 Role = UserRole.SuperAdmin,
-                IsActive = true
+                IsActive = true,
+                Profile = new UserProfile 
+                {
+                    Phone = userDto.Phone ?? string.Empty
+                }
             };
 
             await _authRepository.RegisterSuperAdmin(user);
@@ -52,12 +57,13 @@ namespace GymForge.Application.Modules.Auth.Service
             User? existingUser = await _authRepository.GetByUserByEmailAsync(userDto.Email);
             if (existingUser != null)
             {
-                if (!existingUser.IsEmailVerified)
+                if (existingUser.Security == null || !existingUser.Security.IsEmailVerified)
                 {
                     // Allow re-registering or just regenerating OTP if email is not verified
+                    existingUser.Security ??= new UserSecurity { CreatedOn = DateTime.UtcNow };
                     string existingOtp = new Random().Next(100000, 999999).ToString();
-                    existingUser.OtpCode = existingOtp;
-                    existingUser.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+                    existingUser.Security.OtpCode = existingOtp;
+                    existingUser.Security.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
                     
                     await _unitOfWork.SaveChangesAsync();
                     await _emailService.SendOtpEmailAsync(existingUser.Email, existingUser.FirstName, existingOtp);
@@ -75,16 +81,22 @@ namespace GymForge.Application.Modules.Auth.Service
                 LastName = userDto.LastName ?? string.Empty,
                 Email = userDto.Email,
                 PasswordHash = _passwordService.HashPassword(userDto.Password),
-                Phone = userDto.Phone ?? string.Empty,
                 Role = userDto.Role,
                 IsActive = true,
-                IsEmailVerified = false,
-                OtpCode = otp,
-                OtpExpiry = DateTime.UtcNow.AddMinutes(10)
+                Profile = new UserProfile
+                {
+                    Phone = userDto.Phone ?? string.Empty
+                },
+                Security = new UserSecurity
+                {
+                    IsEmailVerified = false,
+                    OtpCode = otp,
+                    OtpExpiry = DateTime.UtcNow.AddMinutes(10)
+                }
             };
 
             await _authRepository.AddUserAsync(user);
-            await _authRepository.LinkUserToGymMembersAsync(user);
+            await _userRepository.LinkUserToGymMembersAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
             await _emailService.SendOtpEmailAsync(user.Email, user.FirstName, otp);
@@ -98,15 +110,18 @@ namespace GymForge.Application.Modules.Auth.Service
             if (user == null)
                 throw new Exception("User not found.");
             
-            if (user.IsEmailVerified)
+            if (user.Security == null)
+                throw new Exception("Invalid security state.");
+
+            if (user.Security.IsEmailVerified)
                 throw new Exception("Email is already verified.");
                 
-            if (user.OtpCode != dto.OtpCode || user.OtpExpiry < DateTime.UtcNow)
+            if (user.Security.OtpCode != dto.OtpCode || user.Security.OtpExpiry < DateTime.UtcNow)
                 throw new Exception("Invalid or expired OTP code.");
                 
-            user.IsEmailVerified = true;
-            user.OtpCode = null;
-            user.OtpExpiry = null;
+            user.Security.IsEmailVerified = true;
+            user.Security.OtpCode = null;
+            user.Security.OtpExpiry = null;
             
             await _unitOfWork.SaveChangesAsync();
             
@@ -119,12 +134,15 @@ namespace GymForge.Application.Modules.Auth.Service
             if (user == null)
                 throw new Exception("User not found.");
                 
-            if (user.IsEmailVerified)
+            if (user.Security == null)
+                throw new Exception("Invalid security state.");
+
+            if (user.Security.IsEmailVerified)
                 throw new Exception("Email is already verified.");
                 
             string otp = new Random().Next(100000, 999999).ToString();
-            user.OtpCode = otp;
-            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            user.Security.OtpCode = otp;
+            user.Security.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
             
             await _unitOfWork.SaveChangesAsync();
             await _emailService.SendOtpEmailAsync(user.Email, user.FirstName, otp);
@@ -139,7 +157,7 @@ namespace GymForge.Application.Modules.Auth.Service
             if (user == null)
                 throw new Exception("Invalid credentials");
 
-            if (!user.IsEmailVerified)
+            if (user.Security == null || !user.Security.IsEmailVerified)
                 throw new Exception("EMAIL_NOT_VERIFIED");
 
             bool validPassword = _passwordService.VerifyPasword(userDto.Password, user.PasswordHash!);
@@ -189,8 +207,9 @@ namespace GymForge.Application.Modules.Auth.Service
                 return;
                 
             string token = Guid.NewGuid().ToString("N");
-            user.OtpCode = token;
-            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            user.Security ??= new UserSecurity { CreatedOn = DateTime.UtcNow };
+            user.Security.OtpCode = token;
+            user.Security.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
             
             await _unitOfWork.SaveChangesAsync();
             
@@ -204,12 +223,12 @@ namespace GymForge.Application.Modules.Auth.Service
             if (user == null)
                 throw new Exception("Invalid or expired reset token.");
 
-            if (user.OtpCode != dto.Token || user.OtpExpiry < DateTime.UtcNow)
+            if (user.Security == null || user.Security.OtpCode != dto.Token || user.Security.OtpExpiry < DateTime.UtcNow)
                 throw new Exception("Invalid or expired reset token.");
 
             user.PasswordHash = _passwordService.HashPassword(dto.NewPassword);
-            user.OtpCode = null;
-            user.OtpExpiry = null;
+            user.Security.OtpCode = null;
+            user.Security.OtpExpiry = null;
             
             user.RefreshTokens.Clear();
 
@@ -230,11 +249,12 @@ namespace GymForge.Application.Modules.Auth.Service
 
         public async Task RequestAccountDeletionAsync(Guid userId)
         {
-            User? user = await _authRepository.GetUserByIdAsync(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userId);
             if (user == null)
                 throw new Exception("User not found.");
 
-            user.DeletionRequestedOn = DateTime.UtcNow;
+            user.Security ??= new UserSecurity { CreatedOn = DateTime.UtcNow };
+            user.Security.DeletionRequestedOn = DateTime.UtcNow;
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -242,7 +262,7 @@ namespace GymForge.Application.Modules.Auth.Service
         {
             if (user.Role == UserRole.Staff || user.Role == UserRole.Trainer)
             {
-                return await _authRepository.GetBranchIdByUserIdAsync(user.Id);
+                return await _userRepository.GetBranchIdByUserIdAsync(user.Id);
             }
             return null;
         }

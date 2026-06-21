@@ -10,39 +10,24 @@ namespace GymForge.Domain.Entities
         
         public string Email { get; set; } = string.Empty;
         
-        public string Phone { get; set; } = string.Empty;
-
         public string? PasswordHash { get; set; }
 
         public Guid? GymId { get; set; }
-
-        public Guid? AddressId { get; set; }
-        
-        public string ProfilePictureUrl { get; set; } = string.Empty;
 
         public UserRole Role { get; set; }
 
         public bool IsActive { get; set; }
 
-        public bool IsEmailVerified { get; set; } = false;
-
-        public string? OtpCode { get; set; }
-
-        public DateTime? OtpExpiry { get; set; }
-
-        public string? InvitationToken { get; set; }
-
-        public DateTime? InvitationExpiry { get; set; }
-
-        public bool IsInvitationAccepted { get; set; } = false;
-
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
-        public DateTime? DeletionRequestedOn { get; set; }
+        public UserSecurity? Security { get; set; }
 
-        public Address? Address { get; set; }
-
+        public UserProfile? Profile { get; set; }
+        
+        public UserPreference? Preference { get; set; }
+        
+        public ICollection<MemberMeasurement> Measurements { get; set; } = [];
+        
         public ICollection<Gym>? Gyms { get; set; } = [];
-
     }
 }

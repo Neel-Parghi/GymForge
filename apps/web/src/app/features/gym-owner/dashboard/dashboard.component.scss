@@ -26,7 +26,6 @@
   }
 }
 
-
 .stat-card {
   background: white;
   padding: 12px;
@@ -1054,6 +1053,23 @@
 .renewals-premium-card {
   padding: 24px;
   background: white;
+
+  .empty-state-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px dashed #cbd5e1;
+
+    p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
 
   .card-header {
     border-bottom: none !important;

@@ -33,16 +33,31 @@ namespace GymForge.Api.Controllers.Gym
                     targetGymId = userProfile?.GymId;
                 }
 
-                if (targetGymId == null || targetGymId == Guid.Empty) return NotFound("Gym not found.");
+                if (targetGymId == null || targetGymId == Guid.Empty) 
+                    return NotFound("Gym not found.");
                 
                 GymListResponseDto? gymDto = await _gymManagementService.GetGymDetailsByIdAsync(targetGymId.Value);
-                if (gymDto == null) return NotFound("Gym not found.");
+                if (gymDto == null) 
+                    return NotFound("Gym not found.");
                 return Ok(gymDto);
             }
 
             GymListResponseDto? gym = await _gymManagementService.GetGymByOwnerIdAsync(UserId);
-            if (gym == null) return NotFound("Gym not found for this owner.");
+            if (gym == null) 
+                return NotFound("Gym not found for this owner.");
             return Ok(gym);
+        }
+
+        [Authorize(Roles = "GymOwner")]
+        [HttpPost("onboard")]
+        public async Task<IActionResult> OnboardMyGym([FromBody] GymForge.Contracts.Gym.Onboarding.GymOnboardingDto dto)
+        {
+            if (dto == null) 
+                return BadRequest("Invalid request data.");
+
+            await _gymManagementService.OnboardGymAsync(UserId, dto);
+            
+            return Ok(new { message = "Gym onboarded successfully" });
         }
 
         [Authorize(Roles = "GymOwner")]

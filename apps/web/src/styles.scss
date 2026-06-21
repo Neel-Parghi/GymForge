@@ -573,7 +573,83 @@ button {
 input.ng-invalid.ng-touched,
 select.ng-invalid.ng-touched,
 textarea.ng-invalid.ng-touched,
-app-dropdown.ng-invalid.ng-touched > div,
-app-date-time-picker.ng-invalid.ng-touched > div {
+app-dropdown.ng-invalid.ng-touched>div,
+app-date-time-picker.ng-invalid.ng-touched>div {
   border-color: var(--error-color) !important;
+}
+
+/* ==========================================================================
+   GLOBAL FORM STYLES
+   ========================================================================== */
+.standard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  
+  .form-group {
+    flex: 1;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--slate-700);
+
+    [data-theme="dark"] & {
+      color: var(--slate-300);
+    }
+  }
+
+  small.text-muted {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+    margin-top: -4px;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  &::placeholder {
+    color: var(--slate-400);
+  }
+
+  &:disabled {
+    background: var(--slate-100);
+    cursor: not-allowed;
+  }
+
+  [data-theme="dark"] & {
+    background: var(--slate-800);
+    border-color: var(--slate-700);
+    color: white;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+  }
 }

@@ -13,5 +13,7 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         Task<AnnouncementTemplateResponse> UpdateTemplateAsync(Guid id, AnnouncementTemplateRequest request, Guid gymId, Guid updatedBy);
         
         Task DeleteTemplateAsync(Guid id, Guid gymId);
+
+        Task TestTemplateAsync(Guid id, Guid gymId, Guid userId);
     }
 }

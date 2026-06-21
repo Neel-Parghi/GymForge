@@ -6,7 +6,7 @@ namespace GymForge.Application.BackgroundJobs
 {
     public class AccountDeletionJob
     {
-        private readonly IAuthRepository _authRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IGymMemberRepository _gymMemberRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IAddressRepository _addressRepository;
@@ -14,14 +14,14 @@ namespace GymForge.Application.BackgroundJobs
         private readonly ILogger<AccountDeletionJob> _logger;
 
         public AccountDeletionJob(
-            IAuthRepository authRepository,
+            IUserRepository userRepository,
             IGymMemberRepository gymMemberRepository,
             IStaffRepository staffRepository,
             IAddressRepository addressRepository,
             IUnitOfWork unitOfWork,
             ILogger<AccountDeletionJob> logger)
         {
-            _authRepository = authRepository;
+            _userRepository = userRepository;
             _gymMemberRepository = gymMemberRepository;
             _staffRepository = staffRepository;
             _addressRepository = addressRepository;
@@ -33,8 +33,7 @@ namespace GymForge.Application.BackgroundJobs
         {
             _logger.LogInformation($"AccountDeletionJob started for user {userId}");
 
-            // 1. Find User
-            User? user = await _authRepository.GetUserByIdAsync(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userId);
             
             if (user == null)
             {
@@ -50,7 +49,6 @@ namespace GymForge.Application.BackgroundJobs
                 return;
             }
 
-            // 2. Unlink GymMember profile if exists
             GymMember? member = await _gymMemberRepository.GetByUserIdAsync(userId);
             
             if (member != null)
@@ -60,7 +58,6 @@ namespace GymForge.Application.BackgroundJobs
                 _logger.LogInformation($"Unlinked GymMember {member.Id} from User {userId}");
             }
 
-            // 3. Unlink Staff profile if exists
             Staff? staff = await _staffRepository.GetByUserIdAsync(userId);
             
             if (staff != null)
@@ -70,18 +67,15 @@ namespace GymForge.Application.BackgroundJobs
                 _logger.LogInformation($"Unlinked Staff {staff.Id} from User {userId}");
             }
 
-            // 4. Delete user address
-            if (user.AddressId.HasValue)
+            if (user.Profile?.AddressId.HasValue == true)
             {
-                await _addressRepository.DeleteAsync(user.AddressId.Value);
-                _logger.LogInformation($"Deleted Address {user.AddressId.Value} for User {userId}");
+                await _addressRepository.DeleteAsync(user.Profile.AddressId.Value);
+                _logger.LogInformation($"Deleted Address {user.Profile.AddressId.Value} for User {userId}");
             }
 
-            // 5. Delete Core User Record
-            await _authRepository.DeleteUserAsync(user);
+            await _userRepository.DeleteUserAsync(user);
             _logger.LogInformation($"Deleted core User record {userId}");
 
-            // 6. Commit all changes
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation($"AccountDeletionJob completed for user {userId}");
         }

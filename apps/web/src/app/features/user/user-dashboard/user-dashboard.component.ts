@@ -6,7 +6,8 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { MemberService } from '../../../core/services/member.service';
 import { UserService } from '../../../core/services/user.service';
 import { AnnouncementService } from '../../../core/services/announcement.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 interface DailyRoutineItem {
   id: string;
@@ -32,6 +33,7 @@ export class UserDashboardComponent implements OnInit {
 
   showProfileAlert = false;
   userId: string = '';
+  gymId: string | null = null;
   userName = 'Member';
   greeting = 'Good morning';
   greetingTheme = 'theme-morning';
@@ -43,7 +45,7 @@ export class UserDashboardComponent implements OnInit {
   targetCalories = 2500;
   activeTrainingTimeMinutes = 0;
   isEditingCalories = false;
-  activePlanName = 'No active plan';
+  activePlanName = 'No plan assigned';
   weeklyWorkoutsCount = 0;
 
   // Gym info
@@ -65,6 +67,7 @@ export class UserDashboardComponent implements OnInit {
       if (profile) {
         this.userName = profile.firstName || 'Member';
         this.userId = profile.id;
+        this.gymId = profile.gymId || null;
         this.checkProfileCompletion(profile);
         this.loadDashboardData();
       }
@@ -105,23 +108,25 @@ export class UserDashboardComponent implements OnInit {
   loadDashboardData() {
     if (!this.userId) return;
 
+    const myGymReq = this.gymId
+      ? this.userService.getMyGym().pipe(catchError(() => of({ data: null })))
+      : of({ data: null });
+
     forkJoin({
-      plan: this.memberService.getActivePlan(this.userId),
-      logs: this.memberService.getWorkoutLogs(this.userId),
-      myGym: this.userService.getMyGym()
+      plan: this.memberService.getActivePlan(this.userId).pipe(catchError(() => of({ data: null }))),
+      logs: this.memberService.getWorkoutLogs(this.userId).pipe(catchError(() => of({ data: [] }))),
+      myGym: myGymReq
     }).subscribe(({ plan, logs, myGym }) => {
-      // 0. Process Gym Info
       if (myGym && myGym.data) {
         this.myGymInfo = myGym.data;
         this.loadAnnouncements();
       }
 
-      // 1. Process Active Plan
       if (plan.data && plan.data.dietPlan) {
         // Handle if needed
       }
 
-      this.memberService.getPlanAssignments(this.userId).subscribe(assignmentsRes => {
+      this.memberService.getPlanAssignments(this.userId).pipe(catchError(() => of({ data: [] }))).subscribe(assignmentsRes => {
         const assignments = assignmentsRes.data || [];
         const activeAssignment = assignments.slice(-1)[0];
 
@@ -130,10 +135,10 @@ export class UserDashboardComponent implements OnInit {
           this.determineTodayWorkout(activeAssignment);
         } else {
           this.todayWorkoutName = 'Rest Day';
+          this.activePlanName = 'No plan assigned';
         }
       });
 
-      // 2. Process Logs for Streak and Calories
       const allLogs = logs.data || [];
       this.calculateStreak(allLogs);
       this.calculateWeeklyCalories(allLogs);
@@ -178,7 +183,6 @@ export class UserDashboardComponent implements OnInit {
       }
     }
 
-    // Fallback to template days
     if (assignment.workoutPlan && assignment.workoutPlan.days) {
       const templateDay = assignment.workoutPlan.days.find((d: any) => d.dayName && d.dayName.toLowerCase().includes(todayName.toLowerCase()));
       if (templateDay) {
@@ -190,7 +194,6 @@ export class UserDashboardComponent implements OnInit {
   }
 
   private calculateStreak(logs: any[]) {
-    // Simple streak calculation based on dates
     if (!logs || logs.length === 0) {
       this.workoutStreak = 0;
       return;
@@ -206,10 +209,9 @@ export class UserDashboardComponent implements OnInit {
     let streak = 0;
     let currentDate = new Date().setHours(0, 0, 0, 0);
 
-    // Check if today is logged
     if (dates[0] === currentDate) {
       streak = 1;
-      currentDate -= 86400000; // previous day
+      currentDate -= 86400000;
       for (let i = 1; i < dates.length; i++) {
         if (dates[i] === currentDate) {
           streak++;
@@ -219,7 +221,6 @@ export class UserDashboardComponent implements OnInit {
         }
       }
     } else if (dates[0] === currentDate - 86400000) {
-      // yesterday logged
       streak = 1;
       currentDate -= 172800000;
       for (let i = 1; i < dates.length; i++) {
@@ -236,14 +237,12 @@ export class UserDashboardComponent implements OnInit {
   }
 
   private calculateWeeklyCalories(logs: any[]) {
-    // Calculate for the last 7 days
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const weeklyLogs = logs.filter(l => new Date(l.date) >= oneWeekAgo && l.status === 'Completed');
     this.weeklyWorkoutsCount = weeklyLogs.length;
 
-    // Calculate Active Training Time
     let totalMinutes = 0;
     weeklyLogs.forEach(log => {
       const completedExercises = (log.loggedExercises || []).filter((ex: any) =>
@@ -251,14 +250,13 @@ export class UserDashboardComponent implements OnInit {
       ).length;
 
       if (completedExercises === 0) {
-        totalMinutes += 45; // Estimate 45m per generic completed workout
+        totalMinutes += 45;
       } else {
-        totalMinutes += (completedExercises * 10); // Estimate 10m per exercise
+        totalMinutes += (completedExercises * 10);
       }
     });
     this.activeTrainingTimeMinutes = totalMinutes;
 
-    // Calculate Today's Calories
     const todayStr = new Date().toDateString();
     const todayLogs = logs.filter(l => new Date(l.date).toDateString() === todayStr && l.status === 'Completed');
 
@@ -278,7 +276,6 @@ export class UserDashboardComponent implements OnInit {
     this.caloriesBurnedToday = estimatedCalories;
   }
 
-  // --- Calorie Ring SVG Calculations ---
   get caloriePercentage(): number {
     if (this.targetCalories === 0) return 0;
     return Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100);
@@ -358,4 +355,3 @@ export class UserDashboardComponent implements OnInit {
     this.saveRoutine();
   }
 }
-

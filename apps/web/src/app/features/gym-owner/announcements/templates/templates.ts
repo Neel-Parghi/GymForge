@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TemplateService } from '../../../../core/services/template.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
 import { RouterModule } from '@angular/router';
 import { DataGrid, GridCellDirective } from '../../../../shared/components/data-grid/data-grid.component';
 import { SlideDrawerComponent } from '../../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
 import { CONSTANTS } from '../../../../core/constants/constants';
+import { TEMPLATE_CONFIG, TEMPLATE_TYPES } from '../../../../core/constants/template-config';
 
 @Component({
   selector: 'app-templates',
@@ -21,6 +23,7 @@ export class Templates implements OnInit {
   private fb = inject(FormBuilder);
   private templateService = inject(TemplateService);
   private notificationService = inject(NotificationService);
+  private confirmationService = inject(ConfirmationService);
 
   templates: any[] = [];
   templateForm: FormGroup;
@@ -33,12 +36,7 @@ export class Templates implements OnInit {
   pageSize = 10;
   currentPage = 1;
 
-  templateTypes = [
-    { value: 0, label: 'Custom' },
-    { value: 1, label: 'Inactivity Notification' },
-    { value: 2, label: 'Expired Membership' },
-    { value: 3, label: 'Expiring Soon' }
-  ];
+  templateTypes = TEMPLATE_TYPES;
 
   constructor() {
     this.templateForm = this.fb.group({
@@ -57,23 +55,12 @@ export class Templates implements OnInit {
 
   setupFormListeners(): void {
     this.templateForm.get('type')?.valueChanges.subscribe(type => {
-      if (type === 1) { // Inactivity Notification
+      const config = TEMPLATE_CONFIG[type];
+      if (config) {
         this.templateForm.patchValue({
-          name: this.templateForm.get('name')?.value || 'Inactivity Follow-up',
-          titleTemplate: 'We miss you at {{GymName}}, {{UserName}}! 💪',
-          messageTemplate: 'Hi {{UserName}},\n\nWe noticed you haven\'t been to the gym in a while. We miss your energy! Let us know if you need any help getting back on track with your fitness goals.\n\nSee you soon,\nThe {{GymName}} Team'
-        });
-      } else if (type === 2) { // Expired Membership
-        this.templateForm.patchValue({
-          name: this.templateForm.get('name')?.value || 'Membership Expired',
-          titleTemplate: 'Your {{GymName}} membership has expired ⚠️',
-          messageTemplate: 'Hi {{UserName}},\n\nYour {{PlanName}} membership expired on {{ExpiryDate}}. We\'d love to welcome you back! Renew today to continue your fitness journey with us.\n\nThanks,\nThe {{GymName}} Team'
-        });
-      } else if (type === 3) { // Expiring Soon
-        this.templateForm.patchValue({
-          name: this.templateForm.get('name')?.value || 'Membership Expiring Soon',
-          titleTemplate: 'Your {{GymName}} membership expires soon! ⏳',
-          messageTemplate: 'Hi {{UserName}},\n\nJust a quick reminder that your {{PlanName}} membership is expiring on {{ExpiryDate}}. Don\'t lose your momentum! Renew today to keep crushing your goals.\n\nThanks,\nThe {{GymName}} Team'
+          name: this.templateForm.get('name')?.value || config.defaultName,
+          titleTemplate: config.titleTemplate,
+          messageTemplate: config.messageTemplate
         });
       }
     });
@@ -181,17 +168,36 @@ export class Templates implements OnInit {
   }
 
   deleteTemplate(id: string): void {
-    if (confirm('Are you sure you want to delete this template?')) {
-      this.templateService.deleteTemplate(id).subscribe({
-        next: () => {
-          this.notificationService.success('Template deleted');
-          this.loadTemplates();
-        },
-        error: (err) => {
-          this.notificationService.error('Failed to delete template');
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      title: 'Delete Template',
+      message: 'Are you sure you want to delete this notification template? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.templateService.deleteTemplate(id).subscribe({
+          next: () => {
+            this.notificationService.success('Template deleted');
+            this.loadTemplates();
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to delete template');
+          }
+        });
+      }
+    });
+  }
+
+  testTemplate(id: string): void {
+    this.templateService.testTemplate(id).subscribe({
+      next: () => {
+        this.notificationService.success('Test notification sent to your email and portal!');
+      },
+      error: () => {
+        this.notificationService.error('Failed to send test notification');
+      }
+    });
   }
 
   getTemplateTypeName(type: number): string {

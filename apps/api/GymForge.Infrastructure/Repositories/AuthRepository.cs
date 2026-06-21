@@ -29,6 +29,9 @@ namespace GymForge.Infrastructure.Repositories
         public async Task<User?> Login(LoginRequestDto userRequest)
         {
             User? user = await _dbContext.Users
+                .Include(x => x.Profile)
+                .Include(x => x.Preference)
+                .Include(x => x.Security)
                 .Include(x => x.RefreshTokens)
                 .FirstOrDefaultAsync(x => x.Email == userRequest.Email);
 
@@ -37,14 +40,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> GetByTokenAsync(string token)
         {
-            return await _dbContext.Users.FirstOrDefaultAsync(u => u.InvitationToken == token);
-        }
-
-        public async Task<User?> GetUserByIdAsync(Guid userId)
-        {
             return await _dbContext.Users
-                .Include(u => u.Address)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+                .Include(u => u.Security)
+                .FirstOrDefaultAsync(u => u.Security != null && u.Security.InvitationToken == token);
         }
 
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
@@ -60,69 +58,13 @@ namespace GymForge.Infrastructure.Repositories
         public async Task<User?> GetByUserByEmailAsync(string email)
         {
             return await _dbContext.Users
+                .Include(u => u.Profile)
+                .Include(u => u.Preference)
+                .Include(u => u.Security)
                 .Include(u => u.RefreshTokens)
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<Guid?> GetBranchIdByUserIdAsync(Guid userId)
-        {
-            return await _dbContext.Staff
-                .Where(s => s.UserId == userId && s.IsActive)
-                .Select(s => s.BranchId)
-                .FirstOrDefaultAsync();
-        }
 
-        public async Task LinkUserToGymMembersAsync(User user)
-        {
-            string emailLower = user.Email.ToLower();
-            List<GymMember> unlinkedMembers = await _dbContext.GymMembers
-                .Where(m => m.Email.ToLower() == emailLower && m.UserId == null)
-                .ToListAsync();
-
-            foreach (GymMember member in unlinkedMembers)
-            {
-                member.UserId = user.Id;
-            }
-        }
-
-        public Task DeleteUserAsync(User user)
-        {
-            _dbContext.Users.Remove(user);
-            return Task.CompletedTask;
-        }
-
-        public async Task<IEnumerable<User>> GetPendingDeletionRequestsAsync()
-        {
-            return await _dbContext.Users
-                .Where(u => u.DeletionRequestedOn != null && 
-                            u.Role != UserRole.GymOwner && 
-                            u.GymId == null)
-                .ToListAsync();
-        }
-
-        public async Task<(IEnumerable<User> Items, int TotalCount)> GetStandaloneUsersAsync(int pageNumber, int pageSize, string? searchTerm)
-        {
-            IQueryable<User> query = _dbContext.Users
-                .Where(u => u.Role != UserRole.GymOwner && u.GymId == null);
-
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                string searchLower = searchTerm.ToLower();
-                query = query.Where(u => 
-                    u.FirstName.ToLower().Contains(searchLower) || 
-                    u.LastName.ToLower().Contains(searchLower) || 
-                    u.Email.ToLower().Contains(searchLower));
-            }
-
-            int totalCount = await query.CountAsync();
-
-            List<User> items = await query
-                .OrderByDescending(u => u.CreatedOn)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return (items, totalCount);
-        }
     }
 }

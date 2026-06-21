@@ -138,7 +138,13 @@ export class AuthApiService extends BaseApiService {
   getUserRole(): string | null {
     const decoded: any = this.decodeToken();
     if (!decoded) return null;
-    return decoded['role'] || null;
+    return decoded['role'] || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+  }
+
+  getUserId(): string | null {
+    const decoded: any = this.decodeToken();
+    if (!decoded) return null;
+    return decoded['userId'] || decoded['nameid'] || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded['sub'] || decoded['id'] || null;
   }
 
   getGymId(): string | null {

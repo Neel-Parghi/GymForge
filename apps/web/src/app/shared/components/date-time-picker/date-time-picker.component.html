@@ -1,8 +1,4 @@
 <div class="date-time-picker-container" [class.disabled]="disabled">
-  <!-- Backdrop to close when clicking outside -->
-  <div class="calendar-backdrop" [class.backdrop-fixed]="!insideDrawer" [class.backdrop-absolute]="insideDrawer"
-    *ngIf="showCalendarDropdown" (click)="showCalendarDropdown = false"></div>
-
   <!-- Picker Trigger Button -->
   <div class="calendar-trigger" [class.active]="showCalendarDropdown" [class.has-value]="selectedDate"
     (click)="toggleCalendar()">

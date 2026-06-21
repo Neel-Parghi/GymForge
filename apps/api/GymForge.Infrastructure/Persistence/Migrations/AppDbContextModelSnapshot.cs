@@ -1278,6 +1278,9 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uuid");
+
                     b.Property<double?>("Waist")
                         .HasColumnType("double precision");
 
@@ -1292,6 +1295,8 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasIndex("RecordedById");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("MemberMeasurements");
                 });
@@ -2106,16 +2111,10 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AddressId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeletionRequestedOn")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -2129,19 +2128,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("GymId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("InvitationExpiry")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("InvitationToken")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsEmailVerified")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsInvitationAccepted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
@@ -2154,29 +2141,13 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("OtpCode")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("OtpExpiry")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProfilePictureUrl")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.ToTable("Users");
                 });
@@ -2230,6 +2201,145 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "IsRead");
 
                     b.ToTable("UserNotifications");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.UserPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PrimaryGoal")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("TargetWeight")
+                        .HasColumnType("double precision");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserPreferences");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CurrentOnboardingStep")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsOnboarded")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserProfiles");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.UserSecurity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletionRequestedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("InvitationExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("InvitationToken")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsInvitationAccepted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OtpCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("OtpExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSecurities");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.WorkoutPlan", b =>
@@ -2721,6 +2831,10 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("GymForge.Domain.Entities.User", null)
+                        .WithMany("Measurements")
+                        .HasForeignKey("UserId1");
+
                     b.Navigation("Member");
 
                     b.Navigation("RecordedBy");
@@ -2962,15 +3076,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("GymForge.Domain.Entities.User", b =>
-                {
-                    b.HasOne("GymForge.Domain.Entities.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.Navigation("Address");
-                });
-
             modelBuilder.Entity("GymForge.Domain.Entities.UserNotification", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.Branch", "Branch")
@@ -2992,6 +3097,45 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("Gym");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.UserPreference", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithOne("Preference")
+                        .HasForeignKey("GymForge.Domain.Entities.UserPreference", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.UserProfile", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("GymForge.Domain.Entities.UserProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GymForge.Domain.Entities.UserSecurity", b =>
+                {
+                    b.HasOne("GymForge.Domain.Entities.User", "User")
+                        .WithOne("Security")
+                        .HasForeignKey("GymForge.Domain.Entities.UserSecurity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -3088,7 +3232,15 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Gyms");
 
+                    b.Navigation("Measurements");
+
+                    b.Navigation("Preference");
+
+                    b.Navigation("Profile");
+
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("Security");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.WorkoutPlan", b =>

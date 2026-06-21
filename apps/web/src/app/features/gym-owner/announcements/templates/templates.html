@@ -32,7 +32,8 @@
 
       <div class="form-group full-width">
         <label>Template Type <span class="text-danger">*</span></label>
-        <app-dropdown [options]="templateTypes" formControlName="type" placeholder="Select template type" minWidth="100%"></app-dropdown>
+        <app-dropdown [options]="templateTypes" formControlName="type" placeholder="Select template type"
+          minWidth="100%"></app-dropdown>
       </div>
 
       <div class="form-group full-width">
@@ -76,7 +77,8 @@
         <i class="fa-solid" [ngClass]="templateForm.get('isActive')?.value ? 'fa-eye' : 'fa-eye-slash'"></i>
         <div>
           <span class="toggle-label">Template Status</span>
-          <span class="toggle-sublabel">{{ templateForm.get('isActive')?.value ? 'Template is active and ready to be used' : 'Template is disabled and hidden' }}</span>
+          <span class="toggle-sublabel">{{ templateForm.get('isActive')?.value ? 'Template is active and ready to be
+            used' : 'Template is disabled and hidden' }}</span>
         </div>
       </div>
       <label class="toggle-switch">
@@ -86,6 +88,8 @@
     </div>
   </div>
   <div drawer-footer class="drawer-actions">
+    <button class="btn-outline" type="button" *ngIf="editingTemplateId" (click)="testTemplate(editingTemplateId)">Test
+      Template</button>
     <button class="btn-outline" type="button" (click)="closeDrawer()">Cancel</button>
     <button class="btn-primary" type="button" [disabled]="templateForm.invalid || isSubmitting" (click)="onSubmit()">
       {{ editingTemplateId ? 'Update Template' : 'Save Template' }}

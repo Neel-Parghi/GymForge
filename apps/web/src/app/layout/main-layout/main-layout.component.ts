@@ -61,6 +61,7 @@ export class MainLayoutComponent implements OnInit {
     this.setRoleName();
     this.profileService.getProfile().subscribe();
 
+
     const currentRole = this.authApiService.getUserRole();
     if (currentRole === 'GymOwner' || currentRole === 'Staff' || currentRole === 'Trainer') {
       this.gymSettingsService.loadSettings().subscribe({
@@ -139,7 +140,9 @@ export class MainLayoutComponent implements OnInit {
         notifications: this.userNotificationService.getMyNotifications().pipe(catchError(() => of([])))
       }).subscribe({
         next: (res) => {
-          const merged = [...(res.announcements || []), ...(res.notifications || [])]
+          const annList = res.announcements?.data || (Array.isArray(res.announcements) ? res.announcements : []);
+          const notifList = res.notifications?.data || (Array.isArray(res.notifications) ? res.notifications : []);
+          const merged = [...annList, ...notifList]
             .sort((a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime());
 
           this.announcements = merged;
@@ -149,7 +152,7 @@ export class MainLayoutComponent implements OnInit {
     } else if (role === 'GymOwner' || role === 'Staff') {
       this.announcementService.getAnnouncements().subscribe({
         next: (res) => {
-          this.announcements = res || [];
+          this.announcements = res?.data || (Array.isArray(res) ? res : []);
           this.unreadAnnouncementsCount = this.announcements.length;
         }
       });

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CalendarDay } from '../../models/attendance.model';
@@ -56,7 +56,14 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit() {
     // Check if picker component is rendered inside a drawer
-    this.insideDrawer = !!this.el.nativeElement.closest('.drawer-container');
+    this.insideDrawer = !!this.el.nativeElement.closest('.drawer-container, .step-pane');
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: Event) {
+    if (this.showCalendarDropdown && !this.el.nativeElement.contains(event.target)) {
+      this.showCalendarDropdown = false;
+    }
   }
 
   onChange: any = () => { };

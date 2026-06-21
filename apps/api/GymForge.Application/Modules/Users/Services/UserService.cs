@@ -16,6 +16,7 @@ namespace GymForge.Application.Modules.Users.Services
     public class UserService : IUserService
     {
         private readonly IAuthRepository _authRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordService _passwordService;
         private readonly IEmailService _emailService;
@@ -27,6 +28,7 @@ namespace GymForge.Application.Modules.Users.Services
 
         public UserService(
             IAuthRepository authRepository, 
+            IUserRepository userRepository,
             IUnitOfWork unitOfWork, 
             IPasswordService passwordService,
             IEmailService emailService,
@@ -37,6 +39,7 @@ namespace GymForge.Application.Modules.Users.Services
             IMapper mapper)
         {
             _authRepository = authRepository;
+            _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _emailService = emailService;
@@ -56,14 +59,23 @@ namespace GymForge.Application.Modules.Users.Services
                 FirstName = inviteOwnerRequestDto.FirstName,
                 LastName = inviteOwnerRequestDto.LastName,
                 Email = inviteOwnerRequestDto.Email,
-                Phone = inviteOwnerRequestDto.Phone,
                 Role = UserRole.GymOwner,
-                InvitationToken = token,
-                InvitationExpiry = DateTime.UtcNow.AddDays(7),
-                IsInvitationAccepted = false,   
                 IsActive = true,
                 CreatedOn = DateTime.UtcNow,
-                ModifiedOn = DateTime.UtcNow
+                ModifiedOn = DateTime.UtcNow,
+                Security = new UserSecurity
+                {
+                    InvitationToken = token,
+                    InvitationExpiry = DateTime.UtcNow.AddDays(7),
+                    IsInvitationAccepted = false,
+                    IsEmailVerified = true
+                },
+                Profile = new UserProfile
+                {
+                    Phone = inviteOwnerRequestDto.Phone,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedOn = DateTime.UtcNow
+                }
             };
 
             await _authRepository.AddUserAsync(user);
@@ -76,13 +88,13 @@ namespace GymForge.Application.Modules.Users.Services
         {
             User? user = await _authRepository.GetByTokenAsync(setPasswordRequestDto.Token);
 
-            if (user == null || user.InvitationExpiry < DateTime.UtcNow)
+            if (user == null || user.Security == null || user.Security.InvitationExpiry < DateTime.UtcNow)
                 throw new Exception("The invitation link is invalid or has expired.");
 
             user.PasswordHash = _passwordService.HashPassword(setPasswordRequestDto.Password);
-            user.IsInvitationAccepted = true;
-            user.InvitationToken = null;
-            user.InvitationExpiry = null;
+            user.Security.IsInvitationAccepted = true;
+            user.Security.InvitationToken = null;
+            user.Security.InvitationExpiry = null;
             user.ModifiedOn = DateTime.UtcNow;
 
             await _unitOfWork.SaveChangesAsync();
@@ -91,22 +103,23 @@ namespace GymForge.Application.Modules.Users.Services
         public async Task<bool> ValidateInvitationTokenAsync(string token)
         {
             User? user = await _authRepository.GetByTokenAsync(token);
-            return user != null && user.InvitationExpiry > DateTime.UtcNow;
+            return user != null && user.Security != null && user.Security.InvitationExpiry > DateTime.UtcNow;
         }
 
         public async Task ReInviteOwnerAsync(Guid userId)
         {
-            User? user = await _authRepository.GetUserByIdAsync(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userId);
             
             if (user == null)
                 throw new Exception("User not found.");
 
-            if (user.IsInvitationAccepted)
+            if (user.Security != null && user.Security.IsInvitationAccepted)
                 throw new Exception("Invitation has already been accepted.");
 
             string token = Guid.NewGuid().ToString();
-            user.InvitationToken = token;
-            user.InvitationExpiry = DateTime.UtcNow.AddDays(7);
+            user.Security ??= new UserSecurity { CreatedOn = DateTime.UtcNow };
+            user.Security.InvitationToken = token;
+            user.Security.InvitationExpiry = DateTime.UtcNow.AddDays(7);
             user.ModifiedOn = DateTime.UtcNow;
 
             await _unitOfWork.SaveChangesAsync();
@@ -116,7 +129,7 @@ namespace GymForge.Application.Modules.Users.Services
 
         public async Task<UserProfileDto> GetUserProfileAsync(Guid userId)
         {
-            User? user = await _authRepository.GetUserByIdAsync(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userId);
             
             if (user == null)
                 throw new Exception("User not found.");
@@ -127,21 +140,23 @@ namespace GymForge.Application.Modules.Users.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                Phone = user.Phone,
-                ProfilePictureUrl = user.ProfilePictureUrl,
+                Phone = user.Profile?.Phone ?? string.Empty,
+                ProfilePictureUrl = user.Profile?.ProfilePictureUrl ?? string.Empty,
                 Role = user.Role.ToString(),
                 GymId = user.GymId,
-                AddressLine1 = user.Address?.Address1,
-                AddressLine2 = user.Address?.Address2,
-                City = user.Address?.City,
-                State = user.Address?.State,
-                ZipCode = user.Address?.PostalCode
+                IsOnboarded = user.Profile?.IsOnboarded ?? false,
+                CurrentOnboardingStep = user.Profile?.CurrentOnboardingStep ?? 0,
+                AddressLine1 = user.Profile?.Address?.Address1,
+                AddressLine2 = user.Profile?.Address?.Address2,
+                City = user.Profile?.Address?.City,
+                State = user.Profile?.Address?.State,
+                ZipCode = user.Profile?.Address?.PostalCode
             };
         }
 
         public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequestDto dto)
         {
-            User? user = await _authRepository.GetUserByIdAsync(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userId);
             
             if (user == null)
                 throw new Exception("User not found.");
@@ -158,33 +173,55 @@ namespace GymForge.Application.Modules.Users.Services
 
         public async Task UpdateUserProfileAsync(Guid userId, UpdateUserProfileDto dto)
         {
-            User? user = await _authRepository.GetUserByIdAsync(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userId);
             
             if (user == null)
                 throw new Exception("User not found.");
 
+            user.Profile ??= new UserProfile { CreatedOn = DateTime.UtcNow };
+
             // Delete old picture if changed
-            if (!string.IsNullOrEmpty(user.ProfilePictureUrl) && 
-                user.ProfilePictureUrl != dto.ProfilePictureUrl && 
-                !user.ProfilePictureUrl.Contains("placeholder"))
+            if (!string.IsNullOrEmpty(user.Profile.ProfilePictureUrl) && 
+                user.Profile.ProfilePictureUrl != dto.ProfilePictureUrl && 
+                !user.Profile.ProfilePictureUrl.Contains("placeholder"))
             {
-                await _fileStorageService.DeleteFileAsync(user.ProfilePictureUrl);
+                await _fileStorageService.DeleteFileAsync(user.Profile.ProfilePictureUrl);
             }
 
             user.ModifiedOn = DateTime.UtcNow;
-            bool isNewAddress = user.Address == null;
-            _mapper.Map(dto, user);
+            user.Profile.ModifiedOn = DateTime.UtcNow;
 
-            if (isNewAddress && user.Address != null)
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.Profile.Phone = dto.Phone ?? string.Empty;
+            user.Profile.ProfilePictureUrl = dto.ProfilePictureUrl ?? string.Empty;
+
+            bool isNewAddress = user.Profile.Address == null;
+
+            if (isNewAddress)
             {
-                user.Address.Id = Guid.NewGuid();
-                user.Address.CreatedOn = DateTime.UtcNow;
-                await _addressRepository.AddAsync(user.Address);
+                user.Profile.Address = new Address
+                {
+                    Id = Guid.NewGuid(),
+                    Address1 = dto.AddressLine1 ?? string.Empty,
+                    Address2 = dto.AddressLine2 ?? string.Empty,
+                    City = dto.City ?? string.Empty,
+                    State = dto.State ?? string.Empty,
+                    PostalCode = dto.ZipCode ?? string.Empty,
+                    CreatedOn = DateTime.UtcNow
+                };
+                await _addressRepository.AddAsync(user.Profile.Address);
+                user.Profile.AddressId = user.Profile.Address.Id;
             }
-            if (user.Address != null)
+            else if (user.Profile.Address != null)
             {
-                user.Address.ModifiedOn = DateTime.UtcNow;
-                user.Address.ModifiedBy = userId;
+                user.Profile.Address.Address1 = dto.AddressLine1 ?? string.Empty;
+                user.Profile.Address.Address2 = dto.AddressLine2 ?? string.Empty;
+                user.Profile.Address.City = dto.City ?? string.Empty;
+                user.Profile.Address.State = dto.State ?? string.Empty;
+                user.Profile.Address.PostalCode = dto.ZipCode ?? string.Empty;
+                user.Profile.Address.ModifiedOn = DateTime.UtcNow;
+                user.Profile.Address.ModifiedBy = userId;
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -221,7 +258,7 @@ namespace GymForge.Application.Modules.Users.Services
 
         public async Task<IEnumerable<DeletionRequestDto>> GetPendingDeletionRequestsAsync()
         {
-            IEnumerable<User> users = await _authRepository.GetPendingDeletionRequestsAsync();
+            IEnumerable<User> users = await _userRepository.GetPendingDeletionRequestsAsync();
 
             return [.. users.Select(u => new DeletionRequestDto
             {
@@ -230,14 +267,14 @@ namespace GymForge.Application.Modules.Users.Services
                 LastName = u.LastName,
                 Email = u.Email,
                 Role = u.Role.ToString(),
-                DeletionRequestedOn = u.DeletionRequestedOn!.Value,
-                ScheduledDeletionTime = u.DeletionRequestedOn!.Value.AddHours(24)
+                DeletionRequestedOn = u.Security!.DeletionRequestedOn!.Value,
+                ScheduledDeletionTime = u.Security!.DeletionRequestedOn!.Value.AddHours(24)
             })];
         }
 
         public async Task<PagedResponse<StandaloneUserDto>> GetStandaloneUsersAsync(PaginationParams pagination)
         {
-            (IEnumerable<User> Items, int TotalCount) result = await _authRepository.GetStandaloneUsersAsync(pagination.PageNumber, pagination.PageSize, pagination.SearchTerm);
+            (IEnumerable<User> Items, int TotalCount) result = await _userRepository.GetStandaloneUsersAsync(pagination.PageNumber, pagination.PageSize, pagination.SearchTerm);
 
             IEnumerable<StandaloneUserDto> items = result.Items.Select(u => new StandaloneUserDto
             {
@@ -245,15 +282,67 @@ namespace GymForge.Application.Modules.Users.Services
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Email = u.Email,
-                Phone = u.Phone,
-                ProfilePictureUrl = u.ProfilePictureUrl,
+                Phone = u.Profile?.Phone ?? string.Empty,
+                ProfilePictureUrl = u.Profile?.ProfilePictureUrl ?? string.Empty,
                 Role = u.Role.ToString(),
                 CreatedOn = u.CreatedOn,
-                DeletionRequestedOn = u.DeletionRequestedOn,
-                IsEmailVerified = u.IsEmailVerified
+                DeletionRequestedOn = u.Security?.DeletionRequestedOn,
+                IsEmailVerified = u.Security?.IsEmailVerified ?? false
             });
 
             return new PagedResponse<StandaloneUserDto>(items, result.TotalCount, pagination.PageNumber, pagination.PageSize);
+        }
+        
+        public async Task SaveOnboardingStepAsync(Guid userId, int step)
+        {
+            User? user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) throw new Exception("User not found.");
+
+            user.Profile ??= new UserProfile { CreatedOn = DateTime.UtcNow };
+            user.Profile.CurrentOnboardingStep = step;
+            await _userRepository.UpdateUserAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task CompleteUserOnboardingAsync(Guid userId, CompleteUserOnboardingDto dto)
+        {
+            User? user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) throw new Exception("User not found.");
+
+            user.Profile ??= new UserProfile { CreatedOn = DateTime.UtcNow };
+            user.Profile.IsOnboarded = true;
+            user.Profile.CurrentOnboardingStep = 3;
+
+            user.Profile ??= new UserProfile { CreatedOn = DateTime.UtcNow };
+            user.Preference ??= new UserPreference { CreatedOn = DateTime.UtcNow };
+
+            user.Profile.DateOfBirth = dto.DOB;
+            if (Enum.TryParse<Gender>(dto.Gender, true, out var genderEnum))
+            {
+                user.Profile.Gender = genderEnum;
+            }
+
+            if (dto.TargetWeight.HasValue)
+            {
+                user.Preference.TargetWeight = (double)dto.TargetWeight.Value;
+            }
+            user.Preference.PrimaryGoal = dto.PrimaryGoal;
+
+            var measurement = new MemberMeasurement
+            {
+                UserId = user.Id,
+                Height = (double)dto.Height,
+                Weight = (double)dto.Weight,
+                Date = DateTime.UtcNow,
+                CreatedOn = DateTime.UtcNow,
+                IsAdvanced = false
+            };
+
+            user.Measurements ??= new List<MemberMeasurement>();
+            user.Measurements.Add(measurement);
+
+            await _userRepository.UpdateUserAsync(user);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

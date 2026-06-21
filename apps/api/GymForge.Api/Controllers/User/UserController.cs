@@ -138,5 +138,21 @@ namespace GymForge.Api.Controllers.User
                 Success = true
             });
         }
+
+        [HttpPost("save-onboarding-step/{step}")]
+        [Authorize]
+        public async Task<IActionResult> SaveOnboardingStep(int step)
+        {
+            await _userService.SaveOnboardingStepAsync(UserId, step);
+            return Ok(new { Message = "Onboarding step saved successfully" });
+        }
+
+        [HttpPost("complete-user-onboarding")]
+        [Authorize(Roles = "Member,User")]
+        public async Task<IActionResult> CompleteUserOnboarding([FromBody] CompleteUserOnboardingDto dto)
+        {
+            await _userService.CompleteUserOnboardingAsync(UserId, dto);
+            return Ok(new { Message = "User onboarding completed successfully" });
+        }
     }
 }

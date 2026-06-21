@@ -63,6 +63,16 @@ namespace GymForge.Api.Controllers.Gym
             return Ok(result);
         }
 
+        [HttpPost("{id}/test")]
+        public async Task<IActionResult> TestTemplate(Guid id)
+        {
+            if (GymId == null)
+                return BadRequest("GymId not found");
+
+            await _templateService.TestTemplateAsync(id, GymId.Value, UserId);
+            return Ok(new { message = "Test notification and email sent successfully." });
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTemplate(Guid id)
         {

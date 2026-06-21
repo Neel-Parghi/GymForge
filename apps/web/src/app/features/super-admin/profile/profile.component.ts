@@ -9,6 +9,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { CONSTANTS } from '../../../core/constants/constants';
 import { API_CONSTANTS } from '../../../core/constants/api-constants';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-profile',
@@ -27,9 +28,10 @@ export class ProfileComponent implements OnInit {
   passwordChangeSuccess = false;
   passwordChangeError = '';
   activeTab: 'personal' | 'security' = 'personal';
-  activeSecuritySubTab: 'change' | 'reset' = 'change';
+  activeSecuritySubTab: 'change' | 'reset' | 'delete' = 'change';
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  isDeletingAccount = false;
 
   isTrainer = false;
   specInput = '';
@@ -39,7 +41,8 @@ export class ProfileComponent implements OnInit {
     private profileService: ProfileService,
     private staffService: StaffService,
     private notification: NotificationService,
-    private authApi: AuthApiService
+    private authApi: AuthApiService,
+    private userService: UserService
   ) {
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -264,5 +267,21 @@ export class ProfileComponent implements OnInit {
   triggerAvatarUpload() {
     const fileInput = document.getElementById('avatarInput') as HTMLInputElement;
     fileInput?.click();
+  }
+
+  scheduleAccountDeletion() {
+    if (!confirm('Are you sure you want to schedule your account for deletion? This action cannot be easily undone.')) return;
+    
+    this.isDeletingAccount = true;
+    this.userService.scheduleAccountDeletion().subscribe({
+      next: () => {
+        this.isDeletingAccount = false;
+        this.notification.success('Account deletion scheduled successfully. You will receive an email confirmation.');
+      },
+      error: (err) => {
+        this.isDeletingAccount = false;
+        this.notification.error('Failed to schedule account deletion. ' + (err.error?.message || ''));
+      }
+    });
   }
 }

@@ -13,6 +13,8 @@ namespace GymForge.Contracts.Users
         public string ProfilePictureUrl { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public Guid? GymId { get; set; }
+        public bool IsOnboarded { get; set; }
+        public int CurrentOnboardingStep { get; set; }
         
         // Address Fields
         public string? AddressLine1 { get; set; }

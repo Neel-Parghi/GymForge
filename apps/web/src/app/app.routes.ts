@@ -13,6 +13,8 @@ import { authGuard } from './core/guards/auth-guard';
 import { loggedInGuard } from './core/guards/logged-in.guard';
 import { subscriptionGuard } from './core/guards/subscription.guard';
 import { roleGuard } from './core/guards/role-guard';
+import { onboardingGuard } from './core/guards/onboarding.guard';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,10 +23,16 @@ export const routes: Routes = [
   { path: 'accept-invitation', component: AcceptInvitationComponent, canActivate: [loggedInGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [loggedInGuard] },
   { path: 'reset-password', component: ResetPasswordComponent },
+
+  {
+    path: 'onboarding',
+    loadChildren: () => import('./features/onboarding/onboarding.routes').then(m => m.ONBOARDING_ROUTES),
+    canActivate: [authGuard, onboardingGuard]
+  },
   {
     path: 'super-admin',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, onboardingGuard],
     children: [
       {
         path: 'users',
@@ -51,7 +59,7 @@ export const routes: Routes = [
   {
     path: 'gym-owner',
     component: MainLayoutComponent,
-    canActivate: [authGuard, subscriptionGuard],
+    canActivate: [authGuard, onboardingGuard, subscriptionGuard],
     children: [
       {
         path: 'dashboard',
@@ -117,7 +125,7 @@ export const routes: Routes = [
   {
     path: 'trainer',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, onboardingGuard],
     children: [
       {
         path: 'dashboard',
@@ -161,7 +169,7 @@ export const routes: Routes = [
   {
     path: 'user',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, onboardingGuard],
     children: [
       {
         path: 'dashboard',
