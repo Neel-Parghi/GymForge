@@ -551,6 +551,130 @@
   }
 }
 
+.text-danger {
+  color: #ef4444 !important;
+}
+
+.danger-zone-card {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+}
+
+.danger-icon-wrap {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+
+  i {
+    color: #ef4444 !important;
+  }
+}
+
+.danger-text {
+  color: #7f1d1d !important;
+}
+
+.custom-danger-btn {
+  padding: 14px 32px;
+  border-radius: 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+  margin: 0 auto;
+  display: block;
+
+  &:hover:not(:disabled) {
+    background: #dc2626;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.profile-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--bg-surface);
+  color: var(--text-main);
+}
+
+.specializations-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.5rem;
+  background: var(--slate-50);
+  border-radius: 0.75rem;
+  border: 1px dashed var(--border-color);
+  align-items: center;
+}
+
+.specialization-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--success-bg);
+  color: var(--success-color);
+  border: 1px solid var(--success-border);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.remove-tag-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.add-spec-input-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.add-spec-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  font-size: 0.95rem;
+}
+
+.btn-add-tag {
+  background: var(--slate-100);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--slate-200);
+  }
+}
+
 @media (max-width: 992px) {
   .security-hub-wrapper {
     grid-template-columns: 1fr;

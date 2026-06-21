@@ -15,6 +15,10 @@ export interface UserProfile {
   city?: string;
   state?: string;
   zipCode?: string;
+
+  // Onboarding
+  isOnboarded?: boolean;
+  currentOnboardingStep?: number;
 }
 
 export interface UpdateUserProfile {

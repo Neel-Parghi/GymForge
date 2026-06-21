@@ -17,13 +17,23 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAddressRepository _addressRepository;
+        private readonly ISaaSPaymentRepository _saasPaymentRepository;
+        private readonly ISaaSPlanRepository _saasPlanRepository;
 
-        public GymManagementService(IGymManagementRepository repository, IUnitOfWork unitOfWork, IMapper mapper, IAddressRepository addressRepository)
+        public GymManagementService(
+            IGymManagementRepository repository, 
+            IUnitOfWork unitOfWork, 
+            IMapper mapper, 
+            IAddressRepository addressRepository,
+            ISaaSPaymentRepository saasPaymentRepository,
+            ISaaSPlanRepository saasPlanRepository)
         {
             _gymManagementRepository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _addressRepository = addressRepository;
+            _saasPaymentRepository = saasPaymentRepository;
+            _saasPlanRepository = saasPlanRepository;
         }
 
         public async Task OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto)
@@ -47,6 +57,9 @@ namespace GymForge.Application.Modules.Gym.Services
             if (user != null)
             {
                 user.GymId = gym.Id;
+                user.Profile ??= new UserProfile { CreatedOn = DateTime.UtcNow };
+                user.Profile.IsOnboarded = true;
+                user.Profile.CurrentOnboardingStep = 5; // Final step
                 _gymManagementRepository.UpdateGymOwner(user);
             }
 
@@ -70,6 +83,9 @@ namespace GymForge.Application.Modules.Gym.Services
             }
 
             // 5 Setup and Add Gym Subscription Plan
+            Plan? plan = await _saasPlanRepository.GetPlanByIdAsync(gymOnboardingDto.PlanId);
+            decimal amount = plan?.Price ?? 0m;
+
             SubscriptionRecord subscription = new() 
             {
                 Id = Guid.NewGuid(),
@@ -79,12 +95,29 @@ namespace GymForge.Application.Modules.Gym.Services
                 EndDate = DateTime.UtcNow.AddDays(gymOnboardingDto.IsTrial ? 14 : 30),
                 IsTrial = gymOnboardingDto.IsTrial,
                 IsActive = true,
-                PriceAtPurchase = 0m,
+                PriceAtPurchase = amount,
                 Notes = "Initial Onboarding Subscription"
             };
             await _gymManagementRepository.AddGymSubscriptionAsync(subscription);
 
-            // 6 Commit Transaction
+            // 6 Setup SaaS Payment Transaction
+            if (!string.IsNullOrEmpty(gymOnboardingDto.TransactionId))
+            {
+                SaaSPaymentTransaction paymentTransaction = new()
+                {
+                    Id = Guid.NewGuid(),
+                    GymId = gym.Id,
+                    SubscriptionId = subscription.Id,
+                    Amount = amount,
+                    Currency = "INR",
+                    Status = "Paid",
+                    GatewayTransactionId = gymOnboardingDto.TransactionId,
+                    GatewayResponse = "Successful Onboarding Payment"
+                };
+                await _saasPaymentRepository.AddAsync(paymentTransaction);
+            }
+
+            // 7 Commit Transaction
             await _unitOfWork.SaveChangesAsync();
         }
     

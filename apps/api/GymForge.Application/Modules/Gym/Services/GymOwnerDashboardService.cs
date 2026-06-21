@@ -84,34 +84,30 @@ namespace GymForge.Application.Modules.Gym.Services
 
             if (membershipRevenue == 0)
             {
-                // Fallback to active subscriptions MRR
                 membershipRevenue = subscriptions
                     .Where(s => s.IsActive && s.PaymentStatus == PaymentStatus.Paid)
                     .Sum(s => s.PricePaid / (s.DurationMonths > 0 ? s.DurationMonths : 1));
-            }
-
-            if (membershipRevenue == 0)
-            {
-                membershipRevenue = 4120.00m; 
             }
 
             decimal productSalesRevenue = sales
                 .Where(s => s.TransactionDate >= firstDayOfMonth)
                 .Sum(s => s.TotalAmount);
 
-            if (productSalesRevenue == 0)
-            {
-                productSalesRevenue = 730.00m;
-            }
-
             decimal monthlyRevenue = membershipRevenue + productSalesRevenue;
 
             decimal prevMembershipRevenue = subscriptions
                 .Where(s => s.CreatedOn >= firstDayOfMonth.AddMonths(-1) && s.CreatedOn < firstDayOfMonth && s.PaymentStatus == PaymentStatus.Paid)
                 .Sum(s => s.PricePaid);
-            if (prevMembershipRevenue == 0) prevMembershipRevenue = 4300.00m; // prev month demo baseline
             
-            double revenueTrendPercentage = (double)Math.Round(((monthlyRevenue - prevMembershipRevenue) / prevMembershipRevenue) * 100, 1);
+            double revenueTrendPercentage = 0;
+            if (prevMembershipRevenue > 0)
+            {
+                revenueTrendPercentage = (double)Math.Round(((monthlyRevenue - prevMembershipRevenue) / prevMembershipRevenue) * 100, 1);
+            }
+            else if (monthlyRevenue > 0)
+            {
+                revenueTrendPercentage = 100;
+            }
 
             List<RecentEnrollmentDto> recentEnrollments = members
                 .OrderByDescending(m => m.CreatedOn)
@@ -241,7 +237,7 @@ namespace GymForge.Application.Modules.Gym.Services
             List<MembershipDistributionDto> distributionData = [];
             int totalActive = members.Count(m => m.Status == MemberStatus.Active);
 
-            if (planGroups.Count >= 2)
+            if (planGroups.Count > 0)
             {
                 string[] colors = new[] { "#0b2545", "#7a9acb", "#d4e1fa", "#64748b" };
                 for (int i = 0; i < planGroups.Count; i++)
@@ -256,17 +252,6 @@ namespace GymForge.Application.Modules.Gym.Services
                         Color = colors[Math.Min(i, colors.Length - 1)]
                     });
                 }
-            }
-            else
-            {
-                int activeCount = totalActive > 0 ? totalActive : 1200;
-                int firstCount = (int)Math.Round(activeCount * 0.60);
-                int secondCount = (int)Math.Round(activeCount * 0.25);
-                int thirdCount = activeCount - (firstCount + secondCount);
-
-                distributionData.Add(new MembershipDistributionDto { TierName = "12 Month Plan", Count = firstCount, Percentage = 60, Color = "#0b2545" });
-                distributionData.Add(new MembershipDistributionDto { TierName = "6 Month Plan", Count = secondCount, Percentage = 25, Color = "#7a9acb" });
-                distributionData.Add(new MembershipDistributionDto { TierName = "1 Month Plan", Count = thirdCount, Percentage = 15, Color = "#d4e1fa" });
             }
 
             List<string> todayCheckedInInitials = todayLogs

@@ -14,6 +14,12 @@ namespace GymForge.Infrastructure.Persistence
 
 
         public DbSet<User> Users { get; set; }
+        
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        
+        public DbSet<UserPreference> UserPreferences { get; set; }
+
+        public DbSet<UserSecurity> UserSecurities { get; set; }
 
         public DbSet<Gym> Gyms { get; set; }
 
@@ -130,6 +136,24 @@ namespace GymForge.Infrastructure.Persistence
                       .OnDelete(DeleteBehavior.Cascade);
                 
                 entity.HasIndex(rt => rt.Token);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasOne(u => u.Profile)
+                      .WithOne(p => p.User)
+                      .HasForeignKey<UserProfile>(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(u => u.Preference)
+                      .WithOne(p => p.User)
+                      .HasForeignKey<UserPreference>(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(u => u.Security)
+                      .WithOne(s => s.User)
+                      .HasForeignKey<UserSecurity>(s => s.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Plan>()

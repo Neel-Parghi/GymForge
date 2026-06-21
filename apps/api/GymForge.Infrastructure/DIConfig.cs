@@ -81,6 +81,7 @@ namespace GymForge.Infrastructure
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
             services.AddSingleton<AuditableEntityInterceptor>();
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IGymManagementRepository, GymManagementRepository>();
             services.AddScoped<ISaaSPlanRepository, SaaSPlanRepository>();

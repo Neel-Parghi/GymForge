@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -42,7 +42,14 @@ export class DropdownComponent implements ControlValueAccessor, OnInit {
   dropdownWidth = '0px';
 
   ngOnInit() {
-    this.insideDrawer = !!this.el.nativeElement.closest('.drawer-container');
+    this.insideDrawer = !!this.el.nativeElement.closest('.drawer-container, .step-pane');
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: Event) {
+    if (this.isOpen && !this.el.nativeElement.contains(event.target)) {
+      this.isOpen = false;
+    }
   }
 
   onChange: any = () => { };

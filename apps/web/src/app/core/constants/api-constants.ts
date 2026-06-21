@@ -26,10 +26,13 @@ export const API_CONSTANTS = {
     UPLOAD_AVATAR: 'users/profile/upload-avatar',
     MY_SUBSCRIPTIONS: 'users/my-subscriptions',
     MY_GYM: 'users/my-gym',
-    STANDALONE: 'users/standalone'
+    STANDALONE: 'users/standalone',
+    SAVE_ONBOARDING_STEP: 'users/save-onboarding-step',
+    COMPLETE_ONBOARDING: 'users/complete-user-onboarding',
+    ACCOUNT_DELETION_SCHEDULE: 'users/accountdeletionschedule'
   },
   GYM: {
-    ONBOARD: 'gyms/onboard',
+    ONBOARD: 'my-gym/onboard',
     UPDATE: 'gyms',
     LIST: 'gyms',
     DELETE: 'gyms',

@@ -245,7 +245,7 @@
         <h3>Recent Enrollments</h3>
         <button class="btn-text" (click)="navigateToMembers()">View All Members</button>
       </div>
-      <div class="table-container">
+      <div class="table-container" *ngIf="stats?.recentEnrollments?.length; else noEnrollments">
         <table class="dashboard-table-premium">
           <thead>
             <tr>
@@ -281,6 +281,11 @@
           </tbody>
         </table>
       </div>
+      <ng-template #noEnrollments>
+        <div class="empty-state-message" style="padding: 3rem 1rem; text-align: center; color: #64748b;">
+          <p>NO Recent enrollments</p>
+        </div>
+      </ng-template>
     </div>
 
     <!-- Right Side widgets (Renewals & Quick Actions & Staff Status) -->
@@ -317,7 +322,7 @@
         <div class="card-header">
           <h3>Upcoming Renewals</h3>
         </div>
-        <div class="renewal-list-premium">
+        <div class="renewal-list-premium" *ngIf="stats?.upcomingRenewals?.length; else noRenewals">
           <div class="renewal-item-premium" *ngFor="let renewal of stats?.upcomingRenewals" (click)="navigateToMembers()">
             <div class="renewal-left">
               <div class="renewal-details">
@@ -332,6 +337,11 @@
             </div>
           </div>
         </div>
+        <ng-template #noRenewals>
+          <div class="empty-state-message">
+            <p>No upcoming renewals</p>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Quick Actions Widget -->

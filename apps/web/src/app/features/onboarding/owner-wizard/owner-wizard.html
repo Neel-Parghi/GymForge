@@ -1,0 +1,446 @@
+<div class="auth-page-wrapper full-screen-wizard">
+  <!-- Top Navigation Bar -->
+  <header class="auth-header">
+    <div class="brand-logo">GYM FORGE</div>
+    <div class="header-actions"></div>
+  </header>
+
+  <main class="auth-main full-screen">
+    <div class="wizard-layout">
+      <!-- Left Sidebar: Vertical Stepper -->
+      <aside class="wizard-sidebar">
+        <div class="sidebar-header">
+          <p class="sidebar-subtitle">Setup your workspace</p>
+        </div>
+
+        <div class="stepper-vertical">
+          <div class="step-item" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+            <div class="step-circle"><span>1</span></div>
+            <div class="step-content">
+              <div class="step-title">Welcome</div>
+              <div class="step-desc">Introduction</div>
+            </div>
+            <div class="step-connector"></div>
+          </div>
+
+          <div class="step-item" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+            <div class="step-circle"><span>2</span></div>
+            <div class="step-content">
+              <div class="step-title">Gym Setup</div>
+              <div class="step-desc">Business details</div>
+            </div>
+            <div class="step-connector"></div>
+          </div>
+
+          <div class="step-item" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+            <div class="step-circle"><span>3</span></div>
+            <div class="step-content">
+              <div class="step-title">Branches</div>
+              <div class="step-desc">Locations setup</div>
+            </div>
+            <div class="step-connector"></div>
+          </div>
+
+          <div class="step-item" [class.active]="currentStep === 4" [class.completed]="currentStep > 4">
+            <div class="step-circle"><span>4</span></div>
+            <div class="step-content">
+              <div class="step-title">Choose Plan</div>
+              <div class="step-desc">Select subscription</div>
+            </div>
+            <div class="step-connector"></div>
+          </div>
+
+          <div class="step-item" [class.active]="currentStep === 5" [class.completed]="currentStep > 5">
+            <div class="step-circle"><span>5</span></div>
+            <div class="step-content">
+              <div class="step-title">Review</div>
+              <div class="step-desc">Summary</div>
+            </div>
+            <div class="step-connector"></div>
+          </div>
+
+          <div class="step-item" [class.active]="currentStep === 6" [class.completed]="currentStep > 6">
+            <div class="step-circle"><span>6</span></div>
+            <div class="step-content">
+              <div class="step-title">Payment</div>
+              <div class="step-desc">Secure checkout</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Main Content -->
+      <div class="wizard-main">
+        <div class="wizard-content-wrapper">
+          <div class="wizard-content-inner">
+
+            <form [formGroup]="gymForm" class="onboarding-form">
+
+              <!-- Step 1: Welcome -->
+              @if (currentStep === 1) {
+              <div class="step-pane welcome-pane stunning-welcome">
+                <div class="hero-banner">
+                  <div class="banner-bg"></div>
+                  <div class="banner-content">
+                    <h1>Welcome to GymForge.</h1>
+                    <p>Let's get your gym set up and ready for business.</p>
+                  </div>
+                </div>
+
+                <div class="onboarding-perks">
+                  <div class="perk-card">
+                    <div class="watermark-icon"><i class="fi fi-rr-shop"></i></div>
+                    <div class="icon glass-icon"><i class="fi fi-rr-shop"></i></div>
+                    <div class="text">
+                      <h3>Setup Profile</h3>
+                      <p>Add your gym details and branding.</p>
+                    </div>
+                    <div class="hover-arrow"><i class="fi fi-rr-arrow-right"></i></div>
+                  </div>
+                  <div class="perk-card">
+                    <div class="watermark-icon"><i class="fi fi-rr-users-alt"></i></div>
+                    <div class="icon glass-icon"><i class="fi fi-rr-users-alt"></i></div>
+                    <div class="text">
+                      <h3>Manage Members</h3>
+                      <p>Get ready to welcome your clients.</p>
+                    </div>
+                    <div class="hover-arrow"><i class="fi fi-rr-arrow-right"></i></div>
+                  </div>
+                  <div class="perk-card">
+                    <div class="watermark-icon"><i class="fi fi-rr-chart-pie-alt"></i></div>
+                    <div class="icon glass-icon"><i class="fi fi-rr-chart-pie-alt"></i></div>
+                    <div class="text">
+                      <h3>Track Revenue</h3>
+                      <p>Monitor your memberships and sales.</p>
+                    </div>
+                    <div class="hover-arrow"><i class="fi fi-rr-arrow-right"></i></div>
+                  </div>
+                </div>
+              </div>
+              }
+
+              <!-- Step 2: Gym Info -->
+              @if (currentStep === 2) {
+              <div class="step-pane" formGroupName="gymInfo">
+                <h2>Gym Information</h2>
+                <p class="subtitle">Tell us about your main branch.</p>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Gym Name *</label>
+                    <input type="text" formControlName="name" placeholder="Enter gym name">
+                    <app-validation-message [control]="gymForm.get('gymInfo.name')"
+                      fieldName="Gym name"></app-validation-message>
+                  </div>
+                  <div class="form-group">
+                    <label>Brand Name</label>
+                    <input type="text" formControlName="brandName" placeholder="Enter brand name">
+                  </div>
+                  <div class="form-group lg">
+                    <label>Description</label>
+                    <textarea formControlName="description" placeholder="A short description of the gym"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Registration Number</label>
+                    <input type="text" formControlName="registrationNumber" placeholder="Reg #">
+                  </div>
+                  <div class="form-group">
+                    <label>GST/Tax Number</label>
+                    <input type="text" formControlName="gstNumber" placeholder="Optional">
+                  </div>
+                  <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" formControlName="email" placeholder="contact@gym.com">
+                    <app-validation-message [control]="gymForm.get('gymInfo.email')"
+                      fieldName="Email"></app-validation-message>
+                  </div>
+                  <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="text" formControlName="phone" placeholder="+1 234 567 8900">
+                    <app-validation-message [control]="gymForm.get('gymInfo.phone')"
+                      fieldName="Phone number"></app-validation-message>
+                  </div>
+                  <div class="form-group">
+                    <label>Established Date</label>
+                    <app-date-time-picker formControlName="establishedDate"
+                      placeholder="Select established date"></app-date-time-picker>
+                  </div>
+                  <div class="form-group">
+                    <label>Website</label>
+                    <input type="text" formControlName="websiteUrl" placeholder="https://www.gym.com">
+                  </div>
+
+                  <div class="form-section-title lg">Registered Address</div>
+
+                </div>
+                <div class="form-grid lg" formGroupName="address">
+                  <div class="form-group lg">
+                    <label>Address Line 1 *</label>
+                    <input type="text" formControlName="line1" placeholder="Street address">
+                    <app-validation-message [control]="gymForm.get('gymInfo.address.line1')"
+                      fieldName="Address"></app-validation-message>
+                  </div>
+                  <div class="form-group lg">
+                    <label>Address Line 2 (Optional)</label>
+                    <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+                  </div>
+                  <div class="form-group">
+                    <label>City *</label>
+                    <input type="text" formControlName="city">
+                    <app-validation-message [control]="gymForm.get('gymInfo.address.city')"
+                      fieldName="City"></app-validation-message>
+                  </div>
+                  <div class="form-group">
+                    <label>State *</label>
+                    <input type="text" formControlName="state">
+                    <app-validation-message [control]="gymForm.get('gymInfo.address.state')"
+                      fieldName="State"></app-validation-message>
+                  </div>
+                  <div class="form-group">
+                    <label>Country *</label>
+                    <input type="text" formControlName="country">
+                    <app-validation-message [control]="gymForm.get('gymInfo.address.country')"
+                      fieldName="Country"></app-validation-message>
+                  </div>
+                  <div class="form-group">
+                    <label>Postal Code *</label>
+                    <input type="text" formControlName="postalCode">
+                    <app-validation-message [control]="gymForm.get('gymInfo.address.postalCode')"
+                      fieldName="Postal code"></app-validation-message>
+                  </div>
+                </div>
+              </div>
+              }
+
+              <!-- Step 3: Branches -->
+              @if (currentStep === 3) {
+              <div class="step-pane">
+                <div class="step-header-row"
+                  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                  <h2 style="margin: 0;">Gym Branches</h2>
+                  <button type="button" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.85rem;"
+                    (click)="addBranch()">
+                    Add Another Branch
+                  </button>
+                </div>
+                <div formArrayName="branches" class="branches-container">
+                  <div class="branch-card" *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i"
+                    [class.collapsed]="collapsedBranches[i]">
+                    <div class="branch-card-header" (click)="toggleBranchCollapse(i)">
+                      <div class="header-left">
+                        <svg class="chevron-icon" [class.rotated]="!collapsedBranches[i]" viewBox="0 0 24 24" width="20"
+                          height="20">
+                          <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                        </svg>
+                        <h4>Branch {{ i + 1 }}: {{ branch.get('name')?.value || 'Unnamed Branch' }}</h4>
+                      </div>
+                      <div class="header-right">
+                        <button type="button" class="icon-btn remove-btn" *ngIf="branches.length > 1"
+                          (click)="$event.stopPropagation(); removeBranch(i)" title="Remove Branch">
+                          <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor"
+                              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="branch-form-content" *ngIf="!collapsedBranches[i]">
+                      <div class="form-grid">
+                        <div class="form-group lg">
+                          <label>Branch Name/Alias *</label>
+                          <input type="text" formControlName="name" placeholder="e.g. Downtown Hub">
+                          <app-validation-message [control]="branch.get('name')"
+                            fieldName="Branch name"></app-validation-message>
+                        </div>
+
+                        <div class="form-group lg checkbox-group same-address-option" *ngIf="i === 0">
+                          <label class="checkbox-label">
+                            <input type="checkbox" (change)="copyGymAddressToBranch($event, i)">
+                            Use same address and contact number as Gym HQ
+                          </label>
+                        </div>
+
+                        <div class="form-grid lg" formGroupName="address">
+                          <div class="form-group lg">
+                            <label>Address Line 1 *</label>
+                            <input type="text" formControlName="line1" placeholder="Street address">
+                            <app-validation-message [control]="branch.get('address.line1')"
+                              fieldName="Address"></app-validation-message>
+                          </div>
+                          <div class="form-group lg">
+                            <label>Address Line 2 (Optional)</label>
+                            <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+                          </div>
+                          <div class="form-group">
+                            <label>City *</label>
+                            <input type="text" formControlName="city">
+                            <app-validation-message [control]="branch.get('address.city')"
+                              fieldName="City"></app-validation-message>
+                          </div>
+                          <div class="form-group">
+                            <label>State *</label>
+                            <input type="text" formControlName="state">
+                            <app-validation-message [control]="branch.get('address.state')"
+                              fieldName="State"></app-validation-message>
+                          </div>
+                          <div class="form-group">
+                            <label>Country *</label>
+                            <input type="text" formControlName="country">
+                            <app-validation-message [control]="branch.get('address.country')"
+                              fieldName="Country"></app-validation-message>
+                          </div>
+                          <div class="form-group">
+                            <label>Postal Code *</label>
+                            <input type="text" formControlName="postalCode">
+                            <app-validation-message [control]="branch.get('address.postalCode')"
+                              fieldName="Postal code"></app-validation-message>
+                          </div>
+                        </div>
+                        <div class="form-group lg">
+                          <label>Phone Number *</label>
+                          <input type="text" formControlName="contactNumber">
+                          <app-validation-message [control]="branch.get('contactNumber')"
+                            fieldName="Phone number"></app-validation-message>
+                        </div>
+                        <div class="form-group">
+                          <label>Opening Time</label>
+                          <input type="time" formControlName="openTime">
+                        </div>
+                        <div class="form-group">
+                          <label>Closing Time</label>
+                          <input type="time" formControlName="closeTime">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
+
+              <!-- Step 4: Plan Selection -->
+              @if (currentStep === 4) {
+              <div class="step-pane plan-pane">
+                <h2>Choose Your Plan</h2>
+                <p class="subtitle">Select the subscription tier that best fits your gym's needs.</p>
+
+                @if (isLoadingPlans) {
+                <div class="loading-spinner">Loading plans...</div>
+                } @else {
+                <div class="plans-grid">
+                  @for (plan of plans; track plan.id) {
+                  <div class="plan-card" [class.selected]="selectedPlanId === plan.id" (click)="selectPlan(plan.id)">
+                    @if (selectedPlanId === plan.id) {
+                    <div class="selected-indicator">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    }
+                    <div class="plan-header">
+                      <h3>{{ plan.name }}</h3>
+                      <div class="price">₹{{ plan.price }}<span>/month</span></div>
+                    </div>
+                    <ul class="plan-features">
+                      <li>Up to {{ plan.maxBranches || 'Unlimited' }} Branches</li>
+                      <li>Member Management</li>
+                      <li>Billing & Payments</li>
+                    </ul>
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+              }
+
+              <!-- Step 5: Review -->
+              @if (currentStep === 5) {
+              <div class="step-pane review-step">
+                <h2>Review Summary</h2>
+                <p class="subtitle">Review your details before completing setup.</p>
+
+                <div class="summary-section">
+                  <h4>1. Gym Details</h4>
+                  <div class="summary-grid">
+                    <div><span>Name:</span> {{ gymForm.get('gymInfo.name')?.value }}</div>
+                    <div><span>Brand:</span> {{ gymForm.get('gymInfo.brandName')?.value }}</div>
+                    <div><span>Email:</span> {{ gymForm.get('gymInfo.email')?.value }}</div>
+                    <div><span>Phone:</span> {{ gymForm.get('gymInfo.phone')?.value }}</div>
+                  </div>
+                </div>
+
+                <div class="summary-section">
+                  <h4>2. Branches ({{ branches.length }})</h4>
+                  <div *ngFor="let branch of branches.controls; let i=index" class="branch-summary">
+                    <strong>{{ branch.get('name')?.value }}</strong>: {{ branch.get('address.city')?.value }}, {{
+                    branch.get('address.country')?.value }}
+                  </div>
+                </div>
+
+                <div class="summary-section">
+                  <h4>3. Subscription Plan</h4>
+                  <div class="summary-grid">
+                    <div><span>Plan:</span> {{ getSelectedPlanName() }}</div>
+                    <div><span>Price:</span> ₹{{ getSelectedPlanPrice() }}/month</div>
+                  </div>
+                </div>
+              </div>
+              }
+
+              <!-- Step 6: Payment -->
+              @if (currentStep === 6) {
+              <div class="step-pane payment-pane">
+                <h2>Complete Your Subscription</h2>
+                <p class="subtitle">You have selected the <strong>{{ getSelectedPlanName() }}</strong> plan for
+                  <strong>₹{{
+                    getSelectedPlanPrice() }}/mo</strong>.</p>
+
+                <div class="payment-box">
+                  <div class="payment-icon"><i class="fi fi-brands-razorpay"></i></div>
+                  <p>We use Razorpay for secure test payments.</p>
+
+                  @if (isProcessingPayment || isSubmitting) {
+                  <div class="loading-spinner">{{ isSubmitting ? 'Finalizing Setup...' : 'Processing Payment...' }}
+                  </div>
+                  } @else {
+                  <button class="btn btn-primary btn-lg pay-btn" (click)="processPayment()">
+                    Pay ₹{{ getSelectedPlanPrice() }} Now
+                  </button>
+                  }
+                </div>
+              </div>
+              }
+            </form>
+          </div>
+        </div>
+
+        <!-- Static Footer -->
+        <div class="wizard-footer-static">
+          <div class="wizard-footer-inner">
+            <div class="footer-left">
+              <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
+              <button *ngIf="currentStep === 1" type="button" class="btn btn-text text-danger" (click)="logout()" style="color: #dc2626; background: transparent; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fi fi-rr-sign-out-alt"></i> Back to Login
+              </button>
+            </div>
+            <div class="footer-right">
+              <button *ngIf="currentStep < totalSteps" type="button" class="btn btn-primary" (click)="nextStep()">
+                {{ currentStep === 1 ? "Let's Get Started" : 'Continue' }} <i class="fi fi-rr-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="auth-footer">
+    <div class="footer-logo">GYM FORGE</div>
+    <div class="copyright">© 2026 GYM FORGE. ALL RIGHTS RESERVED.</div>
+    <div class="footer-links">
+      <a routerLink="/privacy-policy">Privacy Policy</a>
+      <a routerLink="/terms-of-service">Terms of Service</a>
+    </div>
+  </footer>
+</div>

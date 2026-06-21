@@ -4,6 +4,14 @@
   width: 100vw;
   overflow: hidden;
   background-color: var(--bg-color);
+  position: relative;
+}
+
+.layout-inner {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: filter 0.3s ease;
 }
 
 // Sidebar Styles

@@ -42,4 +42,16 @@ export class UserService extends BaseApiService {
     }
     return this.get(API_CONSTANTS.USER.STANDALONE, { params });
   }
+
+  saveOnboardingStep(step: number): Observable<any> {
+    return this.post(`${API_CONSTANTS.USER.SAVE_ONBOARDING_STEP}/${step}`, {});
+  }
+
+  completeOnboarding(payload: any): Observable<any> {
+    return this.post(API_CONSTANTS.USER.COMPLETE_ONBOARDING, payload);
+  }
+
+  scheduleAccountDeletion(): Observable<any> {
+    return this.post(API_CONSTANTS.USER.ACCOUNT_DELETION_SCHEDULE, {});
+  }
 }

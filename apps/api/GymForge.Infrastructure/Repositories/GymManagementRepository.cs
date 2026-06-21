@@ -43,7 +43,7 @@ namespace GymForge.Infrastructure.Repositories
                 query = query.Where(u => u.FirstName.ToLower().Contains(searchTerm) ||
                                        u.LastName.ToLower().Contains(searchTerm) ||
                                        u.Email.ToLower().Contains(searchTerm) ||
-                                       u.Phone.ToLower().Contains(searchTerm));
+                                       (u.Profile != null && u.Profile.Phone.ToLower().Contains(searchTerm)));
             }
 
             int totalCount = await query.CountAsync();
@@ -55,12 +55,12 @@ namespace GymForge.Infrastructure.Repositories
                 LastName = u.LastName,
                 Name = u.FirstName + " " + u.LastName,
                 Email = u.Email,
-                Phone = u.Phone,
+                Phone = u.Profile != null ? u.Profile.Phone : string.Empty,
                 GymsOwned = u.Gyms != null ? u.Gyms.Count : 0,
                 JoinedDate = u.CreatedOn,
                 Status = u.IsActive ? "Active" : "Inactive",
-                InvitationStatus = u.IsInvitationAccepted ? "Accepted" :
-                                     (u.InvitationExpiry > DateTime.UtcNow ? "Pending" : "Expired")
+                InvitationStatus = (u.Security != null && u.Security.IsInvitationAccepted) ? "Accepted" :
+                                     ((u.Security != null && u.Security.InvitationExpiry > DateTime.UtcNow) ? "Pending" : "Expired")
             })
             .OrderByDescending(u => u.JoinedDate)
             .Skip((pageNumber - 1) * pageSize)
@@ -72,7 +72,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<User?> GetGymOwnerByIdAsync(Guid id)
         {
-            User? user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+            User? user = await _dbContext.Users
+                .Include(u => u.Profile)
+                .FirstOrDefaultAsync(x => x.Id == id);
             return user;
         }
 

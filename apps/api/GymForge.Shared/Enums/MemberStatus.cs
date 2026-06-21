@@ -5,7 +5,6 @@ namespace GymForge.Shared.Enums
         Active = 1,
         Inactive = 2,
         Freeze = 3,
-        Expired = 4,
-        Pending = 5
+        Expired = 4
     }
 }

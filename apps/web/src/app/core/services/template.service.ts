@@ -47,4 +47,8 @@ export class TemplateService extends BaseApiService {
       tap(() => this.clearCache())
     );
   }
+
+  testTemplate(id: string): Observable<any> {
+    return this.post(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}/test`, {});
+  }
 }

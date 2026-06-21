@@ -45,13 +45,13 @@ namespace GymForge.Application.BackgroundJobs
 
             foreach (GymListResponseDto gym in gyms)
             {
-                await ProcessGymAutomationsAsync(gym.Id);
+                await ProcessGymAutomationsAsync(gym.Id, gym.GymName);
             }
 
             _logger.LogInformation("AutomatedNotificationJob completed.");
         }
 
-        private async Task ProcessGymAutomationsAsync(Guid gymId)
+        private async Task ProcessGymAutomationsAsync(Guid gymId, string gymName)
         {
             // 1. Fetch templates for this gym
             List<AnnouncementTemplate> templates = await _templateRepository.GetByGymIdAsync(gymId);
@@ -80,26 +80,26 @@ namespace GymForge.Application.BackgroundJobs
                     sub.IsActive = false;
                     await _memberRepository.UpdateAsync(sub.Member);
 
-                    await SendNotificationAsync(gymId, sub, expiredTemplate);
-                    await SendEmailAsync(gymId, sub, expiredTemplate);
+                    await SendNotificationAsync(gymId, gymName, sub, expiredTemplate);
+                    await SendEmailAsync(gymId, gymName, sub, expiredTemplate);
                 }
                 
                 // EXPIRING SOON
                 if (expiringSoonTemplate != null && endDate == today.AddDays(3))
                 {
-                    await SendNotificationAsync(gymId, sub, expiringSoonTemplate);
+                    await SendNotificationAsync(gymId, gymName, sub, expiringSoonTemplate);
                 }
             }
 
             await _unitOfWork.SaveChangesAsync();
         }
 
-        private async Task SendNotificationAsync(Guid gymId, MemberSubscription sub, AnnouncementTemplate template)
+        private async Task SendNotificationAsync(Guid gymId, string gymName, MemberSubscription sub, AnnouncementTemplate template)
         {
             if (sub.Member == null || sub.Member.UserId == null) return;
 
-            string title = ReplaceVariables(template.TitleTemplate, sub, gymId);
-            string message = ReplaceVariables(template.MessageTemplate, sub, gymId);
+            string title = ReplaceVariables(template.TitleTemplate, gymName, sub, gymId);
+            string message = ReplaceVariables(template.MessageTemplate, gymName, sub, gymId);
 
             UserNotification notification = new()
             {
@@ -115,12 +115,12 @@ namespace GymForge.Application.BackgroundJobs
             _logger.LogInformation($"Created notification for User {sub.Member.UserId} (Template: {template.Type}).");
         }
 
-        private async Task SendEmailAsync(Guid gymId, MemberSubscription sub, AnnouncementTemplate template)
+        private async Task SendEmailAsync(Guid gymId, string gymName, MemberSubscription sub, AnnouncementTemplate template)
         {
             if (sub.Member == null || sub.Member.User == null || string.IsNullOrEmpty(sub.Member.User.Email)) return;
 
-            string subject = ReplaceVariables(template.TitleTemplate, sub, gymId);
-            string body = ReplaceVariables(template.MessageTemplate, sub, gymId);
+            string subject = ReplaceVariables(template.TitleTemplate, gymName, sub, gymId);
+            string body = ReplaceVariables(template.MessageTemplate, gymName, sub, gymId);
 
             try
             {
@@ -136,19 +136,14 @@ namespace GymForge.Application.BackgroundJobs
             }
         }
 
-        private static string ReplaceVariables(string text, MemberSubscription sub, Guid gymId)
+        private static string ReplaceVariables(string text, string gymName, MemberSubscription sub, Guid gymId)
         {
             if (string.IsNullOrEmpty(text)) return text;
 
-            var userName = sub.Member != null ? sub.Member.FirstName + " " + sub.Member.LastName : "Member";
-            
-            // Note: Since we don't have Gym loaded efficiently in this job, we use a placeholder or 
-            // if we really needed it, we would query the gym name. For now, since the gymName is 
-            // often known, we could just fall back. Let's just say "Our Gym".
-            var gymName = "Our Gym"; 
-            
-            var planName = sub.GymPlan?.Name ?? "Membership Plan";
-            var expiryDate = sub.EndDate.ToString("MMM dd, yyyy");
+            string userName = sub.Member != null ? sub.Member.FirstName + " " + sub.Member.LastName : "Member";
+                       
+            string planName = sub.GymPlan?.Name ?? "Membership Plan";
+            string expiryDate = sub.EndDate.ToString("MMM dd, yyyy");
 
             return text
                 .Replace("{{UserName}}", userName)

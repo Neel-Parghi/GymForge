@@ -32,7 +32,8 @@
           <div class="form-row">
             <div class="form-group flex-2">
               <label><i class="fa-solid fa-tag"></i> Weekly Schedule Name <span class="required">*</span></label>
-              <input type="text" formControlName="name" class="form-input" placeholder="e.g. Pt Member 12-Week Routine" maxlength="50">
+              <input type="text" formControlName="name" class="form-input" placeholder="e.g. Pt Member 12-Week Routine"
+                maxlength="50">
               <span class="error-msg"
                 *ngIf="createWeeklyForm.get('name')?.touched && createWeeklyForm.get('name')?.invalid">Weekly schedule
                 name is required (3-50 chars).</span>
@@ -52,7 +53,8 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted" style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted"
+                style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
             <textarea formControlName="description" class="form-input textarea-short" maxlength="200"
               placeholder="Explain the focus of this weekly schedule..."></textarea>
             <span class="error-msg"

@@ -1,10 +1,7 @@
-using GymForge.Contracts.Users;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using GymForge.Contracts.Common;
+using GymForge.Contracts.Users;
 using GymForge.Shared.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace GymForge.Application.Modules.Users.Interface
 {
@@ -35,5 +32,9 @@ namespace GymForge.Application.Modules.Users.Interface
         Task<IEnumerable<DeletionRequestDto>> GetPendingDeletionRequestsAsync();
 
         Task<PagedResponse<StandaloneUserDto>> GetStandaloneUsersAsync(PaginationParams pagination);
+
+        Task SaveOnboardingStepAsync(Guid userId, int step);
+
+        Task CompleteUserOnboardingAsync(Guid userId, CompleteUserOnboardingDto dto);
     }
 }

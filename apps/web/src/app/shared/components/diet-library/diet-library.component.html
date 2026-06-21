@@ -30,7 +30,8 @@
             <button class="btn-edit" *ngIf="canEdit(diet)" (click)="openEditModal(diet)" title="Edit Template">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <button class="btn-edit" *ngIf="!canEdit(diet)" (click)="openEditModal(diet)" title="Inherit & Edit Template">
+            <button class="btn-edit" *ngIf="!canEdit(diet)" (click)="openEditModal(diet)"
+              title="Inherit & Edit Template">
               <i class="fa-solid fa-copy"></i>
             </button>
             <button class="btn-delete" *ngIf="canEdit(diet)" (click)="deleteTemplate(diet.id, $event)"
@@ -191,14 +192,8 @@
   </app-diet-template-creator>
 
   <!-- CONFIRMATION POPUP -->
-  <app-confirmation-popup
-    *ngIf="showDeleteConfirm"
-    title="Delete Diet Template"
-    message="Are you sure you want to delete this diet template? This action cannot be undone."
-    confirmText="Delete"
-    cancelText="Cancel"
-    type="danger"
-    (confirm)="confirmDelete()"
-    (cancel)="closeDeleteConfirm()">
+  <app-confirmation-popup *ngIf="showDeleteConfirm" title="Delete Diet Template"
+    message="Are you sure you want to delete this diet template? This action cannot be undone." confirmText="Delete"
+    cancelText="Cancel" type="danger" (confirm)="confirmDelete()" (cancel)="closeDeleteConfirm()">
   </app-confirmation-popup>
 </div>

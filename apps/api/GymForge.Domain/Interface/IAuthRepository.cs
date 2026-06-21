@@ -11,22 +11,10 @@ namespace GymForge.Domain.Interface
 
         Task<User?> GetByTokenAsync(string token);
         
-        Task<User?> GetUserByIdAsync(Guid userId);
-        
         Task<User?> GetByRefreshTokenAsync(string refreshToken);
         
         Task<User?> GetByUserByEmailAsync(string email);
         
         Task<User?> Login(LoginRequestDto user);
-        
-        Task<Guid?> GetBranchIdByUserIdAsync(Guid userId);
-        
-        Task LinkUserToGymMembersAsync(User user);
-        
-        Task DeleteUserAsync(User user);
-        
-        Task<IEnumerable<User>> GetPendingDeletionRequestsAsync();
-        
-        Task<(IEnumerable<User> Items, int TotalCount)> GetStandaloneUsersAsync(int pageNumber, int pageSize, string? searchTerm);
     }
 }

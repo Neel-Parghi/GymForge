@@ -54,14 +54,20 @@ namespace GymForge.Application.Modules.Gym.Services
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     Email = request.Email,
-                    Phone = request.PhoneNumber,
                     Role = MapToUserRole(request.Role),
-                    InvitationToken = token,
-                    InvitationExpiry = DateTime.UtcNow.AddDays(7),
-                    IsInvitationAccepted = false,
                     IsActive = true,
+                    Security = new UserSecurity
+                    {
+                        InvitationToken = token,
+                        InvitationExpiry = DateTime.UtcNow.AddDays(7),
+                        IsInvitationAccepted = false
+                    },
                     GymId = gymId,
-                    CreatedOn = DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
+                    Profile = new UserProfile
+                    {
+                        Phone = request.PhoneNumber ?? string.Empty
+                    }
                 };
                 await _authRepository.AddUserAsync(user);
 

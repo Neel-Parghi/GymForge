@@ -27,6 +27,8 @@ namespace GymForge.Application.Modules.Auth.Service
                 new Claim("email", user.Email),
                 new Claim("role", user.Role.ToString()),
                 new Claim("gymId", user.GymId?.ToString() ?? string.Empty),
+                new Claim("isOnboarded", (user.Profile?.IsOnboarded ?? false).ToString()),
+                new Claim("currentOnboardingStep", (user.Profile?.CurrentOnboardingStep ?? 0).ToString()),
             };
 
             if (branchId.HasValue)
