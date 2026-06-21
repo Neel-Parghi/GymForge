@@ -38,25 +38,67 @@ export class UserDashboardComponent implements OnInit {
   greeting = 'Good morning';
   greetingTheme = 'theme-morning';
 
-  // Data
-  todayWorkoutName: string | null = null;
-  workoutStreak = 0;
-  caloriesBurnedToday = 0;
-  targetCalories = 2500;
-  activeTrainingTimeMinutes = 0;
-  isEditingCalories = false;
-  activePlanName = 'No plan assigned';
-  weeklyWorkoutsCount = 0;
+  // Data for Trainer UI Replica
+  todayDate: Date = new Date();
+  workoutStreak = 12;
 
-  // Gym info
+  // Row 1: Activity & Goals
+  caloriesBurnedToday = 1850;
+  targetCalories = 2800;
+  activeTrainingTimeMinutes = 45;
+  targetTrainingTime = 60;
+  goalTitle = 'Hypertrophy Phase 1';
+  goalProgressPct = 65;
+
+  monthlySessionCount = 18;
+  monthlySessionTarget = 20;
+  monthlyCompletionPct = 90;
+  activeDaysPerWeek = 5;
+  completionFeedback = 'You are crushing it this month!';
+  daysLeftLabel = '9 Days Left in Month';
+
+  // Row 2: Body & Trends
+  currentWeight = '175.4';
+  bodyFat = '14.2';
+  bmi = '23.8';
+  weightChartPoints = '0,80 20,78 40,60 60,65 80,40 100,20'; // Mock polyline points for weight trend
+
+  // Row 3: Training & PRs
+  activeWorkoutPlan: any = { name: 'Hypertrophy Phase 1' };
+  activeDietPlan: any = { name: 'Lean Bulk Protocol' };
+
+  personalRecords = [
+    { name: 'Bench Press', weight: '225 lbs', date: 'Oct 12' },
+    { name: 'Squat', weight: '315 lbs', date: 'Nov 02' },
+    { name: 'Deadlift', weight: '405 lbs', date: 'Dec 15' }
+  ];
+
+  muscleRecovery = [
+    { name: 'Chest', pct: 100, status: 'Fresh' },
+    { name: 'Back', pct: 85, status: 'Recovered' },
+    { name: 'Legs', pct: 40, status: 'Fatigued' }
+  ];
+
+  // Original properties needed for compilation
   myGymInfo: any = null;
   announcements: any[] = [];
-
-  // Routine
-  dailyRoutines: DailyRoutineItem[] = [];
+  activePlanName = 'No plan assigned';
+  todayWorkoutName: string | null = null;
+  weeklyWorkoutsCount = 0;
+  isEditingCalories = false;
+  dailyRoutines: any[] = [];
   newRoutineTitle = '';
   newRoutineValue = '';
   isAddingRoutine = false;
+
+  // Ring Calculations (Apple Fitness Style)
+  readonly ringCircumference = 314.159; // 2 * PI * 50
+  calorieDashoffset = this.ringCircumference;
+  activeTimeDashoffset = this.ringCircumference;
+  streakDashoffset = this.ringCircumference;
+
+  // Diet Targets
+  dietTargets = { protein: 200, carbs: 250, fats: 80 };
 
   private routineStorageKey = 'gymforge_daily_routine';
   private routineDateKey = 'gymforge_daily_routine_date';
@@ -76,6 +118,23 @@ export class UserDashboardComponent implements OnInit {
     this.setGreeting();
     this.loadRoutine();
     this.loadCalorieTarget();
+
+    // Animate rings on load
+    setTimeout(() => this.calculateRings(), 300);
+  }
+
+  private calculateRings() {
+    // Calorie Ring (Target 2500 for mock)
+    const calPct = Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100) || 5;
+    this.calorieDashoffset = this.ringCircumference - (calPct / 100) * this.ringCircumference;
+
+    // Active Time Ring (Target 150 mins for mock)
+    const timePct = Math.min((this.activeTrainingTimeMinutes / 150) * 100, 100) || 10;
+    this.activeTimeDashoffset = this.ringCircumference - (timePct / 100) * this.ringCircumference;
+
+    // Streak Ring (Target 7 days for mock)
+    const streakPct = Math.min((this.workoutStreak / 7) * 100, 100) || 15;
+    this.streakDashoffset = this.ringCircumference - (streakPct / 100) * this.ringCircumference;
   }
 
   private checkProfileCompletion(profile: any) {
