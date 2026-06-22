@@ -1,0 +1,35 @@
+<svg width="600" height="160" viewBox="0 0 600 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Vibrant Blue Gradient (Modern Tech/Fitness) -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" /> <!-- Blue 600 -->
+      <stop offset="100%" stop-color="#0284C7" /> <!-- Sky 600 -->
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Modern Abstract Hexagon Shield / Monogram -->
+  <g transform="translate(20, 20)" filter="url(#subtleShadow)">
+    <!-- Hexagon Outer Ring -->
+    <path d="M60 0 L110 30 L110 90 L60 120 L10 90 L10 30 Z" stroke="url(#primaryGrad)" stroke-width="12" stroke-linejoin="round" fill="none" />
+    
+    <!-- Abstract 'G' inside -->
+    <path d="M60 35 L40 48 L40 72 L60 85 L75 75 L75 60 L55 60" stroke="#0F172A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    
+    <!-- Dynamic Slash (Forward motion/strength) -->
+    <path d="M20 100 L100 20" stroke="url(#primaryGrad)" stroke-width="8" stroke-linecap="round" />
+  </g>
+
+  <!-- Clean, bold typographic logo -->
+  <text x="150" y="102" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="900" font-size="82" letter-spacing="-0.03em">
+    <tspan fill="#0F172A">GYM</tspan><tspan fill="url(#primaryGrad)">FORGE</tspan>
+  </text>
+  
+  <text x="155" y="132" font-family="'Inter', system-ui, sans-serif" font-weight="700" font-size="15" letter-spacing="0.4em" fill="#475569">
+    THE NEXT GEN FITNESS OS
+  </text>
+</svg>

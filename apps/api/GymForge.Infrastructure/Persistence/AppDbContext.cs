@@ -18,6 +18,10 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<UserProfile> UserProfiles { get; set; }
         
         public DbSet<UserPreference> UserPreferences { get; set; }
+        
+        public DbSet<DailyRoutine> DailyRoutines { get; set; }
+        
+        public DbSet<DailyRoutineCompletion> DailyRoutineCompletions { get; set; }
 
         public DbSet<UserSecurity> UserSecurities { get; set; }
 
@@ -487,6 +491,32 @@ namespace GymForge.Infrastructure.Persistence
                       .WithMany()
                       .HasForeignKey(mda => mda.DietPlanId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // DailyRoutine configuration
+            modelBuilder.Entity<DailyRoutine>(entity =>
+            {
+                entity.HasIndex(x => x.UserId);
+                entity.HasOne(dr => dr.User)
+                      .WithMany()
+                      .HasForeignKey(dr => dr.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // DailyRoutineCompletion configuration
+            modelBuilder.Entity<DailyRoutineCompletion>(entity =>
+            {
+                entity.HasIndex(x => new { x.UserId, x.Date }).IsUnique();
+                entity.HasOne(drc => drc.User)
+                      .WithMany()
+                      .HasForeignKey(drc => drc.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(x => x.CompletedRoutineIds)
+                      .HasConversion(
+                          v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions)null),
+                          v => System.Text.Json.JsonSerializer.Deserialize<List<Guid>>(v, (System.Text.Json.JsonSerializerOptions)null) ?? new List<Guid>()
+                      );
             });
         }
     }

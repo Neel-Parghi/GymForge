@@ -56,7 +56,7 @@ export const SuperAdminMenu: NavItem[] = [
         isHeading: true
     },
     {
-        label: 'My Profile',
+        label: 'My Account',
         icon: 'fa-solid fa-user-circle',
         route: '/super-admin/profile',
         roles: ['SuperAdmin']

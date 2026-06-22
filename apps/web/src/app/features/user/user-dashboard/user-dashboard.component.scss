@@ -128,18 +128,31 @@
 
 .input-flex {
   flex: 1;
+  min-width: 0;
 }
 
 .input-small {
-  width: 80px;
+  width: 70px;
+  min-width: 0;
 }
 
-.btn-primary.small {
-  padding: 6px 12px;
+.btn-icon-primary {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
   border-radius: 8px;
   border: none;
   background: var(--accent-color);
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
 }
 
 .empty-state-text {
@@ -540,6 +553,21 @@
       gap: 10px;
       /* Reduced gap */
 
+      .drag-handle {
+        color: var(--slate-400);
+        cursor: grab;
+        padding: 4px;
+        transition: color 0.2s;
+
+        &:hover {
+          color: var(--accent-color);
+        }
+
+        &:active {
+          cursor: grabbing;
+        }
+      }
+
       .r-checkbox {
         width: 18px;
         /* Reduced */
@@ -589,6 +617,28 @@
       }
     }
   }
+
+  /* CDK Drag & Drop Styles */
+  .cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    background: #ffffff;
+    border: 1px solid var(--accent-color);
+    opacity: 0.9;
+  }
+
+  .cdk-drag-placeholder {
+    opacity: 0;
+  }
+
+  .cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .routine-list.cdk-drop-list-dragging .r-item:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
 }
 
 .routine-input-group {
@@ -610,7 +660,25 @@
     &:focus {
       border-color: var(--accent-color);
     }
+
+    &.invalid {
+      border-color: var(--error-color);
+      background: rgba(var(--error-rgb), 0.02);
+    }
   }
+}
+
+.routine-input-group-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.validation-error {
+  font-size: 0.7rem;
+  color: var(--error-color);
+  margin-top: 4px;
+  padding-left: 4px;
 }
 
 /* Enriched Active Plans CSS */

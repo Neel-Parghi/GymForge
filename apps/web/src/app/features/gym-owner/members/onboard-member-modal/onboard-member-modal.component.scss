@@ -357,6 +357,7 @@
       font-weight: 500;
       cursor: pointer;
       transition: background 0.2s;
+      justify-content: flex-start;
 
       &:hover {
         background: var(--bg-color);

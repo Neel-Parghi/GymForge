@@ -3,22 +3,96 @@
   <div class="settings-header">
     <div class="header-content">
       <h1>Account Settings</h1>
-      <p>Configure your notification preferences, appearance, and account security.</p>
+      <p>Configure your fitness goals and notification preferences.</p>
     </div>
-    <button class="save-btn" (click)="saveChanges()">
-      <i class="fas fa-save"></i>
-      Save Changes
+    <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving || isLoading">
+      <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+      {{ isSaving ? 'Saving...' : 'Save Changes' }}
     </button>
   </div>
 
   <div class="scroll-area">
-    <div class="tab-content">
+    <div class="tab-content" *ngIf="!isLoading">
 
+      <!-- Fitness Goals Section -->
+      <div class="settings-pane">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h3>Fitness Goals</h3>
+            <p>Set your target macros, weight, and general fitness objectives.</p>
+          </div>
+        </div>
+
+        <div class="pane-body">
+          <form [formGroup]="fitnessForm" class="gf-form">
+            
+            <div class="form-row two-cols">
+              <div class="form-group">
+                <label>Primary Goal</label>
+                <select formControlName="primaryGoal" class="gf-input">
+                  <option value="">Select a Goal...</option>
+                  <option value="Weight Loss">Weight Loss</option>
+                  <option value="Muscle Gain">Muscle Gain</option>
+                  <option value="Endurance">Endurance</option>
+                  <option value="Flexibility">Flexibility</option>
+                  <option value="General Fitness">General Fitness</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Target Weight (kgs)</label>
+                <div class="input-icon-wrapper">
+                  <i class="fa-solid fa-weight-scale"></i>
+                  <input type="number" formControlName="targetWeight" class="gf-input" placeholder="e.g. 70" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row two-cols">
+              <div class="form-group">
+                <label>Daily Calorie Goal (kcal)</label>
+                <div class="input-icon-wrapper">
+                  <i class="fa-solid fa-fire"></i>
+                  <input type="number" formControlName="targetCalories" class="gf-input" placeholder="e.g. 2500" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Target Training Time (mins/day)</label>
+                <div class="input-icon-wrapper">
+                  <i class="fa-solid fa-clock"></i>
+                  <input type="number" formControlName="targetTrainingTime" class="gf-input" placeholder="e.g. 60" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row three-cols">
+              <div class="form-group">
+                <label>Target Protein (g)</label>
+                <input type="number" formControlName="targetProtein" class="gf-input" placeholder="e.g. 150" />
+              </div>
+
+              <div class="form-group">
+                <label>Target Carbs (g)</label>
+                <input type="number" formControlName="targetCarbs" class="gf-input" placeholder="e.g. 250" />
+              </div>
+
+              <div class="form-group">
+                <label>Target Fats (g)</label>
+                <input type="number" formControlName="targetFats" class="gf-input" placeholder="e.g. 70" />
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Notifications Section -->
       <div class="settings-pane">
         <div class="pane-header">
           <div class="pane-title-group">
             <h3>Notifications & Preferences</h3>
-            <p>Control what alerts you receive and customize your app appearance.</p>
+            <p>Control what alerts you receive.</p>
           </div>
         </div>
 
@@ -31,7 +105,7 @@
                   <p>Receive daily summaries and updates via email.</p>
                 </div>
                 <label class="switch-premium">
-                  <input type="checkbox" [(ngModel)]="preferences.emailNotifications">
+                  <input type="checkbox" [(ngModel)]="notificationPreferences.emailNotifications">
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -42,7 +116,7 @@
                   <p>Get instant alerts on your device for important events.</p>
                 </div>
                 <label class="switch-premium">
-                  <input type="checkbox" [(ngModel)]="preferences.pushNotifications">
+                  <input type="checkbox" [(ngModel)]="notificationPreferences.pushNotifications">
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -53,7 +127,7 @@
                   <p>We'll notify you 1 hour before scheduled workouts.</p>
                 </div>
                 <label class="switch-premium">
-                  <input type="checkbox" [(ngModel)]="preferences.workoutReminders">
+                  <input type="checkbox" [(ngModel)]="notificationPreferences.workoutReminders">
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -62,6 +136,11 @@
         </div>
       </div>
 
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <p>Loading settings...</p>
     </div>
   </div>
 </div>

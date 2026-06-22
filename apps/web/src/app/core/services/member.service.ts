@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { AuthApiService } from './auth-api.service';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable, shareReplay, tap } from 'rxjs';
+import { Observable, shareReplay, tap, catchError, of } from 'rxjs';
 import { GymMember, MemberSubscription, OnboardMemberRequest, RenewSubscriptionRequest } from '../../shared/models/member.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
@@ -152,6 +152,7 @@ export class MemberService extends BaseApiService {
   getActivePlan(memberId: string, forceRefresh = false): Observable<ApiResponse<any>> {
     if (forceRefresh || !this.activePlanCache.has(memberId)) {
       const request$ = this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_PLAN.replace('{memberId}', memberId)).pipe(
+        catchError(() => of({ success: true, data: null, message: 'No active plan' } as ApiResponse<any>)),
         shareReplay(1)
       );
       this.activePlanCache.set(memberId, request$);
@@ -210,6 +211,7 @@ export class MemberService extends BaseApiService {
   getActiveDiet(memberId: string, forceRefresh = false): Observable<ApiResponse<any>> {
     if (forceRefresh || !this.activeDietCache.has(memberId)) {
       const request$ = this.get<ApiResponse<any>>(API_CONSTANTS.MEMBERS.ACTIVE_DIET.replace('{memberId}', memberId)).pipe(
+        catchError(() => of({ success: true, data: null, message: 'No active diet' } as ApiResponse<any>)),
         shareReplay(1)
       );
       this.activeDietCache.set(memberId, request$);

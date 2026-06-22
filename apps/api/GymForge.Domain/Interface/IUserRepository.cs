@@ -1,4 +1,5 @@
 using GymForge.Domain.Entities;
+using GymForge.Contracts.Users;
 
 namespace GymForge.Domain.Interface
 {
@@ -17,5 +18,21 @@ namespace GymForge.Domain.Interface
         Task<(IEnumerable<User> Items, int TotalCount)> GetStandaloneUsersAsync(int pageNumber, int pageSize, string? searchTerm);
         
         Task UpdateUserAsync(User user);
+        
+        Task<UserDashboardSummaryDto> GetUserDashboardSummaryAsync(Guid userId);
+        
+        Task<IEnumerable<DailyRoutine>> GetDailyRoutinesAsync(Guid userId);
+        
+        Task<DailyRoutine?> GetDailyRoutineByIdAsync(Guid id);
+        
+        Task AddDailyRoutineAsync(DailyRoutine routine);
+        
+        Task UpdateDailyRoutineAsync(DailyRoutine routine);
+        
+        Task<DailyRoutineCompletion?> GetDailyRoutineCompletionAsync(Guid userId, DateTime date);
+        
+        Task AddDailyRoutineCompletionAsync(DailyRoutineCompletion completion);
+        
+        Task UpdateDailyRoutineCompletionAsync(DailyRoutineCompletion completion);
     }
 }
