@@ -660,7 +660,7 @@
     &:focus {
       border-color: var(--accent-color);
     }
-    
+
     &.invalid {
       border-color: var(--error-color);
       background: rgba(var(--error-rgb), 0.02);
