@@ -50,7 +50,7 @@ export const MenuConfig: NavItem[] = [
         isHeading: true
     },
     {
-        label: 'My Profile',
+        label: 'My Account',
         icon: 'fa-solid fa-user-circle',
         route: '/super-admin/profile',
         roles: ['SuperAdmin']
@@ -105,7 +105,7 @@ export const MenuConfig: NavItem[] = [
         isHeading: true
     },
     {
-        label: 'My Profile',
+        label: 'My Account',
         icon: 'fa-solid fa-user-circle',
         route: '/gym-owner/profile',
         roles: ['GymOwner']

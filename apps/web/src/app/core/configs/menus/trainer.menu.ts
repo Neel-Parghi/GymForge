@@ -39,7 +39,7 @@ export const TrainerMenu: NavItem[] = [
         isHeading: true
     },
     {
-        label: 'My Profile',
+        label: 'My Account',
         icon: 'fa-solid fa-user-circle',
         route: '/trainer/profile',
         roles: ['Trainer']

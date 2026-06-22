@@ -80,7 +80,7 @@ export const GymOwnerMenu: NavItem[] = [
         isHeading: true
     },
     {
-        label: 'My Profile',
+        label: 'My Account',
         icon: 'fa-solid fa-user-circle',
         route: '/gym-owner/profile',
         roles: ['GymOwner', 'Staff']

@@ -1,10 +1,7 @@
-namespace GymForge.Domain.Entities
+namespace GymForge.Contracts.Users
 {
-    public class UserPreference : BaseEntity
+    public class UpdateUserPreferenceDto
     {
-        public Guid UserId { get; set; }
-        public User User { get; set; } = null!;
-
         public string? PrimaryGoal { get; set; }
         public double? TargetWeight { get; set; }
         public int? TargetCalories { get; set; }
@@ -12,5 +9,9 @@ namespace GymForge.Domain.Entities
         public int? TargetCarbs { get; set; }
         public int? TargetFats { get; set; }
         public int? TargetTrainingTime { get; set; }
+    }
+
+    public class UserPreferenceDto : UpdateUserPreferenceDto
+    {
     }
 }

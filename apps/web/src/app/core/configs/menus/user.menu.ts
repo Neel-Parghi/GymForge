@@ -56,7 +56,7 @@ export const UserMenu: NavItem[] = [
         icon: ''
     },
     {
-        label: 'My Profile',
+        label: 'My Account',
         icon: 'fa-solid fa-user-circle',
         route: '/user/profile',
         roles: ['User']

@@ -8,11 +8,11 @@
         <span class="toggle-label">Sign up as :</span>
         <div class="toggle-track" (click)="setRole(selectedRole === 'GymOwner' ? 'User' : 'GymOwner')">
           <div class="toggle-thumb" [class.is-user]="selectedRole === 'User'"></div>
-          
+
           <div class="toggle-option" [class.active]="selectedRole === 'GymOwner'">
             <span>Gym Owner</span>
           </div>
-          
+
           <div class="toggle-option" [class.active]="selectedRole === 'User'">
             <span>User</span>
           </div>
@@ -82,16 +82,9 @@
               <label>Verification Code</label>
               <p class="otp-instruction">We've sent a 6-digit code to <strong>{{registeredEmail}}</strong>.</p>
               <div class="otp-container" (paste)="onOtpPaste($event)">
-                <input *ngFor="let item of otpArray; let i = index; trackBy: trackByIndex" 
-                       type="text" 
-                       maxlength="1" 
-                       [id]="'otp-' + i" 
-                       [(ngModel)]="otpArray[i]" 
-                       name="otp-{{i}}"
-                       class="otp-box" 
-                       (keyup)="onOtpKeyup($event, i)" 
-                       (keydown)="onOtpKeydown($event, i)" 
-                       required />
+                <input *ngFor="let item of otpArray; let i = index; trackBy: trackByIndex" type="text" maxlength="1"
+                  [id]="'otp-' + i" [(ngModel)]="otpArray[i]" name="otp-{{i}}" class="otp-box"
+                  (keyup)="onOtpKeyup($event, i)" (keydown)="onOtpKeydown($event, i)" required />
               </div>
             </div>
 
@@ -101,7 +94,8 @@
             </button>
 
             <div class="resend-action">
-              <button type="button" class="resend-btn" (click)="resendOtp()" [disabled]="resendCooldown > 0 || isLoading">
+              <button type="button" class="resend-btn" (click)="resendOtp()"
+                [disabled]="resendCooldown > 0 || isLoading">
                 {{ resendCooldown > 0 ? 'Resend code in ' + resendCooldown + 's' : 'Resend Code' }}
               </button>
             </div>

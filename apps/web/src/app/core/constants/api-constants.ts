@@ -23,13 +23,16 @@ export const API_CONSTANTS = {
     SET_PASSWORD: 'users/set-password',
     CHANGE_PASSWORD: 'users/change-password',
     VALIDATE_INVITATION: 'users/validate-invitation',
+    PREFERENCES: 'users/preferences',
     UPLOAD_AVATAR: 'users/profile/upload-avatar',
     MY_SUBSCRIPTIONS: 'users/my-subscriptions',
     MY_GYM: 'users/my-gym',
     STANDALONE: 'users/standalone',
     SAVE_ONBOARDING_STEP: 'users/save-onboarding-step',
     COMPLETE_ONBOARDING: 'users/complete-user-onboarding',
-    ACCOUNT_DELETION_SCHEDULE: 'users/accountdeletionschedule'
+    ACCOUNT_DELETION_SCHEDULE: 'users/accountdeletionschedule',
+    DASHBOARD: 'users/dashboard',
+    ROUTINES: 'users/routines'
   },
   GYM: {
     ONBOARD: 'my-gym/onboard',

@@ -393,7 +393,8 @@
                 <h2>Complete Your Subscription</h2>
                 <p class="subtitle">You have selected the <strong>{{ getSelectedPlanName() }}</strong> plan for
                   <strong>₹{{
-                    getSelectedPlanPrice() }}/mo</strong>.</p>
+                    getSelectedPlanPrice() }}/mo</strong>.
+                </p>
 
                 <div class="payment-box">
                   <div class="payment-icon"><i class="fi fi-brands-razorpay"></i></div>
@@ -418,8 +419,10 @@
         <div class="wizard-footer-static">
           <div class="wizard-footer-inner">
             <div class="footer-left">
-              <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
-              <button *ngIf="currentStep === 1" type="button" class="btn btn-text text-danger" (click)="logout()" style="color: #dc2626; background: transparent; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()"
+                [disabled]="isSubmitting">Back</button>
+              <button *ngIf="currentStep === 1" type="button" class="btn btn-text text-danger" (click)="logout()"
+                style="color: #dc2626; background: transparent; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                 <i class="fi fi-rr-sign-out-alt"></i> Back to Login
               </button>
             </div>

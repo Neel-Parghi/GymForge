@@ -96,26 +96,25 @@
 
     .brand-container {
       display: flex;
-      align-items: center;
-      // gap: 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
       cursor: pointer;
 
       .brand-logo {
-        width: 90px;
-        height: 75px;
-        background-color: var(--text-main);
-        color: #ffffff;
-        // border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 0.9rem;
+        width: auto;
+        height: 32px;
+        background: transparent;
+        display: block;
+        margin: 0;
+        padding: 0;
       }
 
       .brand-text {
         display: flex;
         flex-direction: column;
+        padding-left: 8px;
 
         .brand-name {
           font-weight: 700;
@@ -125,9 +124,11 @@
         }
 
         .brand-subtext {
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           color: var(--text-muted);
-          font-weight: 500;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
       }
     }

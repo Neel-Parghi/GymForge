@@ -86,7 +86,7 @@
               </svg>
               <div class="ring-label-content">
                 <span class="ring-val-big">{{ currentWeight }}</span>
-                <span class="ring-val-sub">LBS</span>
+                <span class="ring-val-sub">KG</span>
               </div>
             </div>
             <div class="ring-meta-text">
@@ -142,10 +142,10 @@
               <div class="ov-plan-icon workout"><i class="fa-solid fa-dumbbell"></i></div>
               <div class="ov-plan-head-text">
                 <p class="ov-plan-type">Active Workout Plan</p>
-                <h4 class="ov-plan-name">{{ activeWorkoutPlan?.name || 'Hypertrophy Phase 1' }}</h4>
+                <h4 class="ov-plan-name">{{ activeWorkoutPlan?.name || 'No Plan Assigned' }}</h4>
               </div>
             </div>
-            <div class="ov-plan-body" style="margin-top:16px;">
+            <div class="ov-plan-body" style="margin-top:16px;" *ngIf="activePlanName !== 'No Plan Assigned'">
               <div class="ov-plan-metric">
                 <span class="metric-lbl">Target frequency</span>
                 <span class="metric-val">{{ activeDaysPerWeek }} days/week</span>
@@ -156,7 +156,7 @@
               </div>
             </div>
           </div>
-          <button class="plan-action-btn">Start Today's Workout</button>
+          <button class="plan-action-btn" *ngIf="activePlanName !== 'No Plan Assigned'">Start Today's Workout</button>
         </div>
 
         <!-- Diet Plan Summary -->
@@ -166,10 +166,10 @@
               <div class="ov-plan-icon diet"><i class="fa-solid fa-apple-whole"></i></div>
               <div class="ov-plan-head-text">
                 <p class="ov-plan-type">Active Diet Plan</p>
-                <h4 class="ov-plan-name">{{ activeDietPlan?.name || 'Lean Bulk Protocol' }}</h4>
+                <h4 class="ov-plan-name">{{ activeDietPlan?.name || 'No Plan Assigned' }}</h4>
               </div>
             </div>
-            <div class="ov-plan-body">
+            <div class="ov-plan-body" *ngIf="activeDietPlan?.name !== 'No Plan Assigned'">
               <div class="ov-plan-metric">
                 <span class="metric-lbl">Protein Target</span>
                 <span class="metric-val">180g <span class="macro-logged blue">160g logged</span></span>
@@ -186,7 +186,8 @@
               </div>
             </div>
           </div>
-          <button class="plan-action-btn btn-log-meal">Log Meal</button>
+          <button class="plan-action-btn btn-log-meal" *ngIf="activeDietPlan?.name !== 'No Plan Assigned'">Log
+            Meal</button>
         </div>
 
       </div>
@@ -198,28 +199,43 @@
       <!-- Daily Routines Tracker (Stops at Row 3) -->
       <div class="ov-routines-card glass-card sidebar-card flex-1">
         <div class="routine-header">
-          <h3 class="ov-stats-title"><i class="fa-solid fa-list-check"></i> Daily Protocol</h3>
+          <h3 class="ov-stats-title"><i class="fa-solid fa-list-check"></i> Daily Routines </h3>
           <button class="btn-icon-text" (click)="isAddingRoutine = !isAddingRoutine">
-            <i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i> Add
+            <i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i> {{ isAddingRoutine ? 'Close' : 'Add' }}
           </button>
         </div>
 
-        <div class="routine-input-group" *ngIf="isAddingRoutine">
-          <input type="text" [(ngModel)]="newRoutineTitle" placeholder="Habit..." class="input-flex"
-            (keyup.enter)="addRoutine()">
-          <input type="text" [(ngModel)]="newRoutineValue" placeholder="Time/Amt" class="input-small"
-            (keyup.enter)="addRoutine()">
-          <button class="btn-primary small" (click)="addRoutine()">Save</button>
-        </div>
+        <form [formGroup]="routineForm" (ngSubmit)="addRoutine()" class="routine-input-group-container" *ngIf="isAddingRoutine">
+          <div class="routine-input-group">
+            <input type="text" formControlName="title" placeholder="Habit..." class="input-flex"
+              [class.invalid]="routineForm.get('title')?.invalid && routineForm.get('title')?.touched">
+            
+            <input type="text" formControlName="amount" placeholder="Time/Amt" class="input-small"
+              [class.invalid]="routineForm.get('amount')?.invalid && routineForm.get('amount')?.touched">
+            
+            <button type="submit" class="btn-icon-primary" title="Save Routine">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div class="validation-error" *ngIf="routineForm.get('amount')?.errors?.['maxLengthExceeded'] && routineForm.get('amount')?.touched">
+            Amount cannot exceed 20 characters.
+          </div>
+          <div class="validation-error" *ngIf="routineForm.get('amount')?.errors?.['maxDigitsExceeded'] && routineForm.get('amount')?.touched">
+            Number cannot exceed 5 digits.
+          </div>
+        </form>
 
-        <div class="routine-list">
+        <div class="routine-list" cdkDropList (cdkDropListDropped)="dropRoutine($event)">
           <div *ngIf="dailyRoutines.length === 0" class="empty-state-text">
             No protocols set for today.
           </div>
 
           <div class="r-item" *ngFor="let quest of dailyRoutines" [class.completed]="quest.completed"
-            (click)="toggleRoutine(quest)">
+            cdkDrag (click)="toggleRoutine(quest)">
             <div class="r-info">
+              <div class="drag-handle" cdkDragHandle (click)="$event.stopPropagation()">
+                <i class="fa-solid fa-grip-vertical"></i>
+              </div>
               <div class="r-checkbox"><i class="fa-solid fa-check"></i></div>
               <div class="r-text">
                 <h4>{{ quest.title }}</h4>
@@ -249,6 +265,11 @@
         </div>
       </div>
       <div class="pr-list">
+        <div *ngIf="personalRecords.length === 0" class="empty-state-text"
+          style="color: #9ca3af; text-align: center; padding: 1.5rem 0;">
+          <i class="fa-solid fa-medal mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i><br>
+          No personal records set yet.
+        </div>
         <div class="pr-item" *ngFor="let pr of personalRecords">
           <div class="pr-info">
             <i class="fa-solid fa-medal"></i>
@@ -272,6 +293,11 @@
         </div>
       </div>
       <div class="recovery-list">
+        <div *ngIf="muscleRecovery.length === 0" class="empty-state-text"
+          style="color: #9ca3af; text-align: center; padding: 1.5rem 0;">
+          <i class="fa-solid fa-bed mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i><br>
+          No recent activity to analyze.
+        </div>
         <div class="rec-item" *ngFor="let m of muscleRecovery" [ngClass]="m.status.toLowerCase()">
           <div class="rec-head">
             <span class="rec-name">{{ m.name }}</span>
@@ -295,28 +321,17 @@
       </div>
 
       <div class="heatmap-body">
-        <!-- Abstract Zones -->
-        <div class="zone-item high">
-          <div class="zone-glow"></div>
-          <div class="zone-info">
-            <span class="z-name">Chest & Shoulders</span>
-            <span class="z-level">High Activation</span>
-          </div>
+        <div *ngIf="muscleHeatmap.length === 0" class="empty-state-text"
+          style="color: #9ca3af; text-align: center; padding: 1.5rem 0;">
+          <i class="fa-solid fa-fire-flame-curved mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i><br>
+          No activation data available.
         </div>
 
-        <div class="zone-item medium">
+        <div class="zone-item" *ngFor="let zone of muscleHeatmap" [ngClass]="zone.level.toLowerCase()">
           <div class="zone-glow"></div>
           <div class="zone-info">
-            <span class="z-name">Back & Lats</span>
-            <span class="z-level">Moderate</span>
-          </div>
-        </div>
-
-        <div class="zone-item low">
-          <div class="zone-glow"></div>
-          <div class="zone-info">
-            <span class="z-name">Legs & Core</span>
-            <span class="z-level">Low / Rested</span>
+            <span class="z-name">{{ zone.name }}</span>
+            <span class="z-level">{{ zone.label }}</span>
           </div>
         </div>
       </div>

@@ -25,6 +25,10 @@ namespace GymForge.Application.Modules.Users.Interface
 
         Task UpdateMyProfileAsync(UpdateUserProfileDto dto);
 
+        Task<UserPreferenceDto> GetMyPreferencesAsync();
+        
+        Task UpdateMyPreferencesAsync(UpdateUserPreferenceDto dto);
+        
         Task ChangeMyPasswordAsync(ChangePasswordRequestDto dto);
 
         Task<string> UploadAvatarAsync(IFormFile file);
@@ -36,5 +40,17 @@ namespace GymForge.Application.Modules.Users.Interface
         Task SaveOnboardingStepAsync(Guid userId, int step);
 
         Task CompleteUserOnboardingAsync(Guid userId, CompleteUserOnboardingDto dto);
+
+        Task<UserDashboardSummaryDto> GetUserDashboardSummaryAsync();
+        
+        Task<IEnumerable<DailyRoutineDto>> GetDailyRoutinesAsync();
+        
+        Task<DailyRoutineDto> CreateDailyRoutineAsync(CreateDailyRoutineDto dto);
+        
+        Task UpdateDailyRoutineAsync(Guid id, UpdateDailyRoutineDto dto);
+        
+        Task DeleteDailyRoutineAsync(Guid id);
+        
+        Task ToggleDailyRoutineAsync(Guid id);
     }
 }

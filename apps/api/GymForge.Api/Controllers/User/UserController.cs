@@ -78,6 +78,22 @@ namespace GymForge.Api.Controllers.User
             return Ok(new { Message = "Password changed successfully" });
         }
 
+        [HttpGet("preferences")]
+        [Authorize]
+        public async Task<IActionResult> GetPreferences()
+        {
+            var preferences = await _userService.GetMyPreferencesAsync();
+            return Ok(preferences);
+        }
+
+        [HttpPut("preferences")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePreferences([FromBody] UpdateUserPreferenceDto dto)
+        {
+            await _userService.UpdateMyPreferencesAsync(dto);
+            return Ok(new { Message = "Preferences updated successfully" });
+        }
+
         [HttpPost("profile/upload-avatar")]
         [Authorize]
         public async Task<IActionResult> UploadAvatar(IFormFile file)
@@ -153,6 +169,54 @@ namespace GymForge.Api.Controllers.User
         {
             await _userService.CompleteUserOnboardingAsync(UserId, dto);
             return Ok(new { Message = "User onboarding completed successfully" });
+        }
+
+        [HttpGet("dashboard")]
+        [Authorize]
+        public async Task<IActionResult> GetDashboardSummary()
+        {
+            var summary = await _userService.GetUserDashboardSummaryAsync();
+            return Ok(summary);
+        }
+
+        [HttpGet("routines")]
+        [Authorize]
+        public async Task<IActionResult> GetDailyRoutines()
+        {
+            var routines = await _userService.GetDailyRoutinesAsync();
+            return Ok(routines);
+        }
+
+        [HttpPost("routines")]
+        [Authorize]
+        public async Task<IActionResult> CreateDailyRoutine([FromBody] CreateDailyRoutineDto dto)
+        {
+            var routine = await _userService.CreateDailyRoutineAsync(dto);
+            return Ok(routine);
+        }
+
+        [HttpPut("routines/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateDailyRoutine(Guid id, [FromBody] UpdateDailyRoutineDto dto)
+        {
+            await _userService.UpdateDailyRoutineAsync(id, dto);
+            return Ok(new { Message = "Routine updated successfully" });
+        }
+
+        [HttpDelete("routines/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteDailyRoutine(Guid id)
+        {
+            await _userService.DeleteDailyRoutineAsync(id);
+            return Ok(new { Message = "Routine deleted successfully" });
+        }
+
+        [HttpPatch("routines/{id}/toggle")]
+        [Authorize]
+        public async Task<IActionResult> ToggleDailyRoutine(Guid id)
+        {
+            await _userService.ToggleDailyRoutineAsync(id);
+            return Ok(new { Message = "Routine toggled successfully" });
         }
     }
 }

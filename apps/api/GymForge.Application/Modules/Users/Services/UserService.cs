@@ -239,6 +239,45 @@ namespace GymForge.Application.Modules.Users.Services
             await UpdateUserProfileAsync(userId, dto);
         }
 
+        public async Task<UserPreferenceDto> GetMyPreferencesAsync()
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            User? user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) throw new Exception("User not found.");
+
+            return new UserPreferenceDto
+            {
+                PrimaryGoal = user.Preference?.PrimaryGoal,
+                TargetWeight = user.Preference?.TargetWeight,
+                TargetCalories = user.Preference?.TargetCalories,
+                TargetProtein = user.Preference?.TargetProtein,
+                TargetCarbs = user.Preference?.TargetCarbs,
+                TargetFats = user.Preference?.TargetFats,
+                TargetTrainingTime = user.Preference?.TargetTrainingTime
+            };
+        }
+
+        public async Task UpdateMyPreferencesAsync(UpdateUserPreferenceDto dto)
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            User? user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) throw new Exception("User not found.");
+
+            user.Preference ??= new UserPreference { CreatedOn = DateTime.UtcNow };
+            
+            user.Preference.PrimaryGoal = dto.PrimaryGoal;
+            user.Preference.TargetWeight = dto.TargetWeight;
+            user.Preference.TargetCalories = dto.TargetCalories;
+            user.Preference.TargetProtein = dto.TargetProtein;
+            user.Preference.TargetCarbs = dto.TargetCarbs;
+            user.Preference.TargetFats = dto.TargetFats;
+            user.Preference.TargetTrainingTime = dto.TargetTrainingTime;
+            user.Preference.ModifiedOn = DateTime.UtcNow;
+
+            await _userRepository.UpdateUserAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         public async Task ChangeMyPasswordAsync(ChangePasswordRequestDto dto)
         {
             Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
@@ -342,6 +381,118 @@ namespace GymForge.Application.Modules.Users.Services
             user.Measurements.Add(measurement);
 
             await _userRepository.UpdateUserAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<UserDashboardSummaryDto> GetUserDashboardSummaryAsync()
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            return await _userRepository.GetUserDashboardSummaryAsync(userId);
+        }
+
+        public async Task<IEnumerable<DailyRoutineDto>> GetDailyRoutinesAsync()
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            var routines = await _userRepository.GetDailyRoutinesAsync(userId);
+            var completion = await _userRepository.GetDailyRoutineCompletionAsync(userId, DateTime.UtcNow.Date);
+            var completedIds = completion?.CompletedRoutineIds ?? new List<Guid>();
+
+            return routines.Select(r => new DailyRoutineDto
+            {
+                Id = r.Id,
+                Title = r.Title,
+                Time = r.Time,
+                Amount = r.Amount,
+                Order = r.Order,
+                Completed = completedIds.Contains(r.Id)
+            });
+        }
+
+        public async Task<DailyRoutineDto> CreateDailyRoutineAsync(CreateDailyRoutineDto dto)
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            var routine = new DailyRoutine
+            {
+                UserId = userId,
+                Title = dto.Title,
+                Time = dto.Time,
+                Amount = dto.Amount,
+                Order = dto.Order,
+                IsActive = true,
+                CreatedOn = DateTime.UtcNow
+            };
+
+            await _userRepository.AddDailyRoutineAsync(routine);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new DailyRoutineDto
+            {
+                Id = routine.Id,
+                Title = routine.Title,
+                Time = routine.Time,
+                Amount = routine.Amount,
+                Order = routine.Order,
+                Completed = false
+            };
+        }
+
+        public async Task UpdateDailyRoutineAsync(Guid id, UpdateDailyRoutineDto dto)
+        {
+            var routine = await _userRepository.GetDailyRoutineByIdAsync(id);
+            if (routine == null) throw new Exception("Routine not found");
+
+            routine.Title = dto.Title;
+            routine.Time = dto.Time;
+            routine.Amount = dto.Amount;
+            routine.Order = dto.Order;
+            routine.ModifiedOn = DateTime.UtcNow;
+
+            await _userRepository.UpdateDailyRoutineAsync(routine);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteDailyRoutineAsync(Guid id)
+        {
+            var routine = await _userRepository.GetDailyRoutineByIdAsync(id);
+            if (routine == null) throw new Exception("Routine not found");
+
+            routine.IsActive = false;
+            routine.ModifiedOn = DateTime.UtcNow;
+
+            await _userRepository.UpdateDailyRoutineAsync(routine);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task ToggleDailyRoutineAsync(Guid id)
+        {
+            Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
+            var completion = await _userRepository.GetDailyRoutineCompletionAsync(userId, DateTime.UtcNow.Date);
+
+            if (completion == null)
+            {
+                completion = new DailyRoutineCompletion
+                {
+                    UserId = userId,
+                    Date = DateTime.UtcNow.Date,
+                    CompletedRoutineIds = new List<Guid> { id },
+                    CreatedOn = DateTime.UtcNow
+                };
+                await _userRepository.AddDailyRoutineCompletionAsync(completion);
+            }
+            else
+            {
+                if (completion.CompletedRoutineIds.Contains(id))
+                {
+                    completion.CompletedRoutineIds.Remove(id);
+                }
+                else
+                {
+                    completion.CompletedRoutineIds.Add(id);
+                }
+                completion.ModifiedOn = DateTime.UtcNow;
+                await _userRepository.UpdateDailyRoutineCompletionAsync(completion);
+            }
+
             await _unitOfWork.SaveChangesAsync();
         }
     }
