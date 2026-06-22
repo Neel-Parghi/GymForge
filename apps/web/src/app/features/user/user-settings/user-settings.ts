@@ -17,7 +17,9 @@ export class UserSettings implements OnInit {
   private notificationService = inject(NotificationService);
 
   fitnessForm: FormGroup;
-  
+
+  activeTab: 'fitness' | 'notifications' = 'fitness';
+
   notificationPreferences = {
     emailNotifications: true,
     pushNotifications: false,
@@ -72,7 +74,7 @@ export class UserSettings implements OnInit {
     if (saved) {
       try {
         this.notificationPreferences = JSON.parse(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -88,7 +90,7 @@ export class UserSettings implements OnInit {
 
     this.isSaving = true;
     this.saveNotificationPreferences();
-    
+
     this.userService.updatePreferences(this.fitnessForm.value).subscribe({
       next: () => {
         this.isSaving = false;

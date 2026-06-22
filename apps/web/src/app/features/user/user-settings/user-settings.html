@@ -1,21 +1,32 @@
 <div class="settings-container">
   <!-- Fixed Header -->
   <div class="settings-header">
-    <div class="header-content">
-      <h1>Account Settings</h1>
-      <p>Configure your fitness goals and notification preferences.</p>
+    <div class="header-top">
+      <div class="header-content">
+        <h1>Account Settings</h1>
+        <p>Configure your fitness goals and notification preferences.</p>
+      </div>
+      <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving || isLoading">
+        <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+      </button>
     </div>
-    <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving || isLoading">
-      <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
-      {{ isSaving ? 'Saving...' : 'Save Changes' }}
-    </button>
+
+    <div class="settings-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'fitness'" (click)="activeTab = 'fitness'">
+        <i class="fa-solid fa-bullseye"></i> Fitness Goals
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
+        <i class="fa-regular fa-bell"></i> Notifications & Preferences
+      </button>
+    </div>
   </div>
 
   <div class="scroll-area">
     <div class="tab-content" *ngIf="!isLoading">
 
       <!-- Fitness Goals Section -->
-      <div class="settings-pane">
+      <div class="settings-pane fade-in" *ngIf="activeTab === 'fitness'">
         <div class="pane-header">
           <div class="pane-title-group">
             <h3>Fitness Goals</h3>
@@ -25,7 +36,7 @@
 
         <div class="pane-body">
           <form [formGroup]="fitnessForm" class="gf-form">
-            
+
             <div class="form-row two-cols">
               <div class="form-group">
                 <label>Primary Goal</label>
@@ -88,7 +99,7 @@
       </div>
 
       <!-- Notifications Section -->
-      <div class="settings-pane">
+      <div class="settings-pane fade-in" *ngIf="activeTab === 'notifications'">
         <div class="pane-header">
           <div class="pane-title-group">
             <h3>Notifications & Preferences</h3>

@@ -27,16 +27,33 @@ export class UserService extends BaseApiService {
     return this.get(`${API_CONSTANTS.USER.VALIDATE_INVITATION}/${token}`, {});
   }
 
-  getPreferences(): Observable<any> {
-    return this.get(API_CONSTANTS.USER.PREFERENCES);
+  private preferencesCache$: Observable<any> | null = null;
+  private subscriptionsCache$: Observable<any> | null = null;
+
+  getPreferences(forceRefresh = false): Observable<any> {
+    if (forceRefresh || !this.preferencesCache$) {
+      this.preferencesCache$ = this.get(API_CONSTANTS.USER.PREFERENCES).pipe(
+        catchError(() => of({ success: true, data: null, message: 'No preferences found' })),
+        shareReplay(1)
+      );
+    }
+    return this.preferencesCache$;
   }
 
   updatePreferences(dto: any): Observable<any> {
-    return this.put(API_CONSTANTS.USER.PREFERENCES, dto);
+    return this.put(API_CONSTANTS.USER.PREFERENCES, dto).pipe(
+      tap(() => this.preferencesCache$ = null)
+    );
   }
 
-  getMySubscriptions(): Observable<any> {
-    return this.get(API_CONSTANTS.USER.MY_SUBSCRIPTIONS);
+  getMySubscriptions(forceRefresh = false): Observable<any> {
+    if (forceRefresh || !this.subscriptionsCache$) {
+      this.subscriptionsCache$ = this.get(API_CONSTANTS.USER.MY_SUBSCRIPTIONS).pipe(
+        catchError(() => of({ success: true, data: [], message: 'No subscriptions found' })),
+        shareReplay(1)
+      );
+    }
+    return this.subscriptionsCache$;
   }
 
   private myGymCache$: Observable<any> | null = null;

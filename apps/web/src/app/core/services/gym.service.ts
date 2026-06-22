@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { BaseApiService } from "./base-api.service";
 import { API_CONSTANTS } from "../constants/api-constants";
-import { Observable, shareReplay, tap } from "rxjs";
+import { Observable, shareReplay, tap, catchError, of } from "rxjs";
 import { ApiResponse } from "../../shared/models/api-response.model";
 import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest, UpdateMyGymRequest } from "../../shared/models/gym.model";
 import { PagedResponse } from "../../shared/models/paged-response.model";
@@ -148,6 +148,7 @@ export class GymService extends BaseApiService {
     getMyGym(forceRefresh = false): Observable<ApiResponse<GymListResponse>> {
         if (forceRefresh || !this.myGymCache$) {
             this.myGymCache$ = this.get<ApiResponse<GymListResponse>>(API_CONSTANTS.GYM.MY_GYM).pipe(
+                catchError(() => of({ success: true, data: null, message: 'No gym found' } as any)),
                 shareReplay(1)
             );
         }
@@ -163,6 +164,7 @@ export class GymService extends BaseApiService {
     getMyBranches(forceRefresh = false): Observable<ApiResponse<any[]>> {
         if (forceRefresh || !this.myBranchesCache$) {
             this.myBranchesCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.GYM.MY_BRANCHES).pipe(
+                catchError(() => of({ success: true, data: [], message: 'No branches found' } as any)),
                 shareReplay(1)
             );
         }
