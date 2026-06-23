@@ -9,16 +9,7 @@ import { UserService } from '../../../core/services/user.service';
 import { AnnouncementService } from '../../../core/services/announcement.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import confetti from 'canvas-confetti';
-
-interface DailyRoutineItem {
-  id: string;
-  title: string;
-  time?: string;
-  amount?: string;
-  completed: boolean;
-  isEditing?: boolean;
-}
+import { DailyRoutineItem } from '../../../core/models/user-dashboard.model';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -163,7 +154,7 @@ export class UserDashboardComponent implements OnInit {
 
       const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const interval: any = setInterval(function() {
+      const interval: any = setInterval(function () {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -187,7 +178,7 @@ export class UserDashboardComponent implements OnInit {
 
   private checkProfileCompletion(profile: any) {
     if (!isPlatformBrowser(this.platformId)) return;
-    
+
     // Show alert if no gymId or incomplete details and not dismissed
     const dismissed = localStorage.getItem('gymforge_profile_banner_dismissed');
     if (!dismissed) {
@@ -229,11 +220,11 @@ export class UserDashboardComponent implements OnInit {
     this.userService.getDashboardSummary().subscribe({
       next: (res: any) => {
         const data = res.data || {};
-        
+
         // Format raw goal IDs like 'weight_loss' into 'Weight Loss'
         let rawGoal = data.goalTitle || 'General Fitness';
         this.goalTitle = rawGoal.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        
+
         if (data.userName) this.userName = data.userName;
         if (data.greeting) this.greeting = data.greeting;
         this.goalProgressPct = data.goalProgressPct || 0;
