@@ -432,6 +432,18 @@
     justify-content: space-between;
     align-items: center;
 
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 45px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .panel-badge {
       font-size: 0.72rem;
       font-weight: 800;
@@ -700,7 +712,7 @@
   }
 
   &.compact-input {
-    width: 120px;
+    width: 150px;
     font-weight: 700;
     font-size: 0.85rem;
   }

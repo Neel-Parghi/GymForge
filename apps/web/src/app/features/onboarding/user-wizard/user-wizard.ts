@@ -8,11 +8,12 @@ import { UserService } from '../../../core/services/user.service';
 import { ProfileService } from '../../../core/services/profile.service';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-user-wizard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DropdownComponent, DateTimePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, DropdownComponent, DateTimePickerComponent, LoadingComponent],
   templateUrl: './user-wizard.html',
   styleUrls: ['./user-wizard.scss']
 })
@@ -208,8 +209,20 @@ export class UserWizardComponent implements OnInit {
       next: () => {
         localStorage.removeItem('gymForge_userWizardDraft');
         this.toastr.success('Your profile is set up!');
-        this.authService.refreshToken().subscribe(() => {
-          this.profileService.getProfile(true).subscribe();
+        
+        const navigateToDashboard = () => {
+          sessionStorage.setItem('justFinishedOnboarding', 'true');
+          this.router.navigate(['/user/dashboard']);
+        };
+
+        this.authService.refreshToken().subscribe({
+          next: () => {
+            this.profileService.getProfile(true).subscribe({
+              next: navigateToDashboard,
+              error: navigateToDashboard
+            });
+          },
+          error: navigateToDashboard
         });
       },
       error: () => {

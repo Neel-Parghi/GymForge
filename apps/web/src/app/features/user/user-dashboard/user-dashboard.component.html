@@ -15,7 +15,11 @@
   <!-- Hero Greetings & Streak (Full Width Top Section) -->
   <div class="dashboard-header-row">
     <div>
-      <h1 class="hero-title">Welcome back, <span class="text-accent">{{ userName }}</span></h1>
+      <h1 class="hero-title">
+        <ng-container *ngIf="isFirstTime">Welcome</ng-container>
+        <ng-container *ngIf="!isFirstTime">Welcome back</ng-container>, 
+        <span class="text-accent">{{ userName }}</span>
+      </h1>
       <p class="hero-subtitle">{{ todayDate | date:'fullDate' }}</p>
     </div>
 

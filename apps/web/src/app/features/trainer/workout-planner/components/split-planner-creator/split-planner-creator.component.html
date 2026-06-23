@@ -32,7 +32,8 @@
           <div class="form-row">
             <div class="form-group flex-2">
               <label><i class="fa-solid fa-tag"></i> Split Name <span class="required">*</span></label>
-              <input type="text" formControlName="name" class="form-input" placeholder="e.g. 3-Day Push Pull Legs" maxlength="50">
+              <input type="text" formControlName="name" class="form-input" placeholder="e.g. 3-Day Push Pull Legs"
+                maxlength="50">
               <span class="error-msg"
                 *ngIf="createSplitForm.get('name')?.touched && createSplitForm.get('name')?.invalid">Split name is
                 required (3-50 chars).</span>
@@ -52,7 +53,8 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted" style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted"
+                style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
             <textarea formControlName="description" class="form-input textarea-short" maxlength="200"
               placeholder="Explain the focus of this split routine..."></textarea>
             <span class="error-msg"
@@ -111,8 +113,10 @@
                   <div class="header-left">
                     <span class="panel-badge">Day #{{ dayIdx + 1 }}</span>
                     <input type="text" formControlName="name" class="day-title-input compact-input"
-                      placeholder="Day Name" maxlength="10">
+                      placeholder="Day Name" maxlength="25">
+                  </div>
 
+                  <div class="header-right">
                     <!-- Muscle Target Focus Pills - Multi-Select -->
                     <div class="panel-category-selector animate-scale-in">
                       <div class="muscle-pills-container">
@@ -123,12 +127,12 @@
                         </button>
                       </div>
                     </div>
-                  </div>
 
-                  <button type="button" class="panel-btn-delete" *ngIf="splitDays.length > 1"
-                    (click)="removeSplitDay(dayIdx)" title="Delete Split Day">
-                    <i class="fa-solid fa-trash-can"></i> Delete Day
-                  </button>
+                    <button type="button" class="panel-btn-delete" *ngIf="splitDays.length > 1"
+                      (click)="removeSplitDay(dayIdx)" title="Delete Split Day">
+                      <i class="fa-solid fa-trash-can"></i> Delete Day
+                    </button>
+                  </div>
                 </div>
 
                 <div class="panel-body">
@@ -153,14 +157,15 @@
                           </td>
                           <td>
                             <input type="number" formControlName="targetSets" class="table-input col-sets-input" min="1"
-                              max="10">
+                              max="200" (input)="enforceMaxSets(ex, $event)">
                           </td>
                           <td>
                             <input type="text" formControlName="targetReps" class="table-input"
-                              placeholder="e.g. 10-12 reps">
+                              placeholder="e.g. 10-12 reps" maxlength="15">
                           </td>
                           <td>
-                            <input type="text" formControlName="notes" class="table-input" placeholder="Notes">
+                            <input type="text" formControlName="notes" class="table-input" placeholder="Notes"
+                              maxlength="30">
                           </td>
                           <td>
                             <button type="button" class="row-btn-delete" (click)="removeSplitExercise(dayIdx, exIdx)"

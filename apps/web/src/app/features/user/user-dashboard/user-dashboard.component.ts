@@ -9,6 +9,7 @@ import { UserService } from '../../../core/services/user.service';
 import { AnnouncementService } from '../../../core/services/announcement.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import confetti from 'canvas-confetti';
 
 interface DailyRoutineItem {
   id: string;
@@ -102,7 +103,15 @@ export class UserDashboardComponent implements OnInit {
   private routineDateKey = 'gymforge_daily_routine_date';
   private calorieTargetKey = 'gymforge_calorie_target';
 
+  isFirstTime = false;
+
   ngOnInit() {
+    if (sessionStorage.getItem('justFinishedOnboarding') === 'true') {
+      this.isFirstTime = true;
+      sessionStorage.removeItem('justFinishedOnboarding');
+      setTimeout(() => this.triggerConfetti(), 500);
+    }
+
     this.routineForm = this.fb.group({
       title: ['', [Validators.required]],
       amount: ['', [this.routineAmountValidator()]]
@@ -138,6 +147,34 @@ export class UserDashboardComponent implements OnInit {
     // Streak Ring (Target 7 days for mock)
     const streakPct = Math.min((this.workoutStreak / 7) * 100, 100) || 15;
     this.streakDashoffset = this.ringCircumference - (streakPct / 100) * this.ringCircumference;
+  }
+
+  triggerConfetti() {
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      });
+    }, 250);
   }
 
   private checkProfileCompletion(profile: any) {
@@ -178,12 +215,15 @@ export class UserDashboardComponent implements OnInit {
     });
 
     this.userService.getDashboardSummary().subscribe({
-      next: (res) => {
-        const data = res.data ? res.data : res;
-
+      next: (res: any) => {
+        const data = res.data || {};
+        
+        // Format raw goal IDs like 'weight_loss' into 'Weight Loss'
+        let rawGoal = data.goalTitle || 'General Fitness';
+        this.goalTitle = rawGoal.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        
         if (data.userName) this.userName = data.userName;
         if (data.greeting) this.greeting = data.greeting;
-        this.goalTitle = data.goalTitle || 'General Fitness';
         this.goalProgressPct = data.goalProgressPct || 0;
         this.targetCalories = data.targetCalories || 2500;
         this.targetTrainingTime = data.targetTrainingTime || 60;

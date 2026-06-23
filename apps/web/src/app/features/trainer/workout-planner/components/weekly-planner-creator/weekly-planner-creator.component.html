@@ -111,26 +111,31 @@
               <div class="section-panel" *ngIf="activeDayTab === dayIdx" [formGroupName]="dayIdx">
 
                 <div class="panel-header">
-                  <app-dropdown [options]="dayTypeOptions" formControlName="type" placeholder="Select Type"
-                    [isSearchable]="false" style="display: inline-block;width: 120px;"></app-dropdown>
+                  <div class="header-left">
+                    <app-dropdown [options]="dayTypeOptions" formControlName="type" placeholder="Select Type"
+                      [isSearchable]="false" style="display: inline-block;width: 120px;"></app-dropdown>
 
-                  <div class="category-select-wrapper font-bold-text" *ngIf="dayGroup.get('type')?.value === 'workout'">
-                    <label>Title:</label>
-                    <input type="text" formControlName="splitDayName" class="day-title-input compact-input"
-                      placeholder="e.g. Chest Day" maxlength="10">
+                    <div class="category-select-wrapper font-bold-text"
+                      *ngIf="dayGroup.get('type')?.value === 'workout'">
+                      <label>Title:</label>
+                      <input type="text" formControlName="splitDayName" class="day-title-input compact-input"
+                        placeholder="e.g. Chest Day" maxlength="25">
+                    </div>
                   </div>
 
-                  <!-- Step 2 workout categories pills - MULTI SELECT -->
-                  <div class="panel-category-selector animate-scale-in"
-                    *ngIf="dayGroup.get('type')?.value === 'workout'">
-                    <!-- <label class="section-sublabel"><i class="fa-solid fa-list-check"></i> Target Muscle Categories
-                    (Select all that apply):</label> -->
-                    <div class="muscle-pills-container">
-                      <button type="button" *ngFor="let cat of categories" class="pill-btn"
-                        [class.active]="isCategorySelected(dayIdx, cat)" (click)="toggleCategory(dayIdx, cat)">
-                        <i class="fa-solid fa-check check-pill-icon" *ngIf="isCategorySelected(dayIdx, cat)"></i>
-                        {{ cat }}
-                      </button>
+                  <div class="header-right">
+                    <!-- Step 2 workout categories pills - MULTI SELECT -->
+                    <div class="panel-category-selector animate-scale-in"
+                      *ngIf="dayGroup.get('type')?.value === 'workout'">
+                      <!-- <label class="section-sublabel"><i class="fa-solid fa-list-check"></i> Target Muscle Categories
+                      (Select all that apply):</label> -->
+                      <div class="muscle-pills-container">
+                        <button type="button" *ngFor="let cat of categories" class="pill-btn"
+                          [class.active]="isCategorySelected(dayIdx, cat)" (click)="toggleCategory(dayIdx, cat)">
+                          <i class="fa-solid fa-check check-pill-icon" *ngIf="isCategorySelected(dayIdx, cat)"></i>
+                          {{ cat }}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -158,14 +163,15 @@
                           </td>
                           <td>
                             <input type="number" formControlName="targetSets" class="table-input col-sets-input" min="1"
-                              max="10">
+                              max="200" (input)="enforceMaxSets(ex, $event)">
                           </td>
                           <td>
                             <input type="text" formControlName="targetReps" class="table-input"
-                              placeholder="e.g. 10-12 reps">
+                              placeholder="e.g. 10-12 reps" maxlength="15">
                           </td>
                           <td>
-                            <input type="text" formControlName="notes" class="table-input" placeholder="Notes">
+                            <input type="text" formControlName="notes" class="table-input" placeholder="Notes"
+                              maxlength="30">
                           </td>
                           <td>
                             <button type="button" class="row-btn-delete" (click)="removeWeeklyExercise(dayIdx, exIdx)"

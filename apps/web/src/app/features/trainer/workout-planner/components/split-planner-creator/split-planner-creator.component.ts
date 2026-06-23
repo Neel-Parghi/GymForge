@@ -172,9 +172,9 @@ export class SplitPlannerCreatorComponent implements OnInit {
       data.exercises.forEach((ex: any) => {
         exArray.push(this.fb.group({
           exerciseName: [ex.name || '', [Validators.required]],
-          targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(10)]],
-          targetReps: [ex.reps || '10-12 reps', [Validators.required]],
-          notes: [ex.notes || '']
+          targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(200)]],
+          targetReps: [ex.reps || '10-12 Reps', [Validators.required, Validators.maxLength(15)]],
+          notes: [ex.notes || '', [Validators.maxLength(30)]]
         }));
       });
 
@@ -230,14 +230,14 @@ export class SplitPlannerCreatorComponent implements OnInit {
     (data.days || []).forEach((day: any) => {
       const categoriesList = day.category ? day.category.split(' + ') : [this.categories[0] || 'Back'];
       const dayGroup = this.fb.group({
-        name: [day.name, [Validators.required, Validators.maxLength(10)]],
+        name: [day.name, [Validators.required, Validators.maxLength(25)]],
         targetCategories: [categoriesList],
         exercises: this.fb.array(
           (day.exercises || []).map((ex: any) => this.fb.group({
             exerciseName: [ex.name || '', [Validators.required]],
-            targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(10)]],
-            targetReps: [ex.reps || '10-12 reps', [Validators.required]],
-            notes: [ex.notes || '']
+            targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(200)]],
+            targetReps: [ex.reps || '10-12', [Validators.required, Validators.maxLength(10)]],
+            notes: [ex.notes || '', [Validators.maxLength(10)]]
           }))
         )
       });
@@ -249,7 +249,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
   addSplitDay(): void {
     const defaultCat = this.categories[0] || 'Back';
     const dayGroup = this.fb.group({
-      name: [`Day ${this.splitDays.length + 1}`, [Validators.required, Validators.maxLength(10)]],
+      name: [`Day ${this.splitDays.length + 1}`, [Validators.required, Validators.maxLength(25)]],
       targetCategories: [[defaultCat]],
       exercises: this.fb.array([])
     });
@@ -271,9 +271,9 @@ export class SplitPlannerCreatorComponent implements OnInit {
   addSplitExercise(dayIndex: number): void {
     const exGroup = this.fb.group({
       exerciseName: ['', [Validators.required]],
-      targetSets: [3, [Validators.required, Validators.min(1), Validators.max(10)]],
-      targetReps: ['10-12 reps', [Validators.required]],
-      notes: ['']
+      targetSets: [3, [Validators.required, Validators.min(1), Validators.max(200)]],
+      targetReps: ['10-12', [Validators.required, Validators.maxLength(10)]],
+      notes: ['', [Validators.maxLength(10)]]
     });
 
     this.getSplitExercises(dayIndex).push(exGroup);
@@ -285,10 +285,16 @@ export class SplitPlannerCreatorComponent implements OnInit {
     }, 200);
   }
 
-  removeSplitExercise(dayIndex: number, exIndex: number): void {
-    const exArray = this.getSplitExercises(dayIndex);
-    if (exArray.length > 1) {
-      exArray.removeAt(exIndex);
+  removeSplitExercise(dayIdx: number, exIdx: number): void {
+    const exArray = this.getSplitExercises(dayIdx);
+    exArray.removeAt(exIdx);
+  }
+
+  enforceMaxSets(exGroup: any, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (parseInt(input.value) > 200) {
+      input.value = '200';
+      exGroup.get('targetSets')?.setValue(200);
     }
   }
 
@@ -306,6 +312,10 @@ export class SplitPlannerCreatorComponent implements OnInit {
         return;
       }
     } else {
+      if (current.length >= 4) {
+        this.notification.warning('Maximum 4 muscle groups can be selected.');
+        return;
+      }
       current.push(cat);
     }
     ctrl.setValue(current);
@@ -338,7 +348,7 @@ export class SplitPlannerCreatorComponent implements OnInit {
   onSubmitSplit(): void {
     if (this.createSplitForm.invalid) {
       this.createSplitForm.markAllAsTouched();
-      
+
       let hasInvalidExercises = false;
       for (let i = 0; i < this.splitDays.length; i++) {
         const exercises = this.getSplitExercises(i);

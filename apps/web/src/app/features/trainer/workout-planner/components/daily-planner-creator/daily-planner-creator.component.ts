@@ -147,9 +147,9 @@ export class DailyPlannerCreatorComponent implements OnInit {
     (data.exercises || []).forEach((ex: any) => {
       exArray.push(this.fb.group({
         exerciseName: [ex.name || '', [Validators.required]],
-        targetSets: [ex.sets || 4, [Validators.required, Validators.min(1)]],
-        targetReps: [ex.reps || '10-12', [Validators.required]],
-        notes: [ex.notes || '']
+        targetSets: [ex.sets || 4, [Validators.required, Validators.min(1), Validators.max(200)]],
+        targetReps: [ex.reps || '10-12 Reps', [Validators.required, Validators.maxLength(15)]],
+        notes: [ex.notes || '', [Validators.maxLength(30)]]
       }));
     });
 
@@ -161,9 +161,9 @@ export class DailyPlannerCreatorComponent implements OnInit {
   private createExerciseGroup(): FormGroup {
     return this.fb.group({
       exerciseName: ['', [Validators.required]],
-      targetSets: [4, [Validators.required, Validators.min(1)]],
-      targetReps: ['10-12', [Validators.required]],
-      notes: ['']
+      targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
+      targetReps: ['10-12 Reps', [Validators.required, Validators.maxLength(15)]],
+      notes: ['', [Validators.maxLength(30)]]
     });
   }
 
@@ -190,6 +190,10 @@ export class DailyPlannerCreatorComponent implements OnInit {
         return;
       }
     } else {
+      if (current.length >= 4) {
+        this.notification.warning('Maximum 4 muscle groups can be selected.');
+        return;
+      }
       current.push(cat);
     }
     ctrl.setValue(current);
@@ -224,6 +228,14 @@ export class DailyPlannerCreatorComponent implements OnInit {
       exArray.removeAt(0);
     }
     exArray.push(this.createExerciseGroup());
+  }
+
+  enforceMaxSets(exGroup: any, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (parseInt(input.value) > 200) {
+      input.value = '200';
+      exGroup.get('targetSets')?.setValue(200);
+    }
   }
 
   copyWorkout(): void {
@@ -272,9 +284,9 @@ export class DailyPlannerCreatorComponent implements OnInit {
       data.exercises.forEach((ex: any) => {
         exArray.push(this.fb.group({
           exerciseName: [ex.name || '', [Validators.required]],
-          targetSets: [ex.sets || 4, [Validators.required, Validators.min(1)]],
-          targetReps: [ex.reps || '10-12', [Validators.required]],
-          notes: [ex.notes || '']
+          targetSets: [ex.sets || 4, [Validators.required, Validators.min(1), Validators.max(200)]],
+          targetReps: [ex.reps || '10-12', [Validators.required, Validators.maxLength(10)]],
+          notes: [ex.notes || '', [Validators.maxLength(200)]]
         }));
       });
 
