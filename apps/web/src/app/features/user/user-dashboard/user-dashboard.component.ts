@@ -229,11 +229,11 @@ export class UserDashboardComponent implements OnInit {
     this.userService.getDashboardSummary().subscribe({
       next: (res: any) => {
         const data = res.data || {};
-        
+
         // Format raw goal IDs like 'weight_loss' into 'Weight Loss'
         let rawGoal = data.goalTitle || 'General Fitness';
         this.goalTitle = rawGoal.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        
+
         if (data.userName) this.userName = data.userName;
         if (data.greeting) this.greeting = data.greeting;
         this.goalProgressPct = data.goalProgressPct || 0;
