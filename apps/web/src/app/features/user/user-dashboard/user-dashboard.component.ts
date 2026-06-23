@@ -1,5 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -9,7 +9,6 @@ import { UserService } from '../../../core/services/user.service';
 import { AnnouncementService } from '../../../core/services/announcement.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import confetti from 'canvas-confetti';
 
 interface DailyRoutineItem {
   id: string;
@@ -33,6 +32,7 @@ export class UserDashboardComponent implements OnInit {
   private userService = inject(UserService);
   private announcementService = inject(AnnouncementService);
   private fb = inject(FormBuilder);
+  private platformId = inject(PLATFORM_ID);
 
   routineForm!: FormGroup;
 
@@ -106,10 +106,12 @@ export class UserDashboardComponent implements OnInit {
   isFirstTime = false;
 
   ngOnInit() {
-    if (sessionStorage.getItem('justFinishedOnboarding') === 'true') {
-      this.isFirstTime = true;
-      sessionStorage.removeItem('justFinishedOnboarding');
-      setTimeout(() => this.triggerConfetti(), 500);
+    if (isPlatformBrowser(this.platformId)) {
+      if (sessionStorage.getItem('justFinishedOnboarding') === 'true') {
+        this.isFirstTime = true;
+        sessionStorage.removeItem('justFinishedOnboarding');
+        setTimeout(() => this.triggerConfetti(), 500);
+      }
     }
 
     this.routineForm = this.fb.group({
@@ -150,34 +152,41 @@ export class UserDashboardComponent implements OnInit {
   }
 
   triggerConfetti() {
-    const duration = 3 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+    if (!isPlatformBrowser(this.platformId)) return;
 
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+    import('canvas-confetti').then((module) => {
+      const confetti = module.default || module;
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
 
-    const interval: any = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
+      const interval: any = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
 
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-      });
-    }, 250);
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 250);
+    });
   }
 
   private checkProfileCompletion(profile: any) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
     // Show alert if no gymId or incomplete details and not dismissed
     const dismissed = localStorage.getItem('gymforge_profile_banner_dismissed');
     if (!dismissed) {
@@ -187,7 +196,9 @@ export class UserDashboardComponent implements OnInit {
 
   dismissProfileAlert() {
     this.showProfileAlert = false;
-    localStorage.setItem('gymforge_profile_banner_dismissed', 'true');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('gymforge_profile_banner_dismissed', 'true');
+    }
   }
 
   setGreeting(): void {
