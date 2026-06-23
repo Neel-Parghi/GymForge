@@ -9,6 +9,7 @@ import { UserService } from '../../../core/services/user.service';
 import { AnnouncementService } from '../../../core/services/announcement.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import confetti from 'canvas-confetti';
 
 interface DailyRoutineItem {
   id: string;
