@@ -335,6 +335,19 @@
     justify-content: space-between;
     align-items: center;
 
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+
     .category-select-wrapper {
       display: flex;
       align-items: center;

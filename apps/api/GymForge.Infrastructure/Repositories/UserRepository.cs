@@ -117,19 +117,44 @@ namespace GymForge.Infrastructure.Repositories
                 summary.GoalTitle = user.Preference.PrimaryGoal;
                 summary.TargetCalories = user.Preference.TargetCalories ?? 2500;
                 summary.TargetTrainingTime = user.Preference.TargetTrainingTime ?? 60;
-                summary.GoalProgressPct = 65; 
+                summary.GoalProgressPct = 0; 
             }
 
-            var measurement = await _dbContext.MemberMeasurements
+            var latestMeasurement = await _dbContext.MemberMeasurements
                 .Where(m => m.UserId == userId)
                 .OrderByDescending(m => m.Date)
                 .FirstOrDefaultAsync();
 
-            if (measurement != null)
+            if (latestMeasurement != null)
             {
-                summary.CurrentWeight = measurement.Weight ?? 0;
-                summary.BodyFat = measurement.BodyFatPercentage ?? 0;
-                summary.BMI = measurement.BMI ?? 0;
+                summary.CurrentWeight = latestMeasurement.Weight ?? 0;
+                summary.BodyFat = latestMeasurement.BodyFatPercentage ?? 0;
+                summary.BMI = latestMeasurement.BMI ?? 0;
+
+                var firstMeasurement = await _dbContext.MemberMeasurements
+                    .Where(m => m.UserId == userId && m.Weight.HasValue)
+                    .OrderBy(m => m.Date)
+                    .FirstOrDefaultAsync();
+
+                if (firstMeasurement != null && user.Preference?.TargetWeight.HasValue == true && latestMeasurement.Weight.HasValue)
+                {
+                    double initialWeight = firstMeasurement.Weight.Value;
+                    double currentWeight = latestMeasurement.Weight.Value;
+                    double targetWeight = user.Preference.TargetWeight.Value;
+
+                    if (initialWeight != targetWeight)
+                    {
+                        double progress = (targetWeight < initialWeight) 
+                            ? (initialWeight - currentWeight) / (initialWeight - targetWeight) * 100
+                            : (currentWeight - initialWeight) / (targetWeight - initialWeight) * 100;
+
+                        summary.GoalProgressPct = Math.Clamp((int)Math.Round(progress), 0, 100);
+                    }
+                    else
+                    {
+                        summary.GoalProgressPct = 100;
+                    }
+                }
             }
 
             var today = DateTime.UtcNow.Date;

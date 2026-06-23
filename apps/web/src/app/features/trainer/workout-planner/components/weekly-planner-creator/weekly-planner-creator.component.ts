@@ -161,13 +161,13 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
         dayName: [day.dayName],
         type: [day.type || 'workout', [Validators.required]],
         targetCategories: [categories],
-        splitDayName: [day.splitDayName || day.dayName, [Validators.maxLength(10)]],
+        splitDayName: [day.splitDayName || day.dayName, [Validators.maxLength(25)]],
         exercises: this.fb.array(
           (day.exercises || []).map((ex: any) => this.fb.group({
             exerciseName: [ex.name || '', [Validators.required]],
-            targetSets: [ex.sets || 3, [Validators.required, Validators.min(1)]],
-            targetReps: [ex.reps || '10-12 reps', [Validators.required]],
-            notes: [ex.notes || '']
+            targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(200)]],
+            targetReps: [ex.reps || '10-12 Reps', [Validators.required, Validators.maxLength(15)]],
+            notes: [ex.notes || '', [Validators.maxLength(30)]]
           }))
         )
       });
@@ -202,13 +202,13 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       dayName: [dayName],
       type: ['workout', [Validators.required]],
       targetCategories: [[defaultCat]],
-      splitDayName: [`${dayName}`, [Validators.maxLength(10)]],
+      splitDayName: [`${dayName}`, [Validators.maxLength(25)]],
       exercises: this.fb.array([
         this.fb.group({
           exerciseName: ['', [Validators.required]],
-          targetSets: [4, [Validators.required, Validators.min(1)]],
-          targetReps: ['10-12', [Validators.required]],
-          notes: ['']
+          targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
+          targetReps: ['10-12', [Validators.required, Validators.maxLength(10)]],
+          notes: ['', [Validators.maxLength(10)]]
         })
       ])
     });
@@ -247,9 +247,9 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
 
     const exGroup = this.fb.group({
       exerciseName: ['', [Validators.required]],
-      targetSets: [4, [Validators.required, Validators.min(1)]],
-      targetReps: ['10-12', [Validators.required]],
-      notes: ['']
+      targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
+      targetReps: ['10-12', [Validators.required, Validators.maxLength(10)]],
+      notes: ['', [Validators.maxLength(10)]]
     });
 
     this.getWeeklyExercises(dayIndex).push(exGroup);
@@ -261,15 +261,21 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     }, 200);
   }
 
-  removeWeeklyExercise(dayIndex: number, exIndex: number): void {
-    const exArray = this.getWeeklyExercises(dayIndex);
-    if (exArray.length > 1) {
-      exArray.removeAt(exIndex);
+  removeWeeklyExercise(dayIdx: number, exIdx: number): void {
+    const exArray = this.getWeeklyExercises(dayIdx);
+    exArray.removeAt(exIdx);
+  }
+
+  enforceMaxSets(exGroup: any, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (parseInt(input.value) > 200) {
+      input.value = '200';
+      exGroup.get('targetSets')?.setValue(200);
     }
   }
 
-  copyWorkout(dayIndex: number): void {
-    const dayGroup = this.weeklyCalendarDays.at(dayIndex);
+  copyWorkout(dayIdx: number): void {
+    const dayGroup = this.weeklyCalendarDays.at(dayIdx);
     const exercisesArray = dayGroup.get('exercises') as FormArray;
 
     this.copiedWorkout = {
@@ -294,9 +300,9 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     this.copiedWorkout.exercises.forEach((ex: any) => {
       exercisesArray.push(this.fb.group({
         exerciseName: [ex.exerciseName, [Validators.required]],
-        targetSets: [ex.targetSets, [Validators.required, Validators.min(1)]],
-        targetReps: [ex.targetReps, [Validators.required]],
-        notes: [ex.notes]
+        targetSets: [ex.targetSets, [Validators.required, Validators.min(1), Validators.max(200)]],
+        targetReps: [ex.targetReps, [Validators.required, Validators.maxLength(10)]],
+        notes: [ex.notes, [Validators.maxLength(10)]]
       }));
     });
 
@@ -336,6 +342,10 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       if (currentCats.length <= 1) return;
       newCats = currentCats.filter(c => c !== category);
     } else {
+      if (currentCats.length >= 4) {
+        this.notification.warning('Maximum 4 muscle groups can be selected.');
+        return;
+      }
       newCats = [...currentCats, category];
     }
 
@@ -456,7 +466,7 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
     if (this.createWeeklyForm.invalid) {
       this.logFormErrors(this.createWeeklyForm);
       this.createWeeklyForm.markAllAsTouched();
-      
+
       let hasInvalidExercises = false;
       for (let i = 0; i < this.weeklyCalendarDays.length; i++) {
         const day = this.weeklyCalendarDays.at(i);

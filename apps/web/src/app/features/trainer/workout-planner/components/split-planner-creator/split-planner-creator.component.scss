@@ -353,7 +353,14 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 24px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
     }
 
     .category-select-wrapper {
@@ -582,7 +589,7 @@
   }
 
   &.compact-input {
-    width: 120px;
+    width: 200px;
     font-weight: 700;
     font-size: 0.85rem;
   }
