@@ -107,14 +107,6 @@ export class UserDashboardComponent implements OnInit {
   isFirstTime = false;
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (sessionStorage.getItem('justFinishedOnboarding') === 'true') {
-        this.isFirstTime = true;
-        sessionStorage.removeItem('justFinishedOnboarding');
-        setTimeout(() => this.triggerConfetti(), 500);
-      }
-    }
-
     this.routineForm = this.fb.group({
       title: ['', [Validators.required]],
       amount: ['', [this.routineAmountValidator()]]
@@ -152,42 +144,9 @@ export class UserDashboardComponent implements OnInit {
     this.streakDashoffset = this.ringCircumference - (streakPct / 100) * this.ringCircumference;
   }
 
-  triggerConfetti() {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    import('canvas-confetti').then((module) => {
-      const confetti = module.default || module;
-      const duration = 3 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
-
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-      const interval: any = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-        });
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-        });
-      }, 250);
-    });
-  }
-
   private checkProfileCompletion(profile: any) {
     if (!isPlatformBrowser(this.platformId)) return;
-    
+
     // Show alert if no gymId or incomplete details and not dismissed
     const dismissed = localStorage.getItem('gymforge_profile_banner_dismissed');
     if (!dismissed) {
@@ -229,11 +188,11 @@ export class UserDashboardComponent implements OnInit {
     this.userService.getDashboardSummary().subscribe({
       next: (res: any) => {
         const data = res.data || {};
-        
+
         // Format raw goal IDs like 'weight_loss' into 'Weight Loss'
         let rawGoal = data.goalTitle || 'General Fitness';
         this.goalTitle = rawGoal.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        
+
         if (data.userName) this.userName = data.userName;
         if (data.greeting) this.greeting = data.greeting;
         this.goalProgressPct = data.goalProgressPct || 0;
