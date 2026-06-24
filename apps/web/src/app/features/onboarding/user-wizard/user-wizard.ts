@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AuthApiService } from '../../../core/services/auth-api.service';
@@ -9,11 +9,12 @@ import { ProfileService } from '../../../core/services/profile.service';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { ValidationMessage } from '../../../shared/components/validation-message/validation-message.component';
 
 @Component({
   selector: 'app-user-wizard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DropdownComponent, DateTimePickerComponent, LoadingComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DropdownComponent, DateTimePickerComponent, LoadingComponent, ValidationMessage],
   templateUrl: './user-wizard.html',
   styleUrls: ['./user-wizard.scss']
 })
@@ -34,6 +35,8 @@ export class UserWizardComponent implements OnInit {
     { id: 'flexibility', label: 'Flexibility', icon: 'fi-rr-person-praying', desc: 'Enhance mobility and recovery', image: '/images/goals/flexibility.png' },
     { id: 'general_fitness', label: 'General Fitness', icon: 'fi-rr-heart-pulse', desc: 'Stay active and healthy', image: '/images/goals/general_fitness.png' }
   ];
+
+  goalOptions = this.goals.map(g => ({ label: g.label, value: g.id }));
 
   genderOptions = [
     { label: 'Male', value: 'Male' },

@@ -108,20 +108,9 @@
                 <h2>What is your primary fitness goal?</h2>
                 <p class="subtitle">This helps us tailor your experience and recommendations.</p>
                 
-                <div class="goals-grid-enriched">
-                  @for (goal of goals; track goal.id) {
-                    <div class="goal-card-enriched image-card" [class.selected]="selectedGoal === goal.id" (click)="selectGoal(goal.id)">
-                      <div class="bg-image" [style.background-image]="'url(' + goal.image + ')'"></div>
-                      <div class="gradient-overlay"></div>
-                      <div class="card-content">
-                        <div class="text-content">
-                          <h3>{{ goal.label }}</h3>
-                          <p>{{ goal.desc }}</p>
-                        </div>
-                      </div>
-                      <div class="selection-ring"></div>
-                    </div>
-                  }
+                <div class="form-group" style="max-width: 400px; margin-top: 32px;">
+                  <label>Primary Goal *</label>
+                  <app-dropdown [options]="goalOptions" [ngModel]="selectedGoal" (ngModelChange)="selectGoal($event)" [ngModelOptions]="{standalone: true}" placeholder="Select your fitness goal"></app-dropdown>
                 </div>
               </div>
               }
@@ -150,10 +139,12 @@
                   <div class="form-group">
                     <label>Height (cm) *</label>
                     <input type="number" formControlName="height" placeholder="e.g. 175" class="form-control" min="50" max="300" (keypress)="allowNumbersOnly($event)" (input)="clampValue('height', 300)">
+                    <app-validation-message [control]="metricsForm.get('height')" fieldName="Height"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Current Weight (kg) *</label>
                     <input type="number" formControlName="weight" placeholder="e.g. 70" class="form-control" min="20" max="500" (keypress)="allowNumbersOnly($event)" (input)="clampValue('weight', 500)">
+                    <app-validation-message [control]="metricsForm.get('weight')" fieldName="Weight"></app-validation-message>
                   </div>
                 </div>
 
@@ -161,6 +152,7 @@
                   <div class="form-group">
                     <label>Target Weight (kg) <em>(Optional)</em></label>
                     <input type="number" formControlName="targetWeight" placeholder="e.g. 65" class="form-control" min="20" max="500" (keypress)="allowNumbersOnly($event)" (input)="clampValue('targetWeight', 500)">
+                    <app-validation-message [control]="metricsForm.get('targetWeight')" fieldName="Target Weight"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Estimated BMI</label>

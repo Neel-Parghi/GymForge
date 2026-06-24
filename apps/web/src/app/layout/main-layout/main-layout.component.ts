@@ -12,6 +12,7 @@ import { GymService } from '../../core/services/gym.service';
 import { GymSettingsService } from '../../core/services/gym-settings.service';
 import { AnnouncementService } from '../../core/services/announcement.service';
 import { UserNotificationApiService } from '../../core/services/user-notification-api.service';
+import { TourService } from '../../core/services/tour.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -51,8 +52,8 @@ export class MainLayoutComponent implements OnInit {
   private activeRole: string = '';
   private announcementService = inject(AnnouncementService);
   private userNotificationService = inject(UserNotificationApiService);
+  private tourService = inject(TourService);
   unreadAnnouncementsCount = 0;
-  showUserGuide = false;
 
   constructor() {
     this.menuItems = this.navService.getMenuItems();
@@ -166,17 +167,14 @@ export class MainLayoutComponent implements OnInit {
     if (this.isNotificationsOpen) {
       this.unreadAnnouncementsCount = 0;
       this.isBranchDropdownOpen = false;
-      this.showUserGuide = false;
     }
   }
 
   toggleUserGuide(event: Event): void {
     event.stopPropagation();
-    this.showUserGuide = !this.showUserGuide;
-    if (this.showUserGuide) {
-      this.isNotificationsOpen = false;
-      this.isBranchDropdownOpen = false;
-    }
+    this.isNotificationsOpen = false;
+    this.isBranchDropdownOpen = false;
+    this.tourService.startMainTour();
   }
 
   toggleSidebar() {
@@ -229,6 +227,5 @@ export class MainLayoutComponent implements OnInit {
   closeDropdowns() {
     this.isBranchDropdownOpen = false;
     this.isNotificationsOpen = false;
-    this.showUserGuide = false;
   }
 }

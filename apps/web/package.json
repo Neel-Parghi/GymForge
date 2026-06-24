@@ -25,6 +25,7 @@
     "@angular/ssr": "^21.2.1",
     "canvas-confetti": "^1.9.3",
     "chart.js": "^4.5.1",
+    "driver.js": "^1.5.0",
     "express": "^5.1.0",
     "jwt-decode": "^4.0.0",
     "ng2-charts": "^10.0.0",

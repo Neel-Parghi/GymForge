@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import 'ngx-toastr/toastr';
+@import 'driver.js/dist/driver.css';
 
 :root {
   /* ==========================================================================
@@ -590,7 +591,7 @@ app-date-time-picker.ng-invalid.ng-touched>div {
 .form-row {
   display: flex;
   gap: 16px;
-  
+
   .form-group {
     flex: 1;
   }
@@ -650,6 +651,209 @@ app-date-time-picker.ng-invalid.ng-touched>div {
 
     &:focus {
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+  }
+}
+
+/* ==========================================================================
+   GYMFORGE DRIVER.JS TOUR OVERRIDES
+   ========================================================================== */
+.gymforge-tour-popover {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) inset !important;
+  padding: 20px 24px !important;
+  max-width: 360px !important;
+  font-family: var(--font-body);
+
+  .driver-popover-title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    margin-bottom: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+
+    i {
+      font-family: 'Font Awesome 6 Free', 'FontAwesome' !important;
+      font-weight: 900 !important;
+      color: var(--accent-color) !important;
+      background: rgba(37, 99, 235, 0.1) !important;
+      width: 28px !important;
+      height: 28px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 6px !important;
+      font-size: 0.95rem !important;
+    }
+  }
+
+  .driver-popover-description {
+    font-size: 0.85rem !important;
+    color: var(--text-muted) !important;
+    line-height: 1.5 !important;
+    margin-bottom: 16px !important;
+    // padding-left: 38px !important;
+    /* Align with text, not icon */
+  }
+
+  .driver-popover-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-top: 16px !important;
+    // padding-left: 38px !important;
+
+    .driver-popover-progress-text {
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      color: var(--accent-color) !important;
+      background: rgba(37, 99, 235, 0.1) !important;
+      padding: 4px 10px !important;
+      border-radius: 20px !important;
+    }
+
+    .driver-popover-navigation-btns {
+      display: flex !important;
+      gap: 8px !important;
+
+      .driver-popover-prev-btn,
+      .driver-popover-next-btn {
+        padding: 6px 14px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        cursor: pointer !important;
+        text-shadow: none !important;
+        transition: all 0.2s ease !important;
+      }
+
+      .driver-popover-prev-btn {
+        background: rgba(0, 0, 0, 0.04) !important;
+        color: var(--slate-600) !important;
+        border: 1px solid transparent !important;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.08) !important;
+          color: var(--text-main) !important;
+        }
+      }
+
+      .driver-popover-next-btn {
+        background: var(--accent-color) !important;
+        color: #ffffff !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+
+        &:hover {
+          background: var(--accent-hover) !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
+        }
+      }
+    }
+  }
+
+  /* Close Button Override */
+  .driver-popover-close-btn {
+    top: 16px !important;
+    right: 16px !important;
+    color: var(--slate-400) !important;
+    font-size: 1rem !important;
+    transition: color 0.2s !important;
+
+    &:hover {
+      color: var(--error-color) !important;
+    }
+  }
+
+  /* Hide default Driver.js Arrow to keep glassmorphism clean */
+  .driver-popover-arrow {
+    display: none !important;
+  }
+
+  /* Instagram-story style curved dotted arrow */
+  &::before {
+    content: '';
+    position: absolute;
+    // left: -45px;
+    left: -68px;
+    // top: 20px;
+    top: 10px;
+    // width: 60px;
+    width: 80px;
+    // height: 40px;
+    height: 50px;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='40' viewBox='0 0 60 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M55 35 Q 30 15 5 15' stroke='%232563eb' stroke-width='2.5' stroke-dasharray='5 5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M15 7 L5 15 L15 23' stroke='%232563eb' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    opacity: 0;
+    pointer-events: none;
+    animation: drawDottedArrow 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards;
+    transform-origin: right center;
+    z-index: 10;
+  }
+
+  /* Smooth Popover Float Animation */
+  animation: floatPopover 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes drawDottedArrow {
+  0% {
+    opacity: 0;
+    transform: translateX(20px) scale(0.8) rotate(-10deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes floatPopover {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+[data-theme="dark"] .gymforge-tour-popover {
+  background: rgba(30, 41, 59, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='40' viewBox='0 0 60 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M55 35 Q 30 15 5 15' stroke='%2360a5fa' stroke-width='2.5' stroke-dasharray='5 5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M15 7 L5 15 L15 23' stroke='%2360a5fa' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  .driver-popover-title i {
+    color: #60a5fa !important;
+    background: rgba(96, 165, 250, 0.15) !important;
+  }
+
+  .driver-popover-prev-btn {
+    background: rgba(0, 0, 0, 0.2) !important;
+    color: var(--slate-300) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.4) !important;
+      color: white !important;
     }
   }
 }
