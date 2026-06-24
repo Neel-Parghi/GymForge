@@ -36,6 +36,10 @@
               <div class="input-wrapper">
                 <input type="email" id="email" formControlName="email" placeholder="name@gymforge.com" required />
               </div>
+              <small class="form-error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</span>
+                <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
+              </small>
             </div>
 
             <div class="form-item">
@@ -44,11 +48,17 @@
               </div>
               <div class="input-wrapper">
                 <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-                  placeholder="••••••••" required />
+                  placeholder="••••••••" maxlength="30" required />
                 <button type="button" class="visibility-toggle" (click)="togglePassword()">
                   <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
+              <small class="form-error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.<br></span>
+                <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.<br></span>
+                <span *ngIf="loginForm.get('password')?.errors?.['maxlength']">Password cannot exceed 30 characters.<br></span>
+                <span *ngIf="loginForm.get('password')?.errors?.['pattern']">Must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.</span>
+              </small>
             </div>
 
             <div class="form-options">

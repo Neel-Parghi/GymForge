@@ -383,6 +383,21 @@
   }
 }
 
+.form-error {
+  color: #ff4d4f;
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.toggle-track.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-height: 750px) {
   .auth-main {
     padding-top: 10px;

@@ -6,7 +6,7 @@
       <!-- Premium Animated Role Slider -->
       <div class="premium-role-toggle">
         <span class="toggle-label">Sign up as :</span>
-        <div class="toggle-track" (click)="setRole(selectedRole === 'GymOwner' ? 'User' : 'GymOwner')">
+        <div class="toggle-track" (click)="!isOtpStep && setRole(selectedRole === 'GymOwner' ? 'User' : 'GymOwner')" [class.disabled]="isOtpStep">
           <div class="toggle-thumb" [class.is-user]="selectedRole === 'User'"></div>
 
           <div class="toggle-option" [class.active]="selectedRole === 'GymOwner'">
@@ -41,7 +41,8 @@
         <div class="auth-card">
           <div class="card-header">
             <h2 class="card-title">Create Account</h2>
-            <p class="card-subtitle">Get started with the world's most powerful gym management tools.</p>
+            <p class="card-subtitle" *ngIf="selectedRole === 'GymOwner'">Get started with the world's most powerful gym management tools.</p>
+            <p class="card-subtitle" *ngIf="selectedRole === 'User'">Begin your fitness journey and track your progress with Gym Forge.</p>
           </div>
 
           <form *ngIf="!isOtpStep" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
@@ -49,8 +50,12 @@
             <div class="form-item">
               <label for="name">Full Name</label>
               <div class="input-wrapper">
-                <input type="text" id="name" formControlName="name" placeholder="John Doe" required />
+                <input type="text" id="name" formControlName="name" placeholder="John Doe" maxlength="30" required />
               </div>
+              <small class="form-error" *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+                <span *ngIf="registerForm.get('name')?.errors?.['required']">Full Name is required.</span>
+                <span *ngIf="registerForm.get('name')?.errors?.['maxlength']">Max 30 characters allowed.</span>
+              </small>
             </div>
 
             <div class="form-item">
@@ -58,17 +63,27 @@
               <div class="input-wrapper">
                 <input type="email" id="email" formControlName="email" placeholder="name@gymforge.com" required />
               </div>
+              <small class="form-error" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+                <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</span>
+                <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
+              </small>
             </div>
 
             <div class="form-item">
               <label for="password">Password</label>
               <div class="input-wrapper">
                 <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-                  placeholder="••••••••" required />
+                  placeholder="••••••••" maxlength="30" required />
                 <button type="button" class="visibility-toggle" (click)="togglePassword()">
                   <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
+              <small class="form-error" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+                <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.<br></span>
+                <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.<br></span>
+                <span *ngIf="registerForm.get('password')?.errors?.['maxlength']">Password cannot exceed 30 characters.<br></span>
+                <span *ngIf="registerForm.get('password')?.errors?.['pattern']">Must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.</span>
+              </small>
             </div>
 
             <button class="submit-btn" type="submit" [disabled]="registerForm.invalid || isLoading">

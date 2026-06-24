@@ -367,11 +367,19 @@ namespace GymForge.Application.Modules.Users.Services
             }
             user.Preference.PrimaryGoal = dto.PrimaryGoal;
 
+            double heightInMeters = (double)dto.Height / 100.0;
+            double bmi = 0;
+            if (heightInMeters > 0)
+            {
+                bmi = Math.Round((double)dto.Weight / (heightInMeters * heightInMeters), 1);
+            }
+
             var measurement = new MemberMeasurement
             {
                 UserId = user.Id,
                 Height = (double)dto.Height,
                 Weight = (double)dto.Weight,
+                BMI = bmi,
                 Date = DateTime.UtcNow,
                 CreatedOn = DateTime.UtcNow,
                 IsAdvanced = false

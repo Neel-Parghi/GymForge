@@ -52,6 +52,7 @@ export class MainLayoutComponent implements OnInit {
   private announcementService = inject(AnnouncementService);
   private userNotificationService = inject(UserNotificationApiService);
   unreadAnnouncementsCount = 0;
+  showUserGuide = false;
 
   constructor() {
     this.menuItems = this.navService.getMenuItems();
@@ -165,6 +166,16 @@ export class MainLayoutComponent implements OnInit {
     if (this.isNotificationsOpen) {
       this.unreadAnnouncementsCount = 0;
       this.isBranchDropdownOpen = false;
+      this.showUserGuide = false;
+    }
+  }
+
+  toggleUserGuide(event: Event): void {
+    event.stopPropagation();
+    this.showUserGuide = !this.showUserGuide;
+    if (this.showUserGuide) {
+      this.isNotificationsOpen = false;
+      this.isBranchDropdownOpen = false;
     }
   }
 
@@ -218,5 +229,6 @@ export class MainLayoutComponent implements OnInit {
   closeDropdowns() {
     this.isBranchDropdownOpen = false;
     this.isNotificationsOpen = false;
+    this.showUserGuide = false;
   }
 }

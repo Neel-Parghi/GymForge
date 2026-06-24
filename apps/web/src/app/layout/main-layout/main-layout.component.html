@@ -171,9 +171,51 @@
               </div>
             </div>
           </div>
-          <button class="icon-btn" title="Help">
-            <i class="far fa-question-circle"></i>
-          </button>
+          <div class="user-guide-container" (click)="$event.stopPropagation()">
+            <button class="icon-btn" title="Help" (click)="toggleUserGuide($event)">
+              <i class="far fa-question-circle"></i>
+            </button>
+            <div class="user-guide-dropdown" *ngIf="showUserGuide">
+              <div class="dropdown-header">
+                <h3>GymForge User Guide</h3>
+              </div>
+              <div class="dropdown-body">
+                <ul class="guide-steps">
+                  <li>
+                    <div class="step-icon"><i class="fi fi-rr-calendar-lines"></i></div>
+                    <div class="step-text">
+                      <strong>1. Create Workout Planner</strong>
+                      <p>Set up daily training routines.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="step-icon"><i class="fi fi-rr-apple-whole"></i></div>
+                    <div class="step-text">
+                      <strong>2. Create Diet Planner</strong>
+                      <p>Add custom meals and nutrition macros.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="step-icon"><i class="fi fi-rr-users"></i></div>
+                    <div class="step-text">
+                      <strong>3. Assign Plans</strong>
+                      <p>Assign your plans to gym members.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="step-icon"><i class="fi fi-rr-chart-line-up"></i></div>
+                    <div class="step-text">
+                      <strong>4. Track Progress</strong>
+                      <p>Monitor user gains and analytics.</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="dropdown-footer">
+                <a href="javascript:void(0)" (click)="showUserGuide = false">Close Guide</a>
+              </div>
+            </div>
+          </div>
           <div class="topbar-profile" [routerLink]="profileRoute" *ngIf="userProfile$ | async as profile">
             @if (profile.profilePictureUrl) {
             <img [src]="getImageUrl(profile.profilePictureUrl)" alt="Profile" class="profile-avatar">

@@ -795,3 +795,101 @@
     }
   }
 }
+
+// User Guide Styles
+.user-guide-container {
+  position: relative;
+
+  .user-guide-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: -10px;
+    width: 340px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    .dropdown-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(135deg, rgba(0, 91, 188, 0.05) 0%, rgba(0, 91, 188, 0.01) 100%);
+      
+      h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+      }
+    }
+
+    .dropdown-body {
+      padding: 16px;
+
+      .guide-steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        li {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+
+          .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: rgba(0, 91, 188, 0.1);
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+          }
+
+          .step-text {
+            strong {
+              display: block;
+              font-size: 0.85rem;
+              color: var(--text-main);
+              margin-bottom: 2px;
+            }
+
+            p {
+              margin: 0;
+              font-size: 0.75rem;
+              color: var(--text-muted);
+              line-height: 1.4;
+            }
+          }
+        }
+      }
+    }
+
+    .dropdown-footer {
+      padding: 12px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-hover);
+
+      a {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

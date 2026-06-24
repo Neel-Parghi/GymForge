@@ -20,9 +20,14 @@ export class RegisterComponent {
   private notification = inject(NotificationService);
 
   registerForm = this.fb.group({
-    name: ['', [Validators.required]],
+    name: ['', [Validators.required, Validators.maxLength(30)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [
+      Validators.required, 
+      Validators.minLength(8), 
+      Validators.maxLength(30),
+      Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])/)
+    ]],
   });
 
   showPassword = false;
