@@ -68,7 +68,8 @@ export class UserWizardComponent implements OnInit {
 
   allowNumbersOnly(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+    // Allow numbers (48-57) and period (46) for decimals
+    if (charCode !== 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
       event.preventDefault();
     }
   }

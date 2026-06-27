@@ -1,29 +1,22 @@
-<div class="trainer-dashboard-container" [ngClass]="greetingTheme">
-  <!-- Dynamic Background Leaks -->
-  <div class="ambient-leaks-wrapper">
-    <div class="ambient-leak-1"></div>
-    <div class="ambient-leak-2"></div>
-    <div class="ambient-leak-3"></div>
-  </div>
-
-  <!-- Hero Banner Section -->
-  <header class="hero-section">
-    <div class="hero-content">
-      <div class="weather-icon-large">
-        <i class="fa-solid" [ngClass]="greetingIcon"></i>
-      </div>
-      <div class="hero-text">
-        <h1>{{ greeting }}, <span class="accent-text">{{ trainerName }}</span></h1>
-        <p class="subtitle">Here is what is scheduled for your shift today, {{ todayDate | date:'fullDate' }}</p>
-      </div>
+<div class="trainer-dashboard-container">
+  <!-- Hero Greetings & Streak (Full Width Top Section) -->
+  <div class="dashboard-header-row">
+    <div>
+      <h1 class="hero-title">
+        {{ greeting }}, 
+        <span class="text-accent">{{ trainerName }}</span>
+      </h1>
+      <p class="hero-subtitle">Here is what is scheduled for your shift today, {{ todayDate | date:'fullDate' }}</p>
     </div>
+
+    <!-- Header Actions -->
     <div class="hero-actions">
       <div class="header-badge" [ngClass]="{ 'checked-in': isCheckedIn }" (click)="toggleClock()">
         <div class="status-indicator"></div>
         <span>{{ isCheckedIn ? 'Active Shift' : 'Clocked Out' }}</span>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- Scrollable Content Area -->
   <div class="dashboard-scrollable-content">

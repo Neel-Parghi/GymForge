@@ -28,8 +28,8 @@ export class LoginComponent {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [
-      Validators.required, 
-      Validators.minLength(8), 
+      Validators.required,
+      Validators.minLength(8),
       Validators.maxLength(30),
       Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])/)
     ]],
@@ -52,7 +52,17 @@ export class LoginComponent {
           const data = response?.data || response;
           const token = data?.accessToken;
           if (token) {
-            this.notification.success(CONSTANTS.AUTH.LOGIN_SUCCESS);
+            // Parse token to check onboarding status
+            const decodedToken = this.authApiService.decodeToken();
+            const isOnboarded = decodedToken?.isOnboarded === 'True' || decodedToken?.isOnboarded === true;
+            const role = decodedToken?.role || decodedToken?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+            if (!isOnboarded && role !== 'SuperAdmin') {
+              this.notification.info('Complete the onboarding');
+            } else {
+              this.notification.success(CONSTANTS.AUTH.LOGIN_SUCCESS);
+            }
+
             this.authApiService.redirectUserByRole();
           } else {
             console.error('No token received from login API', response);
