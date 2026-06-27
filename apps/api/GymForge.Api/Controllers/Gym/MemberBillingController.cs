@@ -2,11 +2,14 @@ using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Gym.Billing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/billing/members")]
     [Authorize(Roles = "GymOwner,Staff")]
+    [RequireModuleAccess("billing")]
+    [ApiController]
     public class MemberBillingController : BaseApiController
     {
 

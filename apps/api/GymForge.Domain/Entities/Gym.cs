@@ -46,12 +46,12 @@ namespace GymForge.Domain.Entities
 
         public string? RoleRightsMatrixJson { get; set; }
 
-        public string? OperationsSettingsJson { get; set; }
-
         [ForeignKey(nameof(OwnerUserId))]
         public User Owner { get; set; } = null!;
 
         public Address? Address { get; set; }
+
+        public GymConfiguration? Configuration { get; set; }
 
         public ICollection<Branch>? Branches { get; set; }
     }

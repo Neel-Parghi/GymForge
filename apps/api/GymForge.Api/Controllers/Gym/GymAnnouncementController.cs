@@ -3,11 +3,12 @@ using GymForge.Contracts.Announcements;
 using GymForge.Contracts.Members;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using GymForge.Api.Filters;
 namespace GymForge.Api.Controllers.Gym
 {
     [ApiController]
     [Route("api/announcements")]
+    [RequireModuleAccess("announcements")]
     public class GymAnnouncementController : BaseApiController
     {
         private readonly IGymAnnouncementService _service;

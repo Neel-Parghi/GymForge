@@ -8,14 +8,7 @@ import { DateTimePickerComponent } from '../../../shared/components/date-time-pi
 import { GymSettingsService } from '../../../core/services/gym-settings.service';
 import { GymService } from '../../../core/services/gym.service';
 import { CONSTANTS } from '../../../core/constants/constants';
-
-interface Holiday {
-  id: string;
-  name: string;
-  date: string;
-  branchId?: string | null;
-  branchName?: string | null;
-}
+import { Holiday } from '../../../shared/models/gym.model';
 
 @Component({
   selector: 'app-settings',
@@ -48,8 +41,7 @@ export class SettingsComponent implements OnInit {
 
   // RBAC Config Schema
   roles = [
-    { key: 'Staff', label: 'Front Desk Staff' },
-    { key: 'Trainer', label: 'Trainer' }
+    { key: 'Staff', label: 'Front Desk Staff' }
   ];
 
   modules = [
@@ -147,7 +139,12 @@ export class SettingsComponent implements OnInit {
       expiryWarningDays: this.settingsForm.value.expiryWarningDays
     };
 
-    this.settingsService.updateSettings(rightsMatrix, automationsSettings).subscribe({
+    const payload = {
+      roleRightsMatrixJson: JSON.stringify(rightsMatrix),
+      planExpirationTriggerDays: this.settingsForm.value.expiryWarningDays
+    };
+
+    this.settingsService.updateSettings(payload, rightsMatrix, automationsSettings).subscribe({
       next: () => {
         this.saving = false;
         this.notification.success(CONSTANTS.GYM_OWNER_SETTINGS.UPDATE_SUCCESS);

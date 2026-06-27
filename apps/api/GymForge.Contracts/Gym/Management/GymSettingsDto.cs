@@ -6,6 +6,6 @@ namespace GymForge.Contracts.Gym.Management
     {
         public string? RoleRightsMatrixJson { get; set; }
 
-        public string? OperationsSettingsJson { get; set; }
+        public int PlanExpirationTriggerDays { get; set; } = 7;
     }
 }

@@ -52,13 +52,7 @@ export class DashboardComponent implements OnInit {
         const data = res?.data || res;
         this.stats = data;
 
-        if (this.stats && (!this.stats.membershipDistribution || this.stats.membershipDistribution.length === 0)) {
-          this.stats.membershipDistribution = [
-            { tierName: '12 Month Plan', count: 8, percentage: 60, color: '#0b2545' },
-            { tierName: '6 Month Plan', count: 3, percentage: 25, color: '#7a9acb' },
-            { tierName: '1 Month Plan', count: 2, percentage: 15, color: '#d4e1fa' }
-          ];
-        }
+
 
         this.isLoading = false;
       },
@@ -92,11 +86,6 @@ export class DashboardComponent implements OnInit {
 
   navigateToMembers(): void {
     this.router.navigate(['/gym-owner/members']);
-  }
-
-  sendRenewalReminder(renewal: any, event: Event): void {
-    event.stopPropagation();
-    this.notification.success(CONSTANTS.DASHBOARD.RENEWAL_REMINDER_SUCCESS.replace('{name}', renewal.memberName));
   }
 
   formatTotalMembers(): string {
@@ -154,15 +143,15 @@ export class DashboardComponent implements OnInit {
 
     if (!this.stats || !this.stats.hourlyOccupancy || this.stats.hourlyOccupancy.length === 0) {
       return [
-        { hour: '6 AM', occupancyCount: 22, isActivePeak: false },
-        { hour: '8 AM', occupancyCount: 32, isActivePeak: false },
-        { hour: '10 AM', occupancyCount: 18, isActivePeak: false },
-        { hour: '12 PM', occupancyCount: 14, isActivePeak: false },
-        { hour: '2 PM', occupancyCount: 22, isActivePeak: false },
-        { hour: '4 PM', occupancyCount: 28, isActivePeak: false },
-        { hour: '6 PM', occupancyCount: 45, isActivePeak: true },
-        { hour: '8 PM', occupancyCount: 38, isActivePeak: false },
-        { hour: '10 PM', occupancyCount: 15, isActivePeak: false }
+        { hour: '6 AM', occupancyCount: 0, isActivePeak: false },
+        { hour: '8 AM', occupancyCount: 0, isActivePeak: false },
+        { hour: '10 AM', occupancyCount: 0, isActivePeak: false },
+        { hour: '12 PM', occupancyCount: 0, isActivePeak: false },
+        { hour: '2 PM', occupancyCount: 0, isActivePeak: false },
+        { hour: '4 PM', occupancyCount: 0, isActivePeak: false },
+        { hour: '6 PM', occupancyCount: 0, isActivePeak: false },
+        { hour: '8 PM', occupancyCount: 0, isActivePeak: false },
+        { hour: '10 PM', occupancyCount: 0, isActivePeak: false }
       ];
     }
 

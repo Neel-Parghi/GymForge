@@ -315,7 +315,7 @@ namespace GymForge.Application.Modules.Gym.Services
             return new GymSettingsDto
             {
                 RoleRightsMatrixJson = gym.RoleRightsMatrixJson,
-                OperationsSettingsJson = gym.OperationsSettingsJson
+                PlanExpirationTriggerDays = gym.Configuration?.PlanExpirationTriggerDays ?? 7
             };
         }
 
@@ -328,12 +328,17 @@ namespace GymForge.Application.Modules.Gym.Services
             }
 
             gym.RoleRightsMatrixJson = dto.RoleRightsMatrixJson;
-            gym.OperationsSettingsJson = dto.OperationsSettingsJson;
+
+            if (gym.Configuration == null)
+            {
+                gym.Configuration = new GymConfiguration { GymId = gym.Id };
+            }
+            gym.Configuration.PlanExpirationTriggerDays = dto.PlanExpirationTriggerDays;
 
             _gymManagementRepository.UpdateGym(gym);
             await _unitOfWork.SaveChangesAsync();
         }
-
+        
         public async Task<List<GymHolidayDto>> GetHolidaysAsync(Guid gymId)
         {
             List<GymHoliday> holidays = await _gymManagementRepository.GetHolidaysAsync(gymId);

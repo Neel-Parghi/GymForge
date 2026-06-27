@@ -59,9 +59,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
     const matrixKey = `${role}_${matchedModKey}`;
 
     let defaultValue = true;
-    if (role === 'Trainer') {
-      defaultValue = matchedModKey === 'dashboard' || matchedModKey === 'members' || matchedModKey === 'attendance';
-    } else if (role === 'Staff') {
+    if (role === 'Staff') {
       defaultValue = matchedModKey === 'dashboard' || matchedModKey === 'members' || matchedModKey === 'attendance' || matchedModKey === 'inventory';
     }
 

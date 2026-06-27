@@ -4,11 +4,13 @@ using GymForge.Contracts.Staff;
 using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/staff")]
     [Authorize(Roles = "GymOwner,Staff,Trainer,User")]
+    [RequireModuleAccess("staff")]
     public class StaffController : BaseApiController
     {
         private readonly IStaffService _staffService;

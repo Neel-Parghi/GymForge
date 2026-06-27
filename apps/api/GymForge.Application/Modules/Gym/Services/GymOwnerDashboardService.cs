@@ -39,6 +39,9 @@ namespace GymForge.Application.Modules.Gym.Services
             IEnumerable<Staff>? staff = await _staffRepository.GetAllByGymIdAsync(gymId);
             List<SaleTransaction> sales = await _inventoryRepository.GetSalesByGymIdAsync(gymId);
 
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(gymId);
+            int triggerDays = gym?.Configuration?.PlanExpirationTriggerDays ?? 14;
+
             List<Branch>? branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
             int branchCount = branches?.Count ?? 0;
 
@@ -129,7 +132,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     Member = m, 
                     Sub = m.Subscriptions.Where(s => s.IsActive && s.EndDate > now).OrderBy(s => s.EndDate).First() 
                 })
-                .Where(x => x.Sub.EndDate <= now.AddDays(30))
+                .Where(x => x.Sub.EndDate <= now.AddDays(triggerDays))
                 .OrderBy(x => x.Sub.EndDate)
                 .Take(5)
                 .Select(x => new UpcomingRenewalDto

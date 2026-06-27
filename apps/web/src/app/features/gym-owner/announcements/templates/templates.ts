@@ -55,12 +55,18 @@ export class Templates implements OnInit {
 
   setupFormListeners(): void {
     this.templateForm.get('type')?.valueChanges.subscribe(type => {
-      const config = TEMPLATE_CONFIG[type];
+      const typeNum = Number(type);
+      const config = TEMPLATE_CONFIG[typeNum];
       if (config) {
         this.templateForm.patchValue({
-          name: this.templateForm.get('name')?.value || config.defaultName,
+          name: config.defaultName,
           titleTemplate: config.titleTemplate,
           messageTemplate: config.messageTemplate
+        });
+      } else if (typeNum === 0) {
+        this.templateForm.patchValue({
+          titleTemplate: '',
+          messageTemplate: ''
         });
       }
     });

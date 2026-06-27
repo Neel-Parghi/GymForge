@@ -65,6 +65,9 @@ namespace GymForge.Application.BackgroundJobs
                 return;
             }
 
+            Gym? gym = await _gymRepository.GetGymByIdAsync(gymId);
+            int triggerDays = gym?.Configuration?.PlanExpirationTriggerDays ?? 7;
+
             // 2. Fetch all active or recently expired subscriptions for this gym
             IEnumerable<MemberSubscription> subscriptions = await _memberRepository.GetActiveSubscriptionsByGymIdAsync(gymId);
             DateTime today = DateTime.UtcNow.Date;
@@ -85,7 +88,7 @@ namespace GymForge.Application.BackgroundJobs
                 }
                 
                 // EXPIRING SOON
-                if (expiringSoonTemplate != null && endDate == today.AddDays(3))
+                if (expiringSoonTemplate != null && endDate == today.AddDays(triggerDays))
                 {
                     await SendNotificationAsync(gymId, gymName, sub, expiringSoonTemplate);
                 }

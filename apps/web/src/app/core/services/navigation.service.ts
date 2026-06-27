@@ -74,9 +74,7 @@ export class NavigationService {
 
                 // Get the permission from matrix (if not found in matrix, fall back to defaults)
                 let defaultValue = true;
-                if (role === 'Trainer') {
-                    defaultValue = modKey === 'dashboard' || modKey === 'members' || modKey === 'attendance';
-                } else if (role === 'Staff') {
+                if (role === 'Staff') {
                     defaultValue = modKey === 'dashboard' || modKey === 'members' || modKey === 'attendance' || modKey === 'inventory';
                 }
 

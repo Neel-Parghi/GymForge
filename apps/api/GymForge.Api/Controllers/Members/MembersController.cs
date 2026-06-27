@@ -4,11 +4,13 @@ using GymForge.Contracts.Common;
 using GymForge.Contracts.Members;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Members
 {
     [Route("api/members")]
     [Authorize(Roles = "GymOwner,Staff,Trainer")]
+    [RequireModuleAccess("members")]
     public class MembersController : BaseApiController
     {
         private readonly IGymMemberService _memberService;

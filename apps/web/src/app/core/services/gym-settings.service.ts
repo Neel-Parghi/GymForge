@@ -44,12 +44,8 @@ export class GymSettingsService extends BaseApiService {
           }
         }
 
-        if (data?.operationsSettingsJson) {
-          try {
-            operations = JSON.parse(data.operationsSettingsJson);
-          } catch (e) {
-            console.error('Error parsing settings', e);
-          }
+        if (data?.planExpirationTriggerDays) {
+          operations = { expiryWarningDays: data.planExpirationTriggerDays };
         }
 
         this.settingsSubject.next({ roleRights, operations });
@@ -57,12 +53,7 @@ export class GymSettingsService extends BaseApiService {
     );
   }
 
-  updateSettings(roleRightsMatrix: any, operationsSettings: any): Observable<any> {
-    const payload = {
-      roleRightsMatrixJson: JSON.stringify(roleRightsMatrix),
-      operationsSettingsJson: JSON.stringify(operationsSettings)
-    };
-
+  updateSettings(payload: any, roleRightsMatrix: any, operationsSettings: any): Observable<any> {
     return this.put<any>(API_CONSTANTS.GYM.SETTINGS, payload).pipe(
       tap(() => {
         this.settingsSubject.next({ roleRights: roleRightsMatrix, operations: operationsSettings });

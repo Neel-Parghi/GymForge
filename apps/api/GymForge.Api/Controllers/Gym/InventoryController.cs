@@ -4,11 +4,13 @@ using GymForge.Contracts.Common;
 using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/inventory")]
     [Authorize(Roles = "GymOwner,Staff")]
+    [RequireModuleAccess("inventory")]
     [ApiController]
     public class InventoryController : BaseApiController
     {

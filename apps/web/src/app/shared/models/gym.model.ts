@@ -110,3 +110,10 @@ export interface UpdateMyGymRequest {
   autoEmailReceipts?: boolean;
 }
 
+export interface Holiday {
+  id: string;
+  name: string;
+  date: string;
+  branchId?: string | null;
+  branchName?: string | null;
+}

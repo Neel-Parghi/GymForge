@@ -155,7 +155,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<Gym?> GetGymByIdAsync(Guid id)
         {
-            return await _dbContext.Gyms.FindAsync(id);
+            return await _dbContext.Gyms
+                .Include(g => g.Configuration)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public Gym UpdateGym(Gym gym)

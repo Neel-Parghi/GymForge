@@ -27,6 +27,8 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<Gym> Gyms { get; set; }
 
+        public DbSet<GymConfiguration> GymConfigurations { get; set; }
+
         public DbSet<Address> Addresses { get; set; }
 
         public DbSet<Plan> Plans { get; set; }
@@ -157,6 +159,14 @@ namespace GymForge.Infrastructure.Persistence
                 entity.HasOne(u => u.Security)
                       .WithOne(s => s.User)
                       .HasForeignKey<UserSecurity>(s => s.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Gym>(entity =>
+            {
+                entity.HasOne(g => g.Configuration)
+                      .WithOne(c => c.Gym)
+                      .HasForeignKey<GymConfiguration>(c => c.GymId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

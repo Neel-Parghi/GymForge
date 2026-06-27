@@ -2,12 +2,12 @@ using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.GymPlans;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-
-
+using GymForge.Api.Filters;
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/gym-plans")]
-    [Authorize(Roles = "GymOwner")]
+    [Authorize(Roles = "GymOwner,Staff")]
+    [RequireModuleAccess("plans")]
     public class GymPlanController : BaseApiController
     {
         private readonly IGymPlanService _gymPlanService;
