@@ -91,7 +91,7 @@ export class OnboardStaffModalComponent implements OnInit {
     }
   }
 
-  submit() {
+  submit(sendInvitation: boolean = true) {
     if (this.onboardForm.valid && !this.isSubmitting) {
       const gymId = this.authService.getGymId();
       if (!gymId) {
@@ -117,6 +117,7 @@ export class OnboardStaffModalComponent implements OnInit {
         formattedShift = `${this.formatTo12Hour(formValue.shiftStartTime)} - ${this.formatTo12Hour(formValue.shiftEndTime)}`;
       }
       formValue.shiftTimings = formattedShift;
+      formValue.sendInvitation = sendInvitation;
 
       delete formValue.shiftStartTime;
       delete formValue.shiftEndTime;
@@ -127,7 +128,8 @@ export class OnboardStaffModalComponent implements OnInit {
 
       request.subscribe({
         next: () => {
-          this.notification.success(this.isEdit ? 'Staff profile updated!' : 'Staff invitation sent successfully!');
+          const successMsg = this.isEdit ? 'Staff profile updated!' : (sendInvitation ? 'Staff invitation sent successfully!' : 'Staff added successfully!');
+          this.notification.success(successMsg);
           this.staffOnboarded.emit();
           this.closeModal();
           this.isSubmitting = false;

@@ -16,7 +16,7 @@
     </div>
 
     <div class="modal-body">
-      <form [formGroup]="onboardForm" (ngSubmit)="submit()" class="onboard-form">
+      <form [formGroup]="onboardForm" (ngSubmit)="submit(true)" class="onboard-form">
 
         <!-- Basic Information Section -->
         <div class="form-section">
@@ -121,7 +121,7 @@
             <path fill="currentColor"
               d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
           </svg>
-          <p>The staff member will receive an email with a link to set their account password and join your gym.</p>
+          <p>You can choose to send an email invitation, or simply add the staff to the system without sending an email.</p>
         </div>
       </form>
     </div>
@@ -131,10 +131,19 @@
         <button class="secondary-btn" (click)="onTopClose()">Cancel</button>
       </div>
       <div class="footer-right">
-        <button class="primary-btn" (click)="submit()" [disabled]="onboardForm.invalid || isSubmitting">
-          {{ isSubmitting ? (isEdit ? 'Saving...' : 'Sending Invitation...') : (isEdit ? 'Save Changes' : 'Send
-          Invitation') }}
-        </button>
+        <ng-container *ngIf="isEdit">
+          <button class="primary-btn" (click)="submit(true)" [disabled]="onboardForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </ng-container>
+        <ng-container *ngIf="!isEdit">
+          <button class="secondary-btn" style="border: 1px solid var(--border-color);" (click)="submit(false)" [disabled]="onboardForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Adding...' : 'Add Staff' }}
+          </button>
+          <button class="primary-btn" style="margin-left: 12px;" (click)="submit(true)" [disabled]="onboardForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Sending...' : 'Send Invitation' }}
+          </button>
+        </ng-container>
       </div>
     </div>
 

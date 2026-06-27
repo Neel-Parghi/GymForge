@@ -71,7 +71,10 @@ namespace GymForge.Application.Modules.Gym.Services
                 };
                 await _authRepository.AddUserAsync(user);
 
-                await _emailService.SendInvitationEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", token);
+                if (request.SendInvitation)
+                {
+                    await _emailService.SendInvitationEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", token);
+                }
             }
 
             Staff staff = _mapper.Map<Staff>(request);

@@ -34,7 +34,8 @@ export interface AddStaffRequest {
   instagramUrl?: string;
   portfolioUrl?: string;
   shiftTimings?: string;
-  branchId?: string;
+  branchId?: string | null;
+  sendInvitation?: boolean;
 }
 
 export interface MeasurementResponse {

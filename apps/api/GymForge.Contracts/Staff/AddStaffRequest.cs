@@ -16,5 +16,6 @@ namespace GymForge.Contracts.Staff
         public string? PortfolioUrl { get; set; }
         public string? ShiftTimings { get; set; }
         public Guid? BranchId { get; set; }
+        public bool SendInvitation { get; set; } = true;
     }
 }
