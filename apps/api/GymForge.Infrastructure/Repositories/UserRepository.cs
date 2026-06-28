@@ -47,10 +47,18 @@ namespace GymForge.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteUserAsync(User user)
+        public async Task DeleteUserAsync(User user)
         {
+            // Delete custom personal plans authored by this user
+            await _dbContext.WorkoutPlans
+                .Where(p => p.CreatedBy == user.Id && p.IsCustom)
+                .ExecuteDeleteAsync();
+
+            await _dbContext.DietPlans
+                .Where(p => p.CreatedBy == user.Id && p.IsCustom)
+                .ExecuteDeleteAsync();
+
             _dbContext.Users.Remove(user);
-            return Task.CompletedTask;
         }
 
         public async Task<IEnumerable<User>> GetPendingDeletionRequestsAsync()
