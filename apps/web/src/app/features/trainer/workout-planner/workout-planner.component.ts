@@ -92,7 +92,7 @@ export class WorkoutPlannerComponent implements OnInit {
     if (!this.currentUserId) return;
     this.workoutPlanService.getPlans().subscribe({
       next: (plans) => {
-        const templates = (plans || []).filter(p => !p.isCustom);
+        const templates = (plans || []).filter(p => !p.isCustom || p.createdBy === this.currentUserId);
         this.splitPlanners = templates.filter(p => p.type === 'Split');
         this.weeklyPlanners = templates.filter(p => p.type === 'Weekly');
         this.dailyPlanners = templates.filter(p => p.type === 'Daily');
