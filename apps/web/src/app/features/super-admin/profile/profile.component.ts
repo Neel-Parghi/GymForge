@@ -10,6 +10,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
 import { API_CONSTANTS } from '../../../core/constants/api-constants';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { UserService } from '../../../core/services/user.service';
+import { ConfirmationService } from '../../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-profile',
@@ -42,7 +43,8 @@ export class ProfileComponent implements OnInit {
     private staffService: StaffService,
     private notification: NotificationService,
     private authApi: AuthApiService,
-    private userService: UserService
+    private userService: UserService,
+    private confirmationService: ConfirmationService
   ) {
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -269,9 +271,16 @@ export class ProfileComponent implements OnInit {
     fileInput?.click();
   }
 
-  scheduleAccountDeletion() {
-    if (!confirm('Are you sure you want to schedule your account for deletion? This action cannot be easily undone.')) return;
-    
+  async scheduleAccountDeletion() {
+    const confirmed = await this.confirmationService.confirm({
+      message: 'Are you sure you want to delete your account? This action cannot be undone.',
+      confirmText: 'Schedule Deletion',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
     this.isDeletingAccount = true;
     this.userService.scheduleAccountDeletion().subscribe({
       next: () => {
