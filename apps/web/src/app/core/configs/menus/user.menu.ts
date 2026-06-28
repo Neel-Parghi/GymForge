@@ -44,6 +44,12 @@ export const UserMenu: NavItem[] = [
         roles: ['User']
     },
     {
+        label: 'Diet Tracker',
+        icon: 'fa-solid fa-clipboard-list',
+        route: '/user/diet-tracker',
+        roles: ['User']
+    },
+    {
         label: 'Health Tracker',
         icon: 'fa-solid fa-heart-pulse',
         route: '/user/health-tracker',

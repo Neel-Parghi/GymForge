@@ -196,6 +196,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/user/user-health-tracker/user-health-tracker').then(m => m.UserHealthTracker)
       },
       {
+        path: 'diet-tracker',
+        loadComponent: () => import('./features/user/user-diet-tracker/user-diet-tracker.component').then(m => m.UserDietTrackerComponent)
+      },
+      {
         path: 'billing',
         loadComponent: () => import('./features/user/user-billing/user-billing').then(m => m.UserBilling)
       },

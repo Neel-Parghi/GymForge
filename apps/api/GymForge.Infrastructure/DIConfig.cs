@@ -1,4 +1,5 @@
 using GymForge.Application.Modules.Common.Interfaces;
+using GymForge.Application.Modules.Diet.Interfaces;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using GymForge.Infrastructure.Persistence.Interceptos;
@@ -98,6 +99,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
             services.AddScoped<IMemberBillingRepository, MemberBillingRepository>();
+            services.AddScoped<IDietTrackingRepository, DietTrackingRepository>();
             services.AddScoped<IWorkoutRepository, WorkoutRepository>();
             services.AddScoped<IWorkoutPlanRepository, WorkoutPlanRepository>();
             services.AddScoped<IMemberWorkoutRepository, MemberWorkoutRepository>();
@@ -106,6 +108,7 @@ namespace GymForge.Infrastructure
             services.AddScoped<IGymAnnouncementRepository, GymAnnouncementRepository>();
             services.AddScoped<IAnnouncementTemplateRepository, AnnouncementTemplateRepository>();
             services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+            services.AddHttpClient<INutritionApiService, NutritionApiService>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))

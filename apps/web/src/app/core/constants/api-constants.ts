@@ -138,7 +138,19 @@ export const API_CONSTANTS = {
     PAY_INVOICE: 'billing/members/pay',
     STAFF_OVERVIEW: 'billing/staff/overview',
     UPDATE_STAFF_RULES: 'billing/staff/rules',
-    RELEASE_STAFF_PAYOUT: 'billing/staff/payout/release'
+    RELEASE_STAFF_PAYOUT: 'billing/staff/payout/release',
+    UPDATE_STAFF: (id: string) => `/api/gym-owner/staff/${id}`,
+    DELETE_STAFF: (id: string) => `/api/gym-owner/staff/${id}`
+  },
+  DIET_TRACKING: {
+    USER_GET_LOG: (date: string) => `user/diet-tracking/${date}`,
+    USER_ADD_MEAL: 'user/diet-tracking/meals',
+    USER_REMOVE_MEAL: (id: string) => `user/diet-tracking/meals/${id}`,
+    USER_SUMMARY: (endDate: string) => `user/diet-tracking/summary/${endDate}`,
+    USER_SEARCH_FOOD: (query: string) => `user/diet-tracking/search-food?query=${encodeURIComponent(query)}`,
+
+    TRAINER_GET_LOG: (memberId: string, date: string) => `trainer/diet-tracking/${memberId}/${date}`,
+    TRAINER_SUMMARY: (memberId: string, endDate: string) => `trainer/diet-tracking/${memberId}/summary/${endDate}`,
   },
   COMMON: {
     UPLOAD: 'fileupload'

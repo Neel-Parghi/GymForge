@@ -18,6 +18,8 @@ namespace GymForge.Domain.Entities
 
         public bool IsActive { get; set; }
 
+        public int AiPlanGenerationsCount { get; set; } = 0;
+
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
         public UserSecurity? Security { get; set; }

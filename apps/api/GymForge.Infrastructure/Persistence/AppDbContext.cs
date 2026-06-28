@@ -58,6 +58,10 @@ namespace GymForge.Infrastructure.Persistence
         public DbSet<InventoryItem> InventoryItems { get; set; }
         
         public DbSet<Equipment> Equipment { get; set; }
+
+        public DbSet<DietLog> DietLogs { get; set; }
+       
+        public DbSet<MealLogEntry> MealLogEntries { get; set; }
         
         public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
         
@@ -169,6 +173,36 @@ namespace GymForge.Infrastructure.Persistence
                       .HasForeignKey<GymConfiguration>(c => c.GymId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<DietPlanMeal>()
+                .Property(m => m.Protein)
+                .HasColumnType("decimal(18,2)");
+                
+            modelBuilder.Entity<DietLog>()
+                .Property(d => d.TargetProtein).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<DietLog>()
+                .Property(d => d.TargetCarbs).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<DietLog>()
+                .Property(d => d.TargetFats).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<DietLog>()
+                .Property(d => d.TotalProtein).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<DietLog>()
+                .Property(d => d.TotalCarbs).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<DietLog>()
+                .Property(d => d.TotalFats).HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<MealLogEntry>()
+                .Property(m => m.Protein).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<MealLogEntry>()
+                .Property(m => m.Carbs).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<MealLogEntry>()
+                .Property(m => m.Fats).HasColumnType("decimal(18,2)");
+                
+            modelBuilder.Entity<MealLogEntry>()
+                .HasOne(m => m.DietLog)
+                .WithMany(d => d.MealEntries)
+                .HasForeignKey(m => m.DietLogId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Plan>()
                 .Property(x => x.Price)

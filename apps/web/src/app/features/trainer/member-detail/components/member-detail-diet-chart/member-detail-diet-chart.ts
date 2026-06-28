@@ -1,9 +1,11 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MemberService } from '../../../../../core/services/member.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
 import { ConfirmationService } from '../../../../../core/services/confirmation.service';
+import { DietTrackingService } from '../../../../../core/services/diet-tracking.service';
+import { AuthApiService } from '../../../../../core/services/auth-api.service';
 import { DietTemplateCreatorComponent } from '../../../../../shared/components/diet-library/diet-template-creator/diet-template-creator.component';
 
 @Component({
@@ -13,10 +15,12 @@ import { DietTemplateCreatorComponent } from '../../../../../shared/components/d
   templateUrl: './member-detail-diet-chart.html',
   styleUrl: './member-detail-diet-chart.scss',
 })
-export class PTMemberDetailDietChartComponent {
+export class PTMemberDetailDietChartComponent implements OnChanges {
   private memberService = inject(MemberService);
   private notification = inject(NotificationService);
   private confirmationService = inject(ConfirmationService);
+  private dietTrackingService = inject(DietTrackingService);
+  private authService = inject(AuthApiService);
 
   @Input() activeDiet: any = null;
   @Input() memberId: string = '';
@@ -27,6 +31,28 @@ export class PTMemberDetailDietChartComponent {
 
   showCreateCustomModal = false;
   customPlanData: any = null;
+
+  // Diet Tracking Data
+  // Diet Tracking Data
+  dietLog: any = null;
+  isUserRole: boolean = false;
+
+  ngOnChanges(): void {
+    this.isUserRole = this.authService.getUserRole() === 'User';
+    if (this.memberId) {
+      this.loadDietLog();
+    }
+  }
+
+  loadDietLog(): void {
+    if (this.isUserRole) return; // Tracker section is hidden for users — no need to fetch
+
+    const today = new Date().toISOString().split('T')[0];
+    this.dietTrackingService.getMemberDietLog(this.memberId, today).subscribe({
+      next: (log) => this.dietLog = log,
+      error: (err) => console.error('Failed to load member diet log', err)
+    });
+  }
 
   onOpenAssignModal(): void {
     this.openAssignModal.emit();

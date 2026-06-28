@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymForge.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628071558_AddAiPlanGenerationsCountToUser")]
+    partial class AddAiPlanGenerationsCountToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -367,61 +370,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.ToTable("DailyRoutineCompletions");
                 });
 
-            modelBuilder.Entity("GymForge.Domain.Entities.DietLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("LogDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("TargetCalories")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TargetCarbs")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TargetFats")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TargetProtein")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TotalCalories")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalCarbs")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalFats")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalProtein")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("DietLogs");
-                });
-
             modelBuilder.Entity("GymForge.Domain.Entities.DietPlan", b =>
                 {
                     b.Property<Guid>("Id")
@@ -521,7 +469,7 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal>("Protein")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -1310,67 +1258,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("MasterExercises");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.MealLogEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Calories")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Carbs")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("DietLogId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ExternalFoodId")
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Fats")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("FoodName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MealType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("Protein")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ServingSize")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("ServingUnit")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("SourceDietPlanMealId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DietLogId");
-
-                    b.ToTable("MealLogEntries");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberDietAssignment", b =>
@@ -2903,17 +2790,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GymForge.Domain.Entities.DietLog", b =>
-                {
-                    b.HasOne("GymForge.Domain.Entities.User", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-                });
-
             modelBuilder.Entity("GymForge.Domain.Entities.DietPlanMeal", b =>
                 {
                     b.HasOne("GymForge.Domain.Entities.DietPlan", "DietPlan")
@@ -3081,17 +2957,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Equipment");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.MealLogEntry", b =>
-                {
-                    b.HasOne("GymForge.Domain.Entities.DietLog", "DietLog")
-                        .WithMany("MealEntries")
-                        .HasForeignKey("DietLogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DietLog");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.MemberDietAssignment", b =>
@@ -3488,11 +3353,6 @@ namespace GymForge.Infrastructure.Persistence.Migrations
                     b.Navigation("Member");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GymForge.Domain.Entities.DietLog", b =>
-                {
-                    b.Navigation("MealEntries");
                 });
 
             modelBuilder.Entity("GymForge.Domain.Entities.DietPlan", b =>

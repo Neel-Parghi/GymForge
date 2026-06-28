@@ -11,7 +11,7 @@ namespace GymForge.Api
             if (string.IsNullOrEmpty(val))
                 return DateTime.MinValue;
 
-            return DateTime.Parse(val).ToUniversalTime();
+            return DateTime.Parse(val, null, System.Globalization.DateTimeStyles.RoundtripKind);
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
@@ -25,7 +25,7 @@ namespace GymForge.Api
         public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             string? val = reader.GetString();
-            return string.IsNullOrEmpty(val) ? null : DateTime.Parse(val).ToUniversalTime();
+            return string.IsNullOrEmpty(val) ? null : DateTime.Parse(val, null, System.Globalization.DateTimeStyles.RoundtripKind);
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)

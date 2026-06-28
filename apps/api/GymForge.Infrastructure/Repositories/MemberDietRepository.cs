@@ -19,7 +19,7 @@ namespace GymForge.Infrastructure.Repositories
             return await _dbContext.MemberDietAssignments
                 .Include(mda => mda.DietPlan)
                     .ThenInclude(dp => dp.Meals)
-                .Where(mda => (mda.MemberId == memberOrUserId || mda.UserId == memberOrUserId) && mda.IsActive)
+                .Where(mda => (mda.MemberId == memberOrUserId || mda.UserId == memberOrUserId || (mda.Member != null && mda.Member.UserId == memberOrUserId)) && mda.IsActive)
                 .OrderByDescending(mda => mda.AssignedAt)
                 .FirstOrDefaultAsync();
         }
