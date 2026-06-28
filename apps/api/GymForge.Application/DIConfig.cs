@@ -14,7 +14,6 @@ using GymForge.Application.Modules.Common.Interfaces;
 using GymForge.Application.Modules.Workout.Interface;
 using GymForge.Application.Modules.Workout.Services;
 using GymForge.Application.Modules.Diet.Interface;
-using GymForge.Application.Modules.Diet.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,8 +24,6 @@ namespace GymForge.Application
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthService, AuthService>();
-            
-            services.AddHttpClient<IAiWorkoutGenerationService, AiWorkoutGenerationService>();
 
             services.AddScoped<IJwtService, JwtService>();
 
