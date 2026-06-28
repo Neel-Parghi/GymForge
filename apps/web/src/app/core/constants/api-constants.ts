@@ -13,7 +13,8 @@ export const API_CONSTANTS = {
     REFRESH: 'auth/refresh',
     ME: 'auth/me',
     FORGOT_PASSWORD: 'auth/forgot-password',
-    RESET_PASSWORD: 'auth/reset-password'
+    RESET_PASSWORD: 'auth/reset-password',
+    REQUEST_DELETION: 'auth/request-deletion'
   },
   USER: {
     PROFILE: 'users/profile',
@@ -30,7 +31,6 @@ export const API_CONSTANTS = {
     STANDALONE: 'users/standalone',
     SAVE_ONBOARDING_STEP: 'users/save-onboarding-step',
     COMPLETE_ONBOARDING: 'users/complete-user-onboarding',
-    ACCOUNT_DELETION_SCHEDULE: 'users/accountdeletionschedule',
     DASHBOARD: 'users/dashboard',
     ROUTINES: 'users/routines',
     AVAILABLE_PLANS: 'user-plans/available'

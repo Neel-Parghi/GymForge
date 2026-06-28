@@ -101,7 +101,7 @@ export class UserService extends BaseApiService {
   }
 
   scheduleAccountDeletion(): Observable<any> {
-    return this.post(API_CONSTANTS.USER.ACCOUNT_DELETION_SCHEDULE, {});
+    return this.delete(API_CONSTANTS.AUTH.REQUEST_DELETION);
   }
 
   private dashboardCache$: Observable<any> | null = null;
