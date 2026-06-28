@@ -1,6 +1,5 @@
 using GymForge.Api;
 using GymForge.Api.Middlewares;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using GymForge.Application;
 using GymForge.Infrastructure;
@@ -143,10 +142,15 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
-// Schedule automated notifications to run every day at 8:00 AM using Hangfire
+// Schedule automated notifications to run every day using Hangfire
 RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>(
     "daily-notifications",
     job => job.ExecuteAsync(),
-    "0 8 * * *");
+    Cron.Daily(0, 0)); // Midnight UTC
+
+RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.SaaSExpiryJob>(
+    "daily-saas-expiry",
+    job => job.ExecuteAsync(),
+    Cron.Daily(1, 0)); // 1:00 AM UTC
 
 app.Run();

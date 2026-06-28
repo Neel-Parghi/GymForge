@@ -23,7 +23,7 @@ export class TourService {
       steps = [
         { element: '#nav-members', popover: { title: '<i class="fa-solid fa-users"></i> Member Management', description: 'Manage all gym members and their subscriptions.', side: 'right', align: 'start' } },
         { element: '#nav-gym-plans', popover: { title: '<i class="fa-solid fa-receipt"></i> Gym Plans', description: 'Create subscription plans and memberships for your gym.', side: 'right', align: 'start' } },
-        { element: '#nav-billing-&-invoices', popover: { title: '<i class="fa-solid fa-file-invoice-dollar"></i> Finances', description: 'Track gym revenue, bills, and payouts.', side: 'right', align: 'start' } },
+        { element: '#nav-billing-and-invoices', popover: { title: '<i class="fa-solid fa-file-invoice-dollar"></i> Finances', description: 'Track gym revenue, bills, and payouts.', side: 'right', align: 'start' } },
         { element: '#nav-dashboard', popover: { title: '<i class="fa-solid fa-house"></i> Dashboard', description: 'View high-level statistics and financial summaries.', side: 'right', align: 'start' } }
       ];
     } else if (role === 'Staff') {

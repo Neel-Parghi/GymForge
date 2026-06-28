@@ -136,7 +136,7 @@ namespace GymForge.Infrastructure.Repositories
                         .Select(s => s.IsTrial)
                         .FirstOrDefault(),
                     PaymentStatus = _dbContext.SaaSPaymentTransactions
-                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        .Any(t => t.GymId == g.Id && t.Status == "Paid") ? "Paid" :
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .OrderByDescending(g => g.CreatedOn)
@@ -243,7 +243,7 @@ namespace GymForge.Infrastructure.Repositories
                         .Select(s => s.IsTrial)
                         .FirstOrDefault(),
                     PaymentStatus = _dbContext.SaaSPaymentTransactions
-                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        .Any(t => t.GymId == g.Id && t.Status == "Paid") ? "Paid" :
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .FirstOrDefaultAsync();
@@ -295,7 +295,7 @@ namespace GymForge.Infrastructure.Repositories
                         .Select(s => s.IsTrial)
                         .FirstOrDefault(),
                     PaymentStatus = _dbContext.SaaSPaymentTransactions
-                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        .Any(t => t.GymId == g.Id && t.Status == "Paid") ? "Paid" :
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .FirstOrDefaultAsync();
@@ -345,7 +345,7 @@ namespace GymForge.Infrastructure.Repositories
                         .Select(s => s.IsTrial)
                         .FirstOrDefault(),
                     PaymentStatus = _dbContext.SaaSPaymentTransactions
-                        .Any(t => t.GymId == g.Id && t.Status == "Success") ? "Paid" :
+                        .Any(t => t.GymId == g.Id && t.Status == "Paid") ? "Paid" :
                         (_dbContext.SubscriptionRecords.Any(s => s.GymId == g.Id) ? "Pending" : "Unpaid")
                 })
                 .OrderByDescending(g => g.CreatedOn)
@@ -375,13 +375,17 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task DeleteHolidayAsync(Guid gymId, Guid holidayId)
         {
-            GymHoliday? holiday = await _dbContext.GymHolidays
+            var holiday = await _dbContext.GymHolidays
                 .FirstOrDefaultAsync(h => h.GymId == gymId && h.Id == holidayId);
-                
             if (holiday != null)
             {
                 _dbContext.GymHolidays.Remove(holiday);
             }
+        }
+
+        public async Task<GymConfiguration?> GetGymConfigurationAsync(Guid gymId)
+        {
+            return await _dbContext.GymConfigurations.FirstOrDefaultAsync(c => c.GymId == gymId);
         }
     }
 }

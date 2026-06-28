@@ -8,6 +8,7 @@ namespace GymForge.Api.Controllers.Gym
     [Route("api/gym-plans")]
     [Authorize(Roles = "GymOwner,Staff")]
     [RequireModuleAccess("plans")]
+    [AllowExpiredSubscription]
     public class GymPlanController : BaseApiController
     {
         private readonly IGymPlanService _gymPlanService;
@@ -54,6 +55,17 @@ namespace GymForge.Api.Controllers.Gym
                 return Ok(new { Success = false, Message = "PLAN_HAS_MEMBERS" });
             }
             return Ok(new { Success = true, Message = "Plan deleted successfully" });
+        }
+
+        [HttpPost("{id}/promote")]
+        public async Task<ActionResult> PromoteGymPlanAsync(Guid id)
+        {
+            bool success = await _gymPlanService.PromotePlanAsync(id, UserId);
+            
+            if (!success) 
+                return BadRequest("Unable to promote plan.");
+            
+            return Ok(new { Success = true, Message = "Plan promoted successfully" });
         }
     }
 }

@@ -89,7 +89,7 @@
             <h2>Branches Management</h2>
             <p>Currently managing {{ branches.length }} active locations</p>
           </div>
-          <button class="primary-btn" (click)="addBranch()">
+          <button class="primary-btn" (click)="addBranch()" [disabled]="!canAddBranch">
             Add New Branch
           </button>
         </div>
@@ -171,10 +171,10 @@
           <div class="allowance-tracker">
             <div class="tracker-header">
               <label class="tiny-label">BRANCH ALLOWANCE</label>
-              <span>{{ branches.length || 3 }} / 10</span>
+              <span>{{ branches.length }} / {{ currentPlanMaxBranches }}</span>
             </div>
             <div class="progress-bar">
-              <div class="fill" [style.width.%]="((branches.length || 3) / 10) * 100"></div>
+              <div class="fill" [style.width.%]="branchAllowancePercentage"></div>
             </div>
           </div>
 
@@ -277,46 +277,57 @@
             </button>
           </div>
 
-          <div class="plans-grid">
-            <div class="plan-card" *ngFor="let plan of pricingPlans"
-              [class.active-plan]="gymData?.planName === plan.name">
-              <div class="active-badge" *ngIf="gymData?.planName === plan.name">ACTIVE PLAN</div>
-              <div class="plan-header">
-                <h3>{{ plan.name }}</h3>
-                <p class="plan-description">{{ plan.description || 'Access to premium core features' }}</p>
-                <div class="plan-price">
-                  <span class="currency">$</span>
-                  <span class="amount">{{ plan.price }}</span>
-                  <span class="duration">/ {{ plan.durationInDays }} days</span>
+          <div class="carousel-wrapper">
+            <button class="nav-btn prev" (click)="prevSlide()" *ngIf="pricingPlans.length > 1">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="carousel-viewport">
+              <div class="plans-grid" [style.--carousel-transform]="getCarouselTransform()" [class.no-transition]="isResetting">
+                <div class="plan-card" *ngFor="let plan of displayPlans"
+                  [class.active-plan]="gymData?.planName === plan.name"
+                  [class.featured]="plan.id === featuredPlanId">
+                  <div class="active-badge" *ngIf="gymData?.planName === plan.name">ACTIVE PLAN</div>
+                  <div class="plan-header">
+                    <h3>{{ plan.name }}</h3>
+                    <p class="plan-description">{{ plan.description || 'Access to premium core features' }}</p>
+                    <div class="plan-price">
+                      <span class="currency">$</span>
+                      <span class="amount">{{ plan.price }}</span>
+                      <span class="duration">/ {{ plan.durationInDays }} days</span>
+                    </div>
+                  </div>
+
+                  <div class="plan-features">
+                    <div class="feature-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span><strong>{{ plan.maxBranches || 'Unlimited' }}</strong> Branches Allowed</span>
+                    </div>
+                    <div class="feature-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span><strong>{{ plan.maxMembers || 'Unlimited' }}</strong> Active Members</span>
+                    </div>
+                    <div class="feature-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span>Full Dashboard & Analytics</span>
+                    </div>
+                    <div class="feature-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span>Unlimited Maintenance Schedules</span>
+                    </div>
+                  </div>
+
+                  <button class="btn-upgrade-action" [disabled]="gymData?.planName === plan.name || isProcessingPayment"
+                    (click)="payForPlan(plan)">
+                    <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment && selectedUpgradePlanId === plan.id"></i>
+                    {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' : 'UPGRADE
+                    NOW') }}
+                  </button>
                 </div>
               </div>
-
-              <div class="plan-features">
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span><strong>{{ plan.maxBranches || 'Unlimited' }}</strong> Branches Allowed</span>
-                </div>
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span><strong>{{ plan.maxMembers || 'Unlimited' }}</strong> Active Members</span>
-                </div>
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Full Dashboard & Analytics</span>
-                </div>
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Unlimited Maintenance Schedules</span>
-                </div>
-              </div>
-
-              <button class="btn-upgrade-action" [disabled]="gymData?.planName === plan.name || isProcessingPayment"
-                (click)="payForPlan(plan)">
-                <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment && selectedUpgradePlanId === plan.id"></i>
-                {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' : 'UPGRADE
-                NOW') }}
-              </button>
             </div>
+            <button class="nav-btn next" (click)="nextSlide()" *ngIf="pricingPlans.length > 1">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
           </div>
         </div>
       </div>

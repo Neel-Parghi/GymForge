@@ -28,5 +28,6 @@ namespace GymForge.Domain.Interface
         Task<List<GymHoliday>> GetHolidaysAsync(Guid gymId);
         Task AddHolidayAsync(GymHoliday holiday);
         Task DeleteHolidayAsync(Guid gymId, Guid holidayId);
+        Task<GymConfiguration?> GetGymConfigurationAsync(Guid gymId);
     }
 }

@@ -12,6 +12,7 @@ import { MemberService } from '../../../core/services/member.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { GymService } from '../../../core/services/gym.service';
 import { PricingService } from '../../../core/services/pricing.service';
+import { PricingPlan } from '../../../shared/models/pricing.model';
 import { InvoiceDetailModalComponent } from './components/invoice-detail-modal/invoice-detail-modal.component';
 import { CreateInvoiceModalComponent } from './components/create-invoice-modal/create-invoice-modal.component';
 import { PayrollRulesModalComponent } from './components/payroll-rules-modal/payroll-rules-modal.component';
@@ -62,6 +63,8 @@ export class BillingComponent implements OnInit {
 
   prefillInvoiceData: any = null;
 
+  isSaaSLocked: boolean = false;
+  availableSaaSPlans: PricingPlan[] = [];
   subscriptionStatus: GymSubscriptionStatus | null = null;
   gymMembers: any[] = [];
   gymDetails: any = null;
@@ -149,12 +152,26 @@ export class BillingComponent implements OnInit {
     });
 
     this.route.queryParams.subscribe(params => {
+      if (params['expired'] === 'true') {
+        this.isSaaSLocked = true;
+        this.activeTab = 'saas';
+        this.pricingService.getAllPlans().subscribe({
+          next: (res) => {
+            if (res.data) {
+              this.availableSaaSPlans = res.data.filter(p => p.isActive);
+            }
+          }
+        });
+      }
+
       if (params['createInvoice'] === 'true') {
         const memberId = params['memberId'];
         const reason = params['reason'] || 'PT';
         const duration = params['duration'] || 'ongoing';
 
-        this.activeTab = 'member';
+        if (!this.isSaaSLocked) {
+          this.activeTab = 'member';
+        }
 
         this.memberService.getGymMembers(1, 100).subscribe({
           next: (res) => {
@@ -194,6 +211,20 @@ export class BillingComponent implements OnInit {
             }
           }
         });
+      }
+    });
+  }
+
+  renewSaaSPlan(planId: string) {
+    this.paymentService.renewSubscription(planId).subscribe({
+      next: () => {
+        this.notification.success('Subscription renewed successfully!');
+        this.isSaaSLocked = false;
+        this.activeTab = 'member';
+        this.router.navigate(['/owner/billing']);
+      },
+      error: () => {
+        this.notification.error('Failed to renew subscription.');
       }
     });
   }

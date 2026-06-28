@@ -1230,3 +1230,63 @@ $color-info-bg: #f0f9ff;
   color: $color-success !important;
   font-weight: 600 !important;
 }
+
+.saas-locked-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 40px;
+
+  .lock-content {
+    text-align: center;
+
+    .lock-icon {
+      font-size: 48px;
+      color: #facc15;
+      margin-bottom: 16px;
+    }
+
+    .saas-plans-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .saas-plan-card {
+      background: #1e1e1e;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      text-align: center;
+      min-width: 250px;
+
+      .plan-name {
+        margin-bottom: 8px;
+        color: #fff;
+      }
+
+      .plan-price {
+        color: #3b82f6;
+        margin-bottom: 16px;
+
+        .plan-duration {
+          font-size: 14px;
+          color: #888;
+        }
+      }
+
+      .plan-members {
+        color: #aaa;
+        margin-bottom: 24px;
+        font-size: 14px;
+      }
+
+      .select-plan-btn {
+        width: 100%;
+      }
+    }
+  }
+}

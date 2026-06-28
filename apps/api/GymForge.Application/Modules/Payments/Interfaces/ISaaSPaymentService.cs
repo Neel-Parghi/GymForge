@@ -19,7 +19,7 @@ namespace GymForge.Application.Modules.Payments.Interfaces
 
         Task<GymSubscriptionStatusDto> GetSubscriptionStatusAsync(Guid gymId);
 
-        Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, string planName = "GymForge Pro Plan", decimal price = 4999);
+        Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, Guid planId);
 
         Task<List<PaymentTransactionDto>> GetGymTransactionsAsync(Guid gymId);
     }

@@ -1,8 +1,10 @@
+using GymForge.Api.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers
 {
     [ApiController]
+    [RequireActiveSubscription]
     public abstract class BaseApiController : ControllerBase
     {
         protected Guid UserId

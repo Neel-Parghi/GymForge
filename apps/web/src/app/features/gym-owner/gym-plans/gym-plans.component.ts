@@ -97,10 +97,16 @@ export class GymPlansComponent implements OnInit {
 
     this.featuredPlanId = this.plans[0].id;
 
+    if (this.plans.length <= 2) {
+      this.displayPlans = [...this.plans];
+      this.currentIndex = 1;
+      return;
+    }
+
     const last = this.plans[this.plans.length - 1];
-    const secondLast = this.plans.length > 1 ? this.plans[this.plans.length - 2] : last;
+    const secondLast = this.plans[this.plans.length - 2];
     const first = this.plans[0];
-    const second = this.plans.length > 1 ? this.plans[1] : first;
+    const second = this.plans[1];
 
     this.displayPlans = [secondLast, last, ...this.plans, first, second];
     this.currentIndex = 2;
@@ -314,6 +320,26 @@ export class GymPlansComponent implements OnInit {
         this.loadPlans();
       },
       error: () => this.notificationService.error(CONSTANTS.GYM_PLANS_MODULE.STATUS_UPDATE_ERROR)
+    });
+  }
+
+  promotePlan(plan: GymPlan): void {
+    this.confirmationService.confirm({
+      title: 'Promote Plan',
+      message: `Are you sure you want to promote ${plan.name}? This will send a notification to all members of your gym.`,
+      confirmText: 'Promote',
+      type: 'info',
+    }).then(confirmed => {
+      if (confirmed) {
+        this.gymPlanService.promotePlan(plan.id).subscribe({
+          next: (res: any) => {
+            this.notificationService.success('Plan promoted successfully! All members have been notified.');
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to promote the plan.');
+          }
+        });
+      }
     });
   }
 }

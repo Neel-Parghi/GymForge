@@ -793,16 +793,16 @@
 }
 
 .upgrade-modal {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   width: 100%;
-  max-width: 950px;
+  max-width: 900px;
   border-radius: 20px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
   padding: 32px;
   max-height: 90vh;
   overflow-y: auto;
-  color: white;
+  color: #0f172a;
   animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   .modal-header {
@@ -810,7 +810,7 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 32px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #e2e8f0;
     padding-bottom: 16px;
 
     .header-content {
@@ -818,22 +818,22 @@
         margin: 0 0 8px 0;
         font-size: 1.8rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        background: linear-gradient(135deg, #0e5e81, #000a68);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
 
       p {
         margin: 0;
-        color: #94a3b8;
+        color: #64748b;
         font-size: 0.95rem;
       }
     }
 
     .close-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -845,23 +845,80 @@
 
       &:hover {
         color: white;
-        background: rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.8);
+        border-color: rgba(239, 68, 68, 1);
       }
     }
   }
 }
 
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px 30px;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  width: 584px;
+  /* Exactly 2 cards (280px each) + 1 gap (24px) */
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
 .plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  display: flex;
+  align-items: stretch;
   gap: 24px;
-  margin-top: 16px;
+  transform: var(--carousel-transform, translateX(0));
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+
+  &.no-transition {
+    transition: none !important;
+  }
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #0f172a;
+    color: #fff;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &.prev {
+    left: -10px;
+  }
+
+  &.next {
+    right: -10px;
+  }
 }
 
 .plan-card {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  flex: 0 0 280px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 32px 24px;
   display: flex;
@@ -872,19 +929,19 @@
 
   &:hover {
     transform: translateY(-8px);
-    background: rgba(30, 41, 59, 0.6);
-    border-color: rgba(56, 189, 248, 0.3);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   }
 
   &.active-plan {
-    background: rgba(14, 165, 233, 0.05);
-    border: 2px solid #0ea5e9;
-    box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2);
+    background: #f0f9ff;
+    border: 2px solid #0e5e81;
+    box-shadow: 0 10px 15px -3px rgba(14, 94, 129, 0.1);
 
     &:hover {
-      background: rgba(14, 165, 233, 0.08);
-      border-color: #38bdf8;
+      background: #e0f2fe;
+      border-color: #000a68;
     }
   }
 
@@ -892,13 +949,14 @@
     position: absolute;
     top: 16px;
     right: 16px;
-    background: #0ea5e9;
+    background: #0e5e81;
     color: white;
     font-size: 0.65rem;
-    font-weight: 800;
+    font-weight: 700;
     padding: 4px 10px;
     border-radius: 20px;
     letter-spacing: 0.5px;
+    margin-top: -10px;
   }
 
   .plan-header {
@@ -908,12 +966,12 @@
       margin: 0 0 12px 0;
       font-size: 1.4rem;
       font-weight: 700;
-      color: white;
+      color: #0f172a;
     }
 
     .plan-description {
       margin: 0 0 20px 0;
-      color: #94a3b8;
+      color: #64748b;
       font-size: 0.85rem;
       line-height: 1.5;
       min-height: 42px;
@@ -922,12 +980,12 @@
     .plan-price {
       display: flex;
       align-items: baseline;
-      color: white;
+      color: #0f172a;
 
       .currency {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #38bdf8;
+        color: #0e5e81;
       }
 
       .amount {
@@ -958,15 +1016,15 @@
       align-items: center;
       gap: 12px;
       font-size: 0.9rem;
-      color: #cbd5e1;
+      color: #475569;
 
       i {
-        color: #38bdf8;
+        color: #0e5e81;
         font-size: 1rem;
       }
 
       strong {
-        color: white;
+        color: #0f172a;
       }
     }
   }

@@ -4,6 +4,24 @@
       <h2>Gym Overview</h2>
       <p>Performance metrics and operational overview of your gym.</p>
     </div>
+
+    <!-- Plan Expiry Warning (Shown when 7 or fewer days remain, or if expired) -->
+    <div class="plan-expiry-warning" *ngIf="daysToExpiry !== null && daysToExpiry <= 7">
+      <div class="warning-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="warning-text">
+        <span class="warning-title">{{ daysToExpiry < 0 ? 'Plan expired!' : 'Plan expiring soon!' }}</span>
+            <span class="warning-desc">
+              <ng-container *ngIf="daysToExpiry > 0">Your subscription expires in {{ daysToExpiry }} day{{ daysToExpiry
+                === 1 ? '' : 's' }}.</ng-container>
+              <ng-container *ngIf="daysToExpiry === 0">Your subscription expires today.</ng-container>
+              <ng-container *ngIf="daysToExpiry < 0">Your subscription has expired. Please renew
+                immediately.</ng-container>
+            </span>
+      </div>
+      <button class="renew-btn" [routerLink]="['/gym-owner/my-gyms']" [queryParams]="{action: 'upgrade'}">Renew</button>
+    </div>
   </div>
 
   <!-- Row 1: Stats Grid (3 columns) -->
@@ -103,12 +121,15 @@
         <h2 class="stat-card-value">{{ stats?.totalProductsCount || 0 }} <span class="unit-text">Products</span></h2>
       </div>
       <div class="revenue-split-container">
-        <div class="revenue-split-item clickable-split" (click)="navigateToInventory('inStock')" title="View In Stock items">
+        <div class="revenue-split-item clickable-split" (click)="navigateToInventory('inStock')"
+          title="View In Stock items">
           <span class="split-label">In Stock</span>
-          <span class="split-value text-success">{{ (stats?.totalProductsCount || 0) - (stats?.lowStockItems || 0) }}</span>
+          <span class="split-value text-success">{{ (stats?.totalProductsCount || 0) - (stats?.lowStockItems || 0)
+            }}</span>
         </div>
         <div class="revenue-split-divider"></div>
-        <div class="revenue-split-item clickable-split" (click)="navigateToInventory('lowStock')" title="View Low Stock items">
+        <div class="revenue-split-item clickable-split" (click)="navigateToInventory('lowStock')"
+          title="View Low Stock items">
           <span class="split-label">Low Stock</span>
           <span class="split-value" [class.text-danger]="(stats?.lowStockItems || 0) > 0">{{
             stats?.lowStockItems || 0 }}</span>
@@ -133,7 +154,7 @@
           <span>{{ selectedDensityRange === 'today' ? 'Today, ' + (todayDate | date:'MMM d') : 'Weekly Average'
             }}</span>
           <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
- 
+
           <!-- Dropdown List -->
           <div class="premium-dropdown-list" *ngIf="showDensityDropdown">
             <div class="dropdown-item" (click)="selectDensityRange('today'); $event.stopPropagation()"
@@ -323,7 +344,8 @@
           <h3>Upcoming Renewals</h3>
         </div>
         <div class="renewal-list-premium" *ngIf="stats?.upcomingRenewals?.length; else noRenewals">
-          <div class="renewal-item-premium" *ngFor="let renewal of stats?.upcomingRenewals" (click)="navigateToMembers()">
+          <div class="renewal-item-premium" *ngFor="let renewal of stats?.upcomingRenewals"
+            (click)="navigateToMembers()">
             <div class="renewal-left">
               <div class="renewal-details">
                 <span class="renewal-name">{{ renewal.memberName }}</span>

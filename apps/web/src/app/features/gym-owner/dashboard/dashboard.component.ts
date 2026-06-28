@@ -5,24 +5,29 @@ import { GymOwnerStats } from '../../../core/models/dashboard.model';
 import { GymOwnerDashboardService } from '../../../core/services/gym-owner-dashboard.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BranchContextService } from '../../../core/services/branch-context.service';
+import { GymService } from '../../../core/services/gym.service';
+import { GymListResponse } from '../../../shared/models/gym.model';
 
 @Component({
   selector: 'app-gym-owner-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(GymOwnerDashboardService);
+  private gymService = inject(GymService);
   private notification = inject(NotificationService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private branchContextService = inject(BranchContextService);
 
   stats: GymOwnerStats | null = null;
+  gymData: GymListResponse | null = null;
+  daysToExpiry: number | null = null;
   isLoading = true;
   selectedDensityRange: 'today' | 'week' = 'today';
   todayDate = new Date();
@@ -42,7 +47,28 @@ export class DashboardComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.loadStats();
+      this.loadGymData();
     });
+  }
+
+  loadGymData(): void {
+    this.gymService.getMyGym().subscribe({
+      next: (res) => {
+        if (res.data) {
+          this.gymData = res.data;
+          this.calculateExpiryDays();
+        }
+      }
+    });
+  }
+
+  calculateExpiryDays(): void {
+    if (this.gymData && this.gymData.subscriptionExpiry) {
+      const expiryDate = new Date(this.gymData.subscriptionExpiry);
+      const today = new Date();
+      const diffTime = expiryDate.getTime() - today.getTime();
+      this.daysToExpiry = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
   }
 
   loadStats(): void {
@@ -82,6 +108,10 @@ export class DashboardComponent implements OnInit {
       queryParams.filter = 'maintenance';
     }
     this.router.navigate(['/gym-owner/inventory'], { queryParams });
+  }
+
+  navigateToUpgrade(): void {
+    this.router.navigate(['/gym-owner/my-gyms'], { queryParams: { action: 'upgrade' } });
   }
 
   navigateToMembers(): void {

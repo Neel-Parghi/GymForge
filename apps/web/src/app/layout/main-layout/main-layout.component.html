@@ -35,13 +35,13 @@
             }
             } @else if (!item.children || item.children.length === 0) {
             <!-- Single Link -->
-            <a [id]="'nav-' + item.label.toLowerCase().split(' ').join('-')" [routerLink]="item.route" routerLinkActive="active" class="nav-link">
+            <a [id]="'nav-' + item.label.toLowerCase().replace('&', 'and').split(' ').join('-')" [routerLink]="item.route" routerLinkActive="active" class="nav-link">
               <i [class]="item.icon + ' nav-icon'"></i>
               <span class="nav-label">{{ item.label }}</span>
             </a>
             } @else {
             <!-- Group with Sub-navigation (if needed) -->
-            <div [id]="'nav-' + item.label.toLowerCase().split(' ').join('-')" class="nav-group" [class.group-active]="isGroupActive(item)">
+            <div [id]="'nav-' + item.label.toLowerCase().replace('&', 'and').split(' ').join('-')" class="nav-group" [class.group-active]="isGroupActive(item)">
               <div class="nav-group-title" (click)="toggleGroup(item)">
                 <div class="title-left">
                   <i [class]="item.icon + ' nav-icon'"></i>

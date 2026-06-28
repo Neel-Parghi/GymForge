@@ -8,6 +8,9 @@ namespace GymForge.Domain.Entities
 
         public int PlanExpirationTriggerDays { get; set; } = 7;
 
+        public string? RazorpayKeyId { get; set; }
+        public string? RazorpayKeySecret { get; set; }
+
         [ForeignKey(nameof(GymId))]
         public Gym Gym { get; set; } = null!;
     }

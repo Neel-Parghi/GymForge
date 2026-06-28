@@ -13,5 +13,9 @@ namespace GymForge.Application.Modules.Gym.Interfaces
         Task<GymPlanDto> UpdateGymPlanAsync(UpdateGymPlanRequest updateGymPlan);
 
         Task<bool> DeleteGymPlanAsync(Guid planId);
+
+        Task<bool> PromotePlanAsync(Guid planId, Guid ownerId);
+
+        Task<IEnumerable<GymPlanDto>> GetAvailablePlansForMemberAsync(Guid userId);
     }
 }

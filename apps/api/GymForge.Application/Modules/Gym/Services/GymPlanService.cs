@@ -11,12 +11,24 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IGymPlanRepository _gymPlanRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGymManagementRepository _gymManagementRepository;
+        private readonly IGymMemberRepository _gymMemberRepository;
+        private readonly IUserNotificationRepository _userNotificationRepository;
 
-        public GymPlanService(IGymPlanRepository gymPlanRepository, IMapper mapper, IUnitOfWork unitOfWork) 
+        public GymPlanService(
+            IGymPlanRepository gymPlanRepository, 
+            IMapper mapper, 
+            IUnitOfWork unitOfWork,
+            IGymManagementRepository gymManagementRepository,
+            IGymMemberRepository gymMemberRepository,
+            IUserNotificationRepository userNotificationRepository) 
         {
             _gymPlanRepository = gymPlanRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _gymManagementRepository = gymManagementRepository;
+            _gymMemberRepository = gymMemberRepository;
+            _userNotificationRepository = userNotificationRepository;
         }
 
         public async Task<GymPlanDto> AddGymPlanAsync(CreateGymPlanRequest createGymPlan)
@@ -66,6 +78,54 @@ namespace GymForge.Application.Modules.Gym.Services
                 await _unitOfWork.SaveChangesAsync();
             }
             return deleted;
+        }
+
+        public async Task<bool> PromotePlanAsync(Guid planId, Guid ownerId)
+        {
+            var plan = await _gymPlanRepository.GetPlanByIdAsync(planId);
+            if (plan == null) 
+                return false;
+
+            var gymResponse = await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId);
+            if (gymResponse == null) 
+                return false;
+
+            var members = await _gymMemberRepository.GetAllByGymIdAsync(gymResponse.Id, null);
+            if (!members.Any()) 
+                return false;
+
+            foreach (var member in members)
+            {
+                var notification = new UserNotification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = member.UserId ?? Guid.Empty,
+                    Title = $"New Plan: {plan.Name}",
+                    Message = $"Check out our new plan! For just ₹{plan.Price} you can get {(plan.DurationMonths)} months of access.",
+                    IsRead = false,
+                    CreatedOn = DateTime.UtcNow
+                };
+                await _userNotificationRepository.AddAsync(notification);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<GymPlanDto>> GetAvailablePlansForMemberAsync(Guid userId)
+        {
+            var member = await _gymMemberRepository.GetByUserIdAsync(userId);
+            if (member == null) 
+                return Enumerable.Empty<GymPlanDto>();
+
+            var gym = await _gymManagementRepository.GetGymByIdAsync(member.GymId);
+            if (gym == null) 
+                return Enumerable.Empty<GymPlanDto>();
+
+            var plans = await _gymPlanRepository.GetPlansByOwnerIdAsync(gym.OwnerUserId);
+            var activePlans = plans.Where(p => p.IsActive);
+            
+            return _mapper.Map<IEnumerable<GymPlanDto>>(activePlans);
         }
     }
 }

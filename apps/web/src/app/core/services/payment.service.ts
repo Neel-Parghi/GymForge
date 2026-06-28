@@ -87,8 +87,8 @@ export class PaymentService extends BaseApiService {
     return this.subscriptionStatusCache$;
   }
 
-  renewSubscription(planName: string = 'GymForge Pro Plan', price: number = 4999): Observable<ApiResponse<GymSubscriptionStatus>> {
-    return this.post<ApiResponse<GymSubscriptionStatus>>(`${API_CONSTANTS.PAYMENTS.SUBSCRIPTION}/renew?planName=${encodeURIComponent(planName)}&price=${price}`, {}).pipe(
+  renewSubscription(planId: string): Observable<ApiResponse<GymSubscriptionStatus>> {
+    return this.post<ApiResponse<GymSubscriptionStatus>>(`payments/renew`, { planId }).pipe(
       tap(() => {
         this.clearSubscriptionCache();
       })

@@ -67,6 +67,14 @@ export class NavigationService {
                 return false;
             }
 
+            // Hide Billing & Payments for standalone users
+            if (role === 'User' && item.route === '/user/billing') {
+                const profile = this.authService.getUserProfile();
+                if (!profile?.gymId) {
+                    return false;
+                }
+            }
+
             // Map standard route to modular matrix key
             if (item.route && moduleMap[item.route]) {
                 const modKey = moduleMap[item.route];

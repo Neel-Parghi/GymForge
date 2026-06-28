@@ -1,6 +1,24 @@
 <div class="standard-container billing-container">
+  
+  <div class="saas-locked-overlay" *ngIf="isSaaSLocked">
+    <div class="lock-content">
+      <i class="fa-solid fa-lock lock-icon"></i>
+      <h2>Subscription Expired</h2>
+      <p>Your GymForge Plan has expired. Please choose a plan below to renew and regain access.</p>
+      
+      <div class="saas-plans-grid">
+        <div class="saas-plan-card" *ngFor="let plan of availableSaaSPlans">
+          <h3 class="plan-name">{{ plan.name }}</h3>
+          <h2 class="plan-price">₹{{ plan.price }}<span class="plan-duration">/{{ plan.durationInDays }} days</span></h2>
+          <p class="plan-members">{{ plan.maxMembers ? 'Up to ' + plan.maxMembers + ' members' : 'Unlimited members' }}</p>
+          <button class="primary-btn select-plan-btn" (click)="renewSaaSPlan(plan.id)">Select Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Page Header -->
-  <div class="page-header">
+  <div class="page-header" *ngIf="!isSaaSLocked">
     <div class="header-top-row">
       <div class="header-info">
         <h2>Billing & Invoices</h2>

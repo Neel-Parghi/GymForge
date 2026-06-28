@@ -32,7 +32,8 @@ export const API_CONSTANTS = {
     COMPLETE_ONBOARDING: 'users/complete-user-onboarding',
     ACCOUNT_DELETION_SCHEDULE: 'users/accountdeletionschedule',
     DASHBOARD: 'users/dashboard',
-    ROUTINES: 'users/routines'
+    ROUTINES: 'users/routines',
+    AVAILABLE_PLANS: 'user-plans/available'
   },
   GYM: {
     ONBOARD: 'my-gym/onboard',
@@ -111,6 +112,11 @@ export const API_CONSTANTS = {
     UPDATE_SAAS_CONFIG: 'payments/settings/update',
     SUBSCRIPTION: 'payments/subscription',
     HISTORY: 'payments/history'
+  },
+  MEMBER_PAYMENT: {
+    INITIATE_CHECKOUT: '/member-payment/initiate-checkout',
+    VERIFY_CHECKOUT: '/member-payment/verify-checkout',
+    OFFLINE_CHECKOUT: '/member-payment/offline-checkout'
   },
   GYM_PLAN: {
     GET: 'gym-plans',

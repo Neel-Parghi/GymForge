@@ -1,5 +1,6 @@
 import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthApiService } from '../services/auth-api.service';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take, Observable } from 'rxjs';
 
@@ -8,6 +9,7 @@ const refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthApiService);
+  const router = inject(Router);
   const token = authService.getToken();
 
   let authReq = req;
@@ -26,6 +28,14 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
       if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest) {
         return handle401Error(authService, authReq, next);
       }
+      
+      if (error instanceof HttpErrorResponse && error.status === 402) {
+        // SaaS Plan Expired
+        if (!router.url.includes('/owner/billing')) {
+          router.navigate(['/owner/billing'], { queryParams: { expired: true } });
+        }
+      }
+
       return throwError(() => error);
     })
   );

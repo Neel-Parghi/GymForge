@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { GymListResponse } from '../../../shared/models/gym.model';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
 import { FileUploadService } from '../../../core/services/file-upload.service';
@@ -28,6 +28,7 @@ export class MyGymsComponent implements OnInit {
   private gymService = inject(GymService);
   private toastService = inject(NotificationService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private branchContextService = inject(BranchContextService);
   private fileUploadService = inject(FileUploadService);
   private pricingService = inject(PricingService);
@@ -40,6 +41,12 @@ export class MyGymsComponent implements OnInit {
   selectedUpgradePlanId = '';
 
   activeTab: 'profile' | 'branches' | 'plan' = 'profile';
+
+  // Carousel properties
+  currentIndex = 1;
+  isResetting = false;
+  displayPlans: PricingPlan[] = [];
+  featuredPlanId: string = '';
 
   profileForm!: FormGroup;
   branchForm!: FormGroup;
@@ -56,11 +63,39 @@ export class MyGymsComponent implements OnInit {
   branches: any[] = [];
   isLoadingBranches = false;
 
+  get currentPlanMaxBranches(): number | string {
+    if (!this.gymData || !this.pricingPlans.length) return 10;
+    const activePlan = this.pricingPlans.find(p => p.name === this.gymData!.planName);
+    if (activePlan && activePlan.maxBranches) {
+      return activePlan.maxBranches;
+    }
+    return 'Unlimited';
+  }
+
+  get branchAllowancePercentage(): number {
+    const max = this.currentPlanMaxBranches;
+    if (max === 'Unlimited') return 100;
+    return (this.branches.length / (max as number)) * 100;
+  }
+
+  get canAddBranch(): boolean {
+    const max = this.currentPlanMaxBranches;
+    if (max === 'Unlimited') return true;
+    return this.branches.length < (max as number);
+  }
+
   ngOnInit(): void {
     this.initForm();
     this.loadGymData();
     this.loadPricingPlans();
     this.loadAvailableManagers();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['action'] === 'upgrade') {
+        this.activeTab = 'plan';
+        this.openUpgradeModal();
+      }
+    });
   }
 
   private initForm(): void {
@@ -271,8 +306,67 @@ export class MyGymsComponent implements OnInit {
     this.pricingService.getAllPlans().subscribe({
       next: (res) => {
         this.pricingPlans = res.data || [];
+        this.setupCarousel();
       }
     });
+  }
+
+  setupCarousel(): void {
+    if (this.pricingPlans.length === 0) return;
+
+    this.featuredPlanId = this.pricingPlans[0].id;
+    if (this.gymData?.planName) {
+      const activePlan = this.pricingPlans.find(p => p.name === this.gymData!.planName);
+      if (activePlan) this.featuredPlanId = activePlan.id;
+    }
+
+    const last = this.pricingPlans[this.pricingPlans.length - 1];
+    const secondLast = this.pricingPlans.length > 1 ? this.pricingPlans[this.pricingPlans.length - 2] : last;
+    const first = this.pricingPlans[0];
+    const second = this.pricingPlans.length > 1 ? this.pricingPlans[1] : first;
+
+    this.displayPlans = [secondLast, last, ...this.pricingPlans, first, second];
+    this.currentIndex = 2;
+  }
+
+  nextSlide(): void {
+    if (this.isResetting) return;
+    this.currentIndex++;
+    this.updateFeatured();
+
+    if (this.currentIndex >= this.pricingPlans.length + 2) {
+      setTimeout(() => {
+        this.isResetting = true;
+        this.currentIndex = 2;
+        setTimeout(() => this.isResetting = false, 50);
+      }, 500);
+    }
+  }
+
+  prevSlide(): void {
+    if (this.isResetting) return;
+    this.currentIndex--;
+    this.updateFeatured();
+
+    if (this.currentIndex <= 1) {
+      setTimeout(() => {
+        this.isResetting = true;
+        this.currentIndex = this.pricingPlans.length + 1;
+        setTimeout(() => this.isResetting = false, 50);
+      }, 500);
+    }
+  }
+
+  updateFeatured(): void {
+    let index = this.currentIndex - 2;
+    if (index < 0) index = this.pricingPlans.length - 1;
+    if (index >= this.pricingPlans.length) index = 0;
+    this.featuredPlanId = this.pricingPlans[index].id;
+  }
+
+  getCarouselTransform(): string {
+    const cardWidth = 280 + 24; 
+    return `translateX(-${(this.currentIndex - 1) * cardWidth}px)`;
   }
 
   loadAvailableManagers(): void {

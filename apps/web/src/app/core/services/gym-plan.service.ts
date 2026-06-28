@@ -46,4 +46,8 @@ export class GymPlanService extends BaseApiService {
   deletePlan(planId: string): Observable<ApiResponse<{ success: boolean }>> {
     return this.delete<ApiResponse<{ success: boolean }>>(`${API_CONSTANTS.GYM_PLAN.DELETE}/${planId}`);
   }
+
+  promotePlan(planId: string): Observable<ApiResponse<{ success: boolean, message: string }>> {
+    return this.post<ApiResponse<{ success: boolean, message: string }>>(`${API_CONSTANTS.GYM_PLAN.GET}/${planId}/promote`, {});
+  }
 }

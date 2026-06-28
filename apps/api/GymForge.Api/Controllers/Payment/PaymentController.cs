@@ -3,11 +3,13 @@ using GymForge.Contracts.SaaSPayments;
 using GymForge.Contracts.SuperAdmin.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Payment
 {
     [Route("api/payments")]
     [ApiController]
+    [AllowExpiredSubscription]
     public class PaymentController : BaseApiController
     {
         private readonly ISaaSPaymentService _paymentService;
@@ -24,6 +26,16 @@ namespace GymForge.Api.Controllers.Payment
 
             List<PaymentTransactionDto> history = await _paymentService.GetGymTransactionsAsync(GymId.Value);
             return Ok(history);
+        }
+
+        [HttpPost("renew")]
+        [Authorize(Roles = "GymOwner")]
+        public async Task<IActionResult> RenewSubscription([FromBody] RenewSaaSRequestDto request)
+        {
+            if (GymId == null) return Unauthorized();
+
+            var status = await _paymentService.RenewGymSubscriptionAsync(GymId.Value, request.PlanId);
+            return Ok(status);
         }
 
         [HttpGet("stats")]

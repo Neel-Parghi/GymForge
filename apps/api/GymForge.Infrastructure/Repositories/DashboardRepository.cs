@@ -17,7 +17,7 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<decimal> GetTotalRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
         {
-            IQueryable<SaaSPaymentTransaction> query = _dbContext.SaaSPaymentTransactions.Where(s => s.Status == "Success");
+            IQueryable<SaaSPaymentTransaction> query = _dbContext.SaaSPaymentTransactions.Where(s => s.Status == "Paid");
             
             if (startDate.HasValue)
                 query = query.Where(s => s.CreatedOn >= startDate.Value);

@@ -68,6 +68,22 @@ export class UserService extends BaseApiService {
     return this.myGymCache$;
   }
 
+  getAvailablePlans(): Observable<any> {
+    return this.get(API_CONSTANTS.USER.AVAILABLE_PLANS);
+  }
+
+  initiateUpgradeCheckout(planId: string): Observable<any> {
+    return this.post(API_CONSTANTS.MEMBER_PAYMENT.INITIATE_CHECKOUT, { planId });
+  }
+
+  verifyUpgradeCheckout(payload: any): Observable<any> {
+    return this.post(API_CONSTANTS.MEMBER_PAYMENT.VERIFY_CHECKOUT, payload);
+  }
+
+  initiateOfflineCheckout(planId: string): Observable<any> {
+    return this.post(API_CONSTANTS.MEMBER_PAYMENT.OFFLINE_CHECKOUT, { planId });
+  }
+
   getStandaloneUsers(pageNumber: number = 1, pageSize: number = 10, searchTerm: string = ''): Observable<any> {
     const params: any = { pageNumber, pageSize };
     if (searchTerm) {

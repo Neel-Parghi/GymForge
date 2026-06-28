@@ -148,7 +148,7 @@ namespace GymForge.Application.Modules.Payments.Services
             SaaSPaymentTransaction? transaction = await _paymentRepository.GetByGatewayIdAsync(orderId);
             if (transaction == null) return false;
 
-            transaction.Status = "Success";
+            transaction.Status = "Paid";
             transaction.GatewayResponse = paymentId;
 
             if (transaction.Subscription != null)
@@ -182,7 +182,7 @@ namespace GymForge.Application.Modules.Payments.Services
             List<SubscriptionRecord> allSubscriptions = await _paymentRepository.GetActiveSubscriptionsAsync();
 
             List<SaaSPaymentTransaction> successTxs = transactions
-                .Where(t => t.Status.Equals("Success", StringComparison.OrdinalIgnoreCase))
+                .Where(t => t.Status.Equals("Paid", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             decimal mrr = 0;
@@ -272,28 +272,25 @@ namespace GymForge.Application.Modules.Payments.Services
             };
         }
 
-        public async Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, string planName = "GymForge Pro Plan", decimal price = 4999)
+        public async Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, Guid planId)
         {
             SubscriptionRecord? sub = await _paymentRepository.GetLatestSubscriptionByGymIdAsync(gymId);
             List<Domain.Entities.Branch> branches = await _gymManagementRepository.GetBranchesByGymIdAsync(gymId);
             int branchesCount = branches?.Count ?? 0;
 
             // Fetch pricing plan dynamically from the database
-            List<Domain.Entities.Plan> plans = await _saaSPlanRepository.GetAllPlansAsync();
-            Domain.Entities.Plan plan = plans.FirstOrDefault(p => p.Name.Equals(planName, StringComparison.OrdinalIgnoreCase))
-                       ?? plans.FirstOrDefault(p => p.Price == price)
-                       ?? plans.FirstOrDefault(p => p.IsActive)
-                       ?? new Domain.Entities.Plan { Id = Guid.Parse("b0000000-0000-0000-0000-000000000001"), Name = planName, Price = price, MaxBranches = 10 };
+            Domain.Entities.Plan? plan = await _saaSPlanRepository.GetPlanByIdAsync(planId);
+            if (plan == null) throw new Exception("Invalid SaaS plan selected.");
 
-            DateTime newEndDate = DateTime.UtcNow.AddMonths(1);
+            DateTime newEndDate = DateTime.UtcNow.AddDays(plan.DurationInDays > 0 ? plan.DurationInDays : 30);
             if (sub != null)
             {
-                newEndDate = sub.EndDate > DateTime.UtcNow ? sub.EndDate.AddMonths(1) : DateTime.UtcNow.AddMonths(1);
+                newEndDate = sub.EndDate > DateTime.UtcNow ? sub.EndDate.AddDays(plan.DurationInDays > 0 ? plan.DurationInDays : 30) : DateTime.UtcNow.AddDays(plan.DurationInDays > 0 ? plan.DurationInDays : 30);
                 sub.EndDate = newEndDate;
                 sub.IsActive = true;
-                sub.PriceAtPurchase = price;
+                sub.PriceAtPurchase = plan.Price;
                 sub.PlanId = plan.Id;
-                sub.Notes = $"UPI Renewed plan: {planName} via platform checkout portal";
+                sub.Notes = $"UPI Renewed plan: {plan.Name} via platform checkout portal";
             }
             else
             {
@@ -306,8 +303,8 @@ namespace GymForge.Application.Modules.Payments.Services
                     EndDate = newEndDate,
                     IsActive = true,
                     IsTrial = false,
-                    PriceAtPurchase = price,
-                    Notes = $"UPI Renewed plan: {planName} via platform checkout portal"
+                    PriceAtPurchase = plan.Price,
+                    Notes = $"UPI Renewed plan: {plan.Name} via platform checkout portal"
                 };
                 await _gymManagementRepository.AddGymSubscriptionAsync(sub);
             }
@@ -317,9 +314,9 @@ namespace GymForge.Application.Modules.Payments.Services
                 Id = Guid.NewGuid(),
                 GymId = gymId,
                 SubscriptionId = sub.Id,
-                Amount = price,
+                Amount = plan.Price,
                 Currency = "INR",
-                Status = "Success",
+                Status = "Paid",
                 GatewayTransactionId = "pay_upi_" + Guid.NewGuid().ToString("N").Substring(0, 12),
                 CreatedOn = DateTime.UtcNow
             };
@@ -331,7 +328,7 @@ namespace GymForge.Application.Modules.Payments.Services
             return new GymSubscriptionStatusDto
             {
                 PlanName = plan.Name,
-                Price = price,
+                Price = plan.Price,
                 EndDate = newEndDate,
                 IsActive = true,
                 IsTrial = false,

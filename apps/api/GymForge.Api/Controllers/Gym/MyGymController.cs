@@ -4,12 +4,14 @@ using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Gym
 {
     [Route("api/my-gym")]
     [Authorize]
     [ApiController]
+    [AllowExpiredSubscription]
     public class MyGymController : BaseApiController
     {
         private readonly IGymManagementService _gymManagementService;

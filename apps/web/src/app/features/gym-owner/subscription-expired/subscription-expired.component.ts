@@ -57,7 +57,7 @@ export class SubscriptionExpiredComponent implements OnInit {
 
   selectPlan(plan: PricingPlan) {
     this.submittingPlanId = plan.id;
-    this.paymentService.renewSubscription(plan.name, plan.price).subscribe({
+    this.paymentService.renewSubscription(this.submittingPlanId).subscribe({
       next: () => {
         this.notification.success(CONSTANTS.SUBSCRIPTION_EXPIRED.ACCESS_RESTORED.replace('{name}', plan.name));
         this.gymService.clearMyGymCache();

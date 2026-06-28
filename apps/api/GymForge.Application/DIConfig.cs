@@ -24,6 +24,8 @@ namespace GymForge.Application
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthService, AuthService>();
+            
+            services.AddHttpClient<IAiWorkoutGenerationService, AiWorkoutGenerationService>();
 
             services.AddScoped<IJwtService, JwtService>();
 
@@ -36,7 +38,9 @@ namespace GymForge.Application
             services.AddScoped<ISaaSPlanService, SaaSPlanService>();
 
             services.AddScoped<ISaaSPaymentService, SaaSPaymentService>();
-
+            
+            services.AddScoped<IMemberPaymentService, MemberPaymentService>();
+            
             services.AddScoped<ISaaSConfigurationService, SaaSConfigurationService>();
             
             services.AddScoped<IDashboardService, DashboardService>();
@@ -79,9 +83,11 @@ namespace GymForge.Application
             
             services.AddScoped<IUserNotificationService, UserNotificationService>();
 
+            services.AddScoped<GymForge.Application.BackgroundJobs.AccountDeletionJob>();
+
             services.AddScoped<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>();
             
-            services.AddScoped<GymForge.Application.BackgroundJobs.AccountDeletionJob>();
+            services.AddScoped<GymForge.Application.BackgroundJobs.SaaSExpiryJob>();
 
             return services;
         }
