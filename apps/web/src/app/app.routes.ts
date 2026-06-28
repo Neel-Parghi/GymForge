@@ -213,5 +213,13 @@ export const routes: Routes = [
     path: 'subscription-expired',
     loadComponent: () => import('./features/gym-owner/subscription-expired/subscription-expired.component').then(m => m.SubscriptionExpiredComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: '404',
+    loadComponent: () => import('./features/errors/not-found/not-found.component').then(m => m.NotFoundComponent)
+  },
+  {
+    path: '**',
+    redirectTo: '404'
   }
 ];

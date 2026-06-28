@@ -27,8 +27,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
 
   // Core administrative paths restricted exclusively to owners
   if (url.includes('/gym-owner/settings') || url.includes('/gym-owner/my-gyms')) {
-    notification.error('Access Denied: Settings & Branch Management are restricted to the Gym Owner.');
-    router.navigate(['/gym-owner/dashboard']);
+    router.navigate(['/404'], { skipLocationChange: true });
     return false;
   }
 
@@ -66,9 +65,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
     const hasAccess = savedRights[matrixKey] !== undefined ? savedRights[matrixKey] : defaultValue;
 
     if (!hasAccess) {
-      const moduleName = matchedModKey.charAt(0).toUpperCase() + matchedModKey.slice(1);
-      notification.error(`Access Denied: You do not have permission to access the ${moduleName} module.`);
-      router.navigate(['/gym-owner/dashboard']);
+      router.navigate(['/404'], { skipLocationChange: true });
       return false;
     }
   }

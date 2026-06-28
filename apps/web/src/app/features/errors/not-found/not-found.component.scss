@@ -1,0 +1,101 @@
+.not-found-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg-body, #f8fafc);
+  padding: 20px;
+
+  .not-found-content {
+    background: var(--bg-surface, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 24px;
+    padding: 60px 40px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.1);
+
+    .icon-wrapper {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 30px;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        font-size: 3rem;
+        color: var(--accent-color, #3b82f6);
+      }
+    }
+
+    h1 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: var(--text-main, #0f172a);
+      margin: 0;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--slate-700, #334155);
+      margin: 10px 0 20px;
+    }
+
+    p {
+      color: var(--text-secondary, #64748b);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+
+      .btn-primary {
+        background: var(--slate-800, #1e293b);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+        transition: all 0.25s ease;
+        text-decoration: none;
+
+        &:hover {
+          background: var(--primary-navy-hover, #0f172a);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+        }
+      }
+    }
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

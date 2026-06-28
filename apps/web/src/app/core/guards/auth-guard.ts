@@ -14,6 +14,30 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
 
   if (authService.isAuthenticated()) {
+    const role = authService.getUserRole();
+    const url = state.url;
+
+    // Portal isolation: Prevent users from accessing other roles' layouts
+    if (url.startsWith('/super-admin') && role !== 'SuperAdmin') {
+      router.navigate(['/404'], { skipLocationChange: true });
+      return false;
+    }
+    
+    if (url.startsWith('/gym-owner') && role !== 'GymOwner' && role !== 'Staff') {
+      router.navigate(['/404'], { skipLocationChange: true });
+      return false;
+    }
+
+    if (url.startsWith('/trainer') && role !== 'Trainer') {
+      router.navigate(['/404'], { skipLocationChange: true });
+      return false;
+    }
+
+    if (url.startsWith('/user') && role !== 'User') {
+      router.navigate(['/404'], { skipLocationChange: true });
+      return false;
+    }
+
     return true;
   }
 
