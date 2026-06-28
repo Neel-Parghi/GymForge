@@ -18,7 +18,7 @@ namespace GymForge.Application.Modules.Diet.Services
 
         public async Task<DietLogDto> GetDietLogAsync(Guid memberId, DateTime logDate)
         {
-            var date = logDate.Date;
+            var date = DateTime.SpecifyKind(logDate.Date, DateTimeKind.Utc);
             var activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
             var log = await _repository.GetDietLogWithEntriesAsync(memberId, date);
 
@@ -32,7 +32,7 @@ namespace GymForge.Application.Modules.Diet.Services
 
         public async Task<DietLogDto> AddMealEntryAsync(Guid memberId, AddMealEntryRequestDto request)
         {
-            var date = request.LogDate.Date;
+            var date = DateTime.SpecifyKind(request.LogDate.Date, DateTimeKind.Utc);
             var activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
             var log = await _repository.GetDietLogWithEntriesAsync(memberId, date);
 
@@ -133,7 +133,7 @@ namespace GymForge.Application.Modules.Diet.Services
             var log = new DietLog
             {
                 MemberId = memberId,
-                LogDate = date,
+                LogDate = DateTime.SpecifyKind(date, DateTimeKind.Utc),
                 TotalCalories = 0,
                 TotalProtein = 0,
                 TotalCarbs = 0,

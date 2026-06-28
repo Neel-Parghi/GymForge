@@ -13,8 +13,6 @@ using Hangfire.PostgreSql;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

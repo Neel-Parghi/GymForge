@@ -20,8 +20,8 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<DietLog?> GetDietLogWithEntriesAsync(Guid memberId, DateTime date)
         {
-            var start = date.Date;
-            var end = start.AddDays(1);
+            var start = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+            var end = DateTime.SpecifyKind(start.AddDays(1), DateTimeKind.Utc);
             var logs = await _context.DietLogs
                 .Include(d => d.MealEntries)
                 .Where(d => d.MemberId == memberId && d.LogDate >= start && d.LogDate < end)
