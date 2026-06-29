@@ -416,11 +416,28 @@
     border-radius: 12px;
     background: var(--glass-bg);
 
+    &.current-plan {
+      border: 2px solid var(--primary-color);
+      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.15);
+    }
+
     .offer-badge {
       position: absolute;
       top: 1rem;
       right: 1rem;
       background: var(--primary-color);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .current-plan-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #10b981;
       color: white;
       font-size: 0.75rem;
       padding: 0.25rem 0.75rem;
@@ -630,5 +647,56 @@
         }
       }
     }
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 4rem;
+}
+
+.empty-plans-state {
+  grid-column: 1 / -1;
+  padding: 3rem;
+  background: var(--glass-bg);
+  border-radius: 12px;
+  text-align: center;
+
+  .empty-plans-icon {
+    font-size: 2.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .empty-plans-text {
+    color: var(--text-secondary);
+  }
+}
+
+.not-member-state {
+  padding: 4rem;
+  background: var(--glass-bg);
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  margin-top: 2rem;
+
+  .not-member-icon {
+    font-size: 3rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .not-member-title {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  .not-member-text {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
   }
 }

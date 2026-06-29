@@ -7,9 +7,9 @@
   </div> -->
 
   @if (isGymLoading) {
-    <div style="display: flex; justify-content: center; padding: 4rem;">
-      <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: var(--primary-main)"></i>
-    </div>
+  <div class="loading-container">
+    <!-- Local loader removed as global loading interceptor is active -->
+  </div>
   } @else if (myGymDetails) {
   <div class="tabs-container">
     <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
@@ -65,7 +65,7 @@
               <td>
                 {{ payment.durationMonths }} Months
                 @if (payment.extendedMonths > 0) {
-                  <span class="bonus-text">(+{{ payment.extendedMonths }} Bonus)</span>
+                <span class="bonus-text">(+{{ payment.extendedMonths }} Bonus)</span>
                 }
               </td>
               <td>{{ payment.startDate | date:'mediumDate' }}</td>
@@ -97,63 +97,63 @@
     }
 
     @if (activeTab === 'plans') {
-      <div class="plans-grid">
-        @if (availablePlans.length === 0) {
-          <div class="empty-state-content" style="grid-column: 1 / -1; padding: 3rem; background: var(--glass-bg); border-radius: 12px; text-align: center;">
-            <i class="fa-solid fa-box-open" style="font-size: 2.5rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
-            <h3>No plans available</h3>
-            <p style="color: var(--text-secondary);">Your gym hasn't published any plans yet.</p>
-          </div>
-        }
-        @for (plan of availablePlans; track plan.id) {
-          <div class="plan-card glass-card">
-            @if (plan.isOffer) {
-              <div class="offer-badge">SPECIAL OFFER</div>
-            }
-            <h3 class="plan-name">{{ plan.name }}</h3>
-            <p class="plan-description">{{ plan.description || 'Professional fitness plan' }}</p>
-            <div class="plan-price-wrapper">
-              <span class="currency">₹</span>
-              <span class="amount">{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price }}</span>
-              <span class="duration">/ {{ plan.durationMonths }} mo</span>
-            </div>
-            
-            <div class="features-list">
-              @if (plan.features && plan.features.length) {
-                @for (feature of plan.features; track feature) {
-                  <div class="feature-item">
-                    <i class="fa-solid fa-check"></i> {{ feature }}
-                  </div>
-                }
-              }
-            </div>
-
-            <button class="primary-btn full-width" (click)="initiateUpgrade(plan)">
-              Upgrade Now
-            </button>
-          </div>
-        }
+    <div class="plans-grid">
+      @if (availablePlans.length === 0) {
+      <div class="empty-state-content empty-plans-state">
+        <i class="fa-solid fa-box-open empty-plans-icon"></i>
+        <h3>No plans available</h3>
+        <p class="empty-plans-text">Your gym hasn't published any plans yet.</p>
       </div>
+      }
+      @for (plan of availablePlans; track plan.id) {
+      <div class="plan-card glass-card" [class.current-plan]="isCurrentPlan(plan.id)">
+        @if (isCurrentPlan(plan.id)) {
+        <div class="current-plan-badge">CURRENT PLAN</div>
+        } @else if (plan.isOffer) {
+        <div class="offer-badge">SPECIAL OFFER</div>
+        }
+        <h3 class="plan-name">{{ plan.name }}</h3>
+        <p class="plan-description">{{ plan.description }}</p>
+        <div class="plan-price-wrapper">
+          <span class="currency">₹</span>
+          <span class="amount">{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price }}</span>
+          <span class="duration">/ {{ plan.durationMonths }} mo</span>
+        </div>
+
+        <div class="features-list">
+          @if (plan.features && plan.features.length) {
+          @for (feature of plan.features; track feature) {
+          <div class="feature-item">
+            <i class="fa-solid fa-check"></i> {{ feature }}
+          </div>
+          }
+          }
+        </div>
+
+        <button class="primary-btn full-width" (click)="initiateUpgrade(plan)" [disabled]="isCurrentPlan(plan.id)">
+          {{ isCurrentPlan(plan.id) ? 'Active Plan' : 'Upgrade Now' }}
+        </button>
+      </div>
+      }
+    </div>
     }
   </div>
   } @else {
-    <div class="empty-state-content" style="padding: 4rem; background: var(--glass-bg); border-radius: 16px; text-align: center; border: 1px solid var(--border-color); margin-top: 2rem;">
-      <i class="fa-solid fa-dumbbell" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1.5rem;"></i>
-      <h2 style="margin-bottom: 1rem; color: var(--text-primary);">Not a Gym Member</h2>
-      <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 500px; margin: 0 auto;">
-        You are currently not associated with any gym. To view billing history and purchase plans, please connect with a gym first.
-      </p>
-    </div>
+  <div class="empty-state-content not-member-state">
+    <i class="fa-solid fa-dumbbell not-member-icon"></i>
+    <h2 class="not-member-title">Not a Gym Member</h2>
+    <p class="not-member-text">
+      You are currently not associated with any gym. To view billing history and purchase plans, please connect with a
+      gym first.
+    </p>
+  </div>
   }
 </div>
 
 @if (selectedInvoice) {
-  <app-invoice-detail-modal
-    [invoice]="selectedInvoice"
-    [gymDetails]="myGymDetails"
-    [invoicePrefix]="myGymDetails?.invoicePrefix || 'GF-'"
-    (close)="closeInvoiceModal()">
-  </app-invoice-detail-modal>
+<app-invoice-detail-modal [invoice]="selectedInvoice" [gymDetails]="myGymDetails"
+  [invoicePrefix]="myGymDetails?.invoicePrefix || 'GF-'" (close)="closeInvoiceModal()">
+</app-invoice-detail-modal>
 }
 
 @if (showPaymentMethodModal) {
@@ -165,7 +165,7 @@
     </div>
     <div class="modal-body">
       <p>How would you like to pay for <strong>{{ selectedPlanForUpgrade?.name }}</strong>?</p>
-      
+
       <div class="payment-options">
         <button class="payment-option-btn online" (click)="confirmPaymentMethod('online')">
           <div class="icon-wrapper"><i class="fa-solid fa-credit-card"></i></div>

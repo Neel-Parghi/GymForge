@@ -81,6 +81,11 @@ export class UserBilling implements OnInit {
       next: (res) => {
         if (res && res.data) {
           this.availablePlans = res.data;
+          console.log(this.availablePlans)
+        } else if (Array.isArray(res)) {
+          this.availablePlans = res;
+        } else if (res && res.value) {
+          this.availablePlans = res.value;
         }
       },
       error: (err) => {
@@ -92,6 +97,10 @@ export class UserBilling implements OnInit {
   getStatusClass(payment: MemberSubscription): string {
     const statusStr = (payment.paymentStatusLabel || payment.paymentStatus || '').toString();
     return statusStr.toLowerCase();
+  }
+
+  isCurrentPlan(planId: string): boolean {
+    return this.paymentHistory.some(p => p.isActive && p.gymPlanId === planId);
   }
 
   getPaymentStatusText(status: number): string {

@@ -69,8 +69,9 @@ export class NavigationService {
 
             // Hide Billing & Payments for standalone users
             if (role === 'User' && item.route === '/user/billing') {
-                const profile = this.authService.getUserProfile();
-                if (!profile?.gymId) {
+                const gymId = this.authService.getGymId() || this.authService.getUserProfile()?.gymId;
+                console.log(gymId)
+                if (!gymId) {
                     return false;
                 }
             }

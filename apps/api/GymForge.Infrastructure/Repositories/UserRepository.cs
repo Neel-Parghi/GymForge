@@ -44,6 +44,10 @@ namespace GymForge.Infrastructure.Repositories
             foreach (GymMember member in unlinkedMembers)
             {
                 member.UserId = user.Id;
+                if (user.GymId == null) 
+                {
+                    user.GymId = member.GymId;
+                }
             }
         }
 
@@ -202,6 +206,107 @@ namespace GymForge.Infrastructure.Repositories
                 Order = r.Order,
                 Completed = completedIds.Contains(r.Id)
             }).ToList();
+
+            // 1. Trophy Room (Personal Records) - All-time max weights per exercise
+            var allTimeSets = await _dbContext.WorkoutSessionLogs
+                .Where(l => l.UserId == userId && l.Status == "Completed")
+                .SelectMany(l => l.LoggedExercises)
+                .SelectMany(e => e.LoggedSets)
+                .Where(s => s.Completed && s.Weight > 0)
+                .Select(s => new { s.LoggedExercise.Name, s.Weight, Date = s.LoggedExercise.WorkoutSessionLog.Date })
+                .ToListAsync();
+
+            var topPRs = allTimeSets
+                .GroupBy(s => s.Name)
+                .Select(g => g.OrderByDescending(s => s.Weight).First())
+                .OrderByDescending(s => s.Weight)
+                .Take(3)
+                .Select(s => new PersonalRecordDto
+                {
+                    Name = s.Name,
+                    Weight = s.Weight + " kg",
+                    Date = s.Date.ToString("MMM yyyy")
+                }).ToList();
+
+            summary.PersonalRecords = topPRs;
+
+            // 2. Muscle Recovery & Activation Heatmap
+            var sevenDaysAgo = today.AddDays(-7);
+            
+            // Get all logged exercises in the last 7 days
+            var recentExercises = await _dbContext.WorkoutSessionLogs
+                .Where(l => l.UserId == userId && l.Date >= sevenDaysAgo && l.Status == "Completed")
+                .SelectMany(l => l.LoggedExercises)
+                .Select(e => new {
+                    ExerciseName = e.Name,
+                    Date = e.WorkoutSessionLog.Date,
+                    SetCount = e.LoggedSets.Count(s => s.Completed)
+                })
+                .ToListAsync();
+
+            var recentExerciseNames = recentExercises.Select(e => e.ExerciseName).Distinct().ToList();
+            
+            var masterExercises = await _dbContext.Exercises
+                .Where(e => recentExerciseNames.Contains(e.Name))
+                .Select(e => new { e.Name, e.Category })
+                .ToListAsync();
+            
+            var categoryMap = masterExercises.ToDictionary(e => e.Name, e => e.Category);
+            
+            var recentByCategory = recentExercises
+                .Where(e => categoryMap.ContainsKey(e.ExerciseName) && !string.IsNullOrEmpty(categoryMap[e.ExerciseName]))
+                .Select(e => new {
+                    Category = categoryMap[e.ExerciseName],
+                    e.Date,
+                    e.SetCount
+                })
+                .GroupBy(e => e.Category)
+                .ToList();
+
+            foreach (var group in recentByCategory)
+            {
+                var category = group.Key;
+                var latestDate = group.Max(e => e.Date);
+                var totalSets = group.Sum(e => e.SetCount);
+                var hoursSinceTrained = (DateTime.UtcNow - latestDate).TotalHours;
+
+                // Muscle Recovery Logic
+                var recoveryStatus = hoursSinceTrained < 48 ? "Recovering" : "Ready";
+                var recoveryPct = hoursSinceTrained < 48 ? (int)((hoursSinceTrained / 48) * 100) : 100;
+                
+                summary.MuscleRecovery.Add(new MuscleRecoveryDto
+                {
+                    Name = category,
+                    Status = recoveryStatus,
+                    Pct = recoveryPct
+                });
+
+                // Activation Heatmap Logic
+                string level;
+                string label;
+                if (totalSets >= 10)
+                {
+                    level = "High";
+                    label = "High Volume";
+                }
+                else if (totalSets >= 5)
+                {
+                    level = "Medium";
+                    label = "Moderate";
+                }
+                else
+                {
+                    level = "Low";
+                    label = "Light";
+                }
+
+                summary.MuscleHeatmap.Add(new MuscleHeatmapDto
+                {
+                    Name = category,
+                    Level = level,
+                    Label = label
+                });
+            }
 
             return summary;
         }

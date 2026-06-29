@@ -251,6 +251,7 @@ export class UserDashboardComponent implements OnInit {
 
         if (data.personalRecords && data.personalRecords.length) this.personalRecords = data.personalRecords;
         if (data.muscleRecovery && data.muscleRecovery.length) this.muscleRecovery = data.muscleRecovery;
+        if (data.muscleHeatmap && data.muscleHeatmap.length) this.muscleHeatmap = data.muscleHeatmap;
 
         this.dailyRoutines = data.dailyRoutines || [];
 

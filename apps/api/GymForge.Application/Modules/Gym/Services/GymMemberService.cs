@@ -62,6 +62,10 @@ namespace GymForge.Application.Modules.Gym.Services
             if (existingUser != null)
             {
                 member.UserId = existingUser.Id;
+                if (existingUser.GymId == null) 
+                {
+                    existingUser.GymId = gymId;
+                }
             }
 
             await _memberRepository.AddAsync(member);

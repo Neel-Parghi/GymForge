@@ -38,6 +38,7 @@ namespace GymForge.Contracts.Users
         public List<MuscleRecoveryDto> MuscleRecovery { get; set; } = new();
         
         public List<DailyRoutineDto> DailyRoutines { get; set; } = new();
+        public List<MuscleHeatmapDto> MuscleHeatmap { get; set; } = new();
     }
 
     public class ActivePlanSummaryDto
@@ -59,5 +60,12 @@ namespace GymForge.Contracts.Users
         public string Name { get; set; } = string.Empty;
         public int Pct { get; set; }
         public string Status { get; set; } = string.Empty;
+    }
+
+    public class MuscleHeatmapDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Level { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
     }
 }

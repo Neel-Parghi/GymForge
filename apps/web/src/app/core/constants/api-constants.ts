@@ -114,9 +114,9 @@ export const API_CONSTANTS = {
     HISTORY: 'payments/history'
   },
   MEMBER_PAYMENT: {
-    INITIATE_CHECKOUT: '/member-payment/initiate-checkout',
-    VERIFY_CHECKOUT: '/member-payment/verify-checkout',
-    OFFLINE_CHECKOUT: '/member-payment/offline-checkout'
+    INITIATE_CHECKOUT: 'member-payment/initiate-checkout',
+    VERIFY_CHECKOUT: 'member-payment/verify-checkout',
+    OFFLINE_CHECKOUT: 'member-payment/offline-checkout'
   },
   GYM_PLAN: {
     GET: 'gym-plans',
@@ -139,8 +139,8 @@ export const API_CONSTANTS = {
     STAFF_OVERVIEW: 'billing/staff/overview',
     UPDATE_STAFF_RULES: 'billing/staff/rules',
     RELEASE_STAFF_PAYOUT: 'billing/staff/payout/release',
-    UPDATE_STAFF: (id: string) => `/api/gym-owner/staff/${id}`,
-    DELETE_STAFF: (id: string) => `/api/gym-owner/staff/${id}`
+    UPDATE_STAFF: (id: string) => `gym-owner/staff/${id}`,
+    DELETE_STAFF: (id: string) => `gym-owner/staff/${id}`
   },
   DIET_TRACKING: {
     USER_GET_LOG: (date: string) => `user/diet-tracking/${date}`,

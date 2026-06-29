@@ -22,9 +22,9 @@ namespace GymForge.Api.Controllers.User
             var activePlans = await _gymPlanService.GetAvailablePlansForMemberAsync(UserId);
             
             if (!activePlans.Any())
-                return Ok(new { data = new List<GymPlanDto>() });
+                return Ok(new List<GymPlanDto>());
 
-            return Ok(new { data = activePlans });
+            return Ok(activePlans);
         }
     }
 }
