@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PTMemberDetailHealthTrackerComponent } from '../../trainer/member-detail/components/member-detail-health-tracker/member-detail-health-tracker';
+import { PTMemberDetailHealthTrackerComponent } from '../../trainer/member-detail/components/member-detail-health-tracker/member-detail-health-tracker.component';
 import { StaffService } from '../../../core/services/staff.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -9,10 +9,10 @@ import { NotificationService } from '../../../core/services/notification.service
   selector: 'app-user-health-tracker',
   standalone: true,
   imports: [CommonModule, PTMemberDetailHealthTrackerComponent],
-  templateUrl: './user-health-tracker.html',
-  styleUrl: './user-health-tracker.scss',
+  templateUrl: './user-health-tracker.component.html',
+  styleUrl: './user-health-tracker.component.scss',
 })
-export class UserHealthTracker implements OnInit {
+export class UserHealthTrackerComponent implements OnInit {
   private staffService = inject(StaffService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);

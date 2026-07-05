@@ -6,7 +6,7 @@ import { WorkoutPlannerComponent } from '../../trainer/workout-planner/workout-p
   selector: 'app-user-workout-planner',
   standalone: true,
   imports: [CommonModule, WorkoutPlannerComponent],
-  templateUrl: './user-workout-planner.html',
-  styleUrl: './user-workout-planner.scss'
+  templateUrl: './user-workout-planner.component.html',
+  styleUrl: './user-workout-planner.component.scss'
 })
-export class UserWorkoutPlanner { }
+export class UserWorkoutPlannerComponent { }

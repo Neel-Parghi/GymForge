@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PTMemberDetailDietChartComponent } from '../../trainer/member-detail/components/member-detail-diet-chart/member-detail-diet-chart';
+import { PTMemberDetailDietChartComponent } from '../../trainer/member-detail/components/member-detail-diet-chart/member-detail-diet-chart.component';
 import { DietLibraryComponent } from '../../../shared/components/diet-library/diet-library.component';
 import { MemberService } from '../../../core/services/member.service';
 import { DietPlanService } from '../../../core/services/diet-plan.service';
@@ -11,10 +11,10 @@ import { NotificationService } from '../../../core/services/notification.service
   selector: 'app-user-diet-planner',
   standalone: true,
   imports: [CommonModule, PTMemberDetailDietChartComponent, DietLibraryComponent],
-  templateUrl: './user-diet-planner.html',
-  styleUrl: './user-diet-planner.scss'
+  templateUrl: './user-diet-planner.component.html',
+  styleUrl: './user-diet-planner.component.scss'
 })
-export class UserDietPlanner implements OnInit {
+export class UserDietPlannerComponent implements OnInit {
   private memberService = inject(MemberService);
   private dietPlanService = inject(DietPlanService);
   private authService = inject(AuthApiService);

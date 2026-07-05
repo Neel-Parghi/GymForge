@@ -19,8 +19,8 @@ declare var Razorpay: any;
   selector: 'app-owner-wizard',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ValidationMessage, DateTimePickerComponent],
-  templateUrl: './owner-wizard.html',
-  styleUrls: ['./owner-wizard.scss']
+  templateUrl: './owner-wizard.component.html',
+  styleUrls: ['./owner-wizard.component.scss']
 })
 export class OwnerWizardComponent implements OnInit {
   currentStep = 1;

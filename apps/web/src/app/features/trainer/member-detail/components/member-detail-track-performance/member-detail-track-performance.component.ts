@@ -10,8 +10,8 @@ import { CONSTANTS } from '../../../../../core/constants/constants';
   selector: 'app-member-detail-track-performance',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, DropdownComponent],
-  templateUrl: './member-detail-track-performance.html',
-  styleUrl: './member-detail-track-performance.scss',
+  templateUrl: './member-detail-track-performance.component.html',
+  styleUrl: './member-detail-track-performance.component.scss',
 })
 export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChanges {
   private notification = inject(NotificationService);

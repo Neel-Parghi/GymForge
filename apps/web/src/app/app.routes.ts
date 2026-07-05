@@ -112,12 +112,12 @@ export const routes: Routes = [
       },
       {
         path: 'announcements',
-        loadComponent: () => import('./features/gym-owner/announcements/announcements').then(m => m.Announcements),
+        loadComponent: () => import('./features/gym-owner/announcements/announcements.component').then(m => m.AnnouncementsComponent),
         canActivate: [roleGuard]
       },
       {
         path: 'announcements/templates',
-        loadComponent: () => import('./features/gym-owner/announcements/templates/templates').then(m => m.Templates),
+        loadComponent: () => import('./features/gym-owner/announcements/templates/templates.component').then(m => m.TemplatesComponent),
         canActivate: [roleGuard]
       }
     ]
@@ -177,23 +177,23 @@ export const routes: Routes = [
       },
       {
         path: 'performance',
-        loadComponent: () => import('./features/user/user-performance/user-performance').then(m => m.UserPerformance)
+        loadComponent: () => import('./features/user/user-performance/user-performance.component').then(m => m.UserPerformanceComponent)
       },
       {
         path: 'workout-calendar',
-        loadComponent: () => import('./features/user/user-workout-calendar/user-workout-calendar').then(m => m.UserWorkoutCalendar)
+        loadComponent: () => import('./features/user/user-workout-calendar/user-workout-calendar.component').then(m => m.UserWorkoutCalendarComponent)
       },
       {
         path: 'workout-planner',
-        loadComponent: () => import('./features/user/user-workout-planner/user-workout-planner').then(m => m.UserWorkoutPlanner)
+        loadComponent: () => import('./features/user/user-workout-planner/user-workout-planner.component').then(m => m.UserWorkoutPlannerComponent)
       },
       {
         path: 'diet-planner',
-        loadComponent: () => import('./features/user/user-diet-planner/user-diet-planner').then(m => m.UserDietPlanner)
+        loadComponent: () => import('./features/user/user-diet-planner/user-diet-planner.component').then(m => m.UserDietPlannerComponent)
       },
       {
         path: 'health-tracker',
-        loadComponent: () => import('./features/user/user-health-tracker/user-health-tracker').then(m => m.UserHealthTracker)
+        loadComponent: () => import('./features/user/user-health-tracker/user-health-tracker.component').then(m => m.UserHealthTrackerComponent)
       },
       {
         path: 'diet-tracker',
@@ -201,11 +201,11 @@ export const routes: Routes = [
       },
       {
         path: 'billing',
-        loadComponent: () => import('./features/user/user-billing/user-billing').then(m => m.UserBilling)
+        loadComponent: () => import('./features/user/user-billing/user-billing.component').then(m => m.UserBillingComponent)
       },
       {
         path: 'settings',
-        loadComponent: () => import('./features/user/user-settings/user-settings').then(m => m.UserSettings)
+        loadComponent: () => import('./features/user/user-settings/user-settings.component').then(m => m.UserSettingsComponent)
       },
       {
         path: 'profile',

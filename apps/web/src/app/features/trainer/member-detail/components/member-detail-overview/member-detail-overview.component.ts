@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-member-detail-overview',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './member-detail-overview.html',
-  styleUrl: './member-detail-overview.scss',
+  templateUrl: './member-detail-overview.component.html',
+  styleUrl: './member-detail-overview.component.scss',
 })
 export class PTMemberDetailOverviewComponent {
   @Input() memberInfo: any = null;

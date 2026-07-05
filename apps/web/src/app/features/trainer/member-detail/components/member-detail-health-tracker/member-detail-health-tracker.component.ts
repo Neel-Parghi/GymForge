@@ -16,8 +16,8 @@ import { HealthTrackerReportComponent } from './components/health-tracker-report
     HealthTrackerFormComponent,
     HealthTrackerReportComponent
   ],
-  templateUrl: './member-detail-health-tracker.html',
-  styleUrl: './member-detail-health-tracker.scss',
+  templateUrl: './member-detail-health-tracker.component.html',
+  styleUrl: './member-detail-health-tracker.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class PTMemberDetailHealthTrackerComponent implements OnInit, OnChanges, OnDestroy {

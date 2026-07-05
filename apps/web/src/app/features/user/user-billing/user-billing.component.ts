@@ -11,10 +11,10 @@ import { InvoiceDetailModalComponent } from '../../gym-owner/billing/components/
   selector: 'app-user-billing',
   standalone: true,
   imports: [CommonModule, InvoiceDetailModalComponent],
-  templateUrl: './user-billing.html',
-  styleUrl: './user-billing.scss',
+  templateUrl: './user-billing.component.html',
+  styleUrl: './user-billing.component.scss',
 })
-export class UserBilling implements OnInit {
+export class UserBillingComponent implements OnInit {
   paymentHistory: MemberSubscription[] = [];
   isLoading = true;
   selectedInvoice: any = null;

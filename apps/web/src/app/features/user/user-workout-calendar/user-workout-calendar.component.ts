@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PTMemberDetailWorkoutCalendarComponent } from '../../trainer/member-detail/components/member-detail-workout-calendar/member-detail-workout-calendar';
+import { PTMemberDetailWorkoutCalendarComponent } from '../../trainer/member-detail/components/member-detail-workout-calendar/member-detail-workout-calendar.component';
 import { WorkoutPlanService } from '../../../core/services/workout-plan.service';
 import { MemberService } from '../../../core/services/member.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -12,10 +12,10 @@ import { CONSTANTS } from '../../../core/constants/constants';
   selector: 'app-user-workout-calendar',
   standalone: true,
   imports: [CommonModule, PTMemberDetailWorkoutCalendarComponent],
-  templateUrl: './user-workout-calendar.html',
-  styleUrl: './user-workout-calendar.scss',
+  templateUrl: './user-workout-calendar.component.html',
+  styleUrl: './user-workout-calendar.component.scss',
 })
-export class UserWorkoutCalendar implements OnInit {
+export class UserWorkoutCalendarComponent implements OnInit {
   private workoutPlanService = inject(WorkoutPlanService);
   private memberService = inject(MemberService);
   private notification = inject(NotificationService);

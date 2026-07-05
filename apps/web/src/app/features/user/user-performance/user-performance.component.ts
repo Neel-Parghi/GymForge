@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PTMemberDetailTrackPerformanceComponent } from '../../trainer/member-detail/components/member-detail-track-performance/member-detail-track-performance';
+import { PTMemberDetailTrackPerformanceComponent } from '../../trainer/member-detail/components/member-detail-track-performance/member-detail-track-performance.component';
 import { MemberService } from '../../../core/services/member.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -11,10 +11,10 @@ import { CONSTANTS } from '../../../core/constants/constants';
   selector: 'app-user-performance',
   standalone: true,
   imports: [CommonModule, PTMemberDetailTrackPerformanceComponent],
-  templateUrl: './user-performance.html',
-  styleUrl: './user-performance.scss',
+  templateUrl: './user-performance.component.html',
+  styleUrl: './user-performance.component.scss',
 })
-export class UserPerformance implements OnInit {
+export class UserPerformanceComponent implements OnInit {
   private memberService = inject(MemberService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);

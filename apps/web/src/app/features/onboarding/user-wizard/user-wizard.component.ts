@@ -15,8 +15,8 @@ import { ValidationMessage } from '../../../shared/components/validation-message
   selector: 'app-user-wizard',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, DropdownComponent, DateTimePickerComponent, LoadingComponent, ValidationMessage],
-  templateUrl: './user-wizard.html',
-  styleUrls: ['./user-wizard.scss']
+  templateUrl: './user-wizard.component.html',
+  styleUrls: ['./user-wizard.component.scss']
 })
 export class UserWizardComponent implements OnInit {
   currentStep = 1;

@@ -11,8 +11,8 @@ import { CONSTANTS } from '../../../../../core/constants/constants';
   selector: 'app-member-detail-workout-calendar',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, DropdownComponent],
-  templateUrl: './member-detail-workout-calendar.html',
-  styleUrl: './member-detail-workout-calendar.scss',
+  templateUrl: './member-detail-workout-calendar.component.html',
+  styleUrl: './member-detail-workout-calendar.component.scss',
 })
 export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges {
   private notification = inject(NotificationService);

@@ -12,8 +12,8 @@ import { DietTemplateCreatorComponent } from '../../../../../shared/components/d
   selector: 'app-member-detail-diet-chart',
   standalone: true,
   imports: [CommonModule, DietTemplateCreatorComponent],
-  templateUrl: './member-detail-diet-chart.html',
-  styleUrl: './member-detail-diet-chart.scss',
+  templateUrl: './member-detail-diet-chart.component.html',
+  styleUrl: './member-detail-diet-chart.component.scss',
 })
 export class PTMemberDetailDietChartComponent implements OnChanges {
   private memberService = inject(MemberService);

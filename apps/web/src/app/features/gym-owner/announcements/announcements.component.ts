@@ -16,10 +16,10 @@ import { CONSTANTS } from '../../../core/constants/constants';
   selector: 'app-announcements',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, DataGrid, GridCellDirective, SlideDrawerComponent, DateTimePickerComponent, DropdownComponent],
-  templateUrl: './announcements.html',
-  styleUrl: './announcements.scss',
+  templateUrl: './announcements.component.html',
+  styleUrl: './announcements.component.scss',
 })
-export class Announcements implements OnInit {
+export class AnnouncementsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private announcementService = inject(AnnouncementService);
   private templateService = inject(TemplateService);

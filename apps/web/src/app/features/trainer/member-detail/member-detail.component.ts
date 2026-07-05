@@ -9,11 +9,11 @@ import { MemberService } from '../../../core/services/member.service';
 import { DietPlanService } from '../../../core/services/diet-plan.service';
 import { WorkoutPlan, SplitPlanner, WeeklyPlanner, DailyPlanner } from '../../../shared/models/workout-plan.model';
 import { CONSTANTS } from '../../../core/constants/constants';
-import { PTMemberDetailOverviewComponent } from './components/member-detail-overview/member-detail-overview';
-import { PTMemberDetailTrackPerformanceComponent } from './components/member-detail-track-performance/member-detail-track-performance';
-import { PTMemberDetailWorkoutCalendarComponent } from './components/member-detail-workout-calendar/member-detail-workout-calendar';
-import { PTMemberDetailDietChartComponent } from './components/member-detail-diet-chart/member-detail-diet-chart';
-import { PTMemberDetailHealthTrackerComponent } from './components/member-detail-health-tracker/member-detail-health-tracker';
+import { PTMemberDetailOverviewComponent } from './components/member-detail-overview/member-detail-overview.component';
+import { PTMemberDetailTrackPerformanceComponent } from './components/member-detail-track-performance/member-detail-track-performance.component';
+import { PTMemberDetailWorkoutCalendarComponent } from './components/member-detail-workout-calendar/member-detail-workout-calendar.component';
+import { PTMemberDetailDietChartComponent } from './components/member-detail-diet-chart/member-detail-diet-chart.component';
+import { PTMemberDetailHealthTrackerComponent } from './components/member-detail-health-tracker/member-detail-health-tracker.component';
 
 @Component({
   selector: 'app-member-detail',

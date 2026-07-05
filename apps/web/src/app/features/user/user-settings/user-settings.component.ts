@@ -8,10 +8,10 @@ import { NotificationService } from '../../../core/services/notification.service
   selector: 'app-user-settings',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './user-settings.html',
-  styleUrl: './user-settings.scss',
+  templateUrl: './user-settings.component.html',
+  styleUrl: './user-settings.component.scss',
 })
-export class UserSettings implements OnInit {
+export class UserSettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
   private notificationService = inject(NotificationService);

@@ -16,10 +16,10 @@ import { TEMPLATE_CONFIG, TEMPLATE_TYPES } from '../../../../core/constants/temp
   selector: 'app-templates',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, DataGrid, GridCellDirective, SlideDrawerComponent, DropdownComponent],
-  templateUrl: './templates.html',
-  styleUrl: './templates.scss',
+  templateUrl: './templates.component.html',
+  styleUrl: './templates.component.scss',
 })
-export class Templates implements OnInit {
+export class TemplatesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private templateService = inject(TemplateService);
   private notificationService = inject(NotificationService);
