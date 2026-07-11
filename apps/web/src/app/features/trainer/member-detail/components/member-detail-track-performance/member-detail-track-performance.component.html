@@ -96,7 +96,7 @@
             </div>
 
             <!-- Skip Toggle Switch & Mode Toggle -->
-            <div class="console-actions-group" style="display: flex; gap: 10px; align-items: center;">
+            <div class="console-actions-group">
               <button class="btn-skip-toggle" (click)="toggleExerciseMode(selectedEx)"
                 title="Toggle between Strength and Cardio tracking mode">
                 <i class="fa-solid" [ngClass]="selectedEx.isCardio ? 'fa-dumbbell' : 'fa-person-running'"></i>
@@ -151,10 +151,12 @@
                   </div>
 
                   <div class="td-cell col-weight">
-                    <div class="premium-num-input" *ngIf="!s.completed" [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.touched">
+                    <div class="premium-num-input" *ngIf="!s.completed"
+                      [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.touched">
                       <input type="number"
-                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0" max="300"
-                        placeholder="0" step="0.1" (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+') ? $event.preventDefault() : null">
+                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0"
+                        max="300" placeholder="0" step="0.1"
+                        (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+') ? $event.preventDefault() : null">
                       <span class="unit">{{ selectedEx.isCardio ? 'km' : 'kg' }}</span>
                     </div>
                     <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span class="unit">{{
@@ -162,10 +164,12 @@
                   </div>
 
                   <div class="td-cell col-reps">
-                    <div class="premium-num-input" *ngIf="!s.completed" [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.touched">
+                    <div class="premium-num-input" *ngIf="!s.completed"
+                      [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.touched">
                       <input type="number"
                         [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0" max="100"
-                        placeholder="0" (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
+                        placeholder="0"
+                        (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
                       <span class="unit">{{ selectedEx.isCardio ? 'mins' : 'reps' }}</span>
                     </div>
                     <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span class="unit">{{
@@ -216,14 +220,11 @@
     <!-- ALTERNATE STATES -->
     <ng-template #alternateState>
       <ng-container *ngIf="!todayWorkout; else restDayState">
-        <div class="tab-pane-content tracker-full-width"
-          style="padding: 24px; display: flex; flex: 1; align-items: center; justify-content: center;">
-          <div class="empty-state-console animate-fade-in" style="border: none; background: transparent;">
-            <i class="fa-solid fa-calendar-xmark"
-              style="font-size: 3.5rem; color: var(--slate-300); margin-bottom: 20px;"></i>
-            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">No Workout
-              Tracked Today</h3>
-            <p style="font-size: 0.95rem; color: var(--text-muted); max-width: 400px; margin: 0 auto;">
+        <div class="tab-pane-content tracker-full-width tracker-empty-container">
+          <div class="empty-state-console animate-fade-in empty-console-override">
+            <i class="fa-solid fa-calendar-xmark empty-icon-xl"></i>
+            <h3 class="empty-title-lg">No Workout Tracked Today</h3>
+            <p class="empty-text-centered">
               There are no workouts scheduled for today, or a plan hasn't been assigned yet. Select a routine from the
               calendar or create a plan.
             </p>

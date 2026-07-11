@@ -48,9 +48,8 @@
                 oninput="this.value = Math.abs(this.value)">
               <span class="unit-box left-unit">₹</span>
             </div>
-            <div class="validation-error"
-              *ngIf="createInvoiceForm.get('amount')?.invalid && createInvoiceForm.get('amount')?.touched"
-              style="margin-top: 6px;">
+            <div class="validation-error error-spaced"
+              *ngIf="createInvoiceForm.get('amount')?.invalid && createInvoiceForm.get('amount')?.touched">
               <i class="fa-solid fa-circle-exclamation error-icon"></i>
               <span>Amount must be up to ₹1,00,000.</span>
             </div>

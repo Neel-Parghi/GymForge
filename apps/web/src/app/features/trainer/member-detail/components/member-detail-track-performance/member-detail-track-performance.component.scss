@@ -625,7 +625,7 @@
       &:focus-within {
         box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
       }
-      
+
       .unit {
         color: #ef4444;
       }
@@ -647,7 +647,7 @@
         -webkit-appearance: none;
         margin: 0;
       }
-      
+
       &.ng-invalid.ng-touched {
         color: #ef4444;
       }
@@ -1048,4 +1048,43 @@
       box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.2);
     }
   }
+}
+
+.empty-icon-xl {
+  font-size: 3.5rem;
+  color: var(--slate-300);
+  margin-bottom: 20px;
+}
+
+.empty-title-lg {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.empty-text-centered {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.console-actions-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tracker-empty-container {
+  padding: 24px;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-console-override {
+  border: none;
+  background: transparent;
 }

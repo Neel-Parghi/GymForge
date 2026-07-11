@@ -1123,6 +1123,13 @@
     align-items: center;
     padding: 30px 20px;
     background: #f8fafc;
+
+    &.empty-enrollments-msg {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: #64748b;
+    }
+
     border-radius: 16px;
     border: 1px dashed #cbd5e1;
 

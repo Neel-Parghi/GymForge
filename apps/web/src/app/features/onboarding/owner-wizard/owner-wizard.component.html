@@ -89,7 +89,7 @@
 
                 <div class="features-image-grid">
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/owner-wizard/setup_profile.png')"></div>
+                    <div class="bg-image bg-setup-profile"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -99,7 +99,7 @@
                     </div>
                   </div>
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/owner-wizard/manage_members.png')"></div>
+                    <div class="bg-image bg-manage-members"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -109,7 +109,7 @@
                     </div>
                   </div>
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/owner-wizard/track_revenue.png')"></div>
+                    <div class="bg-image bg-track-revenue"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -218,11 +218,9 @@
               <!-- Step 3: Branches -->
               @if (currentStep === 3) {
               <div class="step-pane">
-                <div class="step-header-row"
-                  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                  <h2 style="margin: 0;">Gym Branches</h2>
-                  <button type="button" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.85rem;"
-                    (click)="addBranch()">
+                <div class="branch-header">
+                  <h2 class="branch-title">Gym Branches</h2>
+                  <button type="button" class="btn btn-outline btn-branch-add" (click)="addBranch()">
                     Add Another Branch
                   </button>
                 </div>
@@ -424,8 +422,7 @@
             <div class="footer-left">
               <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()"
                 [disabled]="isSubmitting">Back</button>
-              <button *ngIf="currentStep === 1" type="button" class="btn btn-text text-danger" (click)="logout()"
-                style="color: #dc2626; background: transparent; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <button *ngIf="currentStep === 1" type="button" class="btn btn-text btn-logout-danger" (click)="logout()">
                 <i class="fi fi-rr-sign-out-alt"></i> Back to Login
               </button>
             </div>

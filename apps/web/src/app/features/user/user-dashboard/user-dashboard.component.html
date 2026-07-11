@@ -17,7 +17,7 @@
     <div>
       <h1 class="hero-title">
         <ng-container *ngIf="isFirstTime">Welcome</ng-container>
-        <ng-container *ngIf="!isFirstTime">Welcome back</ng-container>, 
+        <ng-container *ngIf="!isFirstTime">Welcome back</ng-container>,
         <span class="text-accent">{{ userName }}</span>
       </h1>
       <p class="hero-subtitle">{{ todayDate | date:'fullDate' }}</p>
@@ -85,8 +85,7 @@
             <div class="ov-ring-container">
               <svg viewBox="0 0 100 100" class="ov-ring-svg-new">
                 <circle cx="50" cy="50" r="44" class="ring-bg"></circle>
-                <circle cx="50" cy="50" r="44" class="ring-fill bf-fill"
-                  style="stroke-dasharray: 276.46; stroke-dashoffset: 100;"></circle>
+                <circle cx="50" cy="50" r="44" class="ring-fill bf-fill ring-calorie-mock"></circle>
               </svg>
               <div class="ring-label-content">
                 <span class="ring-val-big">{{ currentWeight }}</span>
@@ -103,8 +102,7 @@
             <div class="ov-ring-container">
               <svg viewBox="0 0 100 100" class="ov-ring-svg-new">
                 <circle cx="50" cy="50" r="44" class="ring-bg"></circle>
-                <circle cx="50" cy="50" r="44" class="ring-fill bf-fill"
-                  style="stroke-dasharray: 276.46; stroke-dashoffset: 200;"></circle>
+                <circle cx="50" cy="50" r="44" class="ring-fill bf-fill ring-active-mock"></circle>
               </svg>
               <div class="ring-label-content">
                 <span class="ring-val-big">{{ bodyFat }}%</span>
@@ -121,8 +119,7 @@
             <div class="ov-ring-container">
               <svg viewBox="0 0 100 100" class="ov-ring-svg-new">
                 <circle cx="50" cy="50" r="44" class="ring-bg"></circle>
-                <circle cx="50" cy="50" r="44" class="ring-fill bmi-fill-normal"
-                  style="stroke-dasharray: 276.46; stroke-dashoffset: 150;"></circle>
+                <circle cx="50" cy="50" r="44" class="ring-fill bmi-fill-normal ring-streak-mock"></circle>
               </svg>
               <div class="ring-label-content">
                 <span class="ring-val-big">{{ bmi }}</span>
@@ -149,7 +146,7 @@
                 <h4 class="ov-plan-name">{{ activeWorkoutPlan?.name || 'No Plan Assigned' }}</h4>
               </div>
             </div>
-            <div class="ov-plan-body" style="margin-top:16px;" *ngIf="activePlanName !== 'No Plan Assigned'">
+            <div class="ov-plan-body workout-plan-body" *ngIf="activePlanName !== 'No Plan Assigned'">
               <div class="ov-plan-metric">
                 <span class="metric-lbl">Target frequency</span>
                 <span class="metric-val">{{ activeDaysPerWeek }} days/week</span>
@@ -176,16 +173,16 @@
             <div class="ov-plan-body" *ngIf="activeDietPlan?.name !== 'No Plan Assigned'">
               <div class="ov-plan-metric">
                 <span class="metric-lbl">Protein Target</span>
-                <span class="metric-val">180g <span class="macro-logged blue">160g logged</span></span>
+                <span class="metric-val">180g <span class="macro-logged protein-logged">160g logged</span></span>
                 <div class="macro-track">
-                  <div class="macro-fill bg-blue" style="width:88%;"></div>
+                  <div class="macro-fill protein-fill"></div>
                 </div>
               </div>
               <div class="ov-plan-metric">
                 <span class="metric-lbl">Carbs Target</span>
-                <span class="metric-val">300g <span class="macro-logged green">220g logged</span></span>
+                <span class="metric-val">300g <span class="macro-logged carbs-logged">220g logged</span></span>
                 <div class="macro-track">
-                  <div class="macro-fill bg-green" style="width:73%;"></div>
+                  <div class="macro-fill carbs-fill"></div>
                 </div>
               </div>
             </div>
@@ -205,26 +202,30 @@
         <div class="routine-header">
           <h3 class="ov-stats-title"><i class="fa-solid fa-list-check"></i> Daily Routines </h3>
           <button class="btn-icon-text" (click)="isAddingRoutine = !isAddingRoutine">
-            <i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i> {{ isAddingRoutine ? 'Close' : 'Add' }}
+            <i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i> {{ isAddingRoutine ? 'Close' :
+            'Add' }}
           </button>
         </div>
 
-        <form [formGroup]="routineForm" (ngSubmit)="addRoutine()" class="routine-input-group-container" *ngIf="isAddingRoutine">
+        <form [formGroup]="routineForm" (ngSubmit)="addRoutine()" class="routine-input-group-container"
+          *ngIf="isAddingRoutine">
           <div class="routine-input-group">
             <input type="text" formControlName="title" placeholder="Habit..." class="input-flex"
               [class.invalid]="routineForm.get('title')?.invalid && routineForm.get('title')?.touched">
-            
+
             <input type="text" formControlName="amount" placeholder="Time/Amt" class="input-small"
               [class.invalid]="routineForm.get('amount')?.invalid && routineForm.get('amount')?.touched">
-            
+
             <button type="submit" class="btn-icon-primary" title="Save Routine">
               <i class="fa-solid fa-plus"></i>
             </button>
           </div>
-          <div class="validation-error" *ngIf="routineForm.get('amount')?.errors?.['maxLengthExceeded'] && routineForm.get('amount')?.touched">
+          <div class="validation-error"
+            *ngIf="routineForm.get('amount')?.errors?.['maxLengthExceeded'] && routineForm.get('amount')?.touched">
             Amount cannot exceed 20 characters.
           </div>
-          <div class="validation-error" *ngIf="routineForm.get('amount')?.errors?.['maxDigitsExceeded'] && routineForm.get('amount')?.touched">
+          <div class="validation-error"
+            *ngIf="routineForm.get('amount')?.errors?.['maxDigitsExceeded'] && routineForm.get('amount')?.touched">
             Number cannot exceed 5 digits.
           </div>
         </form>
@@ -234,8 +235,8 @@
             No protocols set for today.
           </div>
 
-          <div class="r-item" *ngFor="let quest of dailyRoutines" [class.completed]="quest.completed"
-            cdkDrag (click)="toggleRoutine(quest)">
+          <div class="r-item" *ngFor="let quest of dailyRoutines" [class.completed]="quest.completed" cdkDrag
+            (click)="toggleRoutine(quest)">
             <div class="r-info">
               <div class="drag-handle" cdkDragHandle (click)="$event.stopPropagation()">
                 <i class="fa-solid fa-grip-vertical"></i>
@@ -264,14 +265,13 @@
     <div class="ov-pr-card glass-card">
       <div class="ov-section-header">
         <div>
-          <h3 class="ov-section-title"><i class="fa-solid fa-trophy" style="color:#eab308;"></i> Trophy Room</h3>
+          <h3 class="ov-section-title"><i class="text-warning fa-solid fa-trophy"></i> Trophy Room</h3>
           <p class="ov-section-subtitle">Top Personal Records</p>
         </div>
       </div>
       <div class="pr-list">
-        <div *ngIf="personalRecords.length === 0" class="empty-state-text"
-          style="color: #9ca3af; text-align: center; padding: 1.5rem 0;">
-          <i class="fa-solid fa-medal mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i><br>
+        <div *ngIf="personalRecords.length === 0" class="empty-dashboard-box empty-state-text">
+          <i class="dashboard-icon-faded fa-solid fa-medal mb-2"></i><br>
           No personal records set yet.
         </div>
         <div class="pr-item" *ngFor="let pr of personalRecords">
@@ -291,15 +291,14 @@
     <div class="ov-recovery-card glass-card">
       <div class="ov-section-header">
         <div>
-          <h3 class="ov-section-title"><i class="fa-solid fa-heart-pulse" style="color:#ef4444;"></i> Muscle Recovery
+          <h3 class="ov-section-title"><i class="text-danger fa-solid fa-heart-pulse"></i> Muscle Recovery
           </h3>
           <p class="ov-section-subtitle">Based on recent activity</p>
         </div>
       </div>
       <div class="recovery-list">
-        <div *ngIf="muscleRecovery.length === 0" class="empty-state-text"
-          style="color: #9ca3af; text-align: center; padding: 1.5rem 0;">
-          <i class="fa-solid fa-bed mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i><br>
+        <div *ngIf="muscleRecovery.length === 0" class="empty-dashboard-box empty-state-text">
+          <i class="dashboard-icon-faded fa-solid fa-bed mb-2"></i><br>
           No recent activity to analyze.
         </div>
         <div class="rec-item" *ngFor="let m of muscleRecovery" [ngClass]="m.status.toLowerCase()">
@@ -316,18 +315,17 @@
 
     <!-- Muscle Activation Heatmap -->
     <div class="ov-heatmap-card glass-card">
-      <div class="ov-section-header" style="margin-bottom: 20px;">
+      <div class="mb-20 ov-section-header">
         <div>
-          <h3 class="ov-section-title"><i class="fa-solid fa-fire-flame-curved" style="color:#f97316;"></i> Activation
+          <h3 class="ov-section-title"><i class="text-orange fa-solid fa-fire-flame-curved"></i> Activation
             Heatmap</h3>
           <p class="ov-section-subtitle">Current Week Intensity</p>
         </div>
       </div>
 
       <div class="heatmap-body">
-        <div *ngIf="muscleHeatmap.length === 0" class="empty-state-text"
-          style="color: #9ca3af; text-align: center; padding: 1.5rem 0;">
-          <i class="fa-solid fa-fire-flame-curved mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i><br>
+        <div *ngIf="muscleHeatmap.length === 0" class="empty-dashboard-box empty-state-text">
+          <i class="dashboard-icon-faded fa-solid fa-fire-flame-curved mb-2"></i><br>
           No activation data available.
         </div>
 

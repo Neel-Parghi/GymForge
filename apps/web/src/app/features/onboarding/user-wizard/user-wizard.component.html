@@ -59,7 +59,7 @@
 
                 <div class="features-image-grid">
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/goals/muscle_gain.png')"></div>
+                    <div class="bg-image bg-muscle-gain"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -69,7 +69,7 @@
                     </div>
                   </div>
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/features/feature_diet.png')"></div>
+                    <div class="bg-image bg-feature-diet"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -79,7 +79,7 @@
                     </div>
                   </div>
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/features/feature_progress.png')"></div>
+                    <div class="bg-image bg-feature-progress"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -89,7 +89,7 @@
                     </div>
                   </div>
                   <div class="feature-image-card">
-                    <div class="bg-image" style="background-image: url('/images/goals/general_fitness.png')"></div>
+                    <div class="bg-image bg-general-fitness"></div>
                     <div class="gradient-overlay"></div>
                     <div class="card-content">
                       <div class="text-content">
@@ -115,7 +115,7 @@
                       <div class="gradient-overlay"></div>
                       <div class="card-content">
                         <div class="text-content">
-                          <h3><i [class]="goal.icon" style="margin-right: 8px;"></i>{{ goal.label }}</h3>
+                          <h3><i [class]="goal.icon" class="goal-icon"></i>{{ goal.label }}</h3>
                           <p>{{ goal.desc }}</p>
                         </div>
                       </div>
@@ -139,9 +139,10 @@
                   </div>
                   <div class="form-group">
                     <label>Date of Birth *</label>
-                    <div style="display: flex; gap: 16px; align-items: center;">
-                      <app-date-time-picker formControlName="dob" [enableTime]="false" [maxDate]="maxDobDate" style="flex: 1;"></app-date-time-picker>
-                      <span *ngIf="calculatedAge !== null" style="font-size: 0.9rem; font-weight: 600; color: var(--primary-navy); white-space: nowrap;">Age: {{ calculatedAge }}</span>
+                    <div class="dob-container">
+                      <app-date-time-picker formControlName="dob" [enableTime]="false"
+                        [maxDate]="maxDobDate" class="dob-picker"></app-date-time-picker>
+                      <span *ngIf="calculatedAge !== null" class="age-text">Age: {{ calculatedAge }}</span>
                     </div>
                   </div>
                 </div>
@@ -167,7 +168,7 @@
                   </div>
                   <div class="form-group">
                     <label>Estimated BMI</label>
-                    <div style="display: flex; align-items: center; height: 100%; padding: 0 16px; background: rgba(0,0,0,0.03); border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-secondary); font-weight: 600; transition: all 0.3s;"
+                    <div class="gender-btn-custom"
                          [ngClass]="{'bmi-normal': bmiStatus === 'normal', 'bmi-under': bmiStatus === 'under', 'bmi-over': bmiStatus === 'over'}">
                       <span *ngIf="calculatedBmi !== null">{{ calculatedBmi }}</span>
                       <span *ngIf="calculatedBmi === null">Enter height & weight</span>
@@ -186,7 +187,8 @@
           <div class="wizard-footer-inner">
             <div class="footer-left">
               <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
-              <button *ngIf="currentStep === 1" type="button" class="btn btn-text text-danger" (click)="logout()" style="color: #dc2626; background: transparent; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <button *ngIf="currentStep === 1" type="button" class="btn btn-text btn-logout-danger"
+                (click)="logout()">
                 <i class="fi fi-rr-sign-out-alt"></i> Back to Login
               </button>
             </div>

@@ -128,10 +128,9 @@
 
       <div class="history-exercises-log-view">
         <div class="history-ex-card" *ngFor="let ex of selectedSession.exercises" [class.skipped-card]="ex.skipped">
-          <div class="ex-card-title-row" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="flex-space-between ex-card-title-row">
             <h5>{{ ex.name }}</h5>
-            <span *ngIf="ex.skipped" class="badge-skipped"
-              style="background-color: #ffe5e5; color: #ff3b30; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+            <span *ngIf="ex.skipped" class="badge-danger-light badge-skipped">
               <i class="fa-solid fa-ban"></i> Skipped
             </span>
           </div>

@@ -53,8 +53,8 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-align-left"></i> Short Description <span class="text-muted"
-                style="font-size: 0.7rem; font-weight: 500; color: var(--slate-400); text-transform: none;">(Optional)</span></label>
+            <label><i class="fa-solid fa-align-left"></i> Short Description <span
+                class="text-muted label-optional">(Optional)</span></label>
             <textarea formControlName="description" class="form-input textarea-short" maxlength="200"
               placeholder="Explain the focus of this weekly schedule..."></textarea>
             <span class="error-msg"
@@ -113,7 +113,7 @@
                 <div class="panel-header">
                   <div class="header-left">
                     <app-dropdown [options]="dayTypeOptions" formControlName="type" placeholder="Select Type"
-                      [isSearchable]="false" style="display: inline-block;width: 120px;"></app-dropdown>
+                      [isSearchable]="false" class="w-120-inline"></app-dropdown>
 
                     <div class="category-select-wrapper font-bold-text"
                       *ngIf="dayGroup.get('type')?.value === 'workout'">

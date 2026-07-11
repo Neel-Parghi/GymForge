@@ -91,20 +91,22 @@
   font-size: 0.75rem;
 }
 
-.macro-logged.blue {
+.macro-logged.protein-logged {
   color: #3b82f6;
 }
 
-.macro-logged.green {
+.macro-logged.carbs-logged {
   color: #10b981;
 }
 
-.bg-blue {
+.protein-fill {
   background: #3b82f6 !important;
+  width: 88%;
 }
 
-.bg-green {
+.carbs-fill {
   background: #10b981 !important;
+  width: 73%;
 }
 
 .btn-log-meal {
@@ -1151,4 +1153,23 @@
       }
     }
   }
+}
+
+.workout-plan-body {
+  margin-top: 16px;
+}
+
+.ring-calorie-mock {
+  stroke-dasharray: 276.46;
+  stroke-dashoffset: 100;
+}
+
+.ring-active-mock {
+  stroke-dasharray: 276.46;
+  stroke-dashoffset: 200;
+}
+
+.ring-streak-mock {
+  stroke-dasharray: 276.46;
+  stroke-dashoffset: 150;
 }

@@ -181,6 +181,11 @@
     font-weight: 600;
     display: flex;
     align-items: center;
+
+    &.error-spaced {
+      margin-top: 6px;
+    }
+
     gap: 6px;
     margin-top: 4px;
 

@@ -702,3 +702,21 @@
     opacity: 0.6;
   }
 }
+
+.flex-space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-danger-light {
+  background-color: #ffe5e5;
+  color: #ff3b30;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

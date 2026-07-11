@@ -17,8 +17,9 @@
               <span class="pulse-dot"></span>{{ statusLabel }}
             </span>
           </div>
-          <span class="ov-member-id"><i class="fa-solid fa-fingerprint"></i> ID: {{ memberInfo?.membershipNumber }}</span>
-          
+          <span class="ov-member-id"><i class="fa-solid fa-fingerprint"></i> ID: {{ memberInfo?.membershipNumber
+            }}</span>
+
           <!-- Client Fitness Goals -->
           <div class="ov-goals-list" *ngIf="memberInfo?.fitnessGoals?.length">
             <span class="goal-tag" *ngFor="let goal of memberInfo.fitnessGoals">
@@ -62,11 +63,13 @@
           <div class="ov-detail-content">
             <span class="ov-detail-label">Gender</span>
             <span class="ov-detail-value">
-              {{ memberInfo.gender === 1 ? 'Male' : memberInfo.gender === 2 ? 'Female' : memberInfo.gender === 3 ? 'Other' : 'Prefer not to say' }}
+              {{ memberInfo.gender === 1 ? 'Male' : memberInfo.gender === 2 ? 'Female' : memberInfo.gender === 3 ?
+              'Other' : 'Prefer not to say' }}
             </span>
           </div>
         </div>
-        <div class="ov-detail-item" *ngIf="memberInfo?.dateOfBirth && memberInfo?.dateOfBirth !== '0001-01-01T00:00:00'">
+        <div class="ov-detail-item"
+          *ngIf="memberInfo?.dateOfBirth && memberInfo?.dateOfBirth !== '0001-01-01T00:00:00'">
           <div class="ov-detail-icon dob-icon"><i class="fa-solid fa-cake-candles"></i></div>
           <div class="ov-detail-content">
             <span class="ov-detail-label">Date of Birth</span>
@@ -90,8 +93,9 @@
           <div class="contact-content">
             <span class="contact-label">Emergency Contact</span>
             <span class="contact-value">
-              {{ memberInfo.emergencyContactName }} 
-              <span class="contact-phone" *ngIf="memberInfo.emergencyContactPhone">({{ memberInfo.emergencyContactPhone }})</span>
+              {{ memberInfo.emergencyContactName }}
+              <span class="contact-phone" *ngIf="memberInfo.emergencyContactPhone">({{ memberInfo.emergencyContactPhone
+                }})</span>
             </span>
           </div>
         </div>
@@ -131,7 +135,7 @@
 
         <p class="completion-desc">
           <i class="fa-solid fa-circle-info"></i>
-          Target is calculated as {{ activeDaysPerWeek }} sessions/week. 
+          Target is calculated as {{ activeDaysPerWeek }} sessions/week.
           {{ completionFeedback }}
         </p>
 
@@ -277,7 +281,7 @@
           <h3 class="ov-plan-name">No Active Plan</h3>
         </div>
       </div>
-      <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted);">
+      <div class="empty-state-padded empty-state">
         Assign a plan template in the Calendar tab.
       </div>
     </div>
@@ -335,7 +339,7 @@
         <button class="ov-plan-go-btn" (click)="setTab('diet-chart')"><i
             class="fa-solid fa-arrow-up-right-from-square"></i></button>
       </div>
-      <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted);">
+      <div class="empty-state-padded empty-state">
         Assign a plan template in the Diet tab.
       </div>
     </div>

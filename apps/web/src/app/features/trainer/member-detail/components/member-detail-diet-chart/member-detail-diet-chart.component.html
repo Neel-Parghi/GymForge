@@ -109,21 +109,21 @@
 
     <!-- Diet Tracker Read-Only View -->
     <div class="diet-tracker-section" *ngIf="dietLog && !isUserRole">
-      <h3 style="margin-top: 32px; margin-bottom: 16px; border-bottom: 1px solid var(--slate-100); padding-bottom: 8px;">
-        <i class="fa-solid fa-clipboard-list" style="color: var(--accent-color); margin-right: 8px;"></i>
+      <h3 class="section-header-spaced">
+        <i class="fa-solid fa-clipboard-list icon-accent-mr"></i>
         Today's Intake Log
       </h3>
-      
+
       <div class="meals-grid-list" *ngIf="dietLog.mealEntries?.length > 0; else noLogs">
         <div class="meal-plan-card" *ngFor="let entry of dietLog.mealEntries">
           <div class="meal-card-top">
-            <h4><i class="fa-solid fa-check-circle" style="color: var(--success-color); margin-right: 6px;"></i>{{ entry.mealType }}: {{ entry.foodName }}</h4>
+            <h4><i class="fa-solid fa-check-circle icon-success-mr"></i>{{ entry.mealType }}: {{ entry.foodName }}</h4>
             <span class="meal-cal-badge">{{ entry.calories }} kcal | {{ entry.protein }}g P</span>
           </div>
         </div>
       </div>
       <ng-template #noLogs>
-        <div style="background: var(--slate-50); padding: 16px; border-radius: 12px; text-align: center; color: var(--slate-500); font-style: italic;">
+        <div class="info-box-italic">
           User has not logged any meals today.
         </div>
       </ng-template>
@@ -141,7 +141,8 @@
           of the templates.
         </p>
         <p class="no-diet-message" *ngIf="isUserRole">
-          You don't have an active diet plan assigned yet. Customize a unique diet plan or assign one from the templates.
+          You don't have an active diet plan assigned yet. Customize a unique diet plan or assign one from the
+          templates.
         </p>
         <div class="rest-actions">
           <button class="btn-outline" (click)="openCreateCustomModal()">

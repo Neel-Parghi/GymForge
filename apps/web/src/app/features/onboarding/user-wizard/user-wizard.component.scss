@@ -599,6 +599,7 @@
   0% {
     transform: scale(1);
   }
+
   100% {
     transform: scale(1.15);
   }
@@ -620,4 +621,66 @@
   background-color: rgba(239, 68, 68, 0.1) !important;
   color: #991b1b !important;
   border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.goal-icon {
+  margin-right: 8px;
+}
+
+.dob-container {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.dob-picker {
+  flex: 1;
+}
+
+.age-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-navy);
+  white-space: nowrap;
+}
+
+.gender-btn-custom {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 16px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-logout-danger {
+  color: #dc2626;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.bg-muscle-gain {
+  background-image: url('/images/goals/muscle_gain.png');
+}
+
+.bg-feature-diet {
+  background-image: url('/images/features/feature_diet.png');
+}
+
+.bg-feature-progress {
+  background-image: url('/images/features/feature_progress.png');
+}
+
+.bg-general-fitness {
+  background-image: url('/images/goals/general_fitness.png');
 }
