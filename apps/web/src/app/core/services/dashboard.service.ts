@@ -9,7 +9,7 @@ import { API_CONSTANTS } from '../constants/api-constants';
 })
 export class DashboardService extends BaseApiService {
 
-  private statsCache$?: Observable<ApiResponse<any>>;
+  private statsCache$?: Observable<ApiResponse<unknown>>;
 
   constructor() {
     super();
@@ -19,9 +19,9 @@ export class DashboardService extends BaseApiService {
     this.statsCache$ = undefined;
   }
 
-  getStats(forceRefresh = false): Observable<ApiResponse<any>> {
+  getStats(forceRefresh = false): Observable<ApiResponse<unknown>> {
     if (!this.statsCache$ || forceRefresh) {
-      this.statsCache$ = this.get<ApiResponse<any>>(API_CONSTANTS.SUPER_ADMIN.DASHBOARD).pipe(
+      this.statsCache$ = this.get<ApiResponse<unknown>>(API_CONSTANTS.SUPER_ADMIN.DASHBOARD).pipe(
         shareReplay(1)
       );
     }

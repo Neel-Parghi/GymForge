@@ -52,8 +52,8 @@ export const roleGuard: CanActivateFn = (route, state) => {
   }
 
   if (matchedModKey) {
-    const cachedSettings = settingsService.getSettingsSync();
-    const savedRights = cachedSettings?.roleRights || {};
+    const cachedSettings = settingsService.getSettingsSync() as Record<string, any>;
+    const savedRights: Record<string, unknown> = (cachedSettings?.['roleRights'] as Record<string, unknown>) || {};
 
     const matrixKey = `${role}_${matchedModKey}`;
 

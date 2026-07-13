@@ -5,7 +5,7 @@ import { AnnouncementService } from '../../../core/services/announcement.service
 import { TemplateService } from '../../../core/services/template.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { RouterModule } from '@angular/router';
-import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
+import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
 import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
@@ -15,7 +15,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
 @Component({
   selector: 'app-announcements',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, DataGrid, GridCellDirective, SlideDrawerComponent, DateTimePickerComponent, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, DataGrid, SlideDrawerComponent, DateTimePickerComponent, DropdownComponent],
   templateUrl: './announcements.component.html',
   styleUrl: './announcements.component.scss',
 })
@@ -72,7 +72,7 @@ export class AnnouncementsComponent implements OnInit {
   loadAnnouncements(): void {
     this.announcementService.getAnnouncements().subscribe({
       next: (res) => {
-        this.announcements = res.data || [];
+        this.announcements = (res.data as any[]) || [];
         this.announcements.sort((a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime());
         this.totalItems = this.announcements.length;
       },
@@ -85,8 +85,8 @@ export class AnnouncementsComponent implements OnInit {
 
   loadTemplates(): void {
     this.templateService.getTemplates().subscribe({
-      next: (res) => {
-        this.templates = res.data || [];
+      next: (res: any) => {
+        this.templates = (res.data as any[]) || [];
         this.templateOptions = this.templates.map(t => ({ value: t.id, label: t.name }));
       },
       error: (err) => {

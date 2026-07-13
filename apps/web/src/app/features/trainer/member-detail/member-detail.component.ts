@@ -591,8 +591,9 @@ export class PTMemberDetailComponent implements OnInit {
   openAssignSplitModal(): void {
     if (!this.currentUserId) return;
     this.workoutPlanService.getPlans().subscribe({
-      next: (plans) => {
-        this.workoutPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
+      next: (res) => {
+        const plans = res as any[];
+        this.workoutPlans = (plans || []).filter((p: any) => !p.isCustom && p.createdBy === this.currentUserId);
         if (this.workoutPlans.length === 0) {
           this.notification.warning('No workout plans available. Please create a plan first.');
         } else {
@@ -645,7 +646,7 @@ export class PTMemberDetailComponent implements OnInit {
     if (!this.currentUserId) return;
     this.dietPlanService.getPlans().subscribe({
       next: (plans) => {
-        this.dietPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
+        this.dietPlans = (plans || []).filter((p: any) => !p.isCustom && p.createdBy === this.currentUserId);
       },
       error: (err) => {
         console.error('Failed to load diet plans:', err);
@@ -685,8 +686,9 @@ export class PTMemberDetailComponent implements OnInit {
   openAssignDietModal(): void {
     if (!this.currentUserId) return;
     this.dietPlanService.getPlans().subscribe({
-      next: (plans) => {
-        this.dietPlans = (plans || []).filter(p => !p.isCustom && p.createdBy === this.currentUserId);
+      next: (res) => {
+        const plans = res as any[];
+        this.dietPlans = (plans || []).filter((p: any) => !p.isCustom && p.createdBy === this.currentUserId);
         if (this.dietPlans.length === 0) {
           this.notification.warning('No diet plans available. Please create a plan first.');
         } else {

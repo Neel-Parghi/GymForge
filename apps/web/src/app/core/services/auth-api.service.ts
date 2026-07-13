@@ -5,6 +5,19 @@ import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { UserProfile } from '../../shared/models/user-profile.model';
+import { JwtToken } from '../../shared/models/jwt-token.model';
+import { ApiResponse } from '../../shared/models/api-response.model';
+import { 
+  LoginRequestDto, 
+  RegisterRequestDto, 
+  VerifyOtpRequestDto, 
+  ResendOtpRequestDto, 
+  ForgotPasswordRequestDto, 
+  ResetPasswordRequestDto, 
+  TokenResponseDto, 
+  RegisterResponseDto,
+  RefreshTokenRequestDto
+} from '../../shared/models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,41 +49,41 @@ export class AuthApiService extends BaseApiService {
     return null;
   }
 
-  login(credentials: any, rememberMe: boolean = true): Observable<any> {
-    return this.post(API_CONSTANTS.AUTH.LOGIN, credentials).pipe(
-      tap(res => this.saveTokens(res, rememberMe))
+  login(credentials: LoginRequestDto, rememberMe: boolean = true): Observable<ApiResponse<TokenResponseDto>> {
+    return this.post<ApiResponse<TokenResponseDto>>(API_CONSTANTS.AUTH.LOGIN, credentials).pipe(
+      tap((res) => this.saveTokens(res, rememberMe))
     );
   }
 
-  register(userData: any): Observable<any> {
-    return this.post(API_CONSTANTS.AUTH.REGISTER, userData);
+  register(userData: RegisterRequestDto): Observable<ApiResponse<RegisterResponseDto>> {
+    return this.post<ApiResponse<RegisterResponseDto>>(API_CONSTANTS.AUTH.REGISTER, userData);
   }
 
-  verifyOtp(data: { email: string, otpCode: string }): Observable<any> {
-    return this.post(API_CONSTANTS.AUTH.VERIFY_OTP, data).pipe(
-      tap(res => this.saveTokens(res, true))
+  verifyOtp(data: VerifyOtpRequestDto): Observable<ApiResponse<TokenResponseDto>> {
+    return this.post<ApiResponse<TokenResponseDto>>(API_CONSTANTS.AUTH.VERIFY_OTP, data).pipe(
+      tap((res) => this.saveTokens(res, true))
     );
   }
 
-  resendOtp(data: { email: string }): Observable<any> {
-    return this.post(API_CONSTANTS.AUTH.RESEND_OTP, data);
+  resendOtp(data: ResendOtpRequestDto): Observable<ApiResponse<null>> {
+    return this.post<ApiResponse<null>>(API_CONSTANTS.AUTH.RESEND_OTP, data);
   }
 
-  forgotPassword(data: { email: string }): Observable<any> {
-    const payload = { ...data, clientUri: window.location.origin + '/reset-password' };
-    return this.post(API_CONSTANTS.AUTH.FORGOT_PASSWORD, payload);
+  forgotPassword(data: { email: string }): Observable<ApiResponse<null>> {
+    const payload: ForgotPasswordRequestDto = { ...data, clientUri: window.location.origin + '/reset-password' };
+    return this.post<ApiResponse<null>>(API_CONSTANTS.AUTH.FORGOT_PASSWORD, payload);
   }
 
-  resetPassword(data: { email: string; token: string; newPassword: string; confirmPassword: string }): Observable<any> {
-    return this.post(API_CONSTANTS.AUTH.RESET_PASSWORD, data);
+  resetPassword(data: ResetPasswordRequestDto): Observable<ApiResponse<null>> {
+    return this.post<ApiResponse<null>>(API_CONSTANTS.AUTH.RESET_PASSWORD, data);
   }
 
-  getMe() {
-    return this.get<any>(API_CONSTANTS.AUTH.ME);
+  getMe(): Observable<ApiResponse<UserProfile>> {
+    return this.get<ApiResponse<UserProfile>>(API_CONSTANTS.AUTH.ME);
   }
 
-  saveTokens(res: any, rememberMe: boolean = true) {
-    const data = res?.data || res;
+  saveTokens(res: ApiResponse<TokenResponseDto> | { accessToken?: string, refreshToken?: string } | null | undefined, rememberMe: boolean = true) {
+    const data = (res as any)?.data || res;
     const storage = rememberMe ? localStorage : sessionStorage;
 
     if (rememberMe) {
@@ -95,11 +108,12 @@ export class AuthApiService extends BaseApiService {
     return localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
   }
 
-  refreshToken(): Observable<any> {
+  refreshToken(): Observable<ApiResponse<TokenResponseDto>> {
     const accessToken = this.getToken();
     const refreshToken = this.getRefreshToken();
     const rememberMe = !!localStorage.getItem('token');
-    return this.post(API_CONSTANTS.AUTH.REFRESH, { accessToken, refreshToken }).pipe(
+    const payload: RefreshTokenRequestDto = { accessToken: accessToken || '', refreshToken: refreshToken || '' };
+    return this.post<ApiResponse<TokenResponseDto>>(API_CONSTANTS.AUTH.REFRESH, payload).pipe(
       tap(res => this.saveTokens(res, rememberMe))
     );
   }
@@ -136,30 +150,30 @@ export class AuthApiService extends BaseApiService {
   }
 
   getUserRole(): string | null {
-    const decoded: any = this.decodeToken();
+    const decoded: JwtToken | null = this.decodeToken();
     if (!decoded) return null;
-    return decoded['role'] || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+    return decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
   }
 
   getUserId(): string | null {
-    const decoded: any = this.decodeToken();
+    const decoded: JwtToken | null = this.decodeToken();
     if (!decoded) return null;
-    return decoded['userId'] || decoded['nameid'] || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded['sub'] || decoded['id'] || null;
+    return decoded.userId || decoded.nameid || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.sub || decoded.id || null;
   }
 
   getGymId(): string | null {
-    const decoded: any = this.decodeToken();
+    const decoded: JwtToken | null = this.decodeToken();
     if (!decoded) return null;
-    return decoded['gymId'] || null;
+    return decoded.gymId || null;
   }
 
   getAssignedBranchId(): string | null {
-    const decoded: any = this.decodeToken();
+    const decoded: JwtToken | null = this.decodeToken();
     if (!decoded) return null;
-    return decoded['branchId'] || null;
+    return decoded.branchId || null;
   }
 
-  decodeToken(): any {
+  decodeToken(): JwtToken | null {
     const token = this.getToken();
     if (!token || token === 'undefined' || token.split('.').length !== 3) {
       return null;

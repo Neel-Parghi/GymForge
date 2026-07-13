@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, shareReplay, tap, catchError, of } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { BaseApiService } from './base-api.service';
+import { ApiResponse } from '../../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,112 +12,112 @@ export class UserService extends BaseApiService {
     super();
   }
 
-  inviteOwner(dto: any): Observable<any> {
-    return this.post(API_CONSTANTS.USER.INVITE_OWNER, dto);
+  inviteOwner(dto: unknown): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.USER.INVITE_OWNER, dto);
   }
 
-  reInviteOwner(userId: string): Observable<any> {
-    return this.post(`${API_CONSTANTS.USER.RE_INVITE}/${userId}`, {});
+  reInviteOwner(userId: string): Observable<ApiResponse> {
+    return this.post<ApiResponse>(`${API_CONSTANTS.USER.RE_INVITE}/${userId}`, {});
   }
 
-  setPassword(dto: any): Observable<any> {
-    return this.post(API_CONSTANTS.USER.SET_PASSWORD, dto);
+  setPassword(dto: unknown): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.USER.SET_PASSWORD, dto);
   }
 
-  validateInvitation(token: string): Observable<any> {
-    return this.get(`${API_CONSTANTS.USER.VALIDATE_INVITATION}/${token}`, {});
+  validateInvitation(token: string): Observable<ApiResponse> {
+    return this.get<ApiResponse>(`${API_CONSTANTS.USER.VALIDATE_INVITATION}/${token}`, {});
   }
 
-  private preferencesCache$: Observable<any> | null = null;
-  private subscriptionsCache$: Observable<any> | null = null;
+  private preferencesCache$: Observable<ApiResponse> | null = null;
+  private subscriptionsCache$: Observable<ApiResponse> | null = null;
 
-  getPreferences(forceRefresh = false): Observable<any> {
+  getPreferences(forceRefresh = false): Observable<ApiResponse> {
     if (forceRefresh || !this.preferencesCache$) {
-      this.preferencesCache$ = this.get(API_CONSTANTS.USER.PREFERENCES).pipe(
-        catchError(() => of({ success: true, data: null, message: 'No preferences found' })),
+      this.preferencesCache$ = this.get<ApiResponse>(API_CONSTANTS.USER.PREFERENCES).pipe(
+        catchError(() => of({ success: true, data: null, message: 'No preferences found', error: null, statusCode: 200, timestamp: new Date().toISOString() })),
         shareReplay(1)
       );
     }
     return this.preferencesCache$;
   }
 
-  updatePreferences(dto: any): Observable<any> {
-    return this.put(API_CONSTANTS.USER.PREFERENCES, dto).pipe(
+  updatePreferences(dto: unknown): Observable<ApiResponse> {
+    return this.put<ApiResponse>(API_CONSTANTS.USER.PREFERENCES, dto).pipe(
       tap(() => this.preferencesCache$ = null)
     );
   }
 
-  getMySubscriptions(forceRefresh = false): Observable<any> {
+  getMySubscriptions(forceRefresh = false): Observable<ApiResponse> {
     if (forceRefresh || !this.subscriptionsCache$) {
-      this.subscriptionsCache$ = this.get(API_CONSTANTS.USER.MY_SUBSCRIPTIONS).pipe(
-        catchError(() => of({ success: true, data: [], message: 'No subscriptions found' })),
+      this.subscriptionsCache$ = this.get<ApiResponse>(API_CONSTANTS.USER.MY_SUBSCRIPTIONS).pipe(
+        catchError(() => of({ success: true, data: [], message: 'No subscriptions found', error: null, statusCode: 200, timestamp: new Date().toISOString() })),
         shareReplay(1)
       );
     }
     return this.subscriptionsCache$;
   }
 
-  private myGymCache$: Observable<any> | null = null;
+  private myGymCache$: Observable<ApiResponse> | null = null;
 
-  getMyGym(forceRefresh = false): Observable<any> {
+  getMyGym(forceRefresh = false): Observable<ApiResponse> {
     if (forceRefresh || !this.myGymCache$) {
-      this.myGymCache$ = this.get(API_CONSTANTS.USER.MY_GYM).pipe(
-        catchError(() => of({ success: true, data: null, message: 'No gym found' })),
+      this.myGymCache$ = this.get<ApiResponse>(API_CONSTANTS.USER.MY_GYM).pipe(
+        catchError(() => of({ success: true, data: null, message: 'No gym found', error: null, statusCode: 200, timestamp: new Date().toISOString() })),
         shareReplay(1)
       );
     }
     return this.myGymCache$;
   }
 
-  getAvailablePlans(): Observable<any> {
-    return this.get(API_CONSTANTS.USER.AVAILABLE_PLANS);
+  getAvailablePlans(): Observable<ApiResponse> {
+    return this.get<ApiResponse>(API_CONSTANTS.USER.AVAILABLE_PLANS);
   }
 
-  initiateUpgradeCheckout(planId: string): Observable<any> {
-    return this.post(API_CONSTANTS.MEMBER_PAYMENT.INITIATE_CHECKOUT, { planId });
+  initiateUpgradeCheckout(planId: string): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.MEMBER_PAYMENT.INITIATE_CHECKOUT, { planId });
   }
 
-  verifyUpgradeCheckout(payload: any): Observable<any> {
-    return this.post(API_CONSTANTS.MEMBER_PAYMENT.VERIFY_CHECKOUT, payload);
+  verifyUpgradeCheckout(payload: unknown): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.MEMBER_PAYMENT.VERIFY_CHECKOUT, payload);
   }
 
-  initiateOfflineCheckout(planId: string): Observable<any> {
-    return this.post(API_CONSTANTS.MEMBER_PAYMENT.OFFLINE_CHECKOUT, { planId });
+  initiateOfflineCheckout(planId: string): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.MEMBER_PAYMENT.OFFLINE_CHECKOUT, { planId });
   }
 
-  getStandaloneUsers(pageNumber: number = 1, pageSize: number = 10, searchTerm: string = ''): Observable<any> {
-    const params: any = { pageNumber, pageSize };
+  getStandaloneUsers(pageNumber: number = 1, pageSize: number = 10, searchTerm: string = ''): Observable<ApiResponse> {
+    const params: Record<string, string | number> = { pageNumber, pageSize };
     if (searchTerm) {
-      params.searchTerm = searchTerm;
+      params['searchTerm'] = searchTerm;
     }
-    return this.get(API_CONSTANTS.USER.STANDALONE, { params });
+    return this.get<ApiResponse>(API_CONSTANTS.USER.STANDALONE, params);
   }
 
-  saveOnboardingStep(step: number): Observable<any> {
-    return this.post(`${API_CONSTANTS.USER.SAVE_ONBOARDING_STEP}/${step}`, {});
+  saveOnboardingStep(step: number): Observable<ApiResponse> {
+    return this.post<ApiResponse>(`${API_CONSTANTS.USER.SAVE_ONBOARDING_STEP}/${step}`, {});
   }
 
-  completeOnboarding(payload: any): Observable<any> {
-    return this.post(API_CONSTANTS.USER.COMPLETE_ONBOARDING, payload);
+  completeOnboarding(payload: unknown): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.USER.COMPLETE_ONBOARDING, payload);
   }
 
-  scheduleAccountDeletion(): Observable<any> {
-    return this.delete(API_CONSTANTS.AUTH.REQUEST_DELETION);
+  scheduleAccountDeletion(): Observable<ApiResponse> {
+    return this.delete<ApiResponse>(API_CONSTANTS.AUTH.REQUEST_DELETION);
   }
 
-  private dashboardCache$: Observable<any> | null = null;
-  private routinesCache$: Observable<any> | null = null;
+  private dashboardCache$: Observable<ApiResponse> | null = null;
+  private routinesCache$: Observable<ApiResponse> | null = null;
 
-  getDashboardSummary(forceRefresh = false): Observable<any> {
+  getDashboardSummary(forceRefresh = false): Observable<ApiResponse> {
     if (forceRefresh || !this.dashboardCache$) {
-      this.dashboardCache$ = this.get(API_CONSTANTS.USER.DASHBOARD).pipe(shareReplay(1));
+      this.dashboardCache$ = this.get<ApiResponse>(API_CONSTANTS.USER.DASHBOARD).pipe(shareReplay(1));
     }
     return this.dashboardCache$;
   }
 
-  getDailyRoutines(forceRefresh = false): Observable<any> {
+  getDailyRoutines(forceRefresh = false): Observable<ApiResponse> {
     if (forceRefresh || !this.routinesCache$) {
-      this.routinesCache$ = this.get(API_CONSTANTS.USER.ROUTINES).pipe(shareReplay(1));
+      this.routinesCache$ = this.get<ApiResponse>(API_CONSTANTS.USER.ROUTINES).pipe(shareReplay(1));
     }
     return this.routinesCache$;
   }
@@ -127,19 +128,19 @@ export class UserService extends BaseApiService {
     this.myGymCache$ = null;
   }
 
-  createDailyRoutine(dto: any): Observable<any> {
-    return this.post(API_CONSTANTS.USER.ROUTINES, dto).pipe(tap(() => this.clearCache()));
+  createDailyRoutine(dto: unknown): Observable<ApiResponse> {
+    return this.post<ApiResponse>(API_CONSTANTS.USER.ROUTINES, dto).pipe(tap(() => this.clearCache()));
   }
 
-  updateDailyRoutine(id: string, dto: any): Observable<any> {
-    return this.put(`${API_CONSTANTS.USER.ROUTINES}/${id}`, dto).pipe(tap(() => this.clearCache()));
+  updateDailyRoutine(id: string, dto: unknown): Observable<ApiResponse> {
+    return this.put<ApiResponse>(`${API_CONSTANTS.USER.ROUTINES}/${id}`, dto).pipe(tap(() => this.clearCache()));
   }
 
-  deleteDailyRoutine(id: string): Observable<any> {
-    return this.delete(`${API_CONSTANTS.USER.ROUTINES}/${id}`).pipe(tap(() => this.clearCache()));
+  deleteDailyRoutine(id: string): Observable<ApiResponse> {
+    return this.delete<ApiResponse>(`${API_CONSTANTS.USER.ROUTINES}/${id}`).pipe(tap(() => this.clearCache()));
   }
 
-  toggleDailyRoutine(id: string): Observable<any> {
-    return this.patch(`${API_CONSTANTS.USER.ROUTINES}/${id}/toggle`, {}).pipe(tap(() => this.clearCache()));
+  toggleDailyRoutine(id: string): Observable<ApiResponse> {
+    return this.patch<ApiResponse>(`${API_CONSTANTS.USER.ROUTINES}/${id}/toggle`, {}).pipe(tap(() => this.clearCache()));
   }
 }

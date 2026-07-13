@@ -17,7 +17,8 @@ export const onboardingGuard: CanActivateFn = (route, state) => {
   } else {
     const token = authService.decodeToken();
     if (token) {
-      isOnboarded = token.isOnboarded === 'True' || token.isOnboarded === true;
+      const t = token as any;
+      isOnboarded = t.isOnboarded === 'True' || t.isOnboarded === true;
       role = authService.getUserRole() || '';
     }
   }

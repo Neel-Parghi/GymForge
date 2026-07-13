@@ -230,13 +230,14 @@ export class MembersListComponent implements OnInit {
       .subscribe({
         next: (res) => {
           if (res.data) {
-            this.atRiskMembers = res.data.atRiskMembers || [];
-            this.funnelData = res.data.renewalFunnel || { expired: 0, reminded: 0, renewed: 0, conversionRate: 0 };
-            this.streakLeaderboard = res.data.streakLeaderboard || [];
-            this.dashboardTotalCount = res.data.totalCount || 0;
-            this.dashboardActiveCount = res.data.activeCount || 0;
-            this.dashboardFrozenCount = res.data.frozenCount || 0;
-            this.dashboardExpiredCount = res.data.expiredCount || 0;
+            const data = res.data as any;
+            this.atRiskMembers = data.atRiskMembers || [];
+            this.funnelData = data.renewalFunnel || { expired: 0, reminded: 0, renewed: 0, conversionRate: 0 };
+            this.streakLeaderboard = data.streakLeaderboard || [];
+            this.dashboardTotalCount = data.totalCount || 0;
+            this.dashboardActiveCount = data.activeCount || 0;
+            this.dashboardFrozenCount = data.frozenCount || 0;
+            this.dashboardExpiredCount = data.expiredCount || 0;
           }
         },
         error: () => { }

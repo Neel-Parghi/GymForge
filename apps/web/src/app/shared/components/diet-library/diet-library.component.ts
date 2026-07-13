@@ -58,10 +58,10 @@ export class DietLibraryComponent implements OnInit {
       next: (plans) => {
         if (!this.currentUserId) {
           // Trainer mode: Trainer sees ONLY their own generic templates
-          this.dietPlans = (plans || []).filter(p => !p.isCustom);
+          this.dietPlans = (plans || []).filter((p: any) => !p.isCustom);
         } else {
           // User mode: User sees global templates + their own plans
-          this.dietPlans = (plans || []).filter(p => !p.isCustom || p.createdBy === this.currentUserId);
+          this.dietPlans = (plans || []).filter((p: any) => !p.isCustom || p.createdBy === this.currentUserId);
         }
       },
       error: (err) => {

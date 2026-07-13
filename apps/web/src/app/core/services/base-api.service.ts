@@ -10,12 +10,12 @@ export abstract class BaseApiService {
   protected http = inject(HttpClient);
   protected baseUrl = API_CONSTANTS.BASE_URL;
 
-  protected get<T>(url: string, params?: any): Observable<T> {
+  protected get<T>(url: string, params?: Record<string, string | number | boolean | null | undefined>): Observable<T> {
     const httpParams = this.createHttpParams(params);
     return this.http.get<T>(`${this.baseUrl}${url}`, { params: httpParams });
   }
 
-  protected getBlob(url: string, params?: any): Observable<Blob> {
+  protected getBlob(url: string, params?: Record<string, string | number | boolean | null | undefined>): Observable<Blob> {
     const httpParams = this.createHttpParams(params);
     return this.http.get(`${this.baseUrl}${url}`, {
       params: httpParams,
@@ -23,15 +23,15 @@ export abstract class BaseApiService {
     });
   }
 
-  protected post<T>(url: string, body: any): Observable<T> {
+  protected post<T>(url: string, body: unknown): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${url}`, body);
   }
 
-  protected put<T>(url: string, body: any): Observable<T> {
+  protected put<T>(url: string, body: unknown): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
 
-  protected patch<T>(url: string, body: any): Observable<T> {
+  protected patch<T>(url: string, body: unknown): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${url}`, body);
   }
 
@@ -39,12 +39,12 @@ export abstract class BaseApiService {
     return this.http.delete<T>(`${this.baseUrl}${url}`);
   }
 
-  private createHttpParams(params?: any): HttpParams {
+  private createHttpParams(params?: Record<string, string | number | boolean | null | undefined>): HttpParams {
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach((key) => {
         if (params[key] !== null && params[key] !== undefined) {
-          httpParams = httpParams.append(key, params[key]);
+          httpParams = httpParams.append(key, String(params[key]));
         }
       });
     }

@@ -80,12 +80,10 @@ export class UserBillingComponent implements OnInit {
     this.userService.getAvailablePlans().subscribe({
       next: (res) => {
         if (res && res.data) {
-          this.availablePlans = res.data;
+          this.availablePlans = res.data as any[];
           console.log(this.availablePlans)
         } else if (Array.isArray(res)) {
           this.availablePlans = res;
-        } else if (res && res.value) {
-          this.availablePlans = res.value;
         }
       },
       error: (err) => {
@@ -165,10 +163,10 @@ export class UserBillingComponent implements OnInit {
     this.isLoading = true;
     this.userService.initiateUpgradeCheckout(plan.id).subscribe({
       next: (res) => {
-        if (res.isSuccess) {
-          this.openRazorpayCheckout(res.value, plan);
+        if (res.success) {
+          this.openRazorpayCheckout(res.data, plan);
         } else {
-          this.toastr.error(res.error || 'Failed to initiate checkout.');
+          this.toastr.error(res.message || 'Failed to initiate checkout.');
           this.isLoading = false;
         }
       },
@@ -183,12 +181,12 @@ export class UserBillingComponent implements OnInit {
     this.isLoading = true;
     this.userService.initiateOfflineCheckout(plan.id).subscribe({
       next: (res) => {
-        if (res.isSuccess) {
+        if (res.success) {
           this.toastr.success('Invoice created. Please pay the gym owner directly to complete.');
           this.activeTab = 'history';
           this.fetchPaymentHistory();
         } else {
-          this.toastr.error(res.error || 'Failed to create offline invoice.');
+          this.toastr.error(res.message || 'Failed to create offline invoice.');
         }
         this.isLoading = false;
         this.selectedPlanForUpgrade = null;
@@ -241,12 +239,12 @@ export class UserBillingComponent implements OnInit {
 
     this.userService.verifyUpgradeCheckout(payload).subscribe({
       next: (res) => {
-        if (res.isSuccess) {
+        if (res.success) {
           this.toastr.success('Payment successful! Subscription activated.');
           this.activeTab = 'history';
           this.fetchPaymentHistory();
         } else {
-          this.toastr.error(res.error || 'Payment verification failed.');
+          this.toastr.error(res.message || 'Payment verification failed.');
         }
         this.isLoading = false;
       },

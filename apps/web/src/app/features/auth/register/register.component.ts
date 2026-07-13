@@ -61,8 +61,8 @@ export class RegisterComponent {
       const payload = {
         firstName,
         lastName,
-        email: formValue.email,
-        password: formValue.password,
+        email: formValue.email || '',
+        password: formValue.password || '',
         role: this.selectedRole
       };
 

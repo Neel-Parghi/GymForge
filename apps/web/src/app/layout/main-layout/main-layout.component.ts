@@ -142,9 +142,11 @@ export class MainLayoutComponent implements OnInit {
         notifications: this.userNotificationService.getMyNotifications().pipe(catchError(() => of([])))
       }).subscribe({
         next: (res) => {
-          const annList = res.announcements?.data || (Array.isArray(res.announcements) ? res.announcements : []);
-          const notifList = res.notifications?.data || (Array.isArray(res.notifications) ? res.notifications : []);
-          const merged = [...annList, ...notifList]
+          const announcementsRes = res.announcements as any;
+          const announcementsList = announcementsRes?.data || (Array.isArray(announcementsRes) ? announcementsRes : []);
+          const notificationsRes = res.notifications as any;
+          const notificationsList = notificationsRes?.data || (Array.isArray(notificationsRes) ? notificationsRes : []);
+          const merged = [...announcementsList, ...notificationsList]
             .sort((a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime());
 
           this.announcements = merged;
@@ -154,7 +156,8 @@ export class MainLayoutComponent implements OnInit {
     } else if (role === 'GymOwner' || role === 'Staff') {
       this.announcementService.getAnnouncements().subscribe({
         next: (res) => {
-          this.announcements = res?.data || (Array.isArray(res) ? res : []);
+          const announcementsRes = res as any;
+          this.announcements = announcementsRes?.data || (Array.isArray(announcementsRes) ? announcementsRes : []);
           this.unreadAnnouncementsCount = this.announcements.length;
         }
       });
@@ -210,7 +213,7 @@ export class MainLayoutComponent implements OnInit {
 
     const decoded = this.authApiService.decodeToken();
     if (!decoded) return 'SA';
-    const name = decoded?.unique_name || decoded?.name || decoded?.email || 'Super Admin';
+    const name = (decoded as any)?.unique_name || (decoded as any)?.name || (decoded as any)?.email || 'Super Admin';
     return name
       .split(' ')
       .map((n: string) => n[0])

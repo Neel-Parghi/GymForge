@@ -46,16 +46,21 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
-      const { rememberMe, ...credentials } = this.loginForm.value;
-      this.authApiService.login(credentials, rememberMe ?? false).subscribe({
+      const rememberMe = this.loginForm.value.rememberMe ?? false;
+      const credentials = {
+        email: this.loginForm.value.email || '',
+        password: this.loginForm.value.password || ''
+      };
+      this.authApiService.login(credentials, rememberMe).subscribe({
         next: (response) => {
           const data = response?.data || response;
           const token = data?.accessToken;
           if (token) {
             // Parse token to check onboarding status
             const decodedToken = this.authApiService.decodeToken();
-            const isOnboarded = decodedToken?.isOnboarded === 'True' || decodedToken?.isOnboarded === true;
-            const role = decodedToken?.role || decodedToken?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            const t = decodedToken as any;
+            const isOnboarded = t?.isOnboarded === 'True' || t?.isOnboarded === true;
+            const role = decodedToken?.role || t?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
             if (!isOnboarded && role !== 'SuperAdmin') {
               this.notification.info('Complete the onboarding');

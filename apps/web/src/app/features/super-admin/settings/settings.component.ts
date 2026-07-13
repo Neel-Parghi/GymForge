@@ -82,12 +82,12 @@ export class SettingsComponent implements OnInit {
     this.configService.getConfig().subscribe({
       next: (res) => {
         if (res.data) {
-          const config = { ...res.data };
-          if (config.maintenanceStartTime) {
-            config.maintenanceStartTime = this.formatDateForInput(config.maintenanceStartTime);
+          const config = { ...res.data } as Record<string, any>;
+          if (config['maintenanceStartTime']) {
+            config['maintenanceStartTime'] = this.formatDateForInput(config['maintenanceStartTime']);
           }
-          if (config.maintenanceEndTime) {
-            config.maintenanceEndTime = this.formatDateForInput(config.maintenanceEndTime);
+          if (config['maintenanceEndTime']) {
+            config['maintenanceEndTime'] = this.formatDateForInput(config['maintenanceEndTime']);
           }
           this.settingsForm.patchValue(config);
         }

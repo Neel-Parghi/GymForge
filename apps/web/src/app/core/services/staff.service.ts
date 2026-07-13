@@ -16,12 +16,12 @@ export class StaffService extends BaseApiService {
   private staffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private staffCacheLarge$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private unscopedStaffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
-  private membersCache: Map<string, Observable<ApiResponse<any[]>>> = new Map();
-  private staffLogsCache$: Observable<ApiResponse<any>> | null = null;
-  private staffBypassedLogsCache$: Observable<ApiResponse<any>> | null = null;
+  private membersCache: Map<string, Observable<ApiResponse<unknown[]>>> = new Map();
+  private staffLogsCache$: Observable<ApiResponse<unknown>> | null = null;
+  private staffBypassedLogsCache$: Observable<ApiResponse<unknown>> | null = null;
   private measurementsCache = new Map<string, Observable<ApiResponse<MeasurementResponse[]>>>();
   private staffDetailsCache = new Map<string, Observable<ApiResponse<StaffResponse>>>();
-  private attendanceLogsCache = new Map<string, Observable<ApiResponse<any>>>();
+  private attendanceLogsCache = new Map<string, Observable<ApiResponse<unknown>>>();
 
   constructor() {
     super();
@@ -38,16 +38,19 @@ export class StaffService extends BaseApiService {
     }
 
     if (searchTerm || page !== 1 || (pageSize !== 10 && pageSize !== 100)) {
-      const params: any = { pageNumber: page, pageSize };
-      if (searchTerm) params.searchTerm = searchTerm;
-      if (branchId) params.branchId = branchId;
+      const params: Record<string, string | number> = { pageNumber: page, pageSize };
+      if (searchTerm)
+        params['searchTerm'] = searchTerm;
+      if (branchId)
+        params['branchId'] = branchId;
       return this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params);
     }
 
     if (pageSize === 10) {
       if (!this.staffCache$) {
-        const params: any = { pageNumber: 1, pageSize: 10 };
-        if (branchId) params.branchId = branchId;
+        const params: Record<string, string | number> = { pageNumber: 1, pageSize: 10 };
+        if (branchId)
+          params['branchId'] = branchId;
         this.staffCache$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params).pipe(
           shareReplay(1)
         );
@@ -55,8 +58,9 @@ export class StaffService extends BaseApiService {
       return this.staffCache$;
     } else {
       if (!this.staffCacheLarge$) {
-        const params: any = { pageNumber: 1, pageSize: 100 };
-        if (branchId) params.branchId = branchId;
+        const params: Record<string, string | number> = { pageNumber: 1, pageSize: 100 };
+        if (branchId)
+          params['branchId'] = branchId;
         this.staffCacheLarge$ = this.get<ApiResponse<PagedResponse<StaffResponse>>>(API_CONSTANTS.STAFF.LIST, params).pipe(
           shareReplay(1)
         );
@@ -102,8 +106,8 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  updateStaff(id: string, payload: AddStaffRequest): Observable<ApiResponse<any>> {
-    return this.put<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/${id}`, payload).pipe(
+  updateStaff(id: string, payload: AddStaffRequest): Observable<ApiResponse<unknown>> {
+    return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.STAFF.BASE}/${id}`, payload).pipe(
       tap(() => {
         this.staffDetailsCache.delete(id);
         this.clearCache();
@@ -111,8 +115,8 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  deleteStaff(id: string): Observable<ApiResponse<any>> {
-    return this.delete<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
+  deleteStaff(id: string): Observable<ApiResponse<unknown>> {
+    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
       tap(() => {
         this.staffDetailsCache.delete(id);
         this.clearCache();
@@ -120,9 +124,9 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  getAssignedMembers(trainerId: string, forceRefresh = false): Observable<ApiResponse<any[]>> {
+  getAssignedMembers(trainerId: string, forceRefresh = false): Observable<ApiResponse<unknown[]>> {
     if (!this.membersCache.has(trainerId) || forceRefresh) {
-      const request$ = this.get<ApiResponse<any[]>>(`${API_CONSTANTS.STAFF.BASE}/${trainerId}/members`).pipe(
+      const request$ = this.get<ApiResponse<unknown[]>>(`${API_CONSTANTS.STAFF.BASE}/${trainerId}/members`).pipe(
         shareReplay(1)
       );
       this.membersCache.set(trainerId, request$);
@@ -130,7 +134,7 @@ export class StaffService extends BaseApiService {
     return this.membersCache.get(trainerId)!;
   }
 
-  assignTrainerToMember(trainerId: string, memberId: string, slot?: string, durationDays?: number): Observable<ApiResponse<any>> {
+  assignTrainerToMember(trainerId: string, memberId: string, slot?: string, durationDays?: number): Observable<ApiResponse<unknown>> {
     let url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/assign-member/${memberId}?`;
 
     const params: string[] = [];
@@ -143,21 +147,21 @@ export class StaffService extends BaseApiService {
 
     url += params.join('&');
 
-    return this.post<ApiResponse<any>>(url, {}).pipe(
+    return this.post<ApiResponse<unknown>>(url, {}).pipe(
       tap(() => this.membersCache.delete(trainerId))
     );
   }
 
-  deallocateTrainerFromMember(trainerId: string, memberId: string): Observable<ApiResponse<any>> {
+  deallocateTrainerFromMember(trainerId: string, memberId: string): Observable<ApiResponse<unknown>> {
     const url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/deallocate-member/${memberId}`;
-    return this.post<ApiResponse<any>>(url, {}).pipe(
+    return this.post<ApiResponse<unknown>>(url, {}).pipe(
       tap(() => this.membersCache.delete(trainerId))
     );
   }
 
-  recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<any>> {
+  recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<unknown>> {
     const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
-    return this.post<ApiResponse<any>>(url, payload).pipe(
+    return this.post<ApiResponse<unknown>>(url, payload).pipe(
       tap(() => this.measurementsCache.delete(memberId))
     );
   }
@@ -201,11 +205,11 @@ export class StaffService extends BaseApiService {
     }
   }
 
-  getStaffAttendanceLogs(params?: any, forceRefresh = false): Observable<ApiResponse<any>> {
+  getStaffAttendanceLogs(params?: Record<string, string | number | boolean | undefined>, forceRefresh = false): Observable<ApiResponse<unknown>> {
     const cacheKey = JSON.stringify(params || {});
 
     if (forceRefresh || !this.attendanceLogsCache.has(cacheKey)) {
-      const request$ = this.get<ApiResponse<any>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
+      const request$ = this.get<ApiResponse<unknown>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
         shareReplay(1)
       );
       this.attendanceLogsCache.set(cacheKey, request$);

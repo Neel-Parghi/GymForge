@@ -35,13 +35,13 @@ export class NavigationService {
                 config = [];
         }
 
-        const cachedSettings = this.settingsService.getSettingsSync();
-        const savedRights = cachedSettings?.roleRights || {};
+        const cachedSettings = this.settingsService.getSettingsSync() as Record<string, any>;
+        const savedRights = cachedSettings?.['roleRights'] || {};
 
-        return this.filterByRole(config, userRole, savedRights);
+        return this.filterByRole(config, userRole, savedRights as Record<string, unknown>);
     }
 
-    private filterByRole(menuItems: NavItem[], role: string | null, savedRights: any = {}): NavItem[] {
+    private filterByRole(menuItems: NavItem[], role: string | null, savedRights: Record<string, unknown> = {}): NavItem[] {
         if (!role) return [];
 
         const moduleMap: { [key: string]: string } = {

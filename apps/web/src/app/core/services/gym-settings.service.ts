@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, shareReplay } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
+import { ApiResponse } from '../../shared/models/api-response.model';
 import { AuthApiService } from './auth-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
 
@@ -10,8 +11,8 @@ import { API_CONSTANTS } from '../constants/api-constants';
 })
 export class GymSettingsService extends BaseApiService {
   private authService = inject(AuthApiService);
-  private settingsSubject = new BehaviorSubject<any>(null);
-  private holidaysCache$: Observable<any> | null = null;
+  private settingsSubject = new BehaviorSubject<Record<string, unknown> | null>(null);
+  private holidaysCache$: Observable<ApiResponse<unknown>> | null = null;
 
   public settings$ = this.settingsSubject.asObservable();
 
@@ -25,22 +26,22 @@ export class GymSettingsService extends BaseApiService {
     });
   }
 
-  getSettingsSync(): any {
+  getSettingsSync(): Record<string, unknown> | null {
     return this.settingsSubject.value;
   }
 
-  loadSettings(): Observable<any> {
-    return this.get<any>(API_CONSTANTS.GYM.SETTINGS).pipe(
+  loadSettings(): Observable<ApiResponse<unknown>> {
+    return this.get<ApiResponse<unknown>>(API_CONSTANTS.GYM.SETTINGS).pipe(
       tap(res => {
-        const data = res?.data || res;
-        let roleRights: any = null;
-        let operations: any = null;
+        const data = (res?.data || res) as any;
+        let roleRights: unknown = null;
+        let operations: unknown = null;
 
         if (data?.roleRightsMatrixJson) {
           try {
             roleRights = JSON.parse(data.roleRightsMatrixJson);
           } catch (e) {
-            console.error('Error parsing role rights matrix', e);
+            console.error('Error parsing role rights', e);
           }
         }
 
@@ -53,31 +54,31 @@ export class GymSettingsService extends BaseApiService {
     );
   }
 
-  updateSettings(payload: any, roleRightsMatrix: any, operationsSettings: any): Observable<any> {
-    return this.put<any>(API_CONSTANTS.GYM.SETTINGS, payload).pipe(
+  updateSettings(payload: unknown, roleRightsMatrix: unknown, operationsSettings: unknown): Observable<ApiResponse<unknown>> {
+    return this.put<ApiResponse<unknown>>(API_CONSTANTS.GYM.SETTINGS, payload).pipe(
       tap(() => {
         this.settingsSubject.next({ roleRights: roleRightsMatrix, operations: operationsSettings });
       })
     );
   }
 
-  getHolidays(forceRefresh = false): Observable<any> {
+  getHolidays(forceRefresh = false): Observable<ApiResponse<unknown>> {
     if (forceRefresh || !this.holidaysCache$) {
-      this.holidaysCache$ = this.get<any>(API_CONSTANTS.GYM.HOLIDAYS).pipe(
+      this.holidaysCache$ = this.get<ApiResponse<unknown>>(API_CONSTANTS.GYM.HOLIDAYS).pipe(
         shareReplay(1)
       );
     }
     return this.holidaysCache$;
   }
 
-  addHoliday(payload: any): Observable<any> {
-    return this.post<any>(API_CONSTANTS.GYM.HOLIDAYS, payload).pipe(
+  addHoliday(payload: unknown): Observable<ApiResponse<unknown>> {
+    return this.post<ApiResponse<unknown>>(API_CONSTANTS.GYM.HOLIDAYS, payload).pipe(
       tap(() => this.clearHolidaysCache())
     );
   }
 
-  deleteHoliday(holidayId: string): Observable<any> {
-    return this.delete<any>(`${API_CONSTANTS.GYM.HOLIDAYS}/${holidayId}`).pipe(
+  deleteHoliday(holidayId: string): Observable<ApiResponse<unknown>> {
+    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.GYM.HOLIDAYS}/${holidayId}`).pipe(
       tap(() => this.clearHolidaysCache())
     );
   }

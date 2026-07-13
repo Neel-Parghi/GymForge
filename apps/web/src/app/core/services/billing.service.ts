@@ -31,10 +31,10 @@ export class BillingService extends BaseApiService {
         const cacheKey = `${monthKey}-${branchId}`;
 
         if (forceRefresh || !this.memberOverviewCache.has(cacheKey)) {
-            const params: any = { monthKey };
+            const params: Record<string, string> = { monthKey };
             const activeBranchId = this.branchContextService.getActiveBranchId();
             if (activeBranchId) {
-                params.branchId = activeBranchId;
+                params['branchId'] = activeBranchId;
             }
             const request$ = this.get<ApiResponse<MemberBillingOverviewDto>>(API_CONSTANTS.BILLING.MEMBERS_OVERVIEW, params).pipe(
                 shareReplay(1)
@@ -45,14 +45,14 @@ export class BillingService extends BaseApiService {
         return this.memberOverviewCache.get(cacheKey)!;
     }
 
-    createCustomInvoice(payload: CreateCustomInvoiceRequest): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(API_CONSTANTS.BILLING.CREATE_INVOICE, payload).pipe(
+    createCustomInvoice(payload: CreateCustomInvoiceRequest): Observable<ApiResponse<unknown>> {
+        return this.post<ApiResponse<unknown>>(API_CONSTANTS.BILLING.CREATE_INVOICE, payload).pipe(
             tap(() => this.clearCache())
         );
     }
 
-    payInvoice(recordId: string): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}`, {}).pipe(
+    payInvoice(recordId: string): Observable<ApiResponse<unknown>> {
+        return this.post<ApiResponse<unknown>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}`, {}).pipe(
             tap(() => this.clearCache())
         );
     }
@@ -62,10 +62,10 @@ export class BillingService extends BaseApiService {
         const cacheKey = `${monthKey}-${branchId}`;
 
         if (forceRefresh || !this.staffOverviewCache.has(cacheKey)) {
-            const params: any = { monthKey };
+            const params: Record<string, string> = { monthKey };
             const activeBranchId = this.branchContextService.getActiveBranchId();
             if (activeBranchId) {
-                params.branchId = activeBranchId;
+                params['branchId'] = activeBranchId;
             }
             const request$ = this.get<ApiResponse<StaffPayrollOverviewDto>>(API_CONSTANTS.BILLING.STAFF_OVERVIEW, params).pipe(
                 shareReplay(1)
@@ -76,14 +76,14 @@ export class BillingService extends BaseApiService {
         return this.staffOverviewCache.get(cacheKey)!;
     }
 
-    updateStaffPayrollRules(payload: UpdateStaffPayrollRuleRequest): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(API_CONSTANTS.BILLING.UPDATE_STAFF_RULES, payload).pipe(
+    updateStaffPayrollRules(payload: UpdateStaffPayrollRuleRequest): Observable<ApiResponse<unknown>> {
+        return this.post<ApiResponse<unknown>>(API_CONSTANTS.BILLING.UPDATE_STAFF_RULES, payload).pipe(
             tap(() => this.clearCache())
         );
     }
 
-    releaseStaffPayout(payload: ReleaseStaffPayoutRequest): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(API_CONSTANTS.BILLING.RELEASE_STAFF_PAYOUT, payload).pipe(
+    releaseStaffPayout(payload: ReleaseStaffPayoutRequest): Observable<ApiResponse<unknown>> {
+        return this.post<ApiResponse<unknown>>(API_CONSTANTS.BILLING.RELEASE_STAFF_PAYOUT, payload).pipe(
             tap(() => this.clearCache())
         );
     }

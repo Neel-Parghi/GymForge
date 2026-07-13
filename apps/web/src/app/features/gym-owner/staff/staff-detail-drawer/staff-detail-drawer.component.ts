@@ -131,7 +131,7 @@ export class StaffDetailDrawerComponent {
     this.isLoadingShifts = true;
     this.staffService.getStaffAttendanceLogs({ bypassPagination: true }).subscribe({
       next: (res) => {
-        const logs = res.data || [];
+        const logs = (res.data as any) || [];
         this.staffShifts = logs.filter((l: any) => l.staffId === this.staff!.id);
         this.isLoadingShifts = false;
       },

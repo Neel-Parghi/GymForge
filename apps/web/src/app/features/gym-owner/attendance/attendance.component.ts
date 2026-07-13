@@ -167,21 +167,22 @@ export class AttendanceComponent implements OnInit {
         next: res => {
           let logs: any[] = [];
           let total = 0;
-          
+
           if (res && res.data) {
-            if (Array.isArray(res.data)) {
-              logs = res.data;
-              total = res.data.length;
-            } else if (res.data.items && Array.isArray(res.data.items)) {
-              logs = res.data.items;
-              total = res.data.totalCount ?? res.data.items.length;
+            const data = res.data as any;
+            if (Array.isArray(data)) {
+              logs = data;
+              total = data.length;
+            } else if (data.items && Array.isArray(data.items)) {
+              logs = data.items;
+              total = data.totalCount ?? data.items.length;
             }
           }
-          
+
           logs.forEach((l: any) => {
             l.hoursWorkedLabel = l.checkOutTime ? (l.hoursWorked + ' hrs') : 'Active Shift';
           });
-          
+
           this.staffAttendanceLogs = logs;
           this.staffTotalItems = total;
           this.applyLogFilters();
@@ -205,17 +206,18 @@ export class AttendanceComponent implements OnInit {
       next: res => {
         let logs: any[] = [];
         let total = 0;
-        
+
         if (res && res.data) {
-          if (Array.isArray(res.data)) {
-            logs = res.data;
-            total = res.data.length;
-          } else if (res.data.items && Array.isArray(res.data.items)) {
-            logs = res.data.items;
-            total = res.data.totalCount ?? res.data.items.length;
+          const data = res.data as any;
+          if (Array.isArray(data)) {
+            logs = data;
+            total = data.length;
+          } else if (data.items && Array.isArray(data.items)) {
+            logs = data.items;
+            total = data.totalCount ?? data.items.length;
           }
         }
-        
+
         this.attendanceLogs = logs;
         this.memberTotalItems = total;
         this.applyLogFilters();

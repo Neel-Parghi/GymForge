@@ -4,28 +4,29 @@ import { Observable } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { shareReplay, tap } from 'rxjs/operators';
+import { SaaSConfigurationDto } from '../../shared/models/config.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigurationService extends BaseApiService {
-  private cache$?: Observable<ApiResponse<any>>;
+  private cache$?: Observable<ApiResponse<SaaSConfigurationDto>>;
 
   constructor() {
     super();
   }
 
-  getConfig(forceRefresh = false): Observable<ApiResponse<any>> {
+  getConfig(forceRefresh = false): Observable<ApiResponse<SaaSConfigurationDto>> {
     if (!this.cache$ || forceRefresh) {
-      this.cache$ = this.get<ApiResponse<any>>(API_CONSTANTS.SUPER_ADMIN.CONFIG).pipe(
+      this.cache$ = this.get<ApiResponse<SaaSConfigurationDto>>(API_CONSTANTS.SUPER_ADMIN.CONFIG).pipe(
         shareReplay(1)
       );
     }
     return this.cache$;
   }
 
-  updateConfig(config: any): Observable<ApiResponse<any>> {
-    return this.post<ApiResponse<any>>(API_CONSTANTS.SUPER_ADMIN.CONFIG, config).pipe(
+  updateConfig(config: SaaSConfigurationDto): Observable<ApiResponse<SaaSConfigurationDto>> {
+    return this.post<ApiResponse<SaaSConfigurationDto>>(API_CONSTANTS.SUPER_ADMIN.CONFIG, config).pipe(
       tap(() => this.cache$ = undefined)
     );
   }

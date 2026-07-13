@@ -60,7 +60,7 @@ export class PaymentService extends BaseApiService {
     );
   }
 
-  verifyPayment(payload: any): Observable<ApiResponse<PaymentTransaction>> {
+  verifyPayment(payload: unknown): Observable<ApiResponse<PaymentTransaction>> {
     return this.post<ApiResponse<PaymentTransaction>>(API_CONSTANTS.PAYMENTS.VERIFY, payload).pipe(
       tap(() => {
         this.clearStatsCache();

@@ -15,8 +15,8 @@ export class GymService extends BaseApiService {
 
     private gymOwnersCache$?: Observable<ApiResponse<PagedResponse<GymOwnerResponse>>> | null;
     private gymListCache$?: Observable<ApiResponse<PagedResponse<GymListResponse>>> | null;
-    private branchesCache = new Map<string, Observable<ApiResponse<any[]>>>();
-    private myBranchesCache$: Observable<ApiResponse<any[]>> | null = null;
+    private branchesCache = new Map<string, Observable<ApiResponse<unknown[]>>>();
+    private myBranchesCache$: Observable<ApiResponse<unknown[]>> | null = null;
     private myGymCache$: Observable<ApiResponse<GymListResponse>> | null = null;
 
     constructor() {
@@ -63,16 +63,17 @@ export class GymService extends BaseApiService {
         }
     }
 
-    onboardGym(payload: OnboardGymRequest): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.ONBOARD, payload).pipe(
+    onboardGym(payload: OnboardGymRequest): Observable<ApiResponse<unknown>> {
+        return this.post<ApiResponse<unknown>>(API_CONSTANTS.GYM.ONBOARD, payload).pipe(
             tap(() => this.clearGymListCache())
         );
     }
 
     getGymOwnersList(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymOwnerResponse>>> {
         if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
-            const params: any = { pageNumber, pageSize };
-            if (search) params.searchTerm = search;
+            const params: Record<string, string | number> = { pageNumber, pageSize };
+            if (search)
+                params['searchTerm'] = search;
             return this.get<ApiResponse<PagedResponse<GymOwnerResponse>>>(API_CONSTANTS.GYM_OWNER.LIST, params);
         }
 
@@ -87,8 +88,9 @@ export class GymService extends BaseApiService {
 
     getGymList(pageNumber: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<GymListResponse>>> {
         if (search || pageNumber !== 1 || pageSize !== 10 || forceRefresh) {
-            const params: any = { pageNumber, pageSize };
-            if (search) params.searchTerm = search;
+            const params: Record<string, string | number> = { pageNumber, pageSize };
+            if (search)
+                params['searchTerm'] = search;
             return this.get<ApiResponse<PagedResponse<GymListResponse>>>(API_CONSTANTS.GYM.LIST, params);
         }
 
@@ -101,14 +103,14 @@ export class GymService extends BaseApiService {
         return this.gymListCache$;
     }
 
-    deleteGymOwner(ownerId: string): Observable<ApiResponse<any>> {
-        return this.delete<ApiResponse<any>>(`${API_CONSTANTS.GYM_OWNER.DELETE}/${ownerId}`).pipe(
+    deleteGymOwner(ownerId: string): Observable<ApiResponse<unknown>> {
+        return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.GYM_OWNER.DELETE}/${ownerId}`).pipe(
             tap(() => this.clearGymOwnersCache())
         );
     }
 
-    updateGymOwner(ownerId: string, payload: UpdateGymOwnerRequest): Observable<ApiResponse<any>> {
-        return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM_OWNER.UPDATE}/${ownerId}`, payload).pipe(
+    updateGymOwner(ownerId: string, payload: UpdateGymOwnerRequest): Observable<ApiResponse<unknown>> {
+        return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.GYM_OWNER.UPDATE}/${ownerId}`, payload).pipe(
             tap(() => {
                 this.clearGymOwnersCache();
                 this.clearGymListCache();
@@ -116,31 +118,31 @@ export class GymService extends BaseApiService {
         );
     }
 
-    updateGym(gymId: string, payload: any): Observable<ApiResponse<any>> {
-        return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM.UPDATE}/${gymId}`, payload).pipe(
+    updateGym(gymId: string, payload: unknown): Observable<ApiResponse<unknown>> {
+        return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.GYM.UPDATE}/${gymId}`, payload).pipe(
             tap(() => this.clearGymListCache())
         );
     }
 
-    deleteGym(gymId: string): Observable<ApiResponse<any>> {
-        return this.delete<ApiResponse<any>>(`${API_CONSTANTS.GYM.DELETE}/${gymId}`).pipe(
+    deleteGym(gymId: string): Observable<ApiResponse<unknown>> {
+        return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.GYM.DELETE}/${gymId}`).pipe(
             tap(() => this.clearGymListCache())
         );
     }
 
-    getGymBranches(gymId: string): Observable<ApiResponse<any[]>> {
+    getGymBranches(gymId: string): Observable<ApiResponse<unknown[]>> {
         if (this.branchesCache.has(gymId)) {
             return this.branchesCache.get(gymId)!;
         }
         const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
-        const obs = this.get<ApiResponse<any[]>>(url).pipe(shareReplay(1));
+        const obs = this.get<ApiResponse<unknown[]>>(url).pipe(shareReplay(1));
         this.branchesCache.set(gymId, obs);
         return obs;
     }
 
-    addGymBranch(gymId: string, payload: any): Observable<ApiResponse<any>> {
+    addGymBranch(gymId: string, payload: unknown): Observable<ApiResponse<unknown>> {
         const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
-        return this.post<ApiResponse<any>>(url, payload).pipe(
+        return this.post<ApiResponse<unknown>>(url, payload).pipe(
             tap(() => this.clearBranchesCache(gymId))
         );
     }
@@ -148,37 +150,37 @@ export class GymService extends BaseApiService {
     getMyGym(forceRefresh = false): Observable<ApiResponse<GymListResponse>> {
         if (forceRefresh || !this.myGymCache$) {
             this.myGymCache$ = this.get<ApiResponse<GymListResponse>>(API_CONSTANTS.GYM.MY_GYM).pipe(
-                catchError(() => of({ success: true, data: null, message: 'No gym found' } as any)),
+                catchError(() => of({ success: true, data: null as unknown as GymListResponse, message: 'No gym found', error: null, statusCode: 200, timestamp: new Date().toISOString() } as ApiResponse<GymListResponse>)),
                 shareReplay(1)
             );
         }
         return this.myGymCache$;
     }
 
-    updateMyGym(payload: UpdateMyGymRequest): Observable<ApiResponse<any>> {
-        return this.put<ApiResponse<any>>(API_CONSTANTS.GYM.MY_GYM, payload).pipe(
+    updateMyGym(payload: UpdateMyGymRequest): Observable<ApiResponse<unknown>> {
+        return this.put<ApiResponse<unknown>>(API_CONSTANTS.GYM.MY_GYM, payload).pipe(
             tap(() => this.clearMyGymCache())
         );
     }
 
-    getMyBranches(forceRefresh = false): Observable<ApiResponse<any[]>> {
+    getMyBranches(forceRefresh = false): Observable<ApiResponse<unknown[]>> {
         if (forceRefresh || !this.myBranchesCache$) {
-            this.myBranchesCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.GYM.MY_BRANCHES).pipe(
-                catchError(() => of({ success: true, data: [], message: 'No branches found' } as any)),
+            this.myBranchesCache$ = this.get<ApiResponse<unknown[]>>(API_CONSTANTS.GYM.MY_BRANCHES).pipe(
+                catchError(() => of({ success: true, data: [], message: 'No branches found', error: null, statusCode: 200, timestamp: new Date().toISOString() } as ApiResponse<unknown[]>)),
                 shareReplay(1)
             );
         }
         return this.myBranchesCache$;
     }
 
-    addMyBranch(payload: any): Observable<ApiResponse<any>> {
-        return this.post<ApiResponse<any>>(API_CONSTANTS.GYM.MY_BRANCHES, payload).pipe(
+    addMyBranch(payload: unknown): Observable<ApiResponse<unknown>> {
+        return this.post<ApiResponse<unknown>>(API_CONSTANTS.GYM.MY_BRANCHES, payload).pipe(
             tap(() => this.clearMyBranchesCache())
         );
     }
 
-    updateMyBranch(branchId: string, payload: any): Observable<ApiResponse<any>> {
-        return this.put<ApiResponse<any>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload).pipe(
+    updateMyBranch(branchId: string, payload: unknown): Observable<ApiResponse<unknown>> {
+        return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload).pipe(
             tap(() => this.clearMyBranchesCache())
         );
     }

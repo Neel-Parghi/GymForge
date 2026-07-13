@@ -102,7 +102,7 @@ export class SettingsComponent implements OnInit {
     // 1. Check if settings are already preloaded in cache
     const cache = this.settingsService.getSettingsSync();
     if (cache) {
-      this.initForm(cache.roleRights || {}, cache.operations || {});
+      this.initForm(cache['roleRights'] || {}, cache['operations'] || {});
       return;
     }
 
@@ -110,7 +110,7 @@ export class SettingsComponent implements OnInit {
       next: () => {
         const data = this.settingsService.getSettingsSync();
         if (data) {
-          this.initForm(data.roleRights || {}, data.operations || {});
+          this.initForm(data['roleRights'] || {}, data['operations'] || {});
         }
       },
       error: () => this.notification.error(CONSTANTS.GYM_OWNER_SETTINGS.LOAD_ERROR)
@@ -174,8 +174,8 @@ export class SettingsComponent implements OnInit {
 
   loadHolidays() {
     this.settingsService.getHolidays().subscribe({
-      next: (res) => {
-        this.holidays = res.data || res || [];
+      next: (res: any) => {
+        this.holidays = (res.data as any[]) || (res as any[]) || [];
       },
       error: (err) => console.error('Failed to load holidays closures', err)
     });

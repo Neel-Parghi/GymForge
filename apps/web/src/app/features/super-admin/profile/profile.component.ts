@@ -155,10 +155,10 @@ export class ProfileComponent implements OnInit {
 
     try {
       if (this.selectedFile) {
-        const uploadRes = await this.profileService.uploadAvatar(this.selectedFile).toPromise();
-
-        const newUrl = uploadRes?.data?.url || uploadRes?.data?.Url ||
-          uploadRes?.url || uploadRes?.Url;
+        const uploadRes = (await this.profileService.uploadAvatar(this.selectedFile).toPromise()) as Record<string, any>;
+        const resData = uploadRes?.['data'] as Record<string, any>;
+        const newUrl = resData?.['url'] || resData?.['Url'] ||
+          uploadRes?.['url'] || uploadRes?.['Url'];
 
         if (newUrl) {
           this.profileForm.patchValue({ profilePictureUrl: newUrl });

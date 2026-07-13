@@ -5,7 +5,7 @@ import { TemplateService } from '../../../../core/services/template.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ConfirmationService } from '../../../../core/services/confirmation.service';
 import { RouterModule } from '@angular/router';
-import { DataGrid, GridCellDirective } from '../../../../shared/components/data-grid/data-grid.component';
+import { DataGrid } from '../../../../shared/components/data-grid/data-grid.component';
 import { SlideDrawerComponent } from '../../../../shared/components/slide-drawer/slide-drawer.component';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { AppGridConfig } from '../../../../shared/constants/grid-config';
@@ -15,7 +15,7 @@ import { TEMPLATE_CONFIG, TEMPLATE_TYPES } from '../../../../core/constants/temp
 @Component({
   selector: 'app-templates',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, DataGrid, GridCellDirective, SlideDrawerComponent, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, DataGrid, SlideDrawerComponent, DropdownComponent],
   templateUrl: './templates.component.html',
   styleUrl: './templates.component.scss',
 })
@@ -74,8 +74,8 @@ export class TemplatesComponent implements OnInit {
 
   loadTemplates(): void {
     this.templateService.getTemplates().subscribe({
-      next: (res) => {
-        this.templates = res.data || [];
+      next: (res: any) => {
+        this.templates = (res.data as any[]) || [];
         this.templates = this.templates.map(t => ({
           ...t,
           typeLabel: this.getTemplateTypeName(t.type)

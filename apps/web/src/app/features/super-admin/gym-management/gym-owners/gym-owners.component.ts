@@ -158,7 +158,7 @@ export class GymOwners implements OnInit {
   updateGymOwner(owner: any) {
 
     this.gymService.updateGymOwner(owner.id, owner).subscribe({
-      next: (res: ApiResponse<GymOwnerResponse>) => {
+      next: (res: ApiResponse<unknown>) => {
         this.notification.success(CONSTANTS.GYM_OWNER_UPDATE_SUCCESS_MESSAGE);
         this.isViewDrawerOpen = false;
         this.getGymOwners();

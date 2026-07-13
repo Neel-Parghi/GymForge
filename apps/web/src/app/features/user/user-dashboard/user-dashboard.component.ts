@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AuthApiService } from '../../../core/services/auth-api.service';
@@ -14,7 +13,7 @@ import { DailyRoutineItem } from '../../../core/models/user-dashboard.model';
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, DragDropModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DragDropModule],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss'
 })
@@ -266,7 +265,8 @@ export class UserDashboardComponent implements OnInit {
       next: (res) => {
         if (res && res.data) {
           const now = new Date();
-          this.announcements = res.data
+          const announcementList = res.data as any[];
+          this.announcements = announcementList
             .filter((a: any) => a.isActive && (!a.validUntil || new Date(a.validUntil) > now))
             .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         }

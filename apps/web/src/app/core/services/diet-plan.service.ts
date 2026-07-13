@@ -9,22 +9,22 @@ import { ApiResponse } from '../../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class DietPlanService extends BaseApiService {
-  private plansCache$: Observable<any[]> | null = null;
+  private plansCache$: Observable<unknown[]> | null = null;
 
-  getPlans(goal?: string, forceRefresh = false): Observable<any[]> {
+  getPlans(goal?: string, forceRefresh = false): Observable<unknown[]> {
     if (forceRefresh) {
       this.clearCache();
     }
 
     if (goal) {
       const params = { goal };
-      return this.get<ApiResponse<any[]>>(API_CONSTANTS.DIET_PLAN.BASE, params).pipe(
+      return this.get<ApiResponse<unknown[]>>(API_CONSTANTS.DIET_PLAN.BASE, params).pipe(
         map(res => res?.data || [])
       );
     }
 
     if (!this.plansCache$) {
-      this.plansCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.DIET_PLAN.BASE).pipe(
+      this.plansCache$ = this.get<ApiResponse<unknown[]>>(API_CONSTANTS.DIET_PLAN.BASE).pipe(
         map(res => res?.data || []),
         shareReplay(1)
       );
@@ -32,31 +32,31 @@ export class DietPlanService extends BaseApiService {
     return this.plansCache$;
   }
 
-  getPlanById(id: string): Observable<any> {
+  getPlanById(id: string): Observable<unknown> {
     const url = API_CONSTANTS.DIET_PLAN.BY_ID.replace('{id}', id);
-    return this.get<ApiResponse<any>>(url).pipe(
+    return this.get<ApiResponse<unknown>>(url).pipe(
       map(res => res?.data)
     );
   }
 
-  createPlan(plan: any): Observable<any> {
-    return this.post<ApiResponse<any>>(API_CONSTANTS.DIET_PLAN.BASE, plan).pipe(
+  createPlan(plan: unknown): Observable<unknown> {
+    return this.post<ApiResponse<unknown>>(API_CONSTANTS.DIET_PLAN.BASE, plan).pipe(
       tap(() => this.clearCache()),
       map(res => res?.data)
     );
   }
 
-  updatePlan(id: string, plan: any): Observable<any> {
+  updatePlan(id: string, plan: unknown): Observable<unknown> {
     const url = API_CONSTANTS.DIET_PLAN.BY_ID.replace('{id}', id);
-    return this.put<ApiResponse<any>>(url, plan).pipe(
+    return this.put<ApiResponse<unknown>>(url, plan).pipe(
       tap(() => this.clearCache()),
       map(res => res?.data)
     );
   }
 
-  deletePlan(id: string): Observable<ApiResponse<any>> {
+  deletePlan(id: string): Observable<ApiResponse<unknown>> {
     const url = API_CONSTANTS.DIET_PLAN.BY_ID.replace('{id}', id);
-    return this.delete<ApiResponse<any>>(url).pipe(
+    return this.delete<ApiResponse<unknown>>(url).pipe(
       tap(() => this.clearCache())
     );
   }

@@ -2,8 +2,10 @@ import { inject, Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { UpdateUserProfile, UserProfile } from '../../shared/models/user-profile.model';
+import { ApiResponse } from '../../shared/models/api-response.model';
+import { UpdateUserProfile, UserProfile, UploadAvatarResponseDto } from '../../shared/models/user-profile.model';
 import { AuthApiService } from './auth-api.service';
+import { ChangePasswordRequestDto } from '../../shared/models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,31 +29,35 @@ export class ProfileService extends BaseApiService {
 
   getProfile(forceRefresh = false): Observable<UserProfile> {
     if (!this.profileCache$ || forceRefresh) {
-      this.profileCache$ = this.get<UserProfile>(API_CONSTANTS.USER.PROFILE).pipe(
-        tap(profile => {
-          const data = (profile as any).data || profile;
-          this.authService.setUserProfile(data);
-        }),
-        shareReplay(1)
-      );
+      this.profileCache$ = new Observable<UserProfile>(observer => {
+        this.get<ApiResponse<UserProfile>>(API_CONSTANTS.USER.PROFILE).subscribe({
+          next: (response) => {
+            const profile = response.data || (response as unknown as UserProfile);
+            this.authService.setUserProfile(profile);
+            observer.next(profile);
+            observer.complete();
+          },
+          error: (err) => observer.error(err)
+        });
+      }).pipe(shareReplay(1));
     }
     return this.profileCache$;
   }
 
-  updateProfile(profile: UpdateUserProfile): Observable<any> {
-    return this.put<any>(API_CONSTANTS.USER.UPDATE_PROFILE, profile).pipe(
+  updateProfile(profile: UpdateUserProfile): Observable<ApiResponse<UserProfile>> {
+    return this.put<ApiResponse<UserProfile>>(API_CONSTANTS.USER.UPDATE_PROFILE, profile).pipe(
       tap(() => this.clearProfileCache())
     );
   }
 
-  changePassword(data: any): Observable<any> {
-    return this.put(API_CONSTANTS.USER.CHANGE_PASSWORD, data);
+  changePassword(data: ChangePasswordRequestDto): Observable<ApiResponse<null>> {
+    return this.put<ApiResponse<null>>(API_CONSTANTS.USER.CHANGE_PASSWORD, data);
   }
 
-  uploadAvatar(file: File): Observable<any> {
+  uploadAvatar(file: File): Observable<ApiResponse<UploadAvatarResponseDto>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.post<any>(API_CONSTANTS.USER.UPLOAD_AVATAR, formData).pipe(
+    return this.post<ApiResponse<UploadAvatarResponseDto>>(API_CONSTANTS.USER.UPLOAD_AVATAR, formData).pipe(
       tap(() => this.clearProfileCache())
     );
   }

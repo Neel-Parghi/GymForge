@@ -28,19 +28,19 @@ export class WorkoutPlanService extends BaseApiService {
 
     if (type) {
       const params = { type };
-      return this.get<ApiResponse<any[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE, params).pipe(
+      return this.get<ApiResponse<unknown[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE, params).pipe(
         map(res => {
           const plans = res?.data || [];
-          return plans.map((p: any) => this.adaptFromApi(p));
+          return plans.map((p: unknown) => this.adaptFromApi(p));
         })
       );
     }
 
     if (!this.plansCache$) {
-      this.plansCache$ = this.get<ApiResponse<any[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE).pipe(
+      this.plansCache$ = this.get<ApiResponse<unknown[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE).pipe(
         map(res => {
           const plans = res?.data || [];
-          return plans.map((p: any) => this.adaptFromApi(p));
+          return plans.map((p: unknown) => this.adaptFromApi(p));
         }),
         shareReplay(1)
       );
@@ -50,14 +50,14 @@ export class WorkoutPlanService extends BaseApiService {
 
   getPlanById(id: string): Observable<WorkoutPlan> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
-    return this.get<ApiResponse<any>>(url).pipe(
+    return this.get<ApiResponse<unknown>>(url).pipe(
       map(res => this.adaptFromApi(res?.data))
     );
   }
 
   createPlan(plan: WorkoutPlan): Observable<WorkoutPlan> {
     const payload = this.adaptToApi(plan);
-    return this.post<ApiResponse<any>>(API_CONSTANTS.WORKOUT_PLAN.BASE, payload).pipe(
+    return this.post<ApiResponse<unknown>>(API_CONSTANTS.WORKOUT_PLAN.BASE, payload).pipe(
       tap(() => this.clearCache()),
       map(res => this.adaptFromApi(res?.data))
     );
@@ -66,15 +66,15 @@ export class WorkoutPlanService extends BaseApiService {
   updatePlan(id: string, plan: WorkoutPlan): Observable<WorkoutPlan> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
     const payload = this.adaptToApi(plan);
-    return this.put<ApiResponse<any>>(url, payload).pipe(
+    return this.put<ApiResponse<unknown>>(url, payload).pipe(
       tap(() => this.clearCache()),
       map(res => this.adaptFromApi(res?.data))
     );
   }
 
-  deletePlan(id: string): Observable<ApiResponse<any>> {
+  deletePlan(id: string): Observable<ApiResponse<unknown>> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
-    return this.delete<ApiResponse<any>>(url).pipe(
+    return this.delete<ApiResponse<unknown>>(url).pipe(
       tap(() => this.clearCache())
     );
   }
@@ -83,10 +83,11 @@ export class WorkoutPlanService extends BaseApiService {
     this.plansCache$ = null;
   }
 
-  private adaptFromApi(apiPlan: any): WorkoutPlan {
-    if (!apiPlan) {
+  private adaptFromApi(apiPlanData: unknown): WorkoutPlan {
+    if (!apiPlanData) {
       throw new Error('Null API plan cannot be adapted');
     }
+    const apiPlan = apiPlanData as any;
 
     const basePlan = {
       id: apiPlan.id,
@@ -180,10 +181,10 @@ export class WorkoutPlanService extends BaseApiService {
     }
   }
 
-  private adaptToApi(fePlan: WorkoutPlan): any {
+  private adaptToApi(fePlan: WorkoutPlan): Record<string, unknown> | null {
     if (!fePlan) return null;
 
-    const basePlan: any = {
+    const basePlan: Record<string, unknown> = {
       name: fePlan.name,
       description: fePlan.description,
       level: fePlan.level,
@@ -193,12 +194,12 @@ export class WorkoutPlanService extends BaseApiService {
     };
 
     if (fePlan.id) {
-      basePlan.id = fePlan.id;
+      basePlan['id'] = fePlan.id;
     }
 
     if (fePlan.type === 'Split') {
       const p = fePlan as SplitPlanner;
-      basePlan.days = (p.days || []).map((day, dIdx) => ({
+      basePlan['days'] = (p.days || []).map((day, dIdx) => ({
         dayName: day.name,
         dayIndex: dIdx + 1,
         isRestDay: false,
@@ -213,7 +214,7 @@ export class WorkoutPlanService extends BaseApiService {
       }));
     } else if (fePlan.type === 'Weekly') {
       const p = fePlan as WeeklyPlanner;
-      basePlan.days = (p.calendar || []).map((day, dIdx) => ({
+      basePlan['days'] = (p.calendar || []).map((day, dIdx) => ({
         dayName: day.dayName,
         dayIndex: dIdx + 1,
         isRestDay: day.type === 'rest',
@@ -228,7 +229,7 @@ export class WorkoutPlanService extends BaseApiService {
       }));
     } else if (fePlan.type === 'Daily') {
       const p = fePlan as DailyPlanner;
-      basePlan.days = [{
+      basePlan['days'] = [{
         dayName: 'Workout Day',
         dayIndex: 1,
         isRestDay: false,
