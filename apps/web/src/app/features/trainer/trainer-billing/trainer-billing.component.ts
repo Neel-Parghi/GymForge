@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { BillingService } from '../../../core/services/billing.service';
 import { StaffPayoutDto } from '../../../shared/models/member-invoice.model';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
@@ -11,7 +11,7 @@ import { StaffService } from '../../../core/services/staff.service';
 @Component({
   selector: 'app-trainer-billing',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, DropdownComponent],
   templateUrl: './trainer-billing.component.html',
   styleUrl: './trainer-billing.component.scss'
 })
@@ -21,7 +21,7 @@ export class TrainerBillingComponent implements OnInit {
   private staffService = inject(StaffService);
 
   userId = '';
-  monthKey = '';
+  monthControl = new FormControl('');
   monthsList: { key: string; label: string }[] = [];
   dropdownOptions: DropdownOption[] = [];
   payoutDetails: StaffPayoutDto | null = null;
@@ -29,10 +29,18 @@ export class TrainerBillingComponent implements OnInit {
   loading = false;
   loadingMembers = false;
 
+  get monthKey(): string {
+    return this.monthControl.value || '';
+  }
+
   ngOnInit(): void {
     this.generateMonthsList();
     const today = new Date();
-    this.monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    this.monthControl.setValue(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`);
+
+    this.monthControl.valueChanges.subscribe(() => {
+      this.onMonthChange();
+    });
 
     this.authService.userProfile$.subscribe(profile => {
       if (profile) {

@@ -97,8 +97,8 @@
               <label>Verification Code</label>
               <p class="otp-instruction">We've sent a 6-digit code to <strong>{{registeredEmail}}</strong>.</p>
               <div class="otp-container" (paste)="onOtpPaste($event)">
-                <input *ngFor="let item of otpArray; let i = index; trackBy: trackByIndex" type="text" maxlength="1"
-                  [id]="'otp-' + i" [(ngModel)]="otpArray[i]" name="otp-{{i}}" class="otp-box"
+                <input *ngFor="let item of otpControls; let i = index; trackBy: trackByIndex" type="text" maxlength="1"
+                  [id]="'otp-' + i" [formControl]="otpControls[i]" class="otp-box"
                   (keyup)="onOtpKeyup($event, i)" (keydown)="onOtpKeydown($event, i)" required />
               </div>
             </div>

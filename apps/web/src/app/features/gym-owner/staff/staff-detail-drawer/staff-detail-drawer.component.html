@@ -150,7 +150,7 @@
             <!-- Custom Styled Toggle Switch -->
             <div class="history-toggle">
               <label class="switch-label">
-                <input type="checkbox" [(ngModel)]="showPastAssignments">
+                <input type="checkbox" [formControl]="showPastAssignmentsControl">
                 <span class="switch-slider"></span>
               </label>
               <span class="toggle-text">Show PT History</span>

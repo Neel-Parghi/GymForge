@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -11,7 +11,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink]
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
@@ -36,7 +36,7 @@ export class RegisterComponent {
 
   isOtpStep = false;
   otpCode = '';
-  otpArray: string[] = new Array(6).fill('');
+  otpControls: FormControl[] = Array.from({ length: 6 }, () => new FormControl(''));
   registeredEmail = '';
   resendCooldown = 0;
   resendTimer: any;
@@ -89,7 +89,7 @@ export class RegisterComponent {
   }
 
   verifyOtp() {
-    this.otpCode = this.otpArray.join('');
+    this.updateOtpCode();
     if (this.otpCode.length === 6) {
       this.isLoading = true;
       this.authApiService.verifyOtp({ email: this.registeredEmail, otpCode: this.otpCode }).subscribe({
@@ -123,7 +123,7 @@ export class RegisterComponent {
       const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement;
       if (prevInput) {
         prevInput.focus();
-        this.otpArray[index - 1] = '';
+        this.otpControls[index - 1].setValue('');
       }
     }
     this.updateOtpCode();
@@ -135,7 +135,7 @@ export class RegisterComponent {
     if (pastedData) {
       const digits = pastedData.replace(/\D/g, '').split('').slice(0, 6);
       digits.forEach((digit, index) => {
-        this.otpArray[index] = digit;
+        this.otpControls[index].setValue(digit);
       });
       if (digits.length > 0) {
         const nextIndex = Math.min(digits.length, 5);
@@ -147,7 +147,7 @@ export class RegisterComponent {
   }
 
   updateOtpCode() {
-    this.otpCode = this.otpArray.join('');
+    this.otpCode = this.otpControls.map(c => c.value).join('');
   }
 
   trackByIndex(index: number, obj: any): any {

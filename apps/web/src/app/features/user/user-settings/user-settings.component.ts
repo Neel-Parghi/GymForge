@@ -17,14 +17,9 @@ export class UserSettingsComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
   fitnessForm: FormGroup;
+  notificationsForm: FormGroup;
 
   activeTab: 'fitness' | 'notifications' = 'fitness';
-
-  notificationPreferences = {
-    emailNotifications: true,
-    pushNotifications: false,
-    workoutReminders: true
-  };
 
   isLoading = true;
   isSaving = false;
@@ -38,6 +33,12 @@ export class UserSettingsComponent implements OnInit {
       targetCarbs: [null],
       targetFats: [null],
       targetTrainingTime: [null]
+    });
+
+    this.notificationsForm = this.fb.group({
+      emailNotifications: [true],
+      pushNotifications: [false],
+      workoutReminders: [true]
     });
   }
 
@@ -73,13 +74,13 @@ export class UserSettingsComponent implements OnInit {
     const saved = localStorage.getItem('gf_notification_preferences');
     if (saved) {
       try {
-        this.notificationPreferences = JSON.parse(saved);
+        this.notificationsForm.patchValue(JSON.parse(saved));
       } catch (e) { }
     }
   }
 
   saveNotificationPreferences() {
-    localStorage.setItem('gf_notification_preferences', JSON.stringify(this.notificationPreferences));
+    localStorage.setItem('gf_notification_preferences', JSON.stringify(this.notificationsForm.value));
   }
 
   saveChanges() {

@@ -6,7 +6,7 @@
     </div>
   </header>
 
-  <div class="settings-grid">
+  <div class="settings-grid" [formGroup]="settingsForm">
     <!-- Portal Preferences -->
     <div class="settings-card glass-card">
       <h2>Portal Preferences</h2>
@@ -22,7 +22,7 @@
               <p>Get notified 15 minutes before your shift starts</p>
             </div>
             <label class="switch-control">
-              <input type="checkbox" [(ngModel)]="preferences.shiftStartReminder">
+              <input type="checkbox" formControlName="shiftStartReminder">
               <span class="slider"></span>
             </label>
           </div>
@@ -33,7 +33,7 @@
               <p>Receive live alerts when an assigned PT member scans in</p>
             </div>
             <label class="switch-control">
-              <input type="checkbox" [(ngModel)]="preferences.clientCheckInNotification">
+              <input type="checkbox" formControlName="clientCheckInNotification">
               <span class="slider"></span>
             </label>
           </div>
@@ -44,7 +44,7 @@
               <p>Receive notifications for new client allocations or session timing updates</p>
             </div>
             <label class="switch-control">
-              <input type="checkbox" [(ngModel)]="preferences.ptSessionAlerts">
+              <input type="checkbox" formControlName="ptSessionAlerts">
               <span class="slider"></span>
             </label>
           </div>
@@ -56,3 +56,4 @@
       </button>
     </div>
   </div>
+</div>

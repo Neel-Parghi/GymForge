@@ -62,7 +62,16 @@ export class StaffDetailDrawerComponent {
   activeTab: 'details' | 'members' | 'shifts' = 'details';
   allAssignedMembers: any[] = [];
   assignedMembers: any[] = [];
-  showPastAssignments = false;
+  showPastAssignmentsControl = new FormControl(false);
+  
+  get showPastAssignments(): boolean {
+    return this.showPastAssignmentsControl.value || false;
+  }
+
+  set showPastAssignments(value: boolean) {
+    this.showPastAssignmentsControl.setValue(value);
+  }
+
   isLoadingMembers = false;
   staffShifts: any[] = [];
   isLoadingShifts = false;

@@ -6,7 +6,7 @@
     </div>
 
     <div class="header-actions">
-      <app-dropdown [options]="dropdownOptions" [(ngModel)]="monthKey" (selectionChange)="onMonthChange()"
+      <app-dropdown [options]="dropdownOptions" [formControl]="monthControl"
         minWidth="220px">
       </app-dropdown>
     </div>

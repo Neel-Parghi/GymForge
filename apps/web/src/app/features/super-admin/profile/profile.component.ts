@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../../core/services/profile.service';
 import { StaffService } from '../../../core/services/staff.service';
@@ -15,7 +15,7 @@ import { ConfirmationService } from '../../../core/services/confirmation.service
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -35,7 +35,7 @@ export class ProfileComponent implements OnInit {
   isDeletingAccount = false;
 
   isTrainer = false;
-  specInput = '';
+  specControl = new FormControl('');
 
   constructor(
     private fb: FormBuilder,
@@ -126,12 +126,12 @@ export class ProfileComponent implements OnInit {
   }
 
   addSpecialization(): void {
-    const val = this.specInput.trim();
+    const val = (this.specControl.value || '').trim();
     const specs = this.profileForm.get('specializations')?.value || [];
     if (val && !specs.includes(val)) {
       specs.push(val);
       this.profileForm.patchValue({ specializations: specs });
-      this.specInput = '';
+      this.specControl.setValue('');
     }
   }
 

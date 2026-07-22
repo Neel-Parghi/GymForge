@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { StaffService } from '../../../core/services/staff.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -12,7 +12,7 @@ import { GridConfigDef } from '../../../shared/models/grid-config.model';
 @Component({
   selector: 'app-trainer-attendance',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataGrid, GridCellDirective],
+  imports: [CommonModule, ReactiveFormsModule, DataGrid, GridCellDirective],
   templateUrl: './trainer-attendance.component.html',
   styleUrl: './trainer-attendance.component.scss'
 })
@@ -24,7 +24,7 @@ export class TrainerAttendanceComponent implements OnInit, OnDestroy {
   userId = '';
   staffDetails: StaffResponse | null = null;
   isCheckedIn = false;
-  checkInNotes = '';
+  notesControl = new FormControl('');
   loading = false;
   timerString = '00:00:00';
   private timerSubscription: Subscription | null = null;
@@ -115,10 +115,11 @@ export class TrainerAttendanceComponent implements OnInit, OnDestroy {
 
   clockIn(): void {
     this.loading = true;
-    this.staffService.checkInStaff(this.userId, this.checkInNotes).subscribe({
+    const notes = this.notesControl.value || '';
+    this.staffService.checkInStaff(this.userId, notes).subscribe({
       next: (res: any) => {
         this.notification.success('Successfully clocked in!');
-        this.checkInNotes = '';
+        this.notesControl.reset();
         this.loadStaffStatus();
         this.loadAttendanceLogs();
       },

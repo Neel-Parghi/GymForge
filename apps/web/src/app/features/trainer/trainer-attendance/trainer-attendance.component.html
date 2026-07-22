@@ -21,7 +21,7 @@
 
       <div class="control-section">
         <div class="notes-wrapper" *ngIf="!isCheckedIn">
-          <input type="text" id="checkin-notes" [(ngModel)]="checkInNotes" placeholder="Shift notes (optional)..."
+          <input type="text" id="checkin-notes" [formControl]="notesControl" placeholder="Shift notes (optional)..."
             class="notes-input" />
         </div>
 

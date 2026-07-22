@@ -139,7 +139,7 @@
                 </span>
               </div>
               <div *ngIf="isEditMode" class="add-spec-input-group">
-                <input type="text" [(ngModel)]="specInput" [ngModelOptions]="{standalone: true}"
+                <input type="text" [formControl]="specControl"
                   placeholder="e.g. Hypertrophy, Strength Conditioning, Fat Loss" class="add-spec-input"
                   (keydown.enter)="$event.preventDefault(); addSpecialization()">
                 <button type="button" (click)="addSpecialization()" class="btn-add-tag">Add Tag</button>

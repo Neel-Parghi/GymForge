@@ -108,7 +108,7 @@
         </div>
 
         <div class="pane-body">
-          <div class="max-w-600 single-setting-container">
+          <div class="max-w-600 single-setting-container" [formGroup]="notificationsForm">
             <div class="toggle-list">
               <div class="toggle-item">
                 <div class="toggle-info">
@@ -116,7 +116,7 @@
                   <p>Receive daily summaries and updates via email.</p>
                 </div>
                 <label class="switch-premium">
-                  <input type="checkbox" [(ngModel)]="notificationPreferences.emailNotifications">
+                  <input type="checkbox" formControlName="emailNotifications">
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -127,7 +127,7 @@
                   <p>Get instant alerts on your device for important events.</p>
                 </div>
                 <label class="switch-premium">
-                  <input type="checkbox" [(ngModel)]="notificationPreferences.pushNotifications">
+                  <input type="checkbox" formControlName="pushNotifications">
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -138,7 +138,7 @@
                   <p>We'll notify you 1 hour before scheduled workouts.</p>
                 </div>
                 <label class="switch-premium">
-                  <input type="checkbox" [(ngModel)]="notificationPreferences.workoutReminders">
+                  <input type="checkbox" formControlName="workoutReminders">
                   <span class="slider round"></span>
                 </label>
               </div>
