@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, inject } from '@angular/core';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -122,9 +123,9 @@ export class OnboardStaffModalComponent implements OnInit {
       delete formValue.shiftStartTime;
       delete formValue.shiftEndTime;
 
-      const request = this.isEdit
+      const request = (this.isEdit
         ? this.staffService.updateStaff(this.staff.id, formValue)
-        : this.staffService.addStaff(formValue);
+        : this.staffService.addStaff(formValue)) as Observable<any>;
 
       request.subscribe({
         next: () => {
@@ -134,7 +135,7 @@ export class OnboardStaffModalComponent implements OnInit {
           this.closeModal();
           this.isSubmitting = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.notification.error(err.error?.message || `Failed to ${this.isEdit ? 'update' : 'add'} staff.`);
           this.isSubmitting = false;
         }

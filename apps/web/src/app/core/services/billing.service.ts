@@ -45,14 +45,14 @@ export class BillingService extends BaseApiService {
         return this.memberOverviewCache.get(cacheKey)!;
     }
 
-    createCustomInvoice(payload: CreateCustomInvoiceRequest): Observable<ApiResponse<unknown>> {
-        return this.post<ApiResponse<unknown>>(API_CONSTANTS.BILLING.CREATE_INVOICE, payload).pipe(
+    createCustomInvoice(payload: CreateCustomInvoiceRequest): Observable<ApiResponse<null>> {
+        return this.post<ApiResponse<null>>(API_CONSTANTS.BILLING.CREATE_INVOICE, payload).pipe(
             tap(() => this.clearCache())
         );
     }
 
-    payInvoice(recordId: string): Observable<ApiResponse<unknown>> {
-        return this.post<ApiResponse<unknown>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}`, {}).pipe(
+    payInvoice(recordId: string): Observable<ApiResponse<null>> {
+        return this.post<ApiResponse<null>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}`, {}).pipe(
             tap(() => this.clearCache())
         );
     }
@@ -76,14 +76,14 @@ export class BillingService extends BaseApiService {
         return this.staffOverviewCache.get(cacheKey)!;
     }
 
-    updateStaffPayrollRules(payload: UpdateStaffPayrollRuleRequest): Observable<ApiResponse<unknown>> {
-        return this.post<ApiResponse<unknown>>(API_CONSTANTS.BILLING.UPDATE_STAFF_RULES, payload).pipe(
+    updateStaffPayrollRules(payload: UpdateStaffPayrollRuleRequest): Observable<ApiResponse<null>> {
+        return this.post<ApiResponse<null>>(API_CONSTANTS.BILLING.UPDATE_STAFF_RULES, payload).pipe(
             tap(() => this.clearCache())
         );
     }
 
-    releaseStaffPayout(payload: ReleaseStaffPayoutRequest): Observable<ApiResponse<unknown>> {
-        return this.post<ApiResponse<unknown>>(API_CONSTANTS.BILLING.RELEASE_STAFF_PAYOUT, payload).pipe(
+    releaseStaffPayout(payload: ReleaseStaffPayoutRequest): Observable<ApiResponse<null>> {
+        return this.post<ApiResponse<null>>(API_CONSTANTS.BILLING.RELEASE_STAFF_PAYOUT, payload).pipe(
             tap(() => this.clearCache())
         );
     }

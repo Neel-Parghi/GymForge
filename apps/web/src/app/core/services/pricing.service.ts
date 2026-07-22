@@ -41,8 +41,8 @@ export class PricingService extends BaseApiService {
     );
   }
 
-  deletePlan(id: string): Observable<ApiResponse<unknown>> {
-    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.PRICING.DELETE}/${id}`).pipe(
+  deletePlan(id: string): Observable<ApiResponse<null>> {
+    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.PRICING.DELETE}/${id}`).pipe(
       tap(() => this.clearCache())
     );
   }

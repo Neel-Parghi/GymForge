@@ -3,7 +3,7 @@ import { BaseApiService } from "./base-api.service";
 import { API_CONSTANTS } from "../constants/api-constants";
 import { Observable, shareReplay, tap, catchError, of } from "rxjs";
 import { ApiResponse } from "../../shared/models/api-response.model";
-import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest, UpdateMyGymRequest } from "../../shared/models/gym.model";
+import { OnboardGymRequest, GymOwnerResponse, GymListResponse, UpdateGymOwnerRequest, UpdateMyGymRequest, BranchDto } from "../../shared/models/gym.model";
 import { PagedResponse } from "../../shared/models/paged-response.model";
 import { AuthApiService } from "./auth-api.service";
 
@@ -15,8 +15,8 @@ export class GymService extends BaseApiService {
 
     private gymOwnersCache$?: Observable<ApiResponse<PagedResponse<GymOwnerResponse>>> | null;
     private gymListCache$?: Observable<ApiResponse<PagedResponse<GymListResponse>>> | null;
-    private branchesCache = new Map<string, Observable<ApiResponse<unknown[]>>>();
-    private myBranchesCache$: Observable<ApiResponse<unknown[]>> | null = null;
+    private branchesCache = new Map<string, Observable<ApiResponse<BranchDto[]>>>();
+    private myBranchesCache$: Observable<ApiResponse<BranchDto[]>> | null = null;
     private myGymCache$: Observable<ApiResponse<GymListResponse>> | null = null;
 
     constructor() {
@@ -130,19 +130,19 @@ export class GymService extends BaseApiService {
         );
     }
 
-    getGymBranches(gymId: string): Observable<ApiResponse<unknown[]>> {
+    getGymBranches(gymId: string): Observable<ApiResponse<BranchDto[]>> {
         if (this.branchesCache.has(gymId)) {
             return this.branchesCache.get(gymId)!;
         }
         const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
-        const obs = this.get<ApiResponse<unknown[]>>(url).pipe(shareReplay(1));
+        const obs = this.get<ApiResponse<BranchDto[]>>(url).pipe(shareReplay(1));
         this.branchesCache.set(gymId, obs);
         return obs;
     }
 
-    addGymBranch(gymId: string, payload: unknown): Observable<ApiResponse<unknown>> {
+    addGymBranch(gymId: string, payload: Partial<BranchDto>): Observable<ApiResponse<BranchDto>> {
         const url = API_CONSTANTS.GYM.BRANCHES.replace('{id}', gymId);
-        return this.post<ApiResponse<unknown>>(url, payload).pipe(
+        return this.post<ApiResponse<BranchDto>>(url, payload).pipe(
             tap(() => this.clearBranchesCache(gymId))
         );
     }
@@ -163,24 +163,24 @@ export class GymService extends BaseApiService {
         );
     }
 
-    getMyBranches(forceRefresh = false): Observable<ApiResponse<unknown[]>> {
+    getMyBranches(forceRefresh = false): Observable<ApiResponse<BranchDto[]>> {
         if (forceRefresh || !this.myBranchesCache$) {
-            this.myBranchesCache$ = this.get<ApiResponse<unknown[]>>(API_CONSTANTS.GYM.MY_BRANCHES).pipe(
-                catchError(() => of({ success: true, data: [], message: 'No branches found', error: null, statusCode: 200, timestamp: new Date().toISOString() } as ApiResponse<unknown[]>)),
+            this.myBranchesCache$ = this.get<ApiResponse<BranchDto[]>>(API_CONSTANTS.GYM.MY_BRANCHES).pipe(
+                catchError(() => of({ success: true, data: [], message: 'No branches found', error: null, statusCode: 200, timestamp: new Date().toISOString() } as ApiResponse<BranchDto[]>)),
                 shareReplay(1)
             );
         }
         return this.myBranchesCache$;
     }
 
-    addMyBranch(payload: unknown): Observable<ApiResponse<unknown>> {
-        return this.post<ApiResponse<unknown>>(API_CONSTANTS.GYM.MY_BRANCHES, payload).pipe(
+    addMyBranch(payload: Partial<BranchDto>): Observable<ApiResponse<BranchDto>> {
+        return this.post<ApiResponse<BranchDto>>(API_CONSTANTS.GYM.MY_BRANCHES, payload).pipe(
             tap(() => this.clearMyBranchesCache())
         );
     }
 
-    updateMyBranch(branchId: string, payload: unknown): Observable<ApiResponse<unknown>> {
-        return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload).pipe(
+    updateMyBranch(branchId: string, payload: Partial<BranchDto>): Observable<ApiResponse<BranchDto>> {
+        return this.put<ApiResponse<BranchDto>>(`${API_CONSTANTS.GYM.MY_BRANCHES}/${branchId}`, payload).pipe(
             tap(() => this.clearMyBranchesCache())
         );
     }

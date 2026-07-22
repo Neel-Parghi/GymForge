@@ -3,20 +3,21 @@ import { Observable, shareReplay, tap } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { BaseApiService } from './base-api.service';
+import { AnnouncementTemplateRequest, AnnouncementTemplateResponse } from '../../shared/models/announcement.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TemplateService extends BaseApiService {
-  private templatesCache$: Observable<ApiResponse<unknown>> | null = null;
+  private templatesCache$: Observable<ApiResponse<AnnouncementTemplateResponse[]>> | null = null;
 
   constructor() {
     super();
   }
 
-  getTemplates(): Observable<ApiResponse<unknown>> {
+  getTemplates(): Observable<ApiResponse<AnnouncementTemplateResponse[]>> {
     if (!this.templatesCache$) {
-      this.templatesCache$ = this.get<ApiResponse<unknown>>(API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE).pipe(
+      this.templatesCache$ = this.get<ApiResponse<AnnouncementTemplateResponse[]>>(API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE).pipe(
         shareReplay(1)
       );
     }
@@ -27,29 +28,29 @@ export class TemplateService extends BaseApiService {
     this.templatesCache$ = null;
   }
 
-  getTemplateById(id: string): Observable<ApiResponse<unknown>> {
-    return this.get<ApiResponse<unknown>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}`);
+  getTemplateById(id: string): Observable<ApiResponse<AnnouncementTemplateResponse>> {
+    return this.get<ApiResponse<AnnouncementTemplateResponse>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}`);
   }
 
-  createTemplate(dto: unknown): Observable<ApiResponse<unknown>> {
-    return this.post<ApiResponse<unknown>>(API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE, dto).pipe(
+  createTemplate(dto: AnnouncementTemplateRequest): Observable<ApiResponse<AnnouncementTemplateResponse>> {
+    return this.post<ApiResponse<AnnouncementTemplateResponse>>(API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE, dto).pipe(
       tap(() => this.clearCache())
     );
   }
 
-  updateTemplate(id: string, dto: unknown): Observable<ApiResponse<unknown>> {
-    return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}`, dto).pipe(
+  updateTemplate(id: string, dto: AnnouncementTemplateRequest): Observable<ApiResponse<AnnouncementTemplateResponse>> {
+    return this.put<ApiResponse<AnnouncementTemplateResponse>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}`, dto).pipe(
       tap(() => this.clearCache())
     );
   }
 
-  deleteTemplate(id: string): Observable<ApiResponse<unknown>> {
-    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}`).pipe(
+  deleteTemplate(id: string): Observable<ApiResponse<null>> {
+    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}`).pipe(
       tap(() => this.clearCache())
     );
   }
 
-  testTemplate(id: string): Observable<ApiResponse<unknown>> {
-    return this.post<ApiResponse<unknown>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}/test`, {});
+  testTemplate(id: string): Observable<ApiResponse<null>> {
+    return this.post<ApiResponse<null>>(`${API_CONSTANTS.ANNOUNCEMENT_TEMPLATES.BASE}/${id}/test`, {});
   }
 }

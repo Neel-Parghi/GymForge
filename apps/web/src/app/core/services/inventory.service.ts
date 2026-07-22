@@ -4,7 +4,7 @@ import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
-import { InventoryItem, Equipment, SaleTransaction, CreateProductRequest, CreateEquipmentRequest } from '../../shared/models/inventory.model';
+import { InventoryItem, Equipment, SaleTransaction, CreateProductRequest, CreateEquipmentRequest, RecordSaleDto, LogMaintenanceDto, MaintenanceLogDto, InventoryStatsDto } from '../../shared/models/inventory.model';
 import { BranchContextService } from './branch-context.service';
 
 @Injectable({
@@ -17,8 +17,8 @@ export class InventoryService extends BaseApiService {
   private productsCache$: Observable<ApiResponse<PagedResponse<InventoryItem>>> | null = null;
   private equipmentCache$: Observable<ApiResponse<PagedResponse<Equipment>>> | null = null;
   private salesCache$: Observable<ApiResponse<PagedResponse<SaleTransaction>>> | null = null;
-  private maintenanceHistoryCache$: Observable<ApiResponse<PagedResponse<unknown>>> | null = null;
-  private statsCache$: Observable<ApiResponse<unknown>> | null = null;
+  private maintenanceHistoryCache$: Observable<ApiResponse<PagedResponse<MaintenanceLogDto>>> | null = null;
+  private statsCache$: Observable<ApiResponse<InventoryStatsDto>> | null = null;
 
   constructor() {
     super();
@@ -66,18 +66,18 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  updateProduct(id: string, payload: CreateProductRequest): Observable<ApiResponse<unknown>> {
+  updateProduct(id: string, payload: CreateProductRequest): Observable<ApiResponse<null>> {
     const branchId = this.branchContextService.getActiveBranchId();
     if (branchId && !payload.branchId) {
       payload.branchId = branchId;
     }
-    return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.INVENTORY.PRODUCTS}/${id}`, payload).pipe(
+    return this.put<ApiResponse<null>>(`${API_CONSTANTS.INVENTORY.PRODUCTS}/${id}`, payload).pipe(
       tap(() => this.clearProductCache())
     );
   }
 
-  deleteProduct(id: string): Observable<ApiResponse<unknown>> {
-    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.INVENTORY.PRODUCTS}/${id}`).pipe(
+  deleteProduct(id: string): Observable<ApiResponse<null>> {
+    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.INVENTORY.PRODUCTS}/${id}`).pipe(
       tap(() => this.clearProductCache())
     );
   }
@@ -114,18 +114,18 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  updateEquipment(id: string, payload: CreateEquipmentRequest): Observable<ApiResponse<unknown>> {
+  updateEquipment(id: string, payload: CreateEquipmentRequest): Observable<ApiResponse<null>> {
     const branchId = this.branchContextService.getActiveBranchId();
     if (branchId && !payload.branchId) {
       payload.branchId = branchId;
     }
-    return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.INVENTORY.EQUIPMENT}/${id}`, payload).pipe(
+    return this.put<ApiResponse<null>>(`${API_CONSTANTS.INVENTORY.EQUIPMENT}/${id}`, payload).pipe(
       tap(() => this.clearEquipmentCache())
     );
   }
 
-  recordSale(payload: unknown): Observable<ApiResponse<unknown>> {
-    return this.post<ApiResponse<unknown>>(API_CONSTANTS.INVENTORY.SALES, payload).pipe(
+  recordSale(payload: RecordSaleDto): Observable<ApiResponse<null>> {
+    return this.post<ApiResponse<null>>(API_CONSTANTS.INVENTORY.SALES, payload).pipe(
       tap(() => {
         this.clearProductCache();
         this.clearSalesCache();
@@ -155,12 +155,12 @@ export class InventoryService extends BaseApiService {
     return this.salesCache$;
   }
 
-  sendReceiptEmail(saleId: string): Observable<ApiResponse<unknown>> {
-    return this.post<ApiResponse<unknown>>(`${API_CONSTANTS.INVENTORY.SALES}/${saleId}/receipt`, {});
+  sendReceiptEmail(saleId: string): Observable<ApiResponse<null>> {
+    return this.post<ApiResponse<null>>(`${API_CONSTANTS.INVENTORY.SALES}/${saleId}/receipt`, {});
   }
 
-  logMaintenance(payload: unknown): Observable<ApiResponse<unknown>> {
-    return this.post<ApiResponse<unknown>>(API_CONSTANTS.INVENTORY.MAINTENANCE, payload).pipe(
+  logMaintenance(payload: LogMaintenanceDto): Observable<ApiResponse<null>> {
+    return this.post<ApiResponse<null>>(API_CONSTANTS.INVENTORY.MAINTENANCE, payload).pipe(
       tap(() => {
         this.clearEquipmentCache();
         this.clearMaintenanceCache();
@@ -168,8 +168,8 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  updateMaintenance(id: string, payload: unknown): Observable<ApiResponse<unknown>> {
-    return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/${id}`, payload).pipe(
+  updateMaintenance(id: string, payload: LogMaintenanceDto): Observable<ApiResponse<null>> {
+    return this.put<ApiResponse<null>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/${id}`, payload).pipe(
       tap(() => {
         this.clearEquipmentCache();
         this.clearMaintenanceCache();
@@ -177,11 +177,11 @@ export class InventoryService extends BaseApiService {
     );
   }
 
-  private maintenanceByEquipmentCache = new Map<string, Observable<ApiResponse<unknown[]>>>();
+  private maintenanceByEquipmentCache = new Map<string, Observable<ApiResponse<MaintenanceLogDto[]>>>();
 
-  getMaintenanceHistory(equipmentId: string, forceRefresh = false): Observable<ApiResponse<unknown[]>> {
+  getMaintenanceHistory(equipmentId: string, forceRefresh = false): Observable<ApiResponse<MaintenanceLogDto[]>> {
     if (!this.maintenanceByEquipmentCache.has(equipmentId) || forceRefresh) {
-      const call = this.get<ApiResponse<unknown[]>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/equipment/${equipmentId}/maintenance`).pipe(
+      const call = this.get<ApiResponse<MaintenanceLogDto[]>>(`${API_CONSTANTS.INVENTORY.MAINTENANCE}/equipment/${equipmentId}/maintenance`).pipe(
         shareReplay(1)
       );
       this.maintenanceByEquipmentCache.set(equipmentId, call);
@@ -189,7 +189,7 @@ export class InventoryService extends BaseApiService {
     return this.maintenanceByEquipmentCache.get(equipmentId)!;
   }
 
-  getMaintenanceHistoryGlobal(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<unknown>>> {
+  getMaintenanceHistoryGlobal(page: number = 1, pageSize: number = 10, search: string = '', forceRefresh = false): Observable<ApiResponse<PagedResponse<MaintenanceLogDto>>> {
     const branchId = this.branchContextService.getActiveBranchId();
     if (search || page !== 1 || pageSize !== 10 || forceRefresh) {
       const params: Record<string, string | number> = { pageNumber: page, pageSize };
@@ -197,34 +197,34 @@ export class InventoryService extends BaseApiService {
         params['searchTerm'] = search;
       if (branchId)
         params['branchId'] = branchId;
-      return this.get<ApiResponse<PagedResponse<unknown>>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params);
+      return this.get<ApiResponse<PagedResponse<MaintenanceLogDto>>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params);
     }
 
     if (!this.maintenanceHistoryCache$) {
       const params: Record<string, string | number> = { pageNumber: 1, pageSize: 10 };
       if (branchId)
         params['branchId'] = branchId;
-      this.maintenanceHistoryCache$ = this.get<ApiResponse<PagedResponse<unknown>>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params).pipe(
+      this.maintenanceHistoryCache$ = this.get<ApiResponse<PagedResponse<MaintenanceLogDto>>>(API_CONSTANTS.INVENTORY.MAINTENANCE_HISTORY, params).pipe(
         shareReplay(1)
       );
     }
     return this.maintenanceHistoryCache$;
   }
 
-  getStats(forceRefresh = false): Observable<ApiResponse<unknown>> {
+  getStats(forceRefresh = false): Observable<ApiResponse<InventoryStatsDto>> {
     const branchId = this.branchContextService.getActiveBranchId();
     if (forceRefresh) {
       const params: Record<string, string> = {};
       if (branchId)
         params['branchId'] = branchId;
-      return this.get<ApiResponse<unknown>>(API_CONSTANTS.INVENTORY.STATS, params);
+      return this.get<ApiResponse<InventoryStatsDto>>(API_CONSTANTS.INVENTORY.STATS, params);
     }
 
     if (!this.statsCache$) {
       const params: Record<string, string> = {};
       if (branchId)
         params['branchId'] = branchId;
-      this.statsCache$ = this.get<ApiResponse<unknown>>(API_CONSTANTS.INVENTORY.STATS, params).pipe(
+      this.statsCache$ = this.get<ApiResponse<InventoryStatsDto>>(API_CONSTANTS.INVENTORY.STATS, params).pipe(
         shareReplay(1)
       );
     }

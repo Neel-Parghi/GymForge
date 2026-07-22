@@ -4,7 +4,7 @@ import { API_CONSTANTS } from '../constants/api-constants';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { WorkoutPlan, WorkoutPlanType, SplitPlanner, WeeklyPlanner, DailyPlanner } from '../../shared/models/workout-plan.model';
+import { WorkoutPlan, WorkoutPlanType, SplitPlanner, WeeklyPlanner, DailyPlanner, WorkoutPlanDto, CreateWorkoutPlanRequest, UpdateWorkoutPlanRequest } from '../../shared/models/workout-plan.model';
 import { BranchContextService } from './branch-context.service';
 
 @Injectable({
@@ -28,19 +28,19 @@ export class WorkoutPlanService extends BaseApiService {
 
     if (type) {
       const params = { type };
-      return this.get<ApiResponse<unknown[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE, params).pipe(
+      return this.get<ApiResponse<WorkoutPlanDto[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE, params).pipe(
         map(res => {
           const plans = res?.data || [];
-          return plans.map((p: unknown) => this.adaptFromApi(p));
+          return plans.map((p: WorkoutPlanDto) => this.adaptFromApi(p));
         })
       );
     }
 
     if (!this.plansCache$) {
-      this.plansCache$ = this.get<ApiResponse<unknown[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE).pipe(
+      this.plansCache$ = this.get<ApiResponse<WorkoutPlanDto[]>>(API_CONSTANTS.WORKOUT_PLAN.BASE).pipe(
         map(res => {
           const plans = res?.data || [];
-          return plans.map((p: unknown) => this.adaptFromApi(p));
+          return plans.map((p: WorkoutPlanDto) => this.adaptFromApi(p));
         }),
         shareReplay(1)
       );
@@ -50,31 +50,31 @@ export class WorkoutPlanService extends BaseApiService {
 
   getPlanById(id: string): Observable<WorkoutPlan> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
-    return this.get<ApiResponse<unknown>>(url).pipe(
-      map(res => this.adaptFromApi(res?.data))
+    return this.get<ApiResponse<WorkoutPlanDto>>(url).pipe(
+      map(res => this.adaptFromApi(res?.data as WorkoutPlanDto))
     );
   }
 
   createPlan(plan: WorkoutPlan): Observable<WorkoutPlan> {
     const payload = this.adaptToApi(plan);
-    return this.post<ApiResponse<unknown>>(API_CONSTANTS.WORKOUT_PLAN.BASE, payload).pipe(
+    return this.post<ApiResponse<WorkoutPlanDto>>(API_CONSTANTS.WORKOUT_PLAN.BASE, payload).pipe(
       tap(() => this.clearCache()),
-      map(res => this.adaptFromApi(res?.data))
+      map(res => this.adaptFromApi(res?.data as WorkoutPlanDto))
     );
   }
 
   updatePlan(id: string, plan: WorkoutPlan): Observable<WorkoutPlan> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
     const payload = this.adaptToApi(plan);
-    return this.put<ApiResponse<unknown>>(url, payload).pipe(
+    return this.put<ApiResponse<WorkoutPlanDto>>(url, payload).pipe(
       tap(() => this.clearCache()),
-      map(res => this.adaptFromApi(res?.data))
+      map(res => this.adaptFromApi(res?.data as WorkoutPlanDto))
     );
   }
 
-  deletePlan(id: string): Observable<ApiResponse<unknown>> {
+  deletePlan(id: string): Observable<ApiResponse<null>> {
     const url = API_CONSTANTS.WORKOUT_PLAN.BY_ID.replace('{id}', id);
-    return this.delete<ApiResponse<unknown>>(url).pipe(
+    return this.delete<ApiResponse<null>>(url).pipe(
       tap(() => this.clearCache())
     );
   }
@@ -83,11 +83,11 @@ export class WorkoutPlanService extends BaseApiService {
     this.plansCache$ = null;
   }
 
-  private adaptFromApi(apiPlanData: unknown): WorkoutPlan {
+  private adaptFromApi(apiPlanData: WorkoutPlanDto): WorkoutPlan {
     if (!apiPlanData) {
       throw new Error('Null API plan cannot be adapted');
     }
-    const apiPlan = apiPlanData as any;
+    const apiPlan = apiPlanData;
 
     const basePlan = {
       id: apiPlan.id,
@@ -181,7 +181,7 @@ export class WorkoutPlanService extends BaseApiService {
     }
   }
 
-  private adaptToApi(fePlan: WorkoutPlan): Record<string, unknown> | null {
+  private adaptToApi(fePlan: WorkoutPlan): CreateWorkoutPlanRequest | UpdateWorkoutPlanRequest | null {
     if (!fePlan) return null;
 
     const basePlan: Record<string, unknown> = {
@@ -244,6 +244,6 @@ export class WorkoutPlanService extends BaseApiService {
       }];
     }
 
-    return basePlan;
+    return basePlan as any;
   }
 }

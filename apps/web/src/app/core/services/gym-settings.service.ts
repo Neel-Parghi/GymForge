@@ -5,6 +5,7 @@ import { BaseApiService } from './base-api.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { AuthApiService } from './auth-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
+import { GymSettingsDto, GymHolidayDto } from '../../shared/models/gym-settings.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ import { API_CONSTANTS } from '../constants/api-constants';
 export class GymSettingsService extends BaseApiService {
   private authService = inject(AuthApiService);
   private settingsSubject = new BehaviorSubject<Record<string, unknown> | null>(null);
-  private holidaysCache$: Observable<ApiResponse<unknown>> | null = null;
+  private holidaysCache$: Observable<ApiResponse<GymHolidayDto[]>> | null = null;
 
   public settings$ = this.settingsSubject.asObservable();
 
@@ -30,10 +31,10 @@ export class GymSettingsService extends BaseApiService {
     return this.settingsSubject.value;
   }
 
-  loadSettings(): Observable<ApiResponse<unknown>> {
-    return this.get<ApiResponse<unknown>>(API_CONSTANTS.GYM.SETTINGS).pipe(
+  loadSettings(): Observable<ApiResponse<GymSettingsDto>> {
+    return this.get<ApiResponse<GymSettingsDto>>(API_CONSTANTS.GYM.SETTINGS).pipe(
       tap(res => {
-        const data = (res?.data || res) as any;
+        const data = (res?.data || res) as GymSettingsDto;
         let roleRights: unknown = null;
         let operations: unknown = null;
 
@@ -54,31 +55,31 @@ export class GymSettingsService extends BaseApiService {
     );
   }
 
-  updateSettings(payload: unknown, roleRightsMatrix: unknown, operationsSettings: unknown): Observable<ApiResponse<unknown>> {
-    return this.put<ApiResponse<unknown>>(API_CONSTANTS.GYM.SETTINGS, payload).pipe(
+  updateSettings(payload: GymSettingsDto, roleRightsMatrix: unknown, operationsSettings: unknown): Observable<ApiResponse<GymSettingsDto>> {
+    return this.put<ApiResponse<GymSettingsDto>>(API_CONSTANTS.GYM.SETTINGS, payload).pipe(
       tap(() => {
         this.settingsSubject.next({ roleRights: roleRightsMatrix, operations: operationsSettings });
       })
     );
   }
 
-  getHolidays(forceRefresh = false): Observable<ApiResponse<unknown>> {
+  getHolidays(forceRefresh = false): Observable<ApiResponse<GymHolidayDto[]>> {
     if (forceRefresh || !this.holidaysCache$) {
-      this.holidaysCache$ = this.get<ApiResponse<unknown>>(API_CONSTANTS.GYM.HOLIDAYS).pipe(
+      this.holidaysCache$ = this.get<ApiResponse<GymHolidayDto[]>>(API_CONSTANTS.GYM.HOLIDAYS).pipe(
         shareReplay(1)
       );
     }
     return this.holidaysCache$;
   }
 
-  addHoliday(payload: unknown): Observable<ApiResponse<unknown>> {
-    return this.post<ApiResponse<unknown>>(API_CONSTANTS.GYM.HOLIDAYS, payload).pipe(
+  addHoliday(payload: Partial<GymHolidayDto>): Observable<ApiResponse<GymHolidayDto>> {
+    return this.post<ApiResponse<GymHolidayDto>>(API_CONSTANTS.GYM.HOLIDAYS, payload).pipe(
       tap(() => this.clearHolidaysCache())
     );
   }
 
-  deleteHoliday(holidayId: string): Observable<ApiResponse<unknown>> {
-    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.GYM.HOLIDAYS}/${holidayId}`).pipe(
+  deleteHoliday(holidayId: string): Observable<ApiResponse<null>> {
+    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.GYM.HOLIDAYS}/${holidayId}`).pipe(
       tap(() => this.clearHolidaysCache())
     );
   }

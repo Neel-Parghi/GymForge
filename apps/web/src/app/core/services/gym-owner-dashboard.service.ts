@@ -4,13 +4,14 @@ import { BaseApiService } from './base-api.service';
 import { BranchContextService } from './branch-context.service';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { ApiResponse } from '../../shared/models/api-response.model';
+import { GymOwnerDashboardDto } from '../../shared/models/dashboard.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GymOwnerDashboardService extends BaseApiService {
   private branchContextService = inject(BranchContextService);
-  private statsCache$?: Observable<ApiResponse<unknown>>;
+  private statsCache$?: Observable<ApiResponse<GymOwnerDashboardDto>>;
 
   constructor() {
     super();
@@ -19,7 +20,7 @@ export class GymOwnerDashboardService extends BaseApiService {
     });
   }
 
-  getStats(forceRefresh = false): Observable<ApiResponse<unknown>> {
+  getStats(forceRefresh = false): Observable<ApiResponse<GymOwnerDashboardDto>> {
     if (forceRefresh) {
       this.clearCache();
     }
@@ -28,7 +29,7 @@ export class GymOwnerDashboardService extends BaseApiService {
       const branchId = this.branchContextService.getActiveBranchId();
       const params = branchId ? { branchId } : {};
 
-      this.statsCache$ = this.get<ApiResponse<unknown>>(API_CONSTANTS.GYM_OWNER.DASHBOARD, params).pipe(
+      this.statsCache$ = this.get<ApiResponse<GymOwnerDashboardDto>>(API_CONSTANTS.GYM_OWNER.DASHBOARD, params).pipe(
         shareReplay(1)
       );
     }

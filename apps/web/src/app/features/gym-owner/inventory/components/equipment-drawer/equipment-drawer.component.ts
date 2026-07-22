@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges } from '@angular/core';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { SlideDrawerComponent } from '../../../../../shared/components/slide-drawer/slide-drawer.component';
@@ -130,9 +131,9 @@ export class EquipmentDrawerComponent implements OnInit, OnChanges {
 
   private commitEquipment() {
     this.loading = true;
-    const action = this.isEditingEquipment && this.equipment?.id
+    const action = (this.isEditingEquipment && this.equipment?.id
       ? this.inventoryService.updateEquipment(this.equipment.id, this.equipmentForm.value)
-      : this.inventoryService.addEquipment(this.equipmentForm.value);
+      : this.inventoryService.addEquipment(this.equipmentForm.value)) as Observable<any>;
 
     action.subscribe({
       next: () => {

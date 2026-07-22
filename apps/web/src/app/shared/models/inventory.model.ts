@@ -64,3 +64,71 @@ export interface SaleTransaction {
     paymentMethod: string;
     branchId?: string;
 }
+
+export interface RecordSaleDto {
+    memberId: string;
+    productId: string;
+    quantity: number;
+    paymentMethod: string;
+}
+
+export interface LogMaintenanceDto {
+    id?: string;
+    equipmentId: string;
+    serviceType: string;
+    description: string;
+    technicianName: string;
+    startDate: string | Date;
+    estimatedEndDate?: string | Date;
+    completedDate?: string | Date;
+    cost: number;
+    status: string;
+    notes?: string;
+}
+
+export interface MaintenanceLogDto {
+    id: string;
+    equipmentId: string;
+    equipmentName: string;
+    serviceType: string;
+    description: string;
+    technicianName: string;
+    startDate: string | Date;
+    estimatedEndDate?: string | Date;
+    completedDate?: string | Date;
+    cost: number;
+    status: string;
+    notes?: string;
+}
+
+export interface CategoryStatDto {
+    category: string;
+    count: number;
+    value: number;
+}
+
+export interface TopProductDto {
+    name: string;
+    totalSold: number;
+    totalRevenue: number;
+}
+
+export interface UpcomingMaintenanceDto {
+    equipmentName: string;
+    scheduledDate?: string | Date;
+    healthPercentage: number;
+}
+
+export interface InventoryStatsDto {
+    totalProducts: number;
+    lowStockCount: number;
+    maintenanceDueCount: number;
+    todaySalesAmount: number;
+    todaySalesCount: number;
+    totalSalesAmount: number;
+    totalSalesCount: number;
+    categoryBreakdown: CategoryStatDto[];
+    recentSales: SaleTransaction[];
+    topProducts: TopProductDto[];
+    upcomingMaintenance: UpcomingMaintenanceDto[];
+}

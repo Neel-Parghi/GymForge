@@ -75,3 +75,23 @@ export interface Address {
 }
 
 export { MemberStatus };
+
+export interface MemberDashboardResponse {
+  atRiskMembers: GymMember[];
+  renewalFunnel: {
+    expired: number;
+    reminded: number;
+    renewed: number;
+    conversionRate: number;
+  };
+  streakLeaderboard: {
+    memberId: string;
+    memberName: string;
+    streakDays: number;
+    profilePictureUrl?: string;
+  }[];
+  totalCount: number;
+  activeCount: number;
+  frozenCount: number;
+  expiredCount: number;
+}

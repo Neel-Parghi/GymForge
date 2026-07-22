@@ -5,6 +5,7 @@ import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { StaffResponse, AddStaffRequest, MeasurementResponse, AddMeasurementRequest, StaffAttendanceLogResponse } from '../models/staff.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
+import { GymMember } from '../../shared/models/member.model';
 import { BranchContextService } from './branch-context.service';
 
 @Injectable({
@@ -16,12 +17,12 @@ export class StaffService extends BaseApiService {
   private staffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private staffCacheLarge$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
   private unscopedStaffCache$: Observable<ApiResponse<PagedResponse<StaffResponse>>> | null = null;
-  private membersCache: Map<string, Observable<ApiResponse<unknown[]>>> = new Map();
-  private staffLogsCache$: Observable<ApiResponse<unknown>> | null = null;
-  private staffBypassedLogsCache$: Observable<ApiResponse<unknown>> | null = null;
+  private membersCache: Map<string, Observable<ApiResponse<GymMember[]>>> = new Map();
+  private staffLogsCache$: Observable<ApiResponse<PagedResponse<StaffAttendanceLogResponse>>> | null = null;
+  private staffBypassedLogsCache$: Observable<ApiResponse<StaffAttendanceLogResponse[]>> | null = null;
   private measurementsCache = new Map<string, Observable<ApiResponse<MeasurementResponse[]>>>();
   private staffDetailsCache = new Map<string, Observable<ApiResponse<StaffResponse>>>();
-  private attendanceLogsCache = new Map<string, Observable<ApiResponse<unknown>>>();
+  private attendanceLogsCache = new Map<string, Observable<ApiResponse<PagedResponse<StaffAttendanceLogResponse>>>>();
 
   constructor() {
     super();
@@ -106,8 +107,8 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  updateStaff(id: string, payload: AddStaffRequest): Observable<ApiResponse<unknown>> {
-    return this.put<ApiResponse<unknown>>(`${API_CONSTANTS.STAFF.BASE}/${id}`, payload).pipe(
+  updateStaff(id: string, payload: AddStaffRequest): Observable<ApiResponse<null>> {
+    return this.put<ApiResponse<null>>(`${API_CONSTANTS.STAFF.BASE}/${id}`, payload).pipe(
       tap(() => {
         this.staffDetailsCache.delete(id);
         this.clearCache();
@@ -115,8 +116,8 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  deleteStaff(id: string): Observable<ApiResponse<unknown>> {
-    return this.delete<ApiResponse<unknown>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
+  deleteStaff(id: string): Observable<ApiResponse<null>> {
+    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.STAFF.BASE}/${id}`).pipe(
       tap(() => {
         this.staffDetailsCache.delete(id);
         this.clearCache();
@@ -124,9 +125,9 @@ export class StaffService extends BaseApiService {
     );
   }
 
-  getAssignedMembers(trainerId: string, forceRefresh = false): Observable<ApiResponse<unknown[]>> {
+  getAssignedMembers(trainerId: string, forceRefresh = false): Observable<ApiResponse<GymMember[]>> {
     if (!this.membersCache.has(trainerId) || forceRefresh) {
-      const request$ = this.get<ApiResponse<unknown[]>>(`${API_CONSTANTS.STAFF.BASE}/${trainerId}/members`).pipe(
+      const request$ = this.get<ApiResponse<GymMember[]>>(`${API_CONSTANTS.STAFF.BASE}/${trainerId}/members`).pipe(
         shareReplay(1)
       );
       this.membersCache.set(trainerId, request$);
@@ -147,21 +148,21 @@ export class StaffService extends BaseApiService {
 
     url += params.join('&');
 
-    return this.post<ApiResponse<unknown>>(url, {}).pipe(
+    return this.post<ApiResponse<null>>(url, {}).pipe(
       tap(() => this.membersCache.delete(trainerId))
     );
   }
 
-  deallocateTrainerFromMember(trainerId: string, memberId: string): Observable<ApiResponse<unknown>> {
+  deallocateTrainerFromMember(trainerId: string, memberId: string): Observable<ApiResponse<null>> {
     const url = `${API_CONSTANTS.STAFF.BASE}/${trainerId}/deallocate-member/${memberId}`;
-    return this.post<ApiResponse<unknown>>(url, {}).pipe(
+    return this.post<ApiResponse<null>>(url, {}).pipe(
       tap(() => this.membersCache.delete(trainerId))
     );
   }
 
-  recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<unknown>> {
+  recordMeasurement(memberId: string, payload: AddMeasurementRequest): Observable<ApiResponse<null>> {
     const url = API_CONSTANTS.MEMBERS.MEASUREMENTS.replace('{memberId}', memberId);
-    return this.post<ApiResponse<unknown>>(url, payload).pipe(
+    return this.post<ApiResponse<null>>(url, payload).pipe(
       tap(() => this.measurementsCache.delete(memberId))
     );
   }
@@ -205,11 +206,11 @@ export class StaffService extends BaseApiService {
     }
   }
 
-  getStaffAttendanceLogs(params?: Record<string, string | number | boolean | undefined>, forceRefresh = false): Observable<ApiResponse<unknown>> {
+  getStaffAttendanceLogs(params?: Record<string, string | number | boolean | undefined>, forceRefresh = false): Observable<ApiResponse<PagedResponse<StaffAttendanceLogResponse>>> {
     const cacheKey = JSON.stringify(params || {});
 
     if (forceRefresh || !this.attendanceLogsCache.has(cacheKey)) {
-      const request$ = this.get<ApiResponse<unknown>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
+      const request$ = this.get<ApiResponse<PagedResponse<StaffAttendanceLogResponse>>>(`${API_CONSTANTS.STAFF.BASE}/attendance-logs`, params).pipe(
         shareReplay(1)
       );
       this.attendanceLogsCache.set(cacheKey, request$);

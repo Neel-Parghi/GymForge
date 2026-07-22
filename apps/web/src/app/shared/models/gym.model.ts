@@ -15,6 +15,17 @@ export interface GymBranch {
   closeTime: string;
 }
 
+export interface BranchDto {
+  id: string;
+  name: string;
+  contactNumber?: string;
+  openTime?: string;
+  closeTime?: string;
+  managerName?: string;
+  managerId?: string;
+  address: Address;
+}
+
 export interface OnboardGymRequest {
   name: string;
   brandName?: string;
