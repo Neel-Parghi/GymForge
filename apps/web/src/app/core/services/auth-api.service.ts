@@ -7,14 +7,14 @@ import { API_CONSTANTS } from '../constants/api-constants';
 import { UserProfile } from '../../shared/models/user-profile.model';
 import { JwtToken } from '../../shared/models/jwt-token.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { 
-  LoginRequestDto, 
-  RegisterRequestDto, 
-  VerifyOtpRequestDto, 
-  ResendOtpRequestDto, 
-  ForgotPasswordRequestDto, 
-  ResetPasswordRequestDto, 
-  TokenResponseDto, 
+import {
+  LoginRequestDto,
+  RegisterRequestDto,
+  VerifyOtpRequestDto,
+  ResendOtpRequestDto,
+  ForgotPasswordRequestDto,
+  ResetPasswordRequestDto,
+  TokenResponseDto,
   RegisterResponseDto,
   RefreshTokenRequestDto
 } from '../../shared/models/auth.model';
@@ -30,6 +30,12 @@ export class AuthApiService extends BaseApiService {
 
   getUserProfile(): UserProfile | null {
     return this.userProfileSubject.value;
+  }
+
+  isDemoUser(): boolean {
+    const profile = this.getUserProfile();
+    if (!profile) return false;
+    return profile.email === 'demo@gymforge.com' || profile.email === 'demouser@gymforge.com';
   }
 
   constructor() {

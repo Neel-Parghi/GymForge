@@ -119,6 +119,14 @@ export const routes: Routes = [
         path: 'announcements/templates',
         loadComponent: () => import('./features/gym-owner/announcements/templates/templates.component').then(m => m.TemplatesComponent),
         canActivate: [roleGuard]
+      },
+      {
+        path: 'trainers/:trainerId/members',
+        loadComponent: () => import('./features/trainer/members/members.component').then(m => m.PTMembersTrackComponent)
+      },
+      {
+        path: 'trainers/:trainerId/members/:memberId',
+        loadComponent: () => import('./features/trainer/member-detail/member-detail.component').then(m => m.PTMemberDetailComponent)
       }
     ]
   },
