@@ -680,6 +680,12 @@
       grid-template-columns: 80px 1fr 1fr 150px 70px;
       gap: 16px;
     }
+    .table-row-item {
+      @include bp.mobile {
+        grid-template-columns: auto 1fr 1fr auto auto;
+        grid-template-areas: "set weight reps status delete";
+      }
+    }
   }
 
   /* Header Row */
@@ -787,11 +793,13 @@
       .col-weight {
         grid-area: weight;
         min-width: 0;
+        justify-content: center;
       }
 
       .col-reps {
         grid-area: reps;
         min-width: 0;
+        justify-content: center;
       }
 
       .col-status {

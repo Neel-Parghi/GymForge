@@ -113,8 +113,8 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       }
       const setGroups = (ex.sets || []).map((set: any) => {
         const fg = new FormGroup({
-          weight: new FormControl(set.weight || 0, [Validators.min(0), Validators.max(300)]),
-          reps: new FormControl(set.reps || 0, [Validators.min(0), Validators.max(100)]),
+          weight: new FormControl(set.weight || null, [Validators.min(0), Validators.max(300)]),
+          reps: new FormControl(set.reps || null, [Validators.min(0), Validators.max(100)]),
           completed: new FormControl(set.completed || false)
         });
         fg.valueChanges.subscribe(changes => {
@@ -334,7 +334,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       skipped: false,
       isCardio: isCardio,
       sets: [
-        { setNo: 1, target: isCardio ? '20 mins' : '8-12 reps', weight: isCardio ? 0 : 20, reps: isCardio ? 20 : 10, completed: false }
+        { setNo: 1, target: isCardio ? '20 mins' : '8-12 reps', weight: isCardio ? '' : 20, reps: isCardio ? 20 : 10, completed: false }
       ]
     };
     this.todayWorkout.exercises.push(newExObj);
