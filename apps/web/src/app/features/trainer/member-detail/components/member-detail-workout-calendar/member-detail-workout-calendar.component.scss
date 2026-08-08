@@ -171,7 +171,6 @@
   gap: 0;
   margin: 5px;
 
-  // Cells only show a date number + status dot on mobile — a real calendar look, no scrolling needed.
   @include bp.mobile {
     grid-auto-rows: minmax(44px, auto);
     margin: 4px;
@@ -202,8 +201,6 @@
     border-bottom: none;
   }
 
-  // Whole-cell tap target that opens the mobile day-preview sheet. Invisible/inert on
-  // desktop; on mobile it sits above the (now mostly hidden) content and catches the tap.
   .mobile-cell-tap-target {
     display: none;
   }

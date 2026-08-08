@@ -308,6 +308,35 @@ namespace GymForge.Infrastructure.Repositories
                 });
             }
 
+            // 3. Active Plans
+            var activeWorkoutPlan = await _dbContext.MemberPlanAssignments
+                .Include(p => p.WorkoutPlan)
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.IsActive);
+
+            if (activeWorkoutPlan != null && activeWorkoutPlan.WorkoutPlan != null)
+            {
+                summary.ActiveWorkoutPlan = new ActivePlanSummaryDto
+                {
+                    PlanId = activeWorkoutPlan.WorkoutPlanId,
+                    Name = activeWorkoutPlan.WorkoutPlan.Name,
+                    Type = activeWorkoutPlan.WorkoutPlan.Level.ToString()
+                };
+            }
+
+            var activeDietPlan = await _dbContext.MemberDietAssignments
+                .Include(p => p.DietPlan)
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.IsActive);
+
+            if (activeDietPlan != null && activeDietPlan.DietPlan != null)
+            {
+                summary.ActiveDietPlan = new ActivePlanSummaryDto
+                {
+                    PlanId = activeDietPlan.DietPlanId,
+                    Name = activeDietPlan.DietPlan.Name,
+                    Type = activeDietPlan.DietPlan.DietType.ToString()
+                };
+            }
+
             return summary;
         }
 
