@@ -1,6 +1,5 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Attendance;
-using GymForge.Contracts.Common;
 using GymForge.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,8 @@ namespace GymForge.Api.Controllers.Attendance
         [HttpPost("check-in")]
         public async Task<ActionResult> CheckIn([FromBody] CheckInRequest request)
         {
-            if (GymId == null) return Unauthorized();
+            if (GymId == null) 
+                return Unauthorized();
             try
             {
                 AttendanceLogResponse result = await _attendanceService.CheckInAsync(GymId.Value, SecureBranchId, request, UserId);
@@ -38,7 +38,8 @@ namespace GymForge.Api.Controllers.Attendance
         [HttpPost("check-out")]
         public async Task<ActionResult> CheckOut([FromBody] CheckOutRequest request)
         {
-            if (GymId == null) return Unauthorized();
+            if (GymId == null) 
+                return Unauthorized();
             try
             {
                 AttendanceLogResponse result = await _attendanceService.CheckOutAsync(GymId.Value, SecureBranchId, request, UserId);
@@ -54,6 +55,7 @@ namespace GymForge.Api.Controllers.Attendance
         {
             if (GymId == null) 
                 return Unauthorized();
+
             IEnumerable<CheckedInMemberResponse> result = await _attendanceService.GetActiveOccupancyAsync(GymId.Value, SecureBranchId);
             return Ok(result);
         }
@@ -63,6 +65,7 @@ namespace GymForge.Api.Controllers.Attendance
         {
             if (GymId == null) 
                 return Unauthorized();
+
             OccupancyStatsResponse result = await _attendanceService.GetOccupancyStatsAsync(GymId.Value, SecureBranchId);
             return Ok(result);
         }
@@ -72,6 +75,7 @@ namespace GymForge.Api.Controllers.Attendance
         {
             if (GymId == null) 
                 return Unauthorized();
+            
             PagedResponse<AttendanceLogResponse> result = await _attendanceService.GetLogsAsync(GymId.Value, SecureBranchId, queryParams);
             return Ok(result);
         }

@@ -33,7 +33,7 @@ namespace GymForge.Infrastructure.Repositories
                 .Include(x => x.Preference)
                 .Include(x => x.Security)
                 .Include(x => x.RefreshTokens)
-                .FirstOrDefaultAsync(x => x.Email == userRequest.Email);
+                .FirstOrDefaultAsync(x => x.Email.ToLower() == userRequest.Email.ToLower());
 
             return user;
         }
@@ -62,7 +62,7 @@ namespace GymForge.Infrastructure.Repositories
                 .Include(u => u.Preference)
                 .Include(u => u.Security)
                 .Include(u => u.RefreshTokens)
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
 
 
