@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -14,6 +16,10 @@
   padding: 24px;
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
+  @include bp.mobile {
+    padding: 0;
+  }
+
   .modal-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
@@ -25,12 +31,24 @@
     display: flex;
     flex-direction: column;
 
+    @include bp.mobile {
+      border-radius: 0;
+      max-height: 100vh;
+      height: 100vh;
+    }
+
     &.wide-card {
       max-width: 1000px;
       max-height: 92vh;
       height: 92vh;
       display: flex;
       flex-direction: column;
+
+      @include bp.mobile {
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+      }
 
       .premium-form {
         flex: 1;
@@ -49,9 +67,18 @@
           flex-direction: column;
           gap: 20px;
 
+          @include bp.mobile {
+            padding: 14px;
+            gap: 14px;
+          }
+
           &.no-scroll {
             overflow-y: hidden;
             padding: 5px 20px 5px 20px;
+
+            @include bp.mobile {
+              padding: 5px 12px 5px 12px;
+            }
 
             .wizard-step-content {
               height: 100%;
@@ -81,6 +108,10 @@
               flex-direction: column;
               overflow: hidden;
               padding: 12px 20px 16px 20px;
+
+              @include bp.mobile {
+                padding: 10px 8px 12px;
+              }
             }
 
             .exercise-table-scroll-wrapper {
@@ -90,6 +121,12 @@
               border-radius: 12px;
               margin-bottom: 8px;
               background: #ffffff;
+
+              @include bp.mobile {
+                border: none;
+                border-radius: 0;
+                background: transparent;
+              }
 
               &::-webkit-scrollbar {
                 width: 6px;
@@ -125,6 +162,18 @@
           padding: 14px 20px;
           background: var(--bg-surface);
           border-top: 1px solid var(--border-color);
+
+          // Keep side-by-side even at small phone widths — stacking wastes vertical space
+          // this modal needs for the exercise list. Overrides the global mobile-sm stack rule.
+          @include bp.mobile {
+            padding: 12px;
+            flex-direction: row;
+
+            button {
+              width: auto;
+              flex: 1;
+            }
+          }
         }
       }
     }
@@ -192,6 +241,19 @@
 
       &.three-cols {
         grid-template-columns: repeat(3, 1fr);
+      }
+
+      @include bp.mobile {
+        grid-template-columns: 1fr;
+        gap: 14px;
+
+        &.three-cols {
+          grid-template-columns: 1fr;
+        }
+
+        .flex-2 {
+          grid-column: span 1;
+        }
       }
     }
 
@@ -277,7 +339,7 @@
       padding-top: 24px;
 
       button {
-        padding: 12px 24px;
+        padding: 12px 22px;
         border-radius: 12px;
         font-size: 0.8rem;
         font-weight: 600;
@@ -345,6 +407,15 @@
   // padding: 6px;
   border-radius: 16px;
 
+  @include bp.mobile {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 3px;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
   .tab-btn {
     background: transparent;
     border: 1px solid transparent;
@@ -359,6 +430,12 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--slate-600);
     font-family: var(--font-body);
+
+    @include bp.mobile {
+      flex: 0 0 auto;
+      min-width: 52px;
+      padding: 8px 10px;
+    }
 
     .tab-day-short {
       font-size: 0.85rem;
@@ -432,16 +509,35 @@
     justify-content: space-between;
     align-items: center;
 
+    @include bp.mobile {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px;
+    }
+
     .header-left {
       display: flex;
       align-items: center;
       gap: 45px;
+
+      @include bp.mobile {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
     }
 
     .header-right {
       display: flex;
       align-items: center;
       gap: 12px;
+
+      @include bp.mobile {
+        width: 100%;
+      }
     }
 
     .panel-badge {
@@ -466,6 +562,15 @@
       font-size: 0.86rem;
       font-weight: 700;
       color: var(--slate-600);
+
+      @include bp.mobile {
+        width: 100%;
+        min-width: 0;
+
+        label {
+          display: none;
+        }
+      }
 
       .panel-select {
         background: #ffffff;
@@ -502,6 +607,77 @@
   border-spacing: 0;
   font-size: 0.86rem;
 
+  @include bp.mobile {
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      counter-reset: exercise-counter;
+    }
+
+    tr {
+      counter-increment: exercise-counter;
+      position: relative;
+      display: grid;
+      grid-template-columns: 3fr 0.6fr 1.4fr;
+      grid-template-areas:
+        "label label label"
+        "exercise sets reps";
+      gap: 6px;
+      padding: 0;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+
+      &::before {
+        content: "Exercise " counter(exercise-counter);
+        grid-area: label;
+        font-size: 0.66rem;
+        font-weight: 800;
+        color: var(--accent-color);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 8px 30px 0 8px;
+      }
+    }
+
+    td {
+      padding: 0;
+      min-width: 0;
+
+      &:nth-child(1) {
+        grid-area: exercise;
+        min-width: 0;
+        margin: 12px 0 8px 8px;
+      }
+
+      &:nth-child(2) {
+        grid-area: sets;
+        margin: 12px 0 8px 0px;
+      }
+
+      &:nth-child(3) {
+        grid-area: reps;
+        margin: 12px 8px 0px 0px;
+      }
+
+      &:nth-child(4) {
+        display: none;
+      }
+
+      &:nth-child(5) {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+      }
+    }
+  }
+
   th {
     position: sticky;
     top: 0;
@@ -518,8 +694,12 @@
   }
 
   td {
-    padding: 8px 12px;
+    padding: 5px;
     vertical-align: middle;
+
+    @include bp.mobile {
+      padding: 0;
+    }
   }
 
   .col-exercise {
@@ -557,6 +737,11 @@
     font-family: var(--font-body);
     transition: all 0.2s;
 
+    @include bp.mobile {
+      padding: 12px 6px;
+      text-align: center;
+    }
+
     &:focus {
       border-color: var(--accent-color);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
@@ -593,6 +778,18 @@
     border-radius: 6px;
     transition: all 0.2s;
 
+    @include bp.mobile {
+      background: var(--slate-100);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+
+      &:active {
+        background: var(--error-bg);
+        color: var(--error-color);
+      }
+    }
+
     &:hover {
       background: var(--error-bg);
       color: var(--error-color);
@@ -607,10 +804,16 @@
   align-items: center;
   padding-top: 8px;
 
+  @include bp.mobile {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
   .panel-copy-paste-actions {
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
   }
 
   .btn-secondary-action {
@@ -707,6 +910,12 @@
   width: 140px;
   transition: border-color 0.2s;
 
+  @include bp.mobile {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+
   &:focus {
     border-color: var(--accent-color);
   }
@@ -715,6 +924,12 @@
     width: 150px;
     font-weight: 700;
     font-size: 0.85rem;
+
+    @include bp.mobile {
+      width: auto;
+      flex: 1;
+      min-width: 0;
+    }
   }
 }
 
@@ -904,6 +1119,10 @@
     flex-wrap: nowrap;
     gap: 8px;
 
+    @include bp.mobile {
+      flex-wrap: wrap;
+    }
+
     .pill-btn {
       background: #ffffff;
       border: 1.5px solid var(--slate-200);
@@ -1022,11 +1241,10 @@
 .w-120-inline {
   display: inline-block;
   width: 120px;
-}
 
-.w-120-inline {
-  display: inline-block;
-  width: 120px;
+  @include bp.mobile {
+    width: 100px;
+  }
 }
 
 .label-optional {

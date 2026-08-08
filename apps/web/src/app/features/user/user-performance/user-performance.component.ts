@@ -31,13 +31,13 @@ export class UserPerformanceComponent implements OnInit {
 
   ngOnInit() {
     this.routerState = history.state;
-    
+
     if (this.routerState?.loggingDate) {
       this.loggingDate = new Date(this.routerState.loggingDate);
     } else if (this.routerState?.sessionToEdit && this.routerState.sessionToEdit.date) {
       this.loggingDate = new Date(this.routerState.sessionToEdit.date);
     }
-    
+
     this.authService.userProfile$.subscribe(profile => {
       if (profile) {
         this.userId = profile.id;
@@ -278,8 +278,21 @@ export class UserPerformanceComponent implements OnInit {
     }
   }
 
+  private isFutureLoggingDate(): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const logD = new Date(this.loggingDate);
+    logD.setHours(0, 0, 0, 0);
+    return logD.getTime() > today.getTime();
+  }
+
   saveWorkoutSession(): void {
     if (!this.todayWorkout) return;
+
+    if (this.isFutureLoggingDate()) {
+      this.notification.error('You cannot log a workout for a future date.');
+      return;
+    }
 
     const isRest = this.todayWorkout.isRestDay || this.todayWorkout.dayName?.toLowerCase().includes('rest');
 

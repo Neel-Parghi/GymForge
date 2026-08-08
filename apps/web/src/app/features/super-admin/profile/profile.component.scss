@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .profile-container {
   height: calc(100vh - 100px);
   display: flex;
@@ -5,18 +7,38 @@
   padding: 0;
   overflow: hidden;
   background: var(--slate-50);
+
+  @include bp.mobile {
+    height: auto;
+    min-height: calc(100vh - 100px);
+    overflow: visible;
+  }
 }
 
 .sticky-top-section {
   flex-shrink: 0;
   background: var(--slate-50);
   padding: 16px 0 0 0;
+
+  @include bp.mobile {
+    padding: 10px 0 0 0;
+  }
 }
 
 .edit-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @include bp.mobile {
+    flex-basis: 100%;
+    width: 100%;
+
+    button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
 }
 
 .profile-standard-header {
@@ -30,15 +52,38 @@
   margin-bottom: 12px;
   border: 1px solid var(--border-color);
 
+  @include bp.mobile {
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  &:has(.edit-actions) {
+    @include bp.mobile {
+      flex-wrap: wrap;
+    }
+  }
+
   .header-main {
     display: flex;
     align-items: center;
     gap: 20px;
 
+    @include bp.mobile {
+      gap: 14px;
+    }
+
     .avatar-box {
       position: relative;
       width: 85px;
       height: 85px;
+      flex-shrink: 0;
+
+      @include bp.mobile {
+        width: 64px;
+        height: 64px;
+      }
 
       .profile-img,
       .default-avatar {
@@ -85,11 +130,20 @@
     }
 
     .header-info {
+      min-width: 0;
+
       .user-name {
         font-size: 1.25rem;
         font-weight: 800;
         color: #111827;
         margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include bp.mobile {
+          font-size: 1.05rem;
+        }
       }
 
       .user-role {
@@ -97,6 +151,41 @@
         color: #6b7280;
         font-weight: 600;
         margin: 2px 0 0 0;
+      }
+    }
+  }
+
+  .header-actions {
+    @include bp.mobile {
+      flex-shrink: 0;
+      width: 15%;
+
+      &:has(.edit-actions) {
+        flex-basis: 100%;
+        width: 100%;
+      }
+    }
+  }
+
+  .edit-profile-btn {
+    @include bp.mobile {
+      flex: 0 0 auto;
+      width: 40px;
+      min-width: 40px;
+      max-width: 40px;
+      height: 40px;
+      min-height: 40px;
+
+      height: auto;
+      padding: 0 !important;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+
+      .btn-text {
+        display: none;
       }
     }
   }
@@ -112,6 +201,11 @@
   flex-shrink: 0;
   overflow-x: auto;
   scrollbar-width: none;
+
+  @include bp.mobile {
+    padding: 0 16px;
+    gap: 8px;
+  }
 
   &::-webkit-scrollbar {
     display: none;
@@ -132,6 +226,12 @@
     transition: all 0.2s ease;
     white-space: nowrap;
 
+    @include bp.mobile {
+      padding: 12px 4px;
+      font-size: 0.85rem;
+      gap: 8px;
+    }
+
     .tab-icon-wrapper {
       width: 32px;
       height: 32px;
@@ -143,6 +243,12 @@
       transition: all 0.25s ease;
       background: var(--slate-100);
       color: var(--slate-500);
+
+      @include bp.mobile {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+      }
     }
 
     .tab-label {
@@ -226,6 +332,10 @@
   overflow-y: auto;
   padding: 28px;
 
+  @include bp.mobile {
+    padding: 16px;
+  }
+
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -293,6 +403,10 @@
   margin-top: 16px;
   grid-column: span 2;
 
+  @include bp.mobile {
+    grid-column: span 1;
+  }
+
   h3 {
     font-size: 1rem;
     font-weight: 800;
@@ -309,6 +423,11 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+
+  @include bp.mobile {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
 
 /* Security Hub Layout */
@@ -317,6 +436,11 @@
   grid-template-columns: 260px 1fr;
   height: 100%;
   overflow: hidden;
+
+  @include bp.mobile {
+    height: auto;
+    overflow: visible;
+  }
 
   .security-sidebar {
     background: #f9fafb;
@@ -328,7 +452,23 @@
     height: 100%;
     overflow: hidden;
 
+    @include bp.mobile {
+      height: auto;
+      overflow: visible;
+      padding: 12px;
+      flex-direction: row;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
     .side-tab-btn {
+      @include bp.mobile {
+        flex: 0 0 auto;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+      }
+
       padding: 14px 16px;
       border: none;
       background: transparent;
@@ -365,6 +505,10 @@
 
     .side-tab-spacer {
       flex: 1;
+
+      @include bp.mobile {
+        display: none;
+      }
     }
 
     .side-tab-hint {
@@ -382,6 +526,12 @@
     overflow-y: auto;
     padding: 21px;
     height: 100%;
+
+    @include bp.mobile {
+      padding: 16px;
+      height: auto;
+      overflow: visible;
+    }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -407,6 +557,10 @@
           font-weight: 800;
           color: #111827;
           margin: 0;
+
+          @include bp.mobile {
+            font-size: 1.2rem;
+          }
         }
 
         p {
@@ -435,9 +589,14 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
     width: fit-content;
     transition: all 0.2s;
+
+    @include bp.mobile {
+      width: 100%;
+    }
 
     i {
       color: #10b981;
@@ -462,6 +621,10 @@
   border-radius: 16px;
   padding: 40px;
   text-align: center;
+
+  @include bp.mobile {
+    padding: 24px 20px;
+  }
 
   .icon-wrap {
     width: 64px;
@@ -586,6 +749,10 @@
   margin: 0 auto;
   display: block;
 
+  @include bp.mobile {
+    width: 100%;
+  }
+
   &:hover:not(:disabled) {
     background: #dc2626;
   }
@@ -675,7 +842,7 @@
   }
 }
 
-@media (max-width: 992px) {
+@include bp.tablet {
   .security-hub-wrapper {
     grid-template-columns: 1fr;
 

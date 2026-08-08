@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 app-health-tracker-history,
 app-health-tracker-form,
 app-health-tracker-report {
@@ -15,6 +17,11 @@ app-health-tracker-report {
   height: calc(100vh - 165px);
   min-height: 500px;
 
+  @include bp.tablet {
+    height: auto;
+    min-height: 0;
+  }
+
   .panel-header {
     display: flex;
     justify-content: space-between;
@@ -24,6 +31,10 @@ app-health-tracker-report {
     background: rgba(var(--slate-50), 0.5);
     flex-wrap: wrap;
     gap: 16px;
+
+    @include bp.mobile {
+      padding: 16px;
+    }
 
     .header-left {
       h3 {
@@ -71,9 +82,13 @@ app-health-tracker-report {
     background: var(--slate-300);
   }
 
-  @media (max-width: 1200px) {
+  @include bp.tablet {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  @include bp.mobile {
+    padding: 16px;
   }
 }
 
@@ -105,6 +120,11 @@ app-health-tracker-report {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+
+  @include bp.mobile {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .btn-action-primary {
@@ -148,6 +168,26 @@ app-health-tracker-report {
     background: var(--bg-color);
     border-color: var(--text-muted);
   }
+
+  &.btn-back-history {
+    .text-short {
+      display: none;
+    }
+
+    @include bp.mobile {
+      order: -1;
+      border-radius: 999px;
+      padding: 10px 16px;
+
+      .text-full {
+        display: none;
+      }
+
+      .text-short {
+        display: inline;
+      }
+    }
+  }
 }
 
 .mode-toggle-group {
@@ -165,6 +205,12 @@ app-health-tracker-report {
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 0.85rem;
+
+    @include bp.mobile {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+
     font-weight: 700;
     color: var(--text-muted);
     background: transparent;

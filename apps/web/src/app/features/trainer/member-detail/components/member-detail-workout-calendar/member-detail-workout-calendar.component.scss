@@ -1,9 +1,11 @@
+@use 'breakpoints' as bp;
+
 .calendar-full-container {
   width: 100%;
   animation: fadeInCalendar 0.4s ease-out;
 
-  @media (max-width: 768px) {
-    padding: 0 16px;
+  @include bp.mobile {
+    padding: 0;
   }
 }
 
@@ -40,12 +42,21 @@
   background: rgba(var(--slate-50), 0.5);
   flex-wrap: wrap;
   gap: 16px;
+
+  @include bp.mobile {
+    padding: 14px 16px;
+  }
 }
 
 .header-left-nav {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @include bp.mobile {
+    width: 100%;
+    justify-content: space-around;
+  }
 
   .calendar-month-title {
     font-size: 1.25rem;
@@ -54,6 +65,10 @@
     margin: 0 0 0 12px;
     letter-spacing: -0.5px;
     min-width: 160px;
+
+    @include bp.mobile {
+      display: none;
+    }
   }
 }
 
@@ -92,6 +107,11 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+
+  @include bp.mobile {
+    width: 100%;
+    justify-content: space-around;
+  }
 
   .active-split-badge {
     display: inline-flex;
@@ -135,6 +155,11 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+
+  @include bp.mobile {
+    padding: 8px 0;
+    font-size: 0.62rem;
+  }
 }
 
 /* Days Cells Grid */
@@ -145,6 +170,12 @@
   background: transparent;
   gap: 0;
   margin: 5px;
+
+  // Cells only show a date number + status dot on mobile — a real calendar look, no scrolling needed.
+  @include bp.mobile {
+    grid-auto-rows: minmax(44px, auto);
+    margin: 4px;
+  }
 }
 
 /* Day Cell Item */
@@ -160,8 +191,36 @@
   border-radius: 10px;
   margin: 2px;
 
+  @include bp.mobile {
+    padding: 4px;
+    gap: 2px;
+    border-radius: 8px;
+    align-items: center;
+  }
+
   &:nth-child(n+36) {
     border-bottom: none;
+  }
+
+  // Whole-cell tap target that opens the mobile day-preview sheet. Invisible/inert on
+  // desktop; on mobile it sits above the (now mostly hidden) content and catches the tap.
+  .mobile-cell-tap-target {
+    display: none;
+  }
+
+  @include bp.mobile {
+    .mobile-cell-tap-target {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: none;
+      padding: 0;
+      z-index: 10;
+      cursor: pointer;
+    }
   }
 
   &:hover {
@@ -217,6 +276,10 @@
   align-items: center;
   justify-content: space-between;
 
+  @include bp.mobile {
+    justify-content: center;
+  }
+
   .day-number-badge {
     font-size: 0.82rem;
     font-weight: 800;
@@ -227,6 +290,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    @include bp.mobile {
+      width: 22px;
+      height: 22px;
+      font-size: 0.72rem;
+    }
   }
 
   .header-right-meta {
@@ -234,6 +303,10 @@
     align-items: center;
     gap: 6px;
     transition: margin-right 0.2s ease;
+
+    @include bp.mobile {
+      display: none;
+    }
   }
 
   .today-marker {
@@ -325,6 +398,10 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+
+  @include bp.mobile {
+    flex: 0;
+  }
 }
 
 /* Workout Event Blocks inside Cells */
@@ -340,12 +417,29 @@
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 
+  // Mobile: hide the routine-name text, show only the status dot beneath the date number.
+  @include bp.mobile {
+    width: auto;
+    background: transparent !important;
+    padding: 0;
+  }
+
   .event-title {
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
     line-height: 1.2;
+
+    @include bp.mobile {
+      gap: 0;
+    }
+
+    span:not(.status-indicator-dot) {
+      @include bp.mobile {
+        display: none;
+      }
+    }
 
     .status-indicator-dot {
       width: 6px;
@@ -448,7 +542,7 @@
     max-width: 580px;
   }
 
-  @media (max-width: 600px) {
+  @include bp.mobile {
     margin: 16px;
   }
 }
@@ -719,4 +813,148 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Mobile-only day preview bottom sheet */
+.day-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 1050;
+  animation: modalFadeIn 0.2s ease;
+}
+
+.day-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1060;
+  background: var(--bg-surface);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.15);
+  padding: 8px 20px 24px;
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.open {
+    transform: translateY(0);
+  }
+}
+
+.day-sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--slate-300);
+  margin: 0 auto 14px;
+}
+
+.day-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  .day-sheet-date {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  .day-sheet-today-pill {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--accent-color);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+}
+
+.day-sheet-routine {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--slate-50);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+
+  .status-indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+
+    &.completed-dot {
+      background: #10b981;
+    }
+
+    &.scheduled-dot {
+      background: var(--accent-color);
+    }
+
+    &.rest-dot {
+      background: var(--slate-400);
+    }
+  }
+
+  .day-sheet-routine-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .overridden-tag {
+      color: var(--warning-color);
+    }
+  }
+}
+
+.day-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  button {
+    width: 100%;
+    justify-content: center;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+  }
+}
+
+.day-sheet-future-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--slate-50);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+
+  i {
+    color: var(--accent-color);
+  }
 }

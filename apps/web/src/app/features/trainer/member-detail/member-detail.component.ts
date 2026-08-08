@@ -70,18 +70,26 @@ export class PTMemberDetailComponent implements OnInit {
   todayWorkout: any = null;
 
   ngOnInit(): void {
-    this.authService.userProfile$.subscribe(profile => {
-      if (profile) {
-        this.currentUserId = profile.id;
-        this.route.params.subscribe(params => {
-          this.memberId = params['memberId'];
-          this.loadMemberInfo();
-          this.loadMeasurementsLogs();
-          this.loadWorkoutPlans();
-          this.loadActivePlanAndWorkoutLogs();
-          this.loadDietPlans();
-          this.loadActiveDiet();
-        });
+    const routeTrainerId = this.route.snapshot.paramMap.get('trainerId');
+    if (routeTrainerId) {
+      this.currentUserId = routeTrainerId;
+    } else {
+      this.authService.userProfile$.subscribe(profile => {
+        if (profile) {
+          this.currentUserId = profile.id;
+        }
+      });
+    }
+
+    this.route.paramMap.subscribe(params => {
+      this.memberId = params.get('memberId') || '';
+      if (this.memberId) {
+        this.loadMemberInfo();
+        this.loadMeasurementsLogs();
+        this.loadWorkoutPlans();
+        this.loadActivePlanAndWorkoutLogs();
+        this.loadDietPlans();
+        this.loadActiveDiet();
       }
     });
   }
@@ -735,7 +743,12 @@ export class PTMemberDetailComponent implements OnInit {
     if (this.activeTab === 'workout-track' && this.previousTab === 'workout-calendar') {
       this.onCancelWorkoutTrack();
     } else {
-      this.router.navigate(['/trainer/members']);
+      const routeTrainerId = this.route.snapshot.paramMap.get('trainerId');
+      if (routeTrainerId) {
+        this.router.navigate([`/gym-owner/trainers/${routeTrainerId}/members`]);
+      } else {
+        this.router.navigate(['/trainer/members']);
+      }
     }
   }
 }

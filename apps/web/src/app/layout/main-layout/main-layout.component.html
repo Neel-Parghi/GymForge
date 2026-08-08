@@ -1,8 +1,11 @@
-<div class="layout-wrapper">
+<div class="layout-wrapper" [class.user-mobile-nav]="isUserRole && (isMobile$ | async)">
+
+  <div class="sidebar-backdrop" *ngIf="isMobileSidebarOpen" (click)="closeMobileSidebar()"></div>
 
   <div class="layout-inner">
-    <!-- Sidebar -->
-    <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <!-- Sidebar: hidden entirely for User role on mobile in favor of the bottom nav -->
+    <aside class="sidebar" [class.collapsed]="isSidebarCollapsed" [class.mobile-open]="isMobileSidebarOpen"
+      *ngIf="!(isUserRole && (isMobile$ | async))">
       <div class="sidebar-header">
         <div class="brand-container" [routerLink]="dashboardRoute">
 
@@ -35,13 +38,15 @@
             }
             } @else if (!item.children || item.children.length === 0) {
             <!-- Single Link -->
-            <a [id]="'nav-' + item.label.toLowerCase().replace('&', 'and').split(' ').join('-')" [routerLink]="item.route" routerLinkActive="active" class="nav-link">
+            <a [id]="'nav-' + item.label.toLowerCase().replace('&', 'and').split(' ').join('-')"
+              [routerLink]="item.route" routerLinkActive="active" class="nav-link">
               <i [class]="item.icon + ' nav-icon'"></i>
               <span class="nav-label">{{ item.label }}</span>
             </a>
             } @else {
             <!-- Group with Sub-navigation (if needed) -->
-            <div [id]="'nav-' + item.label.toLowerCase().replace('&', 'and').split(' ').join('-')" class="nav-group" [class.group-active]="isGroupActive(item)">
+            <div [id]="'nav-' + item.label.toLowerCase().replace('&', 'and').split(' ').join('-')" class="nav-group"
+              [class.group-active]="isGroupActive(item)">
               <div class="nav-group-title" (click)="toggleGroup(item)">
                 <div class="title-left">
                   <i [class]="item.icon + ' nav-icon'"></i>
@@ -85,6 +90,12 @@
 
       <!-- Topbar -->
       <header class="topbar">
+        <!-- Mobile/Tablet Menu Toggle (hidden for User role, which uses the bottom nav instead) -->
+        <button class="hamburger-btn" *ngIf="!isUserRole && (isTabletOrBelow$ | async)"
+          (click)="toggleMobileSidebar(); $event.stopPropagation()" title="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+
         <!-- Location Switcher Dropdown (Only for Gym Owners) -->
         <div class="topbar-context-selector" *ngIf="isGymOwner" (click)="$event.stopPropagation()">
           <button class="selector-trigger" (click)="isBranchDropdownOpen = !isBranchDropdownOpen"
@@ -194,5 +205,7 @@
       <app-loading></app-loading>
     </div>
   </div>
+
+  <app-user-bottom-nav *ngIf="isUserRole && (isMobile$ | async)"></app-user-bottom-nav>
 
 </div>

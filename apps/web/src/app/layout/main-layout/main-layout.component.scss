@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .layout-wrapper {
   display: flex;
   height: 100vh;
@@ -5,6 +7,17 @@
   overflow: hidden;
   background-color: var(--bg-color);
   position: relative;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 150;
+}
+
+.layout-wrapper.user-mobile-nav .page-content {
+  padding-bottom: calc(60px + env(safe-area-inset-bottom) + 16px);
 }
 
 .layout-inner {
@@ -25,6 +38,25 @@
   z-index: 100;
   position: relative;
   overflow: hidden;
+
+  @include bp.tablet {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -300px;
+    width: 280px;
+    z-index: 200;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.15);
+
+    &.mobile-open {
+      left: 0;
+    }
+
+    &.collapsed {
+      width: 280px;
+    }
+  }
 
   &.collapsed {
     width: 70px;
@@ -289,6 +321,38 @@
     justify-content: end;
     z-index: 50;
 
+    @include bp.tablet {
+      padding: 0 16px;
+      gap: 12px;
+
+      .topbar-context-selector {
+        margin-right: 0 !important;
+      }
+
+      .topbar-right {
+        margin-left: auto;
+      }
+    }
+
+    .hamburger-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+
+      &:hover {
+        background-color: var(--bg-color);
+      }
+    }
+
     .topbar-context-selector {
       position: relative;
       margin-right: auto;
@@ -353,6 +417,7 @@
         top: calc(100% + 8px);
         left: 0;
         width: 280px;
+        max-width: calc(100vw - 24px);
         background: var(--bg-surface);
         border: 1px solid var(--border-color);
         border-radius: 12px;
@@ -513,6 +578,12 @@
       align-items: center;
       gap: 16px;
 
+      .user-guide-container {
+        @include bp.mobile {
+          display: none;
+        }
+      }
+
       .icon-btn {
         background: none;
         border: none;
@@ -597,6 +668,10 @@
     background-color: var(--bg-color);
     position: relative;
 
+    @include bp.mobile {
+      padding: 5px 12px 16px;
+    }
+
     &::-webkit-scrollbar {
       width: 6px;
     }
@@ -663,6 +738,7 @@
     top: calc(100% + 12px);
     right: -10px;
     width: 320px;
+    max-width: calc(100vw - 24px);
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -671,12 +747,34 @@
     overflow: hidden;
     animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
+    @include bp.mobile {
+      position: fixed;
+      top: var(--topbar-height);
+      left: 0;
+      right: 0;
+      bottom: auto;
+      width: 100%;
+      max-width: 100%;
+      max-height: calc(100vh - var(--topbar-height) - 16px);
+      display: flex;
+      flex-direction: column;
+      border-radius: 0 0 20px 20px;
+      border: none;
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+      animation: slideDownSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     .dropdown-header {
       padding: 16px;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      @include bp.mobile {
+        flex-shrink: 0;
+      }
 
       h3 {
         margin: 0;
@@ -702,6 +800,11 @@
     .dropdown-body {
       max-height: 350px;
       overflow-y: auto;
+
+      @include bp.mobile {
+        max-height: none;
+        flex: 1;
+      }
 
       .notification-item {
         padding: 16px;
@@ -793,5 +896,15 @@
         }
       }
     }
+  }
+}
+
+@keyframes slideDownSheet {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
   }
 }

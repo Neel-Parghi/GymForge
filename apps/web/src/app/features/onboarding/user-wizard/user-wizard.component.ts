@@ -27,6 +27,7 @@ export class UserWizardComponent implements OnInit {
   calculatedBmi: number | null = null;
   bmiStatus: 'under' | 'normal' | 'over' | null = null;
   maxDobDate: Date;
+  minDobDate: Date;
 
   goals = [
     { id: 'weight_loss', label: 'Weight Loss', icon: 'fi-rr-fire', desc: 'Burn fat and get leaner', image: '/images/goals/weight_loss.png' },
@@ -56,6 +57,7 @@ export class UserWizardComponent implements OnInit {
   ) {
     const today = new Date();
     this.maxDobDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
+    this.minDobDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
 
     this.metricsForm = this.fb.group({
       height: ['', [Validators.required, Validators.min(50), Validators.max(300)]],
@@ -86,7 +88,7 @@ export class UserWizardComponent implements OnInit {
   ngOnInit(): void {
     this.loadDraft();
     const user = this.authService.getUserProfile();
-    
+
     if (user && user.currentOnboardingStep) {
       const draft = localStorage.getItem('gymForge_userWizardDraft');
       if (!draft && user.currentOnboardingStep > 1) {
@@ -120,7 +122,7 @@ export class UserWizardComponent implements OnInit {
     if (heightCm > 0 && weightKg > 0) {
       const heightM = heightCm / 100;
       this.calculatedBmi = parseFloat((weightKg / (heightM * heightM)).toFixed(1));
-      
+
       if (this.calculatedBmi < 18.5) {
         this.bmiStatus = 'under';
       } else if (this.calculatedBmi >= 25) {
@@ -213,7 +215,7 @@ export class UserWizardComponent implements OnInit {
       next: () => {
         localStorage.removeItem('gymForge_userWizardDraft');
         this.toastr.success('Your profile is set up!');
-        
+
         const navigateToDashboard = () => {
           sessionStorage.setItem('justFinishedOnboarding', 'true');
           this.router.navigate(['/user/dashboard']);

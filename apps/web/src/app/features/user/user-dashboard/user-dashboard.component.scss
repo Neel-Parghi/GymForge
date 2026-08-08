@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
   margin: -5px -16px;
@@ -18,11 +20,16 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 24px;
+
+  @include bp.mobile {
+    flex-direction: row;
+    gap: 12px;
+  }
 }
 
 .hero-title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
   font-weight: 800;
   color: var(--text-main);
 }
@@ -42,6 +49,10 @@
   grid-template-columns: 1fr 380px;
   gap: 24px;
   align-items: stretch;
+
+  @include bp.tablet {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dashboard-col {
@@ -54,6 +65,10 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+
+  @include bp.mobile {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dashboard-grid-bottom {
@@ -61,6 +76,14 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-top: 24px;
+
+  @include bp.tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp.mobile {
+    grid-template-columns: 1fr;
+  }
 }
 
 .mb-0 {
@@ -206,9 +229,12 @@
   gap: 16px;
   animation: fadeInOv 0.4s ease-out;
   padding: 24px;
-  /* Restored padding */
-  /* Removed border-radius and background here so :host handles it fully */
   min-height: 100%;
+
+  @include bp.mobile {
+    padding: 16px;
+    gap: 12px;
+  }
 
   .glass-card {
     position: relative;
@@ -218,6 +244,11 @@
     border-radius: 20px;
     padding: 24px;
     box-shadow: var(--card-shadow);
+
+    @include bp.mobile {
+      padding: 16px;
+      border-radius: 16px;
+    }
   }
 
   .glass-card,
@@ -443,8 +474,6 @@
   }
 }
 
-
-
 /* ══════════ USER DASHBOARD ENRICHMENTS ══════════ */
 
 /* Floating Streak Badge */
@@ -462,6 +491,11 @@
   box-shadow: 0 4px 12px rgba(234, 179, 8, 0.15);
   animation: floatIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 10;
+
+  @include bp.mobile {
+    position: static;
+    align-self: flex-start;
+  }
 
   i {
     color: #eab308;

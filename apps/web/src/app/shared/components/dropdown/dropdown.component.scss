@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
   width: 100%;
@@ -126,6 +128,12 @@
     &.fixed-position {
       position: fixed;
       z-index: 1002;
+
+      &.align-left.drop-down {
+        @include bp.mobile {
+          width: 250px !important;
+        }
+      }
     }
 
     &.absolute-position {

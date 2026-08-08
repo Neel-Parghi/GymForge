@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StaffResponse } from '../../../../core/models/staff.model';
 import { StaffService } from '../../../../core/services/staff.service';
@@ -25,6 +25,7 @@ export class StaffDetailDrawerComponent {
   private notification = inject(NotificationService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmationService);
+  private fb = inject(FormBuilder);
 
   @Input() isOpen = false;
   @Input() branches: any[] = [];
@@ -63,7 +64,7 @@ export class StaffDetailDrawerComponent {
   allAssignedMembers: any[] = [];
   assignedMembers: any[] = [];
   showPastAssignmentsControl = new FormControl(false);
-  
+
   get showPastAssignments(): boolean {
     return this.showPastAssignmentsControl.value || false;
   }
@@ -335,5 +336,11 @@ export class StaffDetailDrawerComponent {
     if (!branchId) return 'No Branch (General)';
     const branch = this.branches.find(b => b.id === branchId);
     return branch ? branch.name : 'Unknown Branch';
+  }
+
+  navigateToTrainerMemberDetail(memberId: string): void {
+    if (this.staff?.id) {
+      this.router.navigate([`/gym-owner/trainers/${this.staff.id}/members/${memberId}`]);
+    }
   }
 }

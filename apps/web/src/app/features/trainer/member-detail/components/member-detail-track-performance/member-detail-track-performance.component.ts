@@ -24,6 +24,10 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
   @Output() cancel = new EventEmitter<void>();
 
   selectedExerciseIndex = 0;
+
+  mobileStage: 'days' | 'exercises' | 'set-logger' = 'days';
+  initialDayName: string | null = null;
+
   daySelectControl = new FormControl('');
   newExerciseControl = new FormControl('');
   dropdownOptions: DropdownOption[] = [];
@@ -73,6 +77,9 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     if (this.todayWorkout) {
       this.daySelectControl.setValue(this.todayWorkout.dayName, { emitEvent: false });
       this.buildWorkoutForm();
+      if (this.initialDayName === null) {
+        this.initialDayName = this.todayWorkout.dayName;
+      }
     }
     this.setupDropdownOptions();
 
@@ -87,6 +94,12 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     if (changes['todayWorkout'] && this.todayWorkout) {
       this.daySelectControl.setValue(this.todayWorkout.dayName, { emitEvent: false });
       this.buildWorkoutForm();
+      if (this.initialDayName === null) {
+        this.initialDayName = this.todayWorkout.dayName;
+      }
+      if (changes['todayWorkout'].isFirstChange()) {
+        this.mobileStage = 'days';
+      }
     }
     if (changes['activeSplit'] && this.activeSplit) {
       this.setupDropdownOptions();
@@ -188,6 +201,22 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   selectExercise(index: number): void {
     this.selectedExerciseIndex = index;
+    this.mobileStage = 'set-logger';
+  }
+
+  selectMobileDay(day: any): void {
+    if (day?.dayName) {
+      this.onDaySelect(day.dayName);
+    }
+    this.mobileStage = 'exercises';
+  }
+
+  backToDays(): void {
+    this.mobileStage = 'days';
+  }
+
+  backToExercises(): void {
+    this.mobileStage = 'exercises';
   }
 
   getCompletedSetsCount(exercise: any): number {

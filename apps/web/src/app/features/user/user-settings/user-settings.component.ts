@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../../shared/models/dropdown.model';
 
 @Component({
   selector: 'app-user-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DropdownComponent],
   templateUrl: './user-settings.component.html',
   styleUrl: './user-settings.component.scss',
 })
@@ -18,6 +20,14 @@ export class UserSettingsComponent implements OnInit {
 
   fitnessForm: FormGroup;
   notificationsForm: FormGroup;
+
+  readonly primaryGoalOptions: DropdownOption[] = [
+    { label: 'Weight Loss', value: 'Weight Loss', icon: 'fa-solid fa-weight-scale' },
+    { label: 'Muscle Gain', value: 'Muscle Gain', icon: 'fa-solid fa-dumbbell' },
+    { label: 'Endurance', value: 'Endurance', icon: 'fa-solid fa-person-running' },
+    { label: 'Flexibility', value: 'Flexibility', icon: 'fa-solid fa-child-reaching' },
+    { label: 'General Fitness', value: 'General Fitness', icon: 'fa-solid fa-heart-pulse' }
+  ];
 
   activeTab: 'fitness' | 'notifications' = 'fitness';
 

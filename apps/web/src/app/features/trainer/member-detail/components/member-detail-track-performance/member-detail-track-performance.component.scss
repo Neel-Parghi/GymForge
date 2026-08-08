@@ -1,9 +1,11 @@
+@use 'breakpoints' as bp;
+
 .tracker-full-width {
   width: 100%;
   animation: fadeInTracker 0.4s ease-out;
 
-  @media (max-width: 768px) {
-    padding: 0 16px;
+  @include bp.mobile {
+    padding: 0;
   }
 }
 
@@ -33,6 +35,16 @@
 
   &.backdated-height {
     height: calc(100vh - 240px);
+  }
+
+  @include bp.tablet {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+
+    &.backdated-height {
+      height: auto;
+    }
   }
 }
 
@@ -79,6 +91,147 @@
       gap: 6px;
       margin-right: 8px;
     }
+
+    .btn-save-session {
+      .text-short {
+        display: none;
+      }
+
+      @include bp.mobile {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+
+        .text-full {
+          display: none;
+        }
+
+        .text-short {
+          display: inline;
+        }
+      }
+    }
+  }
+}
+
+/* Mobile-only back nav + day list (Jefit-style drill-down) */
+.mobile-back-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 0.82rem;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  cursor: pointer;
+
+  @include bp.mobile {
+    display: inline-flex;
+  }
+}
+
+.mobile-days-list {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.workout-tracker-dashboard {
+  @include bp.mobile {
+    &.stage-days .mobile-days-list {
+      display: flex;
+    }
+
+    &.stage-days .workout-body,
+    &.stage-days .header-actions-group .btn-primary {
+      display: none;
+    }
+  }
+}
+
+.mobile-day-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--slate-50);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.2s;
+
+  &:hover,
+  &:active {
+    border-color: rgba(var(--accent-rgb), 0.3);
+    background: #ffffff;
+  }
+
+  &.is-today {
+    border-color: var(--accent-color);
+    background: rgba(var(--accent-rgb), 0.05);
+  }
+
+  &.is-rest {
+    opacity: 0.75;
+  }
+
+  .mobile-day-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-day-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mobile-day-category {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+
+    &.rest {
+      color: var(--warning-color);
+    }
+  }
+
+  .mobile-day-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+
+    .today-pill {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--accent-color);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    .mobile-day-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    i {
+      color: var(--slate-400);
+    }
   }
 }
 
@@ -87,6 +240,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @include bp.mobile {
+    display: none;
+  }
 
   label {
     font-size: 0.78rem;
@@ -122,6 +279,7 @@
 
 .dropdown-wrap {
   width: 250px;
+  max-width: 100%;
 }
 
 /*   Main Two-Column Split Layout  */
@@ -131,9 +289,30 @@
   flex: 1;
   overflow: hidden;
 
-  @media (max-width: 900px) {
+  @include bp.tablet {
     grid-template-columns: 1fr;
     overflow: visible;
+  }
+
+  @include bp.mobile {
+    display: block;
+
+    .wt-exercise-sidebar,
+    .wt-exercise-console {
+      display: none;
+    }
+  }
+}
+
+.workout-tracker-dashboard {
+  @include bp.mobile {
+    &.stage-exercises .wt-exercise-sidebar {
+      display: flex;
+    }
+
+    &.stage-set-logger .wt-exercise-console {
+      display: flex;
+    }
   }
 }
 
@@ -146,22 +325,32 @@
   overflow-y: auto;
   height: 100%;
 
-  @media (max-width: 900px) {
+  @include bp.tablet {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
     height: 240px;
   }
 
+  @include bp.mobile {
+    height: auto;
+    overflow-y: visible;
+    border-bottom: none;
+  }
+
   .sidebar-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 10px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-color);
     background: white;
     position: sticky;
     top: 0;
     z-index: 5;
+
+    .section-tag {
+      flex: 1;
+    }
 
     .section-tag {
       font-size: 0.75rem;
@@ -339,6 +528,12 @@
   overflow-y: auto;
   height: 100%;
 
+  @include bp.mobile {
+    padding: 16px;
+    height: auto;
+    overflow-y: visible;
+  }
+
   .console-ex-header {
     display: flex;
     justify-content: space-between;
@@ -349,6 +544,12 @@
     flex-wrap: wrap;
     gap: 16px;
     transition: all 0.25s;
+
+    .console-back-btn {
+      @include bp.mobile {
+        flex-basis: 100%;
+      }
+    }
 
     &.skipped-bg {
       border-bottom-color: transparent;
@@ -478,11 +679,6 @@
     .table-row-item {
       grid-template-columns: 80px 1fr 1fr 150px 70px;
       gap: 16px;
-
-      @media (max-width: 600px) {
-        grid-template-columns: 70px 1fr 1fr 60px;
-        gap: 12px;
-      }
     }
   }
 
@@ -495,14 +691,9 @@
     border-bottom: 1px solid var(--border-color);
     padding: 12px 16px;
 
-    @media (max-width: 600px) {
-      grid-template-columns: 70px 1fr 1fr 60px;
-      gap: 12px;
-
-      .col-target,
-      .col-actions {
-        display: none;
-      }
+    // Set cards (below) don't need a column header row.
+    @include bp.mobile {
+      display: none;
     }
   }
 
@@ -520,6 +711,12 @@
     flex-direction: column;
     max-height: 290px;
     overflow-y: auto;
+
+    @include bp.mobile {
+      max-height: none;
+      gap: 10px;
+      padding: 2px;
+    }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -567,12 +764,42 @@
       }
     }
 
-    @media (max-width: 600px) {
-      grid-template-columns: 70px 1fr 1fr 60px;
+    // Reflow into a single compact row: Set badge, Weight, Reps, a round
+    // Mark Done check button, and a round delete button — no stacked rows.
+    @include bp.mobile {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr auto auto;
+      grid-template-areas: "set weight reps status delete";
+      gap: 8px;
+      padding: 10px;
+      background: var(--slate-50);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
 
-      .col-target,
-      .col-actions {
+      .col-target {
         display: none;
+      }
+
+      .col-set {
+        grid-area: set;
+      }
+
+      .col-weight {
+        grid-area: weight;
+        min-width: 0;
+      }
+
+      .col-reps {
+        grid-area: reps;
+        min-width: 0;
+      }
+
+      .col-status {
+        grid-area: status;
+      }
+
+      .col-actions {
+        grid-area: delete;
       }
     }
   }
@@ -611,6 +838,11 @@
     width: 90px;
     transition: all 0.2s;
 
+    @include bp.mobile {
+      width: 100%;
+      padding: 8px 8px;
+    }
+
     &:focus-within {
       border-color: var(--accent-color);
       box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.1);
@@ -633,6 +865,7 @@
 
     input {
       width: 100%;
+      min-width: 0;
       border: none;
       background: transparent;
       font-size: 0.88rem;
@@ -641,6 +874,10 @@
       padding: 0;
       text-align: center;
       outline: none;
+
+      @include bp.mobile {
+        font-size: 0.8rem;
+      }
 
       &::-webkit-inner-spin-button,
       &::-webkit-outer-spin-button {
@@ -658,6 +895,11 @@
       font-weight: 600;
       color: var(--text-muted);
       margin-left: 4px;
+
+      @include bp.mobile {
+        font-size: 0.62rem;
+        margin-left: 2px;
+      }
     }
   }
 
@@ -688,6 +930,25 @@
   align-items: center;
   gap: 6px;
   transition: all 0.2s;
+  justify-content: space-around;
+
+  // A compact round check button fits the single-row layout — the text
+  // label doesn't, so it's dropped in favor of the icon + checked color.
+  @include bp.mobile {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    span {
+      display: none;
+    }
+
+    i {
+      font-size: 1.05rem;
+    }
+  }
 
   i {
     font-size: 0.82rem;
@@ -717,6 +978,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  @include bp.mobile {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    background: var(--slate-100);
+    border-radius: 50%;
+  }
 
   &:hover {
     color: #ef4444;
@@ -816,6 +1085,10 @@
   justify-content: center;
   z-index: 1000;
   animation: modalFadeIn 0.25s ease-out;
+
+  @include bp.mobile {
+    align-items: flex-end;
+  }
 }
 
 @keyframes modalFadeIn {
@@ -838,8 +1111,21 @@
   overflow: hidden;
   animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  @media (max-width: 520px) {
-    margin: 16px;
+  @include bp.mobile {
+    margin: 0;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    animation: modalSlideUpMobile 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes modalSlideUpMobile {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
   }
 }
 

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule, Validators, FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -11,7 +11,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink]
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
@@ -23,8 +23,8 @@ export class RegisterComponent {
     name: ['', [Validators.required, Validators.maxLength(30)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [
-      Validators.required, 
-      Validators.minLength(8), 
+      Validators.required,
+      Validators.minLength(8),
       Validators.maxLength(30),
       Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])/)
     ]],

@@ -1,66 +1,13 @@
+@use 'breakpoints' as bp;
 @import '../auth-shared.scss';
 
-// Theme-Matching Role Toggle
-.premium-role-toggle {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.role-switch-prompt {
+  margin-top: 0;
+  padding-top: 10px;
+  border-top: none;
 
-  .toggle-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  .toggle-track {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: #e5e7eb;
-    border-radius: 30px;
-    padding: 3px;
-    width: 180px;
-    height: 32px;
+  a {
     cursor: pointer;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-
-  .toggle-thumb {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: calc(50% - 3px);
-    height: 26px;
-    background: #ffffff;
-    border-radius: 26px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-
-    &.is-user {
-      transform: translateX(100%);
-    }
-  }
-
-  .toggle-option {
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    z-index: 2;
-    color: #6b7280;
-    font-size: 0.65rem;
-    font-weight: 700;
-    transition: color 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-
-    &.active {
-      color: var(--primary-precision, #005bbc);
-    }
   }
 }
 
@@ -72,6 +19,11 @@
 
   strong {
     color: var(--text-primary);
+    word-break: break-all;
+  }
+
+  @include bp.mobile {
+    font-size: 0.82rem;
   }
 }
 
@@ -80,6 +32,10 @@
   gap: 0.75rem;
   justify-content: center;
   margin: 1rem 0;
+
+  @include bp.mobile {
+    gap: 8px;
+  }
 
   .otp-box {
     width: 3.5rem;
@@ -94,6 +50,23 @@
     transition: all 0.3s ease;
     outline: none;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    padding: 0;
+
+    @include bp.mobile {
+      flex: 1 1 0;
+      width: auto;
+      max-width: 48px;
+      height: 52px;
+      font-size: 1.25rem;
+      border-radius: 8px;
+    }
+
+    @include bp.mobile-sm {
+      max-width: 38px;
+      height: 44px;
+      font-size: 1.05rem;
+      border-radius: 6px;
+    }
 
     &:focus {
       border-color: var(--primary-color);
@@ -102,7 +75,7 @@
     }
 
     &:valid {
-      border-color: rgba(16, 185, 129, 0.5); /* Subtle green for filled */
+      border-color: rgba(16, 185, 129, 0.5);
     }
   }
 }

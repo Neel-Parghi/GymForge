@@ -2,23 +2,6 @@
   <!-- Top Navigation Bar -->
   <header class="auth-header">
     <div class="brand-logo">GYM FORGE</div>
-    <div class="header-actions">
-      <!-- Premium Animated Role Slider -->
-      <div class="premium-role-toggle">
-        <span class="toggle-label">Sign up as :</span>
-        <div class="toggle-track" (click)="!isOtpStep && setRole(selectedRole === 'GymOwner' ? 'User' : 'GymOwner')" [class.disabled]="isOtpStep">
-          <div class="toggle-thumb" [class.is-user]="selectedRole === 'User'"></div>
-
-          <div class="toggle-option" [class.active]="selectedRole === 'GymOwner'">
-            <span>Gym Owner</span>
-          </div>
-
-          <div class="toggle-option" [class.active]="selectedRole === 'User'">
-            <span>User</span>
-          </div>
-        </div>
-      </div>
-    </div>
   </header>
 
   <main class="auth-main">
@@ -41,8 +24,10 @@
         <div class="auth-card">
           <div class="card-header">
             <h2 class="card-title">Create Account</h2>
-            <p class="card-subtitle" *ngIf="selectedRole === 'GymOwner'">Get started with the world's most powerful gym management tools.</p>
-            <p class="card-subtitle" *ngIf="selectedRole === 'User'">Begin your fitness journey and track your progress with Gym Forge.</p>
+            <p class="card-subtitle" *ngIf="selectedRole === 'GymOwner'">Get started with the world's most powerful gym
+              management tools.</p>
+            <p class="card-subtitle" *ngIf="selectedRole === 'User'">Begin your fitness journey and track your progress
+              with Gym Forge.</p>
           </div>
 
           <form *ngIf="!isOtpStep" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
@@ -63,7 +48,8 @@
               <div class="input-wrapper">
                 <input type="email" id="email" formControlName="email" placeholder="name@gymforge.com" required />
               </div>
-              <small class="form-error" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+              <small class="form-error"
+                *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
                 <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</span>
                 <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
               </small>
@@ -78,11 +64,15 @@
                   <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
-              <small class="form-error" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+              <small class="form-error"
+                *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
                 <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.<br></span>
-                <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.<br></span>
-                <span *ngIf="registerForm.get('password')?.errors?.['maxlength']">Password cannot exceed 30 characters.<br></span>
-                <span *ngIf="registerForm.get('password')?.errors?.['pattern']">Must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.</span>
+                <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8
+                  characters.<br></span>
+                <span *ngIf="registerForm.get('password')?.errors?.['maxlength']">Password cannot exceed 30
+                  characters.<br></span>
+                <span *ngIf="registerForm.get('password')?.errors?.['pattern']">Must contain at least 1 uppercase, 1
+                  lowercase, 1 number, and 1 special character.</span>
               </small>
             </div>
 
@@ -97,9 +87,10 @@
               <label>Verification Code</label>
               <p class="otp-instruction">We've sent a 6-digit code to <strong>{{registeredEmail}}</strong>.</p>
               <div class="otp-container" (paste)="onOtpPaste($event)">
-                <input *ngFor="let item of otpControls; let i = index; trackBy: trackByIndex" type="text" maxlength="1"
-                  [id]="'otp-' + i" [formControl]="otpControls[i]" class="otp-box"
-                  (keyup)="onOtpKeyup($event, i)" (keydown)="onOtpKeydown($event, i)" required />
+                <input *ngFor="let item of otpControls; let i = index; trackBy: trackByIndex" type="text"
+                  inputmode="numeric" autocomplete="one-time-code" maxlength="1" [id]="'otp-' + i"
+                  [formControl]="otpControls[i]" class="otp-box" (keyup)="onOtpKeyup($event, i)"
+                  (keydown)="onOtpKeydown($event, i)" (input)="updateOtpCode()" required />
               </div>
             </div>
 
@@ -116,6 +107,17 @@
             </div>
           </form>
 
+          <div class="auth-footer-prompt role-switch-prompt" *ngIf="!isOtpStep">
+            <ng-container *ngIf="selectedRole === 'User'">
+              Are you a gym owner?
+              <a (click)="setRole('GymOwner')">Register as Gym Owner</a>
+            </ng-container>
+            <ng-container *ngIf="selectedRole === 'GymOwner'">
+              Signing up as a member?
+              <a (click)="setRole('User')">Register as User</a>
+            </ng-container>
+          </div>
+
           <div class="auth-footer-prompt" *ngIf="!isOtpStep">
             Already have an account?
             <a routerLink="/login">Sign In</a>
@@ -129,7 +131,7 @@
   <!-- Footer -->
   <footer class="auth-footer">
     <!-- <div class="footer-logo">GYM FORGE</div> -->
-    <div class="copyright">© 2026 GYM FORGE. ALL RIGHTS RESERVED.</div>
+    <div class="copyright">© 2026 <span class="copyright-brand">GYM FORGE. </span>ALL RIGHTS RESERVED.</div>
     <div class="footer-links">
       <a routerLink="/privacy-policy">Privacy Policy</a>
       <a routerLink="/terms-of-service">Terms of Service</a>

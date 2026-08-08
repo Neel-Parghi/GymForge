@@ -53,11 +53,15 @@
                   <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
-              <small class="form-error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              <small class="form-error"
+                *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
                 <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.<br></span>
-                <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.<br></span>
-                <span *ngIf="loginForm.get('password')?.errors?.['maxlength']">Password cannot exceed 30 characters.<br></span>
-                <span *ngIf="loginForm.get('password')?.errors?.['pattern']">Must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.</span>
+                <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8
+                  characters.<br></span>
+                <span *ngIf="loginForm.get('password')?.errors?.['maxlength']">Password cannot exceed 30
+                  characters.<br></span>
+                <span *ngIf="loginForm.get('password')?.errors?.['pattern']">Must contain at least 1 uppercase, 1
+                  lowercase, 1 number, and 1 special character.</span>
               </small>
             </div>
 
@@ -88,7 +92,7 @@
   <!-- Footer -->
   <footer class="auth-footer">
     <div class="footer-logo">GYM FORGE</div>
-    <div class="copyright">© 2026 GYM FORGE. ALL RIGHTS RESERVED.</div>
+    <div class="copyright">© 2026 <span class="copyright-brand">GYM FORGE. </span>ALL RIGHTS RESERVED.</div>
     <div class="footer-links">
       <a routerLink="/privacy-policy">Privacy Policy</a>
       <a routerLink="/terms-of-service">Terms of Service</a>

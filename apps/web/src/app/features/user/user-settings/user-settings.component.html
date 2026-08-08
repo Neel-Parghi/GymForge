@@ -6,9 +6,10 @@
         <h1>Account Settings</h1>
         <p>Configure your fitness goals and notification preferences.</p>
       </div>
-      <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving || isLoading">
+      <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving || isLoading"
+        [title]="isSaving ? 'Saving...' : 'Save Changes'">
         <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
-        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        <span class="btn-text">{{ isSaving ? 'Saving...' : 'Save Changes' }}</span>
       </button>
     </div>
 
@@ -40,14 +41,8 @@
             <div class="form-row two-cols">
               <div class="form-group">
                 <label>Primary Goal</label>
-                <select formControlName="primaryGoal" class="gf-input">
-                  <option value="">Select a Goal...</option>
-                  <option value="Weight Loss">Weight Loss</option>
-                  <option value="Muscle Gain">Muscle Gain</option>
-                  <option value="Endurance">Endurance</option>
-                  <option value="Flexibility">Flexibility</option>
-                  <option value="General Fitness">General Fitness</option>
-                </select>
+                <app-dropdown [options]="primaryGoalOptions" formControlName="primaryGoal"
+                  placeholder="Select a Goal..." [isSearchable]="false" minWidth="100%"></app-dropdown>
               </div>
 
               <div class="form-group">

@@ -1,0 +1,31 @@
+<nav class="bottom-nav">
+  <a *ngFor="let tab of tabs" [routerLink]="tab.route" routerLinkActive="active" class="bottom-nav-item">
+    <i [class]="tab.icon"></i>
+    <span>{{ tab.label }}</span>
+  </a>
+
+  <button type="button" class="bottom-nav-item more-trigger" [class.active]="isMoreOpen" (click)="toggleMore($event)">
+    <i class="fa-solid fa-ellipsis"></i>
+    <span>More</span>
+  </button>
+</nav>
+
+<div class="more-sheet-backdrop" *ngIf="isMoreOpen" (click)="closeMore()"></div>
+
+<div class="more-sheet" [class.open]="isMoreOpen" (click)="$event.stopPropagation()">
+  <div class="more-sheet-handle"></div>
+  <ul class="more-sheet-list">
+    <li *ngFor="let item of moreItems">
+      <button type="button" (click)="navigateFromSheet(item.route)">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </button>
+    </li>
+    <li>
+      <button type="button" class="logout-item" (click)="logout()">
+        <i class="fa-solid fa-sign-out-alt"></i>
+        <span>Log Out</span>
+      </button>
+    </li>
+  </ul>
+</div>

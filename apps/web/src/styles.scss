@@ -1,3 +1,4 @@
+@use 'breakpoints' as bp;
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import 'ngx-toastr/toastr';
 @import 'driver.js/dist/driver.css';
@@ -97,6 +98,19 @@
   --secondary-precision: var(--slate-500);
   --outline-精密: rgba(193, 198, 214, 0.3);
   --card-shadow-precision: var(--card-shadow);
+}
+
+@include bp.laptop {
+  :root {
+    --sidebar-width: 220px;
+    --topbar-height: 62px;
+  }
+}
+
+@include bp.mobile {
+  :root {
+    --topbar-height: 56px;
+  }
 }
 
 [data-theme="dark"] {
@@ -285,6 +299,26 @@ button {
     }
   }
 
+  @include bp.mobile {
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .header-actions,
+    .actions {
+      width: 100%;
+
+      .primary-btn,
+      .btn-primary,
+      .btn-add,
+      .secondary-btn,
+      .btn-secondary,
+      .btn-outline {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+  }
+
   .secondary-btn,
   .btn-secondary,
   .btn-outline {
@@ -339,6 +373,14 @@ button {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+
+  @include bp.mobile-sm {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
 
   button {
     width: auto;
@@ -594,6 +636,11 @@ app-date-time-picker.ng-invalid.ng-touched>div {
 
   .form-group {
     flex: 1;
+  }
+
+  @include bp.mobile {
+    flex-direction: column;
+    gap: 20px;
   }
 }
 

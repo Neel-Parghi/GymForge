@@ -35,6 +35,8 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
   // Detail viewing
   selectedSession: any = null;
   showDetailsModal = false;
+  showMobileDaySheet = false;
+  selectedMobileDay: any = null;
 
   // Override options modal
   showOverrideModal = false;
@@ -370,5 +372,48 @@ export class PTMemberDetailWorkoutCalendarComponent implements OnInit, OnChanges
 
   editWorkoutSession(session: any): void {
     this.editWorkout.emit(session);
+  }
+
+  openMobileDaySheet(dayObj: any): void {
+    this.selectedMobileDay = dayObj;
+    this.showMobileDaySheet = true;
+  }
+
+  closeMobileDaySheet(): void {
+    this.showMobileDaySheet = false;
+    this.selectedMobileDay = null;
+  }
+
+  mobileViewLoggedWorkout(): void {
+    if (this.selectedMobileDay?.historySession) {
+      this.openSessionDetails(this.selectedMobileDay.historySession);
+    }
+    this.closeMobileDaySheet();
+  }
+
+  mobileEditLoggedWorkout(): void {
+    if (this.selectedMobileDay?.historySession) {
+      this.editWorkoutSession(this.selectedMobileDay.historySession);
+    }
+    this.closeMobileDaySheet();
+  }
+
+  mobileLogWorkout(): void {
+    const dayObj = this.selectedMobileDay;
+    this.closeMobileDaySheet();
+    if (!dayObj) return;
+    if (dayObj.isToday) {
+      this.trackTodayLive();
+    } else {
+      this.logPastWorkout(dayObj);
+    }
+  }
+
+  mobileChangePlan(): void {
+    const dayObj = this.selectedMobileDay;
+    this.closeMobileDaySheet();
+    if (dayObj) {
+      this.openOverrideDialog(dayObj);
+    }
   }
 }

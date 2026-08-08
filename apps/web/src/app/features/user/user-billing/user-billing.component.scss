@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .user-page-wrapper {
   display: flex;
   flex-direction: column;
@@ -15,7 +17,7 @@
   gap: 16px;
 
   .page-title {
-    font-size: 1.8rem;
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
     font-weight: 700;
     color: var(--text-main);
     margin: 0 0 4px 0;
@@ -190,17 +192,33 @@
   display: flex;
   flex-direction: column;
 
+  @include bp.mobile {
+    padding: 16px;
+  }
+
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
 
+    @include bp.mobile {
+      margin-bottom: 16px;
+
+      .btn-small {
+        padding: 8px 12px !important;
+      }
+    }
+
     h2 {
       font-size: 1.3rem;
       font-weight: 700;
       color: var(--text-main);
       margin: 0;
+
+      @include bp.mobile {
+        font-size: 1.05rem;
+      }
     }
   }
 
@@ -221,12 +239,101 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
+      @include bp.mobile {
+        thead {
+          display: none;
+        }
+
+        tbody {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        tr {
+          position: relative;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-areas:
+            "plan plan price price"
+            "duration duration duration duration"
+            "startdate startdate enddate enddate"
+            "pstatus pstatus astatus astatus";
+          gap: 8px;
+          padding: 14px;
+          padding-right: 44px;
+          background: var(--slate-50);
+          border: 1px solid var(--border-color);
+          border-radius: 14px;
+        }
+      }
+
       td {
         padding: 16px;
         font-size: 0.95rem;
         color: var(--text-main);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         vertical-align: middle;
+
+        @include bp.mobile {
+          padding: 0;
+          border-bottom: none;
+          min-width: 0;
+
+          &:nth-child(1) {
+            grid-area: plan;
+          }
+
+          &:nth-child(2) {
+            grid-area: price;
+            text-align: right;
+            font-size: 1.05rem;
+            color: var(--accent-color);
+          }
+
+          &:nth-child(3) {
+            grid-area: duration;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+          }
+
+          &:nth-child(4) {
+            grid-area: startdate;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+
+            &::before {
+              content: "Start: ";
+              font-weight: 700;
+            }
+          }
+
+          &:nth-child(5) {
+            grid-area: enddate;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+
+            &::before {
+              content: "End: ";
+              font-weight: 700;
+            }
+          }
+
+          &:nth-child(6) {
+            grid-area: pstatus;
+          }
+
+          &:nth-child(7) {
+            grid-area: astatus;
+            text-align: right;
+          }
+
+          &:nth-child(8) {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+          }
+        }
 
         .desc-wrapper {
           display: flex;
@@ -252,6 +359,13 @@
           text-align: center;
           vertical-align: middle;
           border-bottom: none;
+
+          @include bp.mobile {
+            grid-area: unset;
+            grid-column: 1 / -1;
+            height: auto;
+            padding: 40px 16px;
+          }
 
           .empty-state-content {
             display: flex;
@@ -330,6 +444,12 @@
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
+            @include bp.mobile {
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+            }
+
             &.view {
               background: #f0f9ff;
               color: #0284c7;
@@ -355,8 +475,8 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .content-grid {
+.content-grid {
+  @include bp.tablet {
     grid-template-columns: 1fr;
   }
 }
@@ -366,6 +486,7 @@
   gap: 1rem;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0;
+  // overflow-x: auto;
 
   .tab-btn {
     background: none;
@@ -379,7 +500,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
     transition: all 0.3s ease;
+
+    @include bp.mobile {
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+    }
 
     &:hover {
       color: var(--text-primary);

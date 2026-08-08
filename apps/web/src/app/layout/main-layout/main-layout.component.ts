@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { AuthApiService } from '../../core/services/auth-api.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { NavigationService } from '../../core/services/navigation.service';
@@ -13,13 +14,14 @@ import { GymSettingsService } from '../../core/services/gym-settings.service';
 import { AnnouncementService } from '../../core/services/announcement.service';
 import { UserNotificationApiService } from '../../core/services/user-notification-api.service';
 import { TourService } from '../../core/services/tour.service';
+import { UserBottomNavComponent } from '../user-bottom-nav/user-bottom-nav.component';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LoadingComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LoadingComponent, UserBottomNavComponent],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
@@ -31,18 +33,24 @@ export class MainLayoutComponent implements OnInit {
   private readonly navService = inject(NavigationService);
   private gymService = inject(GymService);
   private gymSettingsService = inject(GymSettingsService);
+  private breakpointObserver = inject(BreakpointObserver);
 
   roleName: string = '';
   dashboardRoute: string = '/super-admin/dashboard';
   profileRoute: string = '/super-admin/profile';
   isSidebarCollapsed = false;
+  isMobileSidebarOpen = false;
   menuItems: NavItem[] = [];
   userProfile$ = this.authApiService.userProfile$;
+
+  isTabletOrBelow$ = this.breakpointObserver.observe('(max-width: 1023px)').pipe(map(r => r.matches));
+  isMobile$ = this.breakpointObserver.observe('(max-width: 767px)').pipe(map(r => r.matches));
 
   private branchContextService = inject(BranchContextService);
   activeBranch$ = this.branchContextService.activeBranch$;
 
   isGymOwner = false;
+  isUserRole = false;
   isStaffLocked = false;
   branches: any[] = [];
   isBranchDropdownOpen = false;
@@ -62,6 +70,10 @@ export class MainLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.setRoleName();
     this.profileService.getProfile().subscribe();
+
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(() => this.closeMobileSidebar());
 
 
     const currentRole = this.authApiService.getUserRole();
@@ -100,6 +112,7 @@ export class MainLayoutComponent implements OnInit {
     const role = decoded?.role || '';
     this.roleName = role.replace(/([A-Z])/g, ' $1').trim();
     this.isGymOwner = role === 'GymOwner';
+    this.isUserRole = role === 'User';
 
     if (role === 'GymOwner' || role === 'Staff') {
       this.dashboardRoute = '/gym-owner/dashboard';
@@ -182,6 +195,14 @@ export class MainLayoutComponent implements OnInit {
 
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  toggleMobileSidebar() {
+    this.isMobileSidebarOpen = !this.isMobileSidebarOpen;
+  }
+
+  closeMobileSidebar() {
+    this.isMobileSidebarOpen = false;
   }
 
   toggleGroup(item: NavItem) {

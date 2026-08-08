@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .diet-chart-panel {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -9,6 +11,11 @@
   height: calc(100vh - 170px);
   min-height: 500px;
 
+  @include bp.tablet {
+    height: auto;
+    min-height: 0;
+  }
+
   .panel-header {
     display: flex;
     justify-content: space-between;
@@ -19,6 +26,10 @@
     background: rgba(var(--slate-50), 0.5);
     flex-wrap: wrap;
     gap: 16px;
+
+    @include bp.mobile {
+      padding: 16px;
+    }
 
     .header-left {
       flex: 1;
@@ -47,7 +58,7 @@
       transform: translateX(-50%);
       z-index: 10;
 
-      @media (max-width: 800px) {
+      @include bp.mobile {
         position: static;
         transform: none;
         order: 3;
@@ -76,10 +87,15 @@
   flex: 1;
   overflow: hidden;
 
-  @media (max-width: 1200px) {
+  @include bp.tablet {
     flex-direction: column;
     align-items: stretch;
     overflow-y: auto;
+  }
+
+  @include bp.mobile {
+    padding: 16px;
+    gap: 16px;
   }
 }
 
@@ -87,7 +103,7 @@
   width: 360px;
   flex-shrink: 0;
 
-  @media (max-width: 1200px) {
+  @include bp.tablet {
     width: 100%;
   }
 }

@@ -29,6 +29,10 @@ export class ProfileComponent implements OnInit {
   passwordChangeSuccess = false;
   passwordChangeError = '';
   activeTab: 'personal' | 'security' = 'personal';
+
+  get isDemo(): boolean {
+    return this.authApi.isDemoUser();
+  }
   activeSecuritySubTab: 'change' | 'reset' | 'delete' = 'change';
   selectedFile: File | null = null;
   previewUrl: string | null = null;

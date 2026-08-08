@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .plan-library-container {
   display: flex;
   flex-direction: column;
@@ -8,6 +10,11 @@
   min-height: 500px;
   margin-top: 10px;
   overflow: hidden;
+
+  @include bp.mobile {
+    height: auto;
+    min-height: 0;
+  }
 
   &.is-card-view {
     background: var(--bg-surface);
@@ -20,6 +27,10 @@
       padding: 20px 24px;
       border-bottom: 1px solid var(--border-color);
       background: rgba(var(--slate-50), 0.5);
+
+      @include bp.mobile {
+        padding: 16px;
+      }
     }
 
     .catalog-wrapper {
@@ -29,6 +40,10 @@
       gap: 14px;
       flex: 1;
       overflow-y: auto;
+
+      @include bp.mobile {
+        padding: 16px;
+      }
       scrollbar-width: thin;
       scrollbar-color: var(--slate-300) transparent;
 
@@ -109,6 +124,11 @@
   .tabs-list {
     display: flex;
     gap: 32px;
+    overflow-x: auto;
+
+    @include bp.mobile {
+      gap: 20px;
+    }
   }
 
   .tab-item {
@@ -123,6 +143,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    white-space: nowrap;
     font-family: var(--font-body);
     transition: color 0.25s ease;
 
@@ -163,8 +184,9 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 18px;
 
-  @media (max-width: 768px) {
+  @include bp.mobile {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 

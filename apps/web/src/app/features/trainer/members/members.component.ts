@@ -4,7 +4,7 @@ import { StaffService } from '../../../core/services/staff.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 
@@ -21,6 +21,7 @@ export class PTMembersTrackComponent implements OnInit {
   private notification = inject(NotificationService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   assignedMembers: any[] = [];
   isLoading = true;
@@ -28,12 +29,19 @@ export class PTMembersTrackComponent implements OnInit {
   gridConfig = AppGridConfig['PTClients'];
 
   ngOnInit(): void {
-    this.authService.userProfile$.subscribe(profile => {
-      if (profile) {
-        this.trainerId = profile.id;
-        this.loadMembers();
-      }
-    });
+    const routeTrainerId = this.route.snapshot.paramMap.get('trainerId');
+    
+    if (routeTrainerId) {
+      this.trainerId = routeTrainerId;
+      this.loadMembers();
+    } else {
+      this.authService.userProfile$.subscribe(profile => {
+        if (profile) {
+          this.trainerId = profile.id;
+          this.loadMembers();
+        }
+      });
+    }
   }
 
   loadMembers(forceRefresh = false): void {
@@ -50,7 +58,13 @@ export class PTMembersTrackComponent implements OnInit {
   }
 
   navigateToMemberDetail(memberId: string): void {
-    this.router.navigate([`/trainer/members/${memberId}`]);
+    // If we have a trainerId in the route, we are in the Gym Owner portal
+    const routeTrainerId = this.route.snapshot.paramMap.get('trainerId');
+    if (routeTrainerId) {
+      this.router.navigate([`/gym-owner/trainers/${routeTrainerId}/members/${memberId}`]);
+    } else {
+      this.router.navigate([`/trainer/members/${memberId}`]);
+    }
   }
 
   deallocateMember(member: any): void {

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -14,6 +16,10 @@
   padding: 24px;
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
+  @include bp.mobile {
+    padding: 0;
+  }
+
   .modal-card {
     background: rgba(255, 255, 255, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.6);
@@ -24,6 +30,12 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
+    @include bp.mobile {
+      border-radius: 0;
+      height: 100vh;
+      max-height: 100vh;
+    }
 
     [data-theme="dark"] & {
       background: rgba(30, 41, 59, 0.94);
@@ -37,6 +49,10 @@
     align-items: center;
     padding: 24px 32px;
     border-bottom: 1px solid var(--border-color);
+
+    @include bp.mobile {
+      padding: 16px;
+    }
 
     .header-title-group {
       display: flex;
@@ -54,6 +70,10 @@
         color: var(--text-main);
         margin: 0;
         letter-spacing: -0.5px;
+
+        @include bp.mobile {
+          font-size: 1.05rem;
+        }
       }
     }
 
@@ -90,6 +110,10 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+
+      @include bp.mobile {
+        padding: 12px 16px;
+      }
     }
 
     .form-row {
@@ -99,6 +123,15 @@
 
       &.three-cols {
         grid-template-columns: repeat(3, 1fr);
+      }
+
+      @include bp.mobile {
+        grid-template-columns: 1fr;
+        gap: 12px;
+
+        &.three-cols {
+          grid-template-columns: 1fr;
+        }
       }
     }
 
@@ -184,6 +217,15 @@
       border-top: 1px solid var(--border-color);
       background: var(--bg-surface);
 
+      @include bp.mobile {
+        padding: 12px 16px;
+
+        button {
+          flex: 1;
+          justify-content: center;
+        }
+      }
+
       [data-theme="dark"] & {
         background: rgba(30, 41, 59, 0.94);
       }
@@ -239,6 +281,12 @@
   display: flex;
   flex-direction: column;
 
+  @include bp.mobile {
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
   .premium-form {
     flex: 1;
     display: flex;
@@ -251,6 +299,10 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+
+      @include bp.mobile {
+        padding: 12px 16px;
+      }
     }
   }
 }
@@ -363,6 +415,11 @@
   border-bottom: 1px solid var(--border-color);
   gap: 16px;
 
+  @include bp.mobile {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
   .wizard-step-btn {
     background: transparent;
     border: none;
@@ -374,6 +431,11 @@
     border-radius: 20px;
     transition: all 0.25s ease;
     outline: none;
+
+    @include bp.mobile {
+      padding: 6px 10px;
+      gap: 6px;
+    }
 
     .step-num {
       width: 26px;
@@ -394,6 +456,10 @@
       font-weight: 700;
       color: var(--slate-500);
       transition: all 0.25s ease;
+
+      @include bp.mobile {
+        font-size: 0.72rem;
+      }
     }
 
     &:hover {
@@ -514,6 +580,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
   transition: all 0.2s ease;
 
+  @include bp.mobile {
+    padding: 14px;
+  }
+
   &:hover {
     border-color: rgba(var(--accent-rgb), 0.2);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
@@ -522,6 +592,10 @@
   &.collapsed {
     padding: 14px 18px;
     gap: 0;
+
+    @include bp.mobile {
+      padding: 12px 14px;
+    }
 
     .meal-item-header {
       border-bottom: none;
@@ -574,6 +648,10 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        @include bp.mobile {
+          max-width: 110px;
+        }
       }
 
       .badge {
@@ -638,6 +716,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 0;
+
+      @include bp.mobile {
+        grid-template-columns: 1fr;
+      }
     }
   }
 }
@@ -668,6 +750,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+
+  @include bp.mobile {
+    flex-wrap: wrap;
+  }
 
   h3 {
     font-size: 1.05rem;
@@ -676,6 +763,10 @@
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+
+    @include bp.mobile {
+      font-size: 0.85rem;
+    }
   }
 }
 
@@ -688,6 +779,10 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  @include bp.mobile {
+    padding: 14px;
+  }
 
   h4 {
     font-size: 0.85rem;
@@ -710,6 +805,11 @@
     align-items: center;
     gap: 24px;
     flex-wrap: wrap;
+
+    @include bp.mobile {
+      justify-content: center;
+      gap: 16px;
+    }
   }
 
   .macro-donut-wrapper {
@@ -720,6 +820,11 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+
+    @include bp.mobile {
+      width: 100px;
+      height: 100px;
+    }
 
     .donut-svg {
       width: 100%;

@@ -46,6 +46,10 @@
           [class.today-cell]="d.isToday" [class.past-cell]="d.isPast" [class.has-history]="d.historySession"
           [class.rest-day-cell]="d.isRestDay">
 
+          <!-- Mobile-only: whole cell is one tap target that opens the day preview sheet -->
+          <button type="button" class="mobile-cell-tap-target" (click)="openMobileDaySheet(d)"
+            [attr.aria-label]="'View ' + d.dayNum"></button>
+
           <div class="day-cell-header">
             <span class="day-number-badge">{{ d.dayNum }}</span>
 
@@ -202,5 +206,53 @@
         <i class="fa-solid fa-check"></i> Apply Override
       </button>
     </div>
+  </div>
+</div>
+
+<!-- MOBILE-ONLY: Day preview bottom sheet -->
+<div class="day-sheet-backdrop" *ngIf="showMobileDaySheet" (click)="closeMobileDaySheet()"></div>
+
+<div class="day-sheet" [class.open]="showMobileDaySheet" *ngIf="selectedMobileDay as md"
+  (click)="$event.stopPropagation()">
+  <div class="day-sheet-handle"></div>
+
+  <div class="day-sheet-header">
+    <span class="day-sheet-date">{{ md.date | date:'EEEE, d MMMM' }}</span>
+    <span class="day-sheet-today-pill" *ngIf="md.isToday">Today</span>
+  </div>
+
+  <div class="day-sheet-routine">
+    <span class="status-indicator-dot"
+      [ngClass]="md.isRestDay ? 'rest-dot' : (md.historySession ? 'completed-dot' : 'scheduled-dot')"></span>
+    <div class="day-sheet-routine-text">
+      <strong>{{ md.routineName }}</strong>
+      <span *ngIf="!md.isRestDay">{{ md.exercisesCount }} exercise{{ md.exercisesCount === 1 ? '' : 's' }}</span>
+      <span class="overridden-tag" *ngIf="md.override"><i class="fa-solid fa-shuffle"></i> Overridden</span>
+    </div>
+  </div>
+
+  <div class="day-sheet-actions">
+    <ng-container *ngIf="md.historySession; else notLoggedYet">
+      <button type="button" class="btn-primary" (click)="mobileViewLoggedWorkout()">
+        <i class="fa-solid fa-square-poll-horizontal"></i> View Logged Workout
+      </button>
+      <button type="button" class="btn-outline" (click)="mobileEditLoggedWorkout()">
+        <i class="fa-solid fa-pen-to-square"></i> Edit Log
+      </button>
+    </ng-container>
+    <ng-template #notLoggedYet>
+      <!-- Logging is only allowed for today or past dates — never a future one. -->
+      <button type="button" class="btn-primary" *ngIf="!md.isRestDay && (md.isToday || md.isPast)"
+        (click)="mobileLogWorkout()">
+        <i class="fa-solid" [ngClass]="md.isToday ? 'fa-play' : 'fa-plus'"></i>
+        {{ md.isToday ? 'Start Today\'s Workout' : 'Log This Workout' }}
+      </button>
+      <p class="day-sheet-future-hint" *ngIf="!md.isRestDay && !md.isToday && !md.isPast">
+        <i class="fa-solid fa-circle-info"></i> You can't log a workout for a future date yet.
+      </p>
+    </ng-template>
+    <button type="button" class="btn-outline" (click)="mobileChangePlan()">
+      <i class="fa-solid fa-shuffle"></i> Change Plan for This Day
+    </button>
   </div>
 </div>

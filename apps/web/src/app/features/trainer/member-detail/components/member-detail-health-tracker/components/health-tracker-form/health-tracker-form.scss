@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .form-panel {
   display: flex;
   flex-direction: column;
@@ -5,7 +7,7 @@
   width: 440px;
   flex-shrink: 0;
 
-  @media (max-width: 1200px) {
+  @include bp.tablet {
     width: 100%;
   }
 }
@@ -19,6 +21,14 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+
+    @include bp.mobile {
+      grid-template-columns: 1fr;
+
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+    }
   }
 
   .form-group {

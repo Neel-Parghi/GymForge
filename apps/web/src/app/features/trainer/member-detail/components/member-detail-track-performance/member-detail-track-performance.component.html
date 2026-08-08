@@ -10,7 +10,9 @@
   </div>
 
   <!-- Outer Dashboard Panel -->
-  <div class="workout-tracker-dashboard glass-card" [class.backdated-height]="isBackdating">
+  <div class="workout-tracker-dashboard glass-card" [class.backdated-height]="isBackdating"
+    [class.stage-days]="mobileStage === 'days'" [class.stage-exercises]="mobileStage === 'exercises'"
+    [class.stage-set-logger]="mobileStage === 'set-logger'">
 
     <!-- Top Action Bar -->
     <div class="tracker-dashboard-header">
@@ -36,237 +38,268 @@
           <i class="fa-solid fa-arrow-left"></i> Back to Calendar
         </button>
 
-        <button class="btn-primary" (click)="onSaveSession()" *ngIf="todayWorkout">
-          Save & Log Session
+        <button class="btn-primary btn-save-session" (click)="onSaveSession()" *ngIf="todayWorkout">
+          <span class="text-full">Save & Log Session</span>
+          <span class="text-short">Log Session</span>
         </button>
       </div>
     </div>
 
-    <!-- MAIN TWO-COLUMN SPLIT CONTAINER -->
-    <div class="wt-split-container" *ngIf="todayWorkout && !todayWorkout.isRestDay; else alternateState">
-      <!-- LEFT SIDEBAR: Exercise List -->
-      <aside class="wt-exercise-sidebar">
-        <div class="sidebar-header">
-          <span class="section-tag">Exercises List</span>
-          <button class="btn-sidebar-add" (click)="openAddExerciseModal()" title="Add Custom Exercise">
-            <i class="fa-solid fa-circle-plus"></i> Add
-          </button>
+    <!-- MOBILE-ONLY: Plan Days List (Jefit-style landing view) -->
+    <div class="mobile-days-list" *ngIf="activeSplit?.days?.length">
+      <button type="button" class="mobile-day-card" *ngFor="let d of activeSplit.days"
+        [class.is-today]="d.dayName === initialDayName" [class.is-rest]="d.isRestDay" (click)="selectMobileDay(d)">
+        <div class="mobile-day-main">
+          <span class="mobile-day-name">{{ d.dayName }}</span>
+          <span class="mobile-day-category" *ngIf="d.category && !d.isRestDay">{{ d.category }}</span>
+          <span class="mobile-day-category rest" *ngIf="d.isRestDay">Rest Day</span>
         </div>
-
-        <div class="sidebar-exercise-list">
-          <div class="sidebar-ex-item" *ngFor="let ex of todayWorkout.exercises; let idx = index"
-            [class.active]="idx === selectedExerciseIndex" [class.skipped]="ex.skipped" (click)="selectExercise(idx)">
-
-            <div class="ex-item-main">
-              <span class="ex-index">{{ idx + 1 }}</span>
-              <div class="ex-info">
-                <span class="ex-title">{{ ex.name }}</span>
-                <!-- Completion Indicator -->
-                <span class="ex-meta" *ngIf="!ex.skipped">
-                  {{ getCompletedSetsCount(ex) }}/{{ ex.sets.length }} Sets
-                </span>
-                <span class="ex-meta skipped-text" *ngIf="ex.skipped">
-                  Skipped
-                </span>
-              </div>
-            </div>
-
-            <div class="ex-status-dot">
-              <i class="fa-solid fa-circle-check completed-icon"
-                *ngIf="!ex.skipped && ex.sets.length > 0 && getCompletedSetsCount(ex) === ex.sets.length"></i>
-              <i class="fa-solid fa-ban skipped-icon" *ngIf="ex.skipped"></i>
-              <i class="fa-regular fa-circle pending-icon"
-                *ngIf="!ex.skipped && (ex.sets.length === 0 || getCompletedSetsCount(ex) < ex.sets.length)"></i>
-            </div>
-          </div>
+        <div class="mobile-day-meta">
+          <span class="today-pill" *ngIf="d.dayName === initialDayName">Today</span>
+          <span class="mobile-day-count" *ngIf="!d.isRestDay">{{ d.exercises?.length || 0 }} exercises</span>
+          <i class="fa-solid fa-chevron-right"></i>
         </div>
-      </aside>
+      </button>
+    </div>
 
-      <!-- RIGHT PANEL: Selected Exercise Console -->
-      <main class="wt-exercise-console">
-        <ng-container *ngIf="todayWorkout.exercises[selectedExerciseIndex] as selectedEx; else noExState">
-
-          <!-- Selected Exercise Header -->
-          <div class="console-ex-header" [class.skipped-bg]="selectedEx.skipped">
-            <div class="console-title-wrap">
-              <h2>{{ selectedEx.name }}</h2>
-              <span class="target-notes" *ngIf="selectedEx.sets[0]?.target">
-                <i class="fa-solid fa-bullseye"></i> Target: {{ selectedEx.sets[0]?.target }}
-              </span>
-            </div>
-
-            <!-- Skip Toggle Switch & Mode Toggle -->
-            <div class="console-actions-group">
-              <button class="btn-skip-toggle" (click)="toggleExerciseMode(selectedEx)"
-                title="Toggle between Strength and Cardio tracking mode">
-                <i class="fa-solid" [ngClass]="selectedEx.isCardio ? 'fa-dumbbell' : 'fa-person-running'"></i>
-                {{ selectedEx.isCardio ? 'Strength Mode' : 'Cardio Mode' }}
+    <!-- MAIN TWO-COLUMN SPLIT CONTAINER (unconditional wrapper so mobile CSS can hide either branch as one unit) -->
+    <div class="workout-body">
+      <ng-container *ngIf="todayWorkout && !todayWorkout.isRestDay; else alternateState">
+        <div class="wt-split-container">
+          <!-- LEFT SIDEBAR: Exercise List -->
+          <aside class="wt-exercise-sidebar">
+            <div class="sidebar-header">
+              <button type="button" class="mobile-back-btn" (click)="backToDays()">
+                <i class="fa-solid fa-chevron-left"></i> Days
               </button>
-
-              <button class="btn-skip-toggle" [class.active-skip]="selectedEx.skipped"
-                (click)="toggleExerciseSkipped(selectedEx)">
-                <i class="fa-solid" [ngClass]="selectedEx.skipped ? 'fa-play' : 'fa-ban'"></i>
-                {{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}
+              <span class="section-tag">Exercises List</span>
+              <button class="btn-sidebar-add" (click)="openAddExerciseModal()" title="Add Custom Exercise">
+                <i class="fa-solid fa-circle-plus"></i> Add
               </button>
             </div>
-          </div>
 
-          <!-- Skipped Overlay Message -->
-          <div class="skipped-overlay-message" *ngIf="selectedEx.skipped">
-            <div class="message-content">
-              <i class="fa-solid fa-eye-slash animate-bounce-slow"></i>
-              <h3>This exercise has been skipped</h3>
-              <p>You can mark it as active to track sets or log progress.</p>
-              <button class="btn-primary btn-small" (click)="toggleExerciseSkipped(selectedEx)">
-                Enable Tracker
-              </button>
-            </div>
-          </div>
+            <div class="sidebar-exercise-list">
+              <div class="sidebar-ex-item" *ngFor="let ex of todayWorkout.exercises; let idx = index"
+                [class.active]="idx === selectedExerciseIndex" [class.skipped]="ex.skipped"
+                (click)="selectExercise(idx)">
 
-          <!-- Active Logging Console (Visible only when not skipped) -->
-          <div class="console-logging-area" *ngIf="!selectedEx.skipped">
-
-            <!-- Table Header -->
-            <div class="set-logger-table" [class.cardio-table]="selectedEx.isCardio">
-              <div class="table-thead">
-                <div class="th-cell col-set">Set</div>
-                <div class="th-cell col-target" *ngIf="!selectedEx.isCardio">Target Goal</div>
-                <div class="th-cell col-weight">{{ selectedEx.isCardio ? 'Distance (km)' : 'Weight (kg)' }}</div>
-                <div class="th-cell col-reps">{{ selectedEx.isCardio ? 'Duration (mins)' : 'Reps' }}</div>
-                <div class="th-cell col-status">Status</div>
-                <div class="th-cell col-actions">Remove</div>
-              </div>
-
-              <!-- Table Rows -->
-              <div class="table-tbody">
-                <div class="table-row-item" *ngFor="let s of selectedEx.sets; let sIdx = index"
-                  [class.completed]="s.completed">
-
-                  <div class="td-cell col-set">
-                    <span class="set-num-badge">Set {{ s.setNo }}</span>
+                <div class="ex-item-main">
+                  <span class="ex-index">{{ idx + 1 }}</span>
+                  <div class="ex-info">
+                    <span class="ex-title">{{ ex.name }}</span>
+                    <!-- Completion Indicator -->
+                    <span class="ex-meta" *ngIf="!ex.skipped">
+                      {{ getCompletedSetsCount(ex) }}/{{ ex.sets.length }} Sets
+                    </span>
+                    <span class="ex-meta skipped-text" *ngIf="ex.skipped">
+                      Skipped
+                    </span>
                   </div>
+                </div>
 
-                  <div class="td-cell col-target" *ngIf="!selectedEx.isCardio">
-                    <span class="target-text">{{ s.target }}</span>
-                  </div>
-
-                  <div class="td-cell col-weight">
-                    <div class="premium-num-input" *ngIf="!s.completed"
-                      [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.touched">
-                      <input type="number"
-                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0"
-                        max="300" placeholder="0" step="0.1"
-                        (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+') ? $event.preventDefault() : null">
-                      <span class="unit">{{ selectedEx.isCardio ? 'km' : 'kg' }}</span>
-                    </div>
-                    <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span class="unit">{{
-                        selectedEx.isCardio ? 'km' : 'kg' }}</span></span>
-                  </div>
-
-                  <div class="td-cell col-reps">
-                    <div class="premium-num-input" *ngIf="!s.completed"
-                      [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.touched">
-                      <input type="number"
-                        [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0" max="100"
-                        placeholder="0"
-                        (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
-                      <span class="unit">{{ selectedEx.isCardio ? 'mins' : 'reps' }}</span>
-                    </div>
-                    <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span class="unit">{{
-                        selectedEx.isCardio ? 'mins' : 'reps' }}</span></span>
-                  </div>
-
-                  <div class="td-cell col-status">
-                    <button class="btn-check-set-new" [class.checked]="s.completed"
-                      (click)="toggleSetCompletion(s, selectedExerciseIndex, sIdx)">
-                      <i class="fa-solid" [ngClass]="s.completed ? 'fa-circle-check' : 'fa-circle'"></i>
-                      <span>{{ s.completed ? 'Completed' : 'Mark Done' }}</span>
-                    </button>
-                  </div>
-
-                  <div class="td-cell col-actions">
-                    <button class="btn-delete-set" (click)="deleteSet(selectedEx, selectedExerciseIndex, sIdx)"
-                      title="Delete Set">
-                      <i class="fa-regular fa-trash-can"></i>
-                    </button>
-                  </div>
-
+                <div class="ex-status-dot">
+                  <i class="fa-solid fa-circle-check completed-icon"
+                    *ngIf="!ex.skipped && ex.sets.length > 0 && getCompletedSetsCount(ex) === ex.sets.length"></i>
+                  <i class="fa-solid fa-ban skipped-icon" *ngIf="ex.skipped"></i>
+                  <i class="fa-regular fa-circle pending-icon"
+                    *ngIf="!ex.skipped && (ex.sets.length === 0 || getCompletedSetsCount(ex) < ex.sets.length)"></i>
                 </div>
               </div>
             </div>
+          </aside>
 
-            <!-- Add Set Row Button -->
-            <div class="console-actions-row">
-              <button class="btn-outline btn-add-set-new" (click)="addSetToExercise(selectedEx, selectedExerciseIndex)">
-                <i class="fa-solid fa-plus"></i> Add New Set
-              </button>
-            </div>
+          <!-- RIGHT PANEL: Selected Exercise Console -->
+          <main class="wt-exercise-console">
+            <ng-container *ngIf="todayWorkout.exercises[selectedExerciseIndex] as selectedEx; else noExState">
 
-          </div>
-        </ng-container>
+              <!-- Selected Exercise Header -->
+              <div class="console-ex-header" [class.skipped-bg]="selectedEx.skipped">
+                <button type="button" class="mobile-back-btn console-back-btn" (click)="backToExercises()">
+                  <i class="fa-solid fa-chevron-left"></i> Exercises
+                </button>
+                <div class="console-title-wrap">
+                  <h2>{{ selectedEx.name }}</h2>
+                  <span class="target-notes" *ngIf="selectedEx.sets[0]?.target">
+                    <i class="fa-solid fa-bullseye"></i> Target: {{ selectedEx.sets[0]?.target }}
+                  </span>
+                </div>
 
-        <!-- No Exercises State -->
-        <ng-template #noExState>
-          <div class="empty-state-console">
-            <i class="fa-solid fa-dumbbell"></i>
-            <h3>No exercises logged in today's workout</h3>
-            <p>Click "Add Exercise" to manually customize or select another routine day.</p>
-          </div>
-        </ng-template>
-      </main>
+                <!-- Skip Toggle Switch & Mode Toggle -->
+                <div class="console-actions-group">
+                  <button class="btn-skip-toggle" (click)="toggleExerciseMode(selectedEx)"
+                    title="Toggle between Strength and Cardio tracking mode">
+                    <i class="fa-solid" [ngClass]="selectedEx.isCardio ? 'fa-dumbbell' : 'fa-person-running'"></i>
+                    {{ selectedEx.isCardio ? 'Strength Mode' : 'Cardio Mode' }}
+                  </button>
 
-    </div>
+                  <button class="btn-skip-toggle" [class.active-skip]="selectedEx.skipped"
+                    (click)="toggleExerciseSkipped(selectedEx)">
+                    <i class="fa-solid" [ngClass]="selectedEx.skipped ? 'fa-play' : 'fa-ban'"></i>
+                    {{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}
+                  </button>
+                </div>
+              </div>
 
-    <!-- ALTERNATE STATES -->
-    <ng-template #alternateState>
-      <ng-container *ngIf="!todayWorkout; else restDayState">
-        <div class="tab-pane-content tracker-full-width tracker-empty-container">
-          <div class="empty-state-console animate-fade-in empty-console-override">
-            <i class="fa-solid fa-calendar-xmark empty-icon-xl"></i>
-            <h3 class="empty-title-lg">No Workout Tracked Today</h3>
-            <p class="empty-text-centered">
-              There are no workouts scheduled for today, or a plan hasn't been assigned yet. Select a routine from the
-              calendar or create a plan.
-            </p>
-          </div>
+              <!-- Skipped Overlay Message -->
+              <div class="skipped-overlay-message" *ngIf="selectedEx.skipped">
+                <div class="message-content">
+                  <i class="fa-solid fa-eye-slash animate-bounce-slow"></i>
+                  <h3>This exercise has been skipped</h3>
+                  <p>You can mark it as active to track sets or log progress.</p>
+                  <button class="btn-primary btn-small" (click)="toggleExerciseSkipped(selectedEx)">
+                    Enable Tracker
+                  </button>
+                </div>
+              </div>
+
+              <!-- Active Logging Console (Visible only when not skipped) -->
+              <div class="console-logging-area" *ngIf="!selectedEx.skipped">
+
+                <!-- Table Header -->
+                <div class="set-logger-table" [class.cardio-table]="selectedEx.isCardio">
+                  <div class="table-thead">
+                    <div class="th-cell col-set">Set</div>
+                    <div class="th-cell col-target" *ngIf="!selectedEx.isCardio">Target Goal</div>
+                    <div class="th-cell col-weight">{{ selectedEx.isCardio ? 'Distance (km)' : 'Weight (kg)' }}</div>
+                    <div class="th-cell col-reps">{{ selectedEx.isCardio ? 'Duration (mins)' : 'Reps' }}</div>
+                    <div class="th-cell col-status">Status</div>
+                    <div class="th-cell col-actions">Remove</div>
+                  </div>
+
+                  <!-- Table Rows -->
+                  <div class="table-tbody">
+                    <div class="table-row-item" *ngFor="let s of selectedEx.sets; let sIdx = index"
+                      [class.completed]="s.completed">
+
+                      <div class="td-cell col-set">
+                        <span class="set-num-badge">Set {{ s.setNo }}</span>
+                      </div>
+
+                      <div class="td-cell col-target" *ngIf="!selectedEx.isCardio">
+                        <span class="target-text">{{ s.target }}</span>
+                      </div>
+
+                      <div class="td-cell col-weight">
+                        <div class="premium-num-input" *ngIf="!s.completed"
+                          [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('weight')?.touched">
+                          <input type="number"
+                            [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('weight'))" min="0"
+                            max="300" placeholder="0" step="0.1"
+                            (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+') ? $event.preventDefault() : null">
+                          <span class="unit">{{ selectedEx.isCardio ? 'km' : 'kg' }}</span>
+                        </div>
+                        <span class="completed-val-text" *ngIf="s.completed">{{ s.weight || 0 }} <span class="unit">{{
+                            selectedEx.isCardio ? 'km' : 'kg' }}</span></span>
+                      </div>
+
+                      <div class="td-cell col-reps">
+                        <div class="premium-num-input" *ngIf="!s.completed"
+                          [class.ng-invalid]="getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.invalid && getSetFormGroup(selectedExerciseIndex, sIdx).get('reps')?.touched">
+                          <input type="number"
+                            [formControl]="$any(getSetFormGroup(selectedExerciseIndex, sIdx).get('reps'))" min="0"
+                            max="100" placeholder="0"
+                            (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
+                          <span class="unit">{{ selectedEx.isCardio ? 'mins' : 'reps' }}</span>
+                        </div>
+                        <span class="completed-val-text" *ngIf="s.completed">{{ s.reps || 0 }} <span class="unit">{{
+                            selectedEx.isCardio ? 'mins' : 'reps' }}</span></span>
+                      </div>
+
+                      <div class="td-cell col-status">
+                        <button class="btn-check-set-new" [class.checked]="s.completed"
+                          (click)="toggleSetCompletion(s, selectedExerciseIndex, sIdx)">
+                          <i class="fa-solid" [ngClass]="s.completed ? 'fa-circle-check' : 'fa-circle'"></i>
+                          <span>{{ s.completed ? 'Completed' : 'Mark Done' }}</span>
+                        </button>
+                      </div>
+
+                      <div class="td-cell col-actions">
+                        <button class="btn-delete-set" (click)="deleteSet(selectedEx, selectedExerciseIndex, sIdx)"
+                          title="Delete Set">
+                          <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add Set Row Button -->
+                <div class="console-actions-row">
+                  <button class="btn-outline btn-add-set-new"
+                    (click)="addSetToExercise(selectedEx, selectedExerciseIndex)">
+                    <i class="fa-solid fa-plus"></i> Add New Set
+                  </button>
+                </div>
+
+              </div>
+            </ng-container>
+
+            <!-- No Exercises State -->
+            <ng-template #noExState>
+              <div class="empty-state-console">
+                <i class="fa-solid fa-dumbbell"></i>
+                <h3>No exercises logged in today's workout</h3>
+                <p>Click "Add Exercise" to manually customize or select another routine day.</p>
+              </div>
+            </ng-template>
+          </main>
+
         </div>
       </ng-container>
 
-      <!-- REST DAY STATE -->
-      <ng-template #restDayState>
-        <div class="rest-day-container animate-fade-in">
-          <div class="rest-day-card">
-            <div class="icon-circle">
-              <i class="fa-solid fa-bed"></i>
-            </div>
-            <h2>Rest & Recovery Day</h2>
-            <p class="rest-message">
-              No workouts are scheduled for this day. Rest is where muscle grows and the body rebuilds itself. Use today
-              to focus on stretching, hydration, and nutrition!
-            </p>
-            <div class="rest-stats-row">
-              <div class="rest-stat-item">
-                <i class="fa-solid fa-glass-water"></i>
-                <span>Hydrate</span>
-              </div>
-              <div class="rest-stat-item">
-                <i class="fa-solid fa-utensils"></i>
-                <span>Nutrition</span>
-              </div>
-              <div class="rest-stat-item">
-                <i class="fa-solid fa-heart-pulse"></i>
-                <span>Recover</span>
-              </div>
-            </div>
-            <div class="rest-actions">
-              <button class="btn-primary" (click)="todayWorkout.isRestDay = false">
-                <i class="fa-solid fa-dumbbell"></i> Track a Workout Anyway
-              </button>
+      <!-- ALTERNATE STATES -->
+      <ng-template #alternateState>
+        <ng-container *ngIf="!todayWorkout; else restDayState">
+          <div class="tab-pane-content tracker-full-width tracker-empty-container">
+            <div class="empty-state-console animate-fade-in empty-console-override">
+              <i class="fa-solid fa-calendar-xmark empty-icon-xl"></i>
+              <h3 class="empty-title-lg">No Workout Tracked Today</h3>
+              <p class="empty-text-centered">
+                There are no workouts scheduled for today, or a plan hasn't been assigned yet. Select a routine from the
+                calendar or create a plan.
+              </p>
             </div>
           </div>
-        </div>
+        </ng-container>
+
+        <!-- REST DAY STATE -->
+        <ng-template #restDayState>
+          <div class="rest-day-container animate-fade-in">
+            <div class="rest-day-card">
+              <div class="icon-circle">
+                <i class="fa-solid fa-bed"></i>
+              </div>
+              <h2>Rest & Recovery Day</h2>
+              <p class="rest-message">
+                No workouts are scheduled for this day. Rest is where muscle grows and the body rebuilds itself. Use
+                today
+                to focus on stretching, hydration, and nutrition!
+              </p>
+              <div class="rest-stats-row">
+                <div class="rest-stat-item">
+                  <i class="fa-solid fa-glass-water"></i>
+                  <span>Hydrate</span>
+                </div>
+                <div class="rest-stat-item">
+                  <i class="fa-solid fa-utensils"></i>
+                  <span>Nutrition</span>
+                </div>
+                <div class="rest-stat-item">
+                  <i class="fa-solid fa-heart-pulse"></i>
+                  <span>Recover</span>
+                </div>
+              </div>
+              <div class="rest-actions">
+                <button class="btn-primary" (click)="todayWorkout.isRestDay = false">
+                  <i class="fa-solid fa-dumbbell"></i> Track a Workout Anyway
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
       </ng-template>
-    </ng-template>
+    </div>
 
   </div>
 </div>

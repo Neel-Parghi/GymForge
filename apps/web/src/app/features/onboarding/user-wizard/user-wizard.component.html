@@ -43,7 +43,7 @@
       <div class="wizard-main">
         <div class="wizard-content-wrapper">
           <div class="wizard-content-inner">
-            
+
             <form [formGroup]="metricsForm" class="onboarding-form">
 
               <!-- Step 1: Welcome -->
@@ -107,20 +107,21 @@
               <div class="step-pane goals-pane">
                 <h2>What is your primary fitness goal?</h2>
                 <p class="subtitle">This helps us tailor your experience and recommendations.</p>
-                
+
                 <div class="goals-grid-enriched">
                   @for (goal of goals; track goal.id) {
-                    <div class="goal-card-enriched image-card" [class.selected]="selectedGoal === goal.id" (click)="selectGoal(goal.id)">
-                      <div class="bg-image" [style.backgroundImage]="'url(' + goal.image + ')'"></div>
-                      <div class="gradient-overlay"></div>
-                      <div class="card-content">
-                        <div class="text-content">
-                          <h3><i [class]="goal.icon" class="goal-icon"></i>{{ goal.label }}</h3>
-                          <p>{{ goal.desc }}</p>
-                        </div>
+                  <div class="goal-card-enriched image-card" [class.selected]="selectedGoal === goal.id"
+                    (click)="selectGoal(goal.id)">
+                    <div class="bg-image" [style.backgroundImage]="'url(' + goal.image + ')'"></div>
+                    <div class="gradient-overlay"></div>
+                    <div class="card-content">
+                      <div class="text-content">
+                        <h3><i [class]="goal.icon" class="goal-icon"></i>{{ goal.label }}</h3>
+                        <p>{{ goal.desc }}</p>
                       </div>
-                      <div class="selection-ring"></div>
                     </div>
+                    <div class="selection-ring"></div>
+                  </div>
                   }
                 </div>
               </div>
@@ -131,16 +132,17 @@
               <div class="step-pane metrics-pane">
                 <h2>Tell us about yourself</h2>
                 <p class="subtitle">These metrics are kept private and only used to calculate your progress.</p>
-                
+
                 <div class="form-row">
                   <div class="form-group">
                     <label>Gender *</label>
-                    <app-dropdown [options]="genderOptions" formControlName="gender" placeholder="Select Gender"></app-dropdown>
+                    <app-dropdown [options]="genderOptions" formControlName="gender"
+                      placeholder="Select Gender"></app-dropdown>
                   </div>
                   <div class="form-group">
                     <label>Date of Birth *</label>
                     <div class="dob-container">
-                      <app-date-time-picker formControlName="dob" [enableTime]="false"
+                      <app-date-time-picker formControlName="dob" [enableTime]="false" [minDate]="minDobDate"
                         [maxDate]="maxDobDate" class="dob-picker"></app-date-time-picker>
                       <span *ngIf="calculatedAge !== null" class="age-text">Age: {{ calculatedAge }}</span>
                     </div>
@@ -150,26 +152,34 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label>Height (cm) *</label>
-                    <input type="number" formControlName="height" placeholder="e.g. 175" class="form-control" min="50" max="300" (keypress)="allowNumbersOnly($event)" (input)="clampValue('height', 300)">
-                    <app-validation-message [control]="metricsForm.get('height')" fieldName="Height"></app-validation-message>
+                    <input type="number" formControlName="height" placeholder="e.g. 175" class="form-control" min="50"
+                      max="300" (keypress)="allowNumbersOnly($event)" (input)="clampValue('height', 300)">
+                    <app-validation-message [control]="metricsForm.get('height')"
+                      fieldName="Height"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Current Weight (kg) *</label>
-                    <input type="number" step="0.1" formControlName="weight" placeholder="e.g. 70.5" class="form-control" min="20" max="500" (keypress)="allowNumbersOnly($event)" (input)="clampValue('weight', 500)">
-                    <app-validation-message [control]="metricsForm.get('weight')" fieldName="Weight"></app-validation-message>
+                    <input type="number" step="0.1" formControlName="weight" placeholder="e.g. 70.5"
+                      class="form-control" min="20" max="500" (keypress)="allowNumbersOnly($event)"
+                      (input)="clampValue('weight', 500)">
+                    <app-validation-message [control]="metricsForm.get('weight')"
+                      fieldName="Weight"></app-validation-message>
                   </div>
                 </div>
 
                 <div class="form-row">
                   <div class="form-group">
                     <label>Target Weight (kg) <em>(Optional)</em></label>
-                    <input type="number" step="0.1" formControlName="targetWeight" placeholder="e.g. 65.5" class="form-control" min="20" max="500" (keypress)="allowNumbersOnly($event)" (input)="clampValue('targetWeight', 500)">
-                    <app-validation-message [control]="metricsForm.get('targetWeight')" fieldName="Target Weight"></app-validation-message>
+                    <input type="number" step="0.1" formControlName="targetWeight" placeholder="e.g. 65.5"
+                      class="form-control" min="20" max="500" (keypress)="allowNumbersOnly($event)"
+                      (input)="clampValue('targetWeight', 500)">
+                    <app-validation-message [control]="metricsForm.get('targetWeight')"
+                      fieldName="Target Weight"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Estimated BMI</label>
                     <div class="gender-btn-custom"
-                         [ngClass]="{'bmi-normal': bmiStatus === 'normal', 'bmi-under': bmiStatus === 'under', 'bmi-over': bmiStatus === 'over'}">
+                      [ngClass]="{'bmi-normal': bmiStatus === 'normal', 'bmi-under': bmiStatus === 'under', 'bmi-over': bmiStatus === 'over'}">
                       <span *ngIf="calculatedBmi !== null">{{ calculatedBmi }}</span>
                       <span *ngIf="calculatedBmi === null">Enter height & weight</span>
                     </div>
@@ -186,17 +196,19 @@
         <div class="wizard-footer-static">
           <div class="wizard-footer-inner">
             <div class="footer-left">
-              <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="isSubmitting">Back</button>
-              <button *ngIf="currentStep === 1" type="button" class="btn btn-text btn-logout-danger"
-                (click)="logout()">
+              <button *ngIf="currentStep > 1" type="button" class="btn btn-outline" (click)="prevStep()"
+                [disabled]="isSubmitting">Back</button>
+              <button *ngIf="currentStep === 1" type="button" class="btn btn-text btn-logout-danger" (click)="logout()">
                 <i class="fi fi-rr-sign-out-alt"></i> Back to Login
               </button>
             </div>
             <div class="footer-right">
-              <button *ngIf="currentStep < 3" type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="currentStep === 2 && !selectedGoal">
+              <button *ngIf="currentStep < 3" type="button" class="btn btn-primary" (click)="nextStep()"
+                [disabled]="currentStep === 2 && !selectedGoal">
                 Continue
               </button>
-              <button *ngIf="currentStep === 3" type="button" class="btn btn-primary" (click)="submitMetrics()" [disabled]="metricsForm.invalid || isSubmitting">
+              <button *ngIf="currentStep === 3" type="button" class="btn btn-primary" (click)="submitMetrics()"
+                [disabled]="metricsForm.invalid || isSubmitting">
                 {{ isSubmitting ? 'Saving...' : 'Complete Profile' }}
               </button>
             </div>
