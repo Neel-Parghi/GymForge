@@ -59,6 +59,13 @@
   flex-wrap: wrap;
   gap: 16px;
 
+  @include bp.mobile {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    gap: 12px;
+  }
+
   .header-info-group {
     h3 {
       font-size: 1.25rem;
@@ -84,6 +91,13 @@
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+
+    @include bp.mobile {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      gap: 10px;
+    }
 
     .btn-back-calendar {
       display: inline-flex;
@@ -242,7 +256,10 @@
   gap: 8px;
 
   @include bp.mobile {
-    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   label {
@@ -280,6 +297,10 @@
 .dropdown-wrap {
   width: 250px;
   max-width: 100%;
+
+  @include bp.mobile {
+    width: 100%;
+  }
 }
 
 /*   Main Two-Column Split Layout  */
