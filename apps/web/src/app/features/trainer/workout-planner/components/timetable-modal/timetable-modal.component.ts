@@ -24,6 +24,7 @@ export class TimetableModalComponent implements OnInit {
   activeDetailDayName = '';
   draggedDayIdx: number | null = null;
   draggedExIdx: number | null = null;
+  openNoteIndices = new Set<number>();
 
   get tabs(): any[] {
     if (!this.planner) return [];
@@ -105,6 +106,7 @@ export class TimetableModalComponent implements OnInit {
     const [removed] = dayDetails.exercises.splice(this.draggedExIdx, 1);
     dayDetails.exercises.splice(targetIdx, 0, removed);
 
+    this.openNoteIndices.clear();
     this.draggedExIdx = null;
     this.plannerChanged.emit();
   }
@@ -127,6 +129,20 @@ export class TimetableModalComponent implements OnInit {
 
   setDetailActiveDay(dayName: string): void {
     this.activeDetailDayName = dayName;
+    this.openNoteIndices.clear();
+  }
+
+  toggleNote(idx: number, event: Event): void {
+    event.stopPropagation();
+    if (this.openNoteIndices.has(idx)) {
+      this.openNoteIndices.delete(idx);
+    } else {
+      this.openNoteIndices.add(idx);
+    }
+  }
+
+  isNoteOpen(idx: number): boolean {
+    return this.openNoteIndices.has(idx);
   }
 
   getSelectedDayDetails(): any {

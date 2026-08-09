@@ -127,7 +127,10 @@
     overflow-x: auto;
 
     @include bp.mobile {
-      gap: 20px;
+      gap: 18px;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
     }
   }
 
@@ -150,6 +153,14 @@
     .tab-icon {
       font-size: 1.05rem;
       transition: transform 0.25s ease;
+    }
+
+    @include bp.mobile {
+      font-size: 0.82rem;
+
+      .tab-icon {
+        font-size: 0.92rem;
+      }
     }
 
     &:hover {
@@ -205,6 +216,11 @@
   cursor: pointer;
   transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
 
+  @include bp.mobile {
+    padding: 16px;
+    min-height: 0;
+  }
+
   .card-glow-element {
     position: absolute;
     top: 0;
@@ -246,10 +262,18 @@
     margin-bottom: 20px;
     width: 100%;
 
+    @include bp.mobile {
+      margin-bottom: 14px;
+    }
+
     .badge-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+
+      @include bp.mobile {
+        gap: 6px;
+      }
     }
 
     .badge {
@@ -262,6 +286,11 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+
+      @include bp.mobile {
+        font-size: 0.6rem;
+        padding: 5px 9px;
+      }
 
       &.level {
         position: relative;
@@ -385,6 +414,11 @@
       margin: 0 0 10px 0;
       line-height: 1.35;
       letter-spacing: -0.3px;
+
+      @include bp.mobile {
+        font-size: 1.05rem;
+        margin: 0 0 6px 0;
+      }
     }
 
     .desc {
@@ -393,6 +427,12 @@
       margin: 0 0 16px 0;
       line-height: 1.55;
       min-height: 42px;
+
+      @include bp.mobile {
+        font-size: 0.82rem;
+        margin: 0 0 12px 0;
+        min-height: 0;
+      }
     }
 
     .stats-row {
@@ -403,6 +443,13 @@
       border-bottom: 1px dashed var(--slate-200);
       padding-bottom: 16px;
       margin-bottom: 16px;
+
+      @include bp.mobile {
+        gap: 14px;
+        font-size: 0.84rem;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+      }
 
       .stat-item {
         display: flex;
@@ -455,12 +502,18 @@
   margin-bottom: 20px;
   flex-grow: 1;
 
+  @include bp.mobile {
+    gap: 2px;
+    margin-bottom: 14px;
+  }
+
   .calendar-node {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
     flex: 1;
+    min-width: 0;
 
     .calendar-day-lbl {
       font-size: 0.65rem;
@@ -478,6 +531,12 @@
       justify-content: center;
       font-size: 0.84rem;
       transition: all 0.25s ease;
+
+      @include bp.mobile {
+        width: 26px;
+        height: 26px;
+        font-size: 0.7rem;
+      }
     }
 
     .calendar-target-tag {
@@ -490,6 +549,11 @@
       text-overflow: ellipsis;
       width: 100%;
       max-width: 44px;
+
+      @include bp.mobile {
+        font-size: 0.56rem;
+        max-width: 100%;
+      }
     }
 
     &.workout {
