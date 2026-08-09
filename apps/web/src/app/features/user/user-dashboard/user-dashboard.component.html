@@ -146,16 +146,6 @@
                 <h4 class="ov-plan-name">{{ activeWorkoutPlan?.name || 'No Plan Assigned' }}</h4>
               </div>
             </div>
-            <div class="ov-plan-body workout-plan-body" *ngIf="activePlanName !== 'No Plan Assigned'">
-              <div class="ov-plan-metric">
-                <span class="metric-lbl">Target frequency</span>
-                <span class="metric-val">{{ activeDaysPerWeek }} days/week</span>
-              </div>
-              <div class="ov-plan-metric">
-                <span class="metric-lbl">Current Split</span>
-                <span class="metric-val">Push / Pull / Legs</span>
-              </div>
-            </div>
           </div>
           <button class="plan-action-btn" *ngIf="activePlanName !== 'No Plan Assigned'">Start Today's Workout</button>
         </div>
@@ -168,22 +158,6 @@
               <div class="ov-plan-head-text">
                 <p class="ov-plan-type">Active Diet Plan</p>
                 <h4 class="ov-plan-name">{{ activeDietPlan?.name || 'No Plan Assigned' }}</h4>
-              </div>
-            </div>
-            <div class="ov-plan-body" *ngIf="activeDietPlan?.name !== 'No Plan Assigned'">
-              <div class="ov-plan-metric">
-                <span class="metric-lbl">Protein Target</span>
-                <span class="metric-val">180g <span class="macro-logged protein-logged">160g logged</span></span>
-                <div class="macro-track">
-                  <div class="macro-fill protein-fill"></div>
-                </div>
-              </div>
-              <div class="ov-plan-metric">
-                <span class="metric-lbl">Carbs Target</span>
-                <span class="metric-val">300g <span class="macro-logged carbs-logged">220g logged</span></span>
-                <div class="macro-track">
-                  <div class="macro-fill carbs-fill"></div>
-                </div>
               </div>
             </div>
           </div>

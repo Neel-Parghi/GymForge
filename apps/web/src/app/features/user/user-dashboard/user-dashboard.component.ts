@@ -36,32 +36,28 @@ export class UserDashboardComponent implements OnInit {
 
   // Data for Trainer UI Replica
   todayDate: Date = new Date();
-  workoutStreak = 12;
+  workoutStreak = 0;
 
   // Row 1: Activity & Goals
-  caloriesBurnedToday = 1850;
-  targetCalories = 2800;
-  activeTrainingTimeMinutes = 45;
-  targetTrainingTime = 60;
-  goalTitle = 'Hypertrophy Phase 1';
-  goalProgressPct = 65;
+  caloriesBurnedToday = 0;
+  targetCalories = 0;
+  activeTrainingTimeMinutes = 0;
+  targetTrainingTime = 0;
+  goalTitle = 'General Fitness';
+  goalProgressPct = 0;
 
-  monthlySessionCount = 18;
-  monthlySessionTarget = 20;
-  monthlyCompletionPct = 90;
-  activeDaysPerWeek = 5;
-  completionFeedback = 'You are crushing it this month!';
-  daysLeftLabel = '9 Days Left in Month';
+  monthlySessionCount = 0;
+  monthlySessionTarget = 0;
+  monthlyCompletionPct = 0;
 
   // Row 2: Body & Trends
-  currentWeight = '175.4';
-  bodyFat = '14.2';
-  bmi = '23.8';
-  weightChartPoints = '0,80 20,78 40,60 60,65 80,40 100,20'; // Mock polyline points for weight trend
+  currentWeight = '0';
+  bodyFat = '0';
+  bmi = '0';
 
   // Row 3: Training & PRs
-  activeWorkoutPlan: any = { name: 'Hypertrophy Phase 1' };
-  activeDietPlan: any = { name: 'Lean Bulk Protocol' };
+  activeWorkoutPlan: any = { name: 'No Plan Assigned' };
+  activeDietPlan: any = { name: 'No Plan Assigned' };
 
   personalRecords: any[] = [];
 
@@ -86,9 +82,6 @@ export class UserDashboardComponent implements OnInit {
   calorieDashoffset = this.ringCircumference;
   activeTimeDashoffset = this.ringCircumference;
   streakDashoffset = this.ringCircumference;
-
-  // Diet Targets
-  dietTargets = { protein: 200, carbs: 250, fats: 80 };
 
   private routineStorageKey = 'gymforge_daily_routine';
   private routineDateKey = 'gymforge_daily_routine_date';
@@ -129,16 +122,16 @@ export class UserDashboardComponent implements OnInit {
   }
 
   private calculateRings() {
-    // Calorie Ring (Target 2500 for mock)
-    const calPct = Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100) || 5;
+    // Calorie Ring
+    const calPct = this.targetCalories > 0 ? Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100) : 0;
     this.calorieDashoffset = this.ringCircumference - (calPct / 100) * this.ringCircumference;
 
-    // Active Time Ring (Target 150 mins for mock)
-    const timePct = Math.min((this.activeTrainingTimeMinutes / 150) * 100, 100) || 10;
+    // Active Time Ring
+    const timePct = this.targetTrainingTime > 0 ? Math.min((this.activeTrainingTimeMinutes / this.targetTrainingTime) * 100, 100) : 0;
     this.activeTimeDashoffset = this.ringCircumference - (timePct / 100) * this.ringCircumference;
 
-    // Streak Ring (Target 7 days for mock)
-    const streakPct = Math.min((this.workoutStreak / 7) * 100, 100) || 15;
+    // Streak Ring (weekly streak goal of 7 days)
+    const streakPct = Math.min((this.workoutStreak / 7) * 100, 100);
     this.streakDashoffset = this.ringCircumference - (streakPct / 100) * this.ringCircumference;
   }
 
