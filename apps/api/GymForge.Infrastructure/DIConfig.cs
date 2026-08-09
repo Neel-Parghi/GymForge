@@ -110,6 +110,9 @@ namespace GymForge.Infrastructure
             services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
             services.AddHttpClient<INutritionApiService, NutritionApiService>();
 
+            // Seeders
+            services.AddScoped<GymForge.Application.Modules.Dev.Interface.IDatabaseSeederService, DatabaseSeederService>();
+
             string? cloudName = configuration["Cloudinary:CloudName"];
             if (!string.IsNullOrEmpty(cloudName))
             {

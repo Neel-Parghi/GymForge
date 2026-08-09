@@ -124,6 +124,7 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<DemoModeMiddleware>();
 app.UseRateLimiter();
 
 app.UseMiddleware<ResponseWrapperMiddleware>();
