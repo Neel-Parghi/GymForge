@@ -25,7 +25,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   selectedExerciseIndex = 0;
 
-  mobileStage: 'days' | 'exercises' | 'set-logger' = 'days';
+  mobileStage: 'days' | 'exercises' | 'set-logger' = 'exercises';
   initialDayName: string | null = null;
 
   daySelectControl = new FormControl('');
@@ -73,12 +73,16 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   showAddExerciseModal = false;
 
+  private getPlainDayName(dayName: string): string {
+    return dayName ? dayName.split(' - ')[0] : dayName;
+  }
+
   ngOnInit(): void {
     if (this.todayWorkout) {
-      this.daySelectControl.setValue(this.todayWorkout.dayName, { emitEvent: false });
+      this.daySelectControl.setValue(this.getPlainDayName(this.todayWorkout.dayName), { emitEvent: false });
       this.buildWorkoutForm();
       if (this.initialDayName === null) {
-        this.initialDayName = this.todayWorkout.dayName;
+        this.initialDayName = this.getPlainDayName(this.todayWorkout.dayName);
       }
     }
     this.setupDropdownOptions();
@@ -92,13 +96,13 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['todayWorkout'] && this.todayWorkout) {
-      this.daySelectControl.setValue(this.todayWorkout.dayName, { emitEvent: false });
+      this.daySelectControl.setValue(this.getPlainDayName(this.todayWorkout.dayName), { emitEvent: false });
       this.buildWorkoutForm();
       if (this.initialDayName === null) {
-        this.initialDayName = this.todayWorkout.dayName;
+        this.initialDayName = this.getPlainDayName(this.todayWorkout.dayName);
       }
       if (changes['todayWorkout'].isFirstChange()) {
-        this.mobileStage = 'days';
+        this.mobileStage = 'exercises';
       }
     }
     if (changes['activeSplit'] && this.activeSplit) {
