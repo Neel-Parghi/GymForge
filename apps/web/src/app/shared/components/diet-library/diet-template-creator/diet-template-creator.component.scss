@@ -35,6 +35,8 @@
       border-radius: 0;
       height: 100vh;
       max-height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
     }
 
     [data-theme="dark"] & {
@@ -284,6 +286,8 @@
   @include bp.mobile {
     height: 100vh;
     max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
   }
 
