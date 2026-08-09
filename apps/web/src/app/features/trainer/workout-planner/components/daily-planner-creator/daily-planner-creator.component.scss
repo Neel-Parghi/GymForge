@@ -678,6 +678,43 @@
     font-weight: 800;
   }
 
+  // Lets a trainer switch this one cell between "pick from catalog" (the
+  // dropdown) and "type your own" (plain input) — both write to the same
+  // exerciseName control, so nothing else about saving changes.
+  .exercise-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    app-dropdown,
+    .table-input {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .btn-toggle-custom-name {
+    flex-shrink: 0;
+    background: var(--slate-50);
+    border: 1.5px solid var(--slate-200);
+    color: var(--slate-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      background: rgba(37, 99, 235, 0.05);
+    }
+  }
+
   .row-btn-delete {
     background: transparent;
     border: none;

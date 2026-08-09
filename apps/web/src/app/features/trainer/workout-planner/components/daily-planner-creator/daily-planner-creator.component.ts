@@ -149,7 +149,8 @@ export class DailyPlannerCreatorComponent implements OnInit {
         exerciseName: [ex.name || '', [Validators.required]],
         targetSets: [ex.sets || 4, [Validators.required, Validators.min(1), Validators.max(200)]],
         targetReps: [ex.reps || '10-12 Reps', [Validators.required, Validators.maxLength(15)]],
-        notes: [ex.notes || '', [Validators.maxLength(30)]]
+        notes: [ex.notes || '', [Validators.maxLength(30)]],
+        isCustomName: [!this.getCategoryForExercise(ex.name)]
       }));
     });
 
@@ -163,7 +164,10 @@ export class DailyPlannerCreatorComponent implements OnInit {
       exerciseName: ['', [Validators.required]],
       targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
       targetReps: ['10-12 Reps', [Validators.required, Validators.maxLength(15)]],
-      notes: ['', [Validators.maxLength(30)]]
+      notes: ['', [Validators.maxLength(30)]],
+      // UI-only flag (dropdown vs. free-typed name) — never read in onSubmitDaily's
+      // explicit field mapping, so it never reaches the saved payload.
+      isCustomName: [false]
     });
   }
 
@@ -212,6 +216,15 @@ export class DailyPlannerCreatorComponent implements OnInit {
         wrapper.scrollTop = wrapper.scrollHeight;
       }
     }, 200);
+  }
+
+  toggleCustomExerciseName(exIdx: number): void {
+    const ctrl = this.dailyExercises.at(exIdx).get('isCustomName');
+    ctrl?.setValue(!ctrl.value);
+  }
+
+  isCustomExerciseName(exIdx: number): boolean {
+    return !!this.dailyExercises.at(exIdx).get('isCustomName')?.value;
   }
 
   removeDailyExercise(index: number): void {
@@ -286,7 +299,8 @@ export class DailyPlannerCreatorComponent implements OnInit {
           exerciseName: [ex.name || '', [Validators.required]],
           targetSets: [ex.sets || 4, [Validators.required, Validators.min(1), Validators.max(200)]],
           targetReps: [ex.reps || '10-12', [Validators.required, Validators.maxLength(10)]],
-          notes: [ex.notes || '', [Validators.maxLength(200)]]
+          notes: [ex.notes || '', [Validators.maxLength(200)]],
+          isCustomName: [!this.getCategoryForExercise(ex.name)]
         }));
       });
 
