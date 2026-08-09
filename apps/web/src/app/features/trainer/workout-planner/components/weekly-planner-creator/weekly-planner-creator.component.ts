@@ -167,7 +167,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
             exerciseName: [ex.name || '', [Validators.required]],
             targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(200)]],
             targetReps: [ex.reps || '10-12 Reps', [Validators.required, Validators.maxLength(15)]],
-            notes: [ex.notes || '', [Validators.maxLength(30)]]
+            notes: [ex.notes || '', [Validators.maxLength(30)]],
+            isCustomName: [!this.getCategoryForExercise(ex.name)]
           }))
         )
       });
@@ -184,7 +185,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
               exerciseName: [av[0]?.name || '', [Validators.required]],
               targetSets: [4, [Validators.required, Validators.min(1)]],
               targetReps: ['10-12', [Validators.required]],
-              notes: ['']
+              notes: [''],
+              isCustomName: [false]
             }));
           }
         }
@@ -208,7 +210,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
           exerciseName: ['', [Validators.required]],
           targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
           targetReps: ['10-12', [Validators.required, Validators.maxLength(10)]],
-          notes: ['', [Validators.maxLength(10)]]
+          notes: ['', [Validators.maxLength(10)]],
+          isCustomName: [false]
         })
       ])
     });
@@ -225,7 +228,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
             exerciseName: ['', [Validators.required]],
             targetSets: [4, [Validators.required, Validators.min(1)]],
             targetReps: ['10-12', [Validators.required]],
-            notes: ['']
+            notes: [''],
+            isCustomName: [false]
           }));
         }
       }
@@ -249,7 +253,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
       exerciseName: ['', [Validators.required]],
       targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
       targetReps: ['10-12', [Validators.required, Validators.maxLength(10)]],
-      notes: ['', [Validators.maxLength(10)]]
+      notes: ['', [Validators.maxLength(10)]],
+      isCustomName: [false]
     });
 
     this.getWeeklyExercises(dayIndex).push(exGroup);
@@ -264,6 +269,15 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
   removeWeeklyExercise(dayIdx: number, exIdx: number): void {
     const exArray = this.getWeeklyExercises(dayIdx);
     exArray.removeAt(exIdx);
+  }
+
+  toggleCustomExerciseName(dayIdx: number, exIdx: number): void {
+    const ctrl = this.getWeeklyExercises(dayIdx).at(exIdx).get('isCustomName');
+    ctrl?.setValue(!ctrl.value);
+  }
+
+  isCustomExerciseName(dayIdx: number, exIdx: number): boolean {
+    return !!this.getWeeklyExercises(dayIdx).at(exIdx).get('isCustomName')?.value;
   }
 
   enforceMaxSets(exGroup: any, event: Event): void {
@@ -302,7 +316,8 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
         exerciseName: [ex.exerciseName, [Validators.required]],
         targetSets: [ex.targetSets, [Validators.required, Validators.min(1), Validators.max(200)]],
         targetReps: [ex.targetReps, [Validators.required, Validators.maxLength(10)]],
-        notes: [ex.notes, [Validators.maxLength(10)]]
+        notes: [ex.notes, [Validators.maxLength(10)]],
+        isCustomName: [ex.isCustomName ?? false]
       }));
     });
 

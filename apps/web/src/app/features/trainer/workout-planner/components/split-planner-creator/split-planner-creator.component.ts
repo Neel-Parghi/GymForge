@@ -132,7 +132,8 @@ export class SplitPlannerCreatorComponent implements OnInit {
       name: ex.exerciseName,
       sets: ex.targetSets,
       reps: ex.targetReps,
-      notes: ex.notes
+      notes: ex.notes,
+      isCustomName: ex.isCustomName
     }));
 
     this.copiedWorkout = {
@@ -174,7 +175,8 @@ export class SplitPlannerCreatorComponent implements OnInit {
           exerciseName: [ex.name || '', [Validators.required]],
           targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(200)]],
           targetReps: [ex.reps || '10-12 Reps', [Validators.required, Validators.maxLength(15)]],
-          notes: [ex.notes || '', [Validators.maxLength(30)]]
+          notes: [ex.notes || '', [Validators.maxLength(30)]],
+          isCustomName: [ex.isCustomName ?? !this.getCategoryForExercise(ex.name)]
         }));
       });
 
@@ -237,7 +239,8 @@ export class SplitPlannerCreatorComponent implements OnInit {
             exerciseName: [ex.name || '', [Validators.required]],
             targetSets: [ex.sets || 3, [Validators.required, Validators.min(1), Validators.max(200)]],
             targetReps: [ex.reps || '10-12', [Validators.required, Validators.maxLength(10)]],
-            notes: [ex.notes || '', [Validators.maxLength(10)]]
+            notes: [ex.notes || '', [Validators.maxLength(10)]],
+            isCustomName: [!this.getCategoryForExercise(ex.name)]
           }))
         )
       });
@@ -273,7 +276,8 @@ export class SplitPlannerCreatorComponent implements OnInit {
       exerciseName: ['', [Validators.required]],
       targetSets: [3, [Validators.required, Validators.min(1), Validators.max(200)]],
       targetReps: ['10-12', [Validators.required, Validators.maxLength(10)]],
-      notes: ['', [Validators.maxLength(10)]]
+      notes: ['', [Validators.maxLength(10)]],
+      isCustomName: [false]
     });
 
     this.getSplitExercises(dayIndex).push(exGroup);
@@ -288,6 +292,15 @@ export class SplitPlannerCreatorComponent implements OnInit {
   removeSplitExercise(dayIdx: number, exIdx: number): void {
     const exArray = this.getSplitExercises(dayIdx);
     exArray.removeAt(exIdx);
+  }
+
+  toggleCustomExerciseName(dayIdx: number, exIdx: number): void {
+    const ctrl = this.getSplitExercises(dayIdx).at(exIdx).get('isCustomName');
+    ctrl?.setValue(!ctrl.value);
+  }
+
+  isCustomExerciseName(dayIdx: number, exIdx: number): boolean {
+    return !!this.getSplitExercises(dayIdx).at(exIdx).get('isCustomName')?.value;
   }
 
   enforceMaxSets(exGroup: any, event: Event): void {
