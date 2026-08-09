@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .user-page-wrapper {
   display: flex;
   flex-direction: column;
@@ -9,6 +11,16 @@
 
       &.backdated-height {
         height: calc(100vh - 180px);
+      }
+
+      @include bp.tablet {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+
+        &.backdated-height {
+          height: auto;
+        }
       }
     }
   }
