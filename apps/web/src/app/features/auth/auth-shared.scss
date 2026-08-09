@@ -11,8 +11,9 @@
   position: relative;
 
   @media (max-width: 767px) {
-    height: auto;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -27,6 +28,10 @@
   padding: 12px 32px;
   background: transparent;
   flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    padding: 12px 16px;
+  }
 
   .brand-logo {
     font-weight: 900;
@@ -48,8 +53,8 @@
 
   @media (max-width: 767px) {
     overflow: visible;
-    align-items: flex-start;
-    padding: 16px;
+    align-items: center;
+    padding: 12px 16px;
   }
 }
 
@@ -156,11 +161,15 @@
   }
 
   @media (max-width: 767px) {
-    padding: 24px 18px;
+    padding: 22px 18px;
   }
 
   .card-header {
     margin-bottom: 28px;
+
+    @media (max-width: 767px) {
+      margin-bottom: 16px;
+    }
 
     .card-title {
       font-size: 1.8rem;
@@ -168,6 +177,10 @@
       letter-spacing: -0.02em;
       color: var(--on-surface-precision, #1a1c1c);
       // margin-bottom: 6px;
+
+      @media (max-width: 767px) {
+        font-size: 1.5rem;
+      }
     }
 
     .card-subtitle {
@@ -183,6 +196,10 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+
+  @media (max-width: 767px) {
+    gap: 12px;
+  }
 
   .form-item {
     display: flex;
@@ -339,6 +356,11 @@
   font-weight: 500;
   color: #6b7280;
 
+  @media (max-width: 767px) {
+    margin-top: 14px;
+    padding-top: 12px;
+  }
+
   a {
     color: #005bbc;
     color: var(--primary-precision, #005bbc);
@@ -373,6 +395,7 @@
   @media (max-width: 767px) {
     flex-direction: row;
     justify-content: center;
+    padding: 8px 16px;
   }
 
   .footer-logo {
