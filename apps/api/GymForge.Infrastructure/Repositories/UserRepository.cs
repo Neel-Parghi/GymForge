@@ -333,7 +333,7 @@ namespace GymForge.Infrastructure.Repositories
                 {
                     PlanId = activeDietPlan.DietPlanId,
                     Name = activeDietPlan.DietPlan.Name,
-                    Type = activeDietPlan.DietPlan.DietType.ToString()
+                    Type = activeDietPlan.DietPlan.Goal
                 };
             }
 
