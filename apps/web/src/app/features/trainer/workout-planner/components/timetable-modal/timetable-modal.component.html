@@ -12,7 +12,7 @@
       </div>
       <div class="header-actions">
         <button type="button" class="btn-header-edit" (click)="onEdit()">
-          <i class="fa-solid fa-pen-to-square"></i> Edit Plan
+          <i class="fa-solid fa-pen-to-square"></i> <span>Edit Plan</span>
         </button>
         <button class="btn-close" (click)="onClose()"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -70,17 +70,32 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let ex of getSelectedDayDetails()?.exercises; let idx = index" class="exercise-timetable-row"
-                draggable="true" (dragstart)="onExDragStart(idx, $event)" (dragover)="onExDragOver(idx, $event)"
-                (drop)="onExDrop(idx, $event)">
-                <td class="col-drag-cell">
-                  <i class="fa-solid fa-grip-vertical drag-grip-icon" title="Drag to reorder"></i>
-                </td>
-                <td class="ex-name-val">{{ ex.name }}</td>
-                <td class="ex-sets-val"><strong>{{ ex.sets }}</strong></td>
-                <td class="ex-reps-val"><span class="reps-badge-val">{{ ex.reps }}</span></td>
-                <td class="ex-notes-val"><em>{{ ex.notes || 'None' }}</em></td>
-              </tr>
+              <ng-container *ngFor="let ex of getSelectedDayDetails()?.exercises; let idx = index">
+                <tr class="exercise-timetable-row" draggable="true" (dragstart)="onExDragStart(idx, $event)"
+                  (dragover)="onExDragOver(idx, $event)" (drop)="onExDrop(idx, $event)">
+                  <td class="col-drag-cell">
+                    <i class="fa-solid fa-grip-vertical drag-grip-icon" title="Drag to reorder"></i>
+                  </td>
+                  <td class="ex-name-val">
+                    {{ ex.name }}
+                    <span class="ex-sets-reps-mobile">{{ ex.sets }} X {{ ex.reps }}</span>
+                  </td>
+                  <td class="ex-sets-val"><strong>{{ ex.sets }}</strong></td>
+                  <td class="ex-reps-val"><span class="reps-badge-val">{{ ex.reps }}</span></td>
+                  <td class="ex-notes-val">
+                    <em class="notes-text-desktop">{{ ex.notes || 'None' }}</em>
+                    <button *ngIf="ex.notes" type="button" class="btn-note-info"
+                      [class.active]="isNoteOpen(idx)" (click)="toggleNote(idx, $event)" title="View coaching notes">
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr class="exercise-note-row" *ngIf="ex.notes && isNoteOpen(idx)">
+                  <td class="note-row-cell" colspan="5">
+                    <i class="fa-solid fa-circle-info"></i> {{ ex.notes }}
+                  </td>
+                </tr>
+              </ng-container>
             </tbody>
           </table>
         </div>
