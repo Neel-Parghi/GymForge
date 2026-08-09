@@ -60,15 +60,16 @@ export class UserSettingsComponent implements OnInit {
   loadPreferences() {
     this.userService.getPreferences().subscribe({
       next: (res: any) => {
-        if (res) {
+        const data = res?.data;
+        if (data) {
           this.fitnessForm.patchValue({
-            primaryGoal: res.primaryGoal,
-            targetWeight: res.targetWeight,
-            targetCalories: res.targetCalories,
-            targetProtein: res.targetProtein,
-            targetCarbs: res.targetCarbs,
-            targetFats: res.targetFats,
-            targetTrainingTime: res.targetTrainingTime
+            primaryGoal: data.primaryGoal,
+            targetWeight: data.targetWeight,
+            targetCalories: data.targetCalories,
+            targetProtein: data.targetProtein,
+            targetCarbs: data.targetCarbs,
+            targetFats: data.targetFats,
+            targetTrainingTime: data.targetTrainingTime
           });
         }
         this.isLoading = false;
