@@ -151,9 +151,21 @@
                         <tr *ngFor="let ex of getSplitExercises(dayIdx).controls; let exIdx = index"
                           [formGroupName]="exIdx">
                           <td>
-                            <app-dropdown [options]="getExercisesDropdownOptions(dayIdx, exIdx)"
-                              formControlName="exerciseName" placeholder="Select Exercise" [isSearchable]="true"
-                              minWidth="100%" direction="auto"></app-dropdown>
+                            <div class="exercise-name-cell">
+                              <app-dropdown *ngIf="!isCustomExerciseName(dayIdx, exIdx)"
+                                [options]="getExercisesDropdownOptions(dayIdx, exIdx)" formControlName="exerciseName"
+                                placeholder="Select Exercise" [isSearchable]="true" minWidth="100%"
+                                direction="auto"></app-dropdown>
+                              <input *ngIf="isCustomExerciseName(dayIdx, exIdx)" type="text"
+                                formControlName="exerciseName" class="table-input" placeholder="Type exercise name"
+                                maxlength="60">
+                              <button type="button" class="btn-toggle-custom-name"
+                                (click)="toggleCustomExerciseName(dayIdx, exIdx)"
+                                [title]="isCustomExerciseName(dayIdx, exIdx) ? 'Pick from list instead' : 'Type your own exercise name'">
+                                <i class="fa-solid"
+                                  [ngClass]="isCustomExerciseName(dayIdx, exIdx) ? 'fa-list' : 'fa-keyboard'"></i>
+                              </button>
+                            </div>
                           </td>
                           <td>
                             <input type="number" formControlName="targetSets" class="table-input col-sets-input" min="1"
