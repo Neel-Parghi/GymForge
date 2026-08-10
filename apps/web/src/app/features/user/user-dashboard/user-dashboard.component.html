@@ -72,14 +72,18 @@
 
       <!-- Row 2: Body Composition Rings -->
       <div class="ov-body-section glass-card mb-0">
-        <div class="ov-section-header">
+        <div class="ov-section-header collapsible" (click)="toggleBodyComposition()">
           <div>
             <h3 class="ov-section-title"><i class="fa-solid fa-child-reaching"></i> Body Composition</h3>
             <p class="ov-section-subtitle">Based on latest measurement</p>
           </div>
+          <button type="button" class="btn-section-toggle" [class.open]="isBodyCompositionOpen"
+            [attr.aria-expanded]="isBodyCompositionOpen" title="Toggle Body Composition">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
         </div>
 
-        <div class="ov-body-composition-grid">
+        <div class="ov-body-composition-grid" *ngIf="isBodyCompositionOpen">
           <!-- Weight Ring -->
           <div class="ov-comp-card">
             <div class="ov-ring-container">
