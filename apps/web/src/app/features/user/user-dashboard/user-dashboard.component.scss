@@ -1033,18 +1033,6 @@
           font-size: 0.75rem;
           font-weight: 800;
         }
-
-        &.fresh .rec-status {
-          color: var(--success-color);
-        }
-
-        &.recovered .rec-status {
-          color: #eab308;
-        }
-
-        &.fatigued .rec-status {
-          color: var(--error-color);
-        }
       }
 
       .rec-track {
@@ -1057,18 +1045,27 @@
           height: 100%;
           border-radius: 4px;
           transition: 0.5s ease-out;
+          background: var(--slate-300);
+        }
+      }
+      
+      &.recovering {
+        .rec-status {
+          color: #eab308;
         }
 
-        &.fresh .rec-fill {
-          background: var(--success-color);
-        }
-
-        &.recovered .rec-fill {
+        .rec-track .rec-fill {
           background: #eab308;
         }
+      }
 
-        &.fatigued .rec-fill {
-          background: var(--error-color);
+      &.ready {
+        .rec-status {
+          color: var(--success-color);
+        }
+
+        .rec-track .rec-fill {
+          background: var(--success-color);
         }
       }
     }
