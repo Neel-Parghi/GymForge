@@ -53,7 +53,6 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task DeleteUserAsync(User user)
         {
-            // Delete custom personal plans authored by this user
             await _dbContext.WorkoutPlans
                 .Where(p => p.CreatedBy == user.Id && p.IsCustom)
                 .ExecuteDeleteAsync();
@@ -243,23 +242,25 @@ namespace GymForge.Infrastructure.Repositories
                     SetCount = e.LoggedSets.Count(s => s.Completed)
                 })
                 .ToListAsync();
-
-            var recentExerciseNames = recentExercises.Select(e => e.ExerciseName).Distinct().ToList();
             
+            static string NormalizeExerciseName(string name) =>
+                string.IsNullOrWhiteSpace(name) ? string.Empty : name.Trim().ToLowerInvariant();
+
             var masterExercises = await _dbContext.Exercises
-                .Where(e => recentExerciseNames.Contains(e.Name))
                 .Select(e => new { e.Name, e.Category })
                 .ToListAsync();
-            
-            var categoryMap = masterExercises.ToDictionary(e => e.Name, e => e.Category);
-            
+
+            var categoryMap = masterExercises
+                .GroupBy(e => NormalizeExerciseName(e.Name))
+                .ToDictionary(g => g.Key, g => g.First().Category);
+
             var recentByCategory = recentExercises
-                .Where(e => categoryMap.ContainsKey(e.ExerciseName) && !string.IsNullOrEmpty(categoryMap[e.ExerciseName]))
                 .Select(e => new {
-                    Category = categoryMap[e.ExerciseName],
+                    Category = categoryMap.GetValueOrDefault(NormalizeExerciseName(e.ExerciseName)),
                     e.Date,
                     e.SetCount
                 })
+                .Where(e => !string.IsNullOrEmpty(e.Category))
                 .GroupBy(e => e.Category)
                 .ToList();
 
