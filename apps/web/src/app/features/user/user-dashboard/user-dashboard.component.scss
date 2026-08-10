@@ -271,6 +271,40 @@
   padding-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
+
+  &.collapsible {
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.btn-section-toggle {
+  background: var(--slate-50);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  i {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.open i {
+    transform: rotate(180deg);
+  }
+
+  &:hover {
+    background: rgba(var(--accent-rgb), 0.08);
+    border-color: rgba(var(--accent-rgb), 0.25);
+    color: var(--accent-color);
+  }
 }
 
 .ov-section-title {
@@ -297,6 +331,7 @@
   display: grid;
   grid-template-columns: 1fr 1.3fr 1fr;
   gap: 20px;
+  animation: fadeInOv 0.3s ease-out;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;

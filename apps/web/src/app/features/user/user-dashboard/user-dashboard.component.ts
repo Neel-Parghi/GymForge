@@ -90,6 +90,11 @@ export class UserDashboardComponent implements OnInit {
   private calorieTargetKey = 'gymforge_calorie_target';
 
   isFirstTime = false;
+  isBodyCompositionOpen = false;
+
+  toggleBodyComposition(): void {
+    this.isBodyCompositionOpen = !this.isBodyCompositionOpen;
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
