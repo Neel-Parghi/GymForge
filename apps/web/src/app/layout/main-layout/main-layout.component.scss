@@ -354,6 +354,18 @@
       }
     }
 
+    .mobile-user-brand {
+      display: flex;
+      align-items: center;
+      margin-right: auto;
+      flex-shrink: 0;
+
+      .mobile-brand-logo {
+        height: 28px;
+        width: auto;
+      }
+    }
+
     .topbar-context-selector {
       position: relative;
       margin-right: auto;
