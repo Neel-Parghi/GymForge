@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AuthApiService } from '../../../core/services/auth-api.service';
@@ -24,6 +25,7 @@ export class UserDashboardComponent implements OnInit {
   private announcementService = inject(AnnouncementService);
   private fb = inject(FormBuilder);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
 
   routineForm!: FormGroup;
 
@@ -368,5 +370,13 @@ export class UserDashboardComponent implements OnInit {
     });
 
     forkJoin(updates).subscribe();
+  }
+
+  startTodaysWorkout() {
+    this.router.navigate(['/user/performance']);
+  }
+
+  logMeal() {
+    this.router.navigate(['/user/diet-tracker']);
   }
 }

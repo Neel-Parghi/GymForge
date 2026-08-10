@@ -96,6 +96,11 @@
           <i class="fas fa-bars"></i>
         </button>
 
+        <!-- Mobile brand logo (User role only, since it has no sidebar/hamburger to show it) -->
+        <a class="mobile-user-brand" *ngIf="isUserRole && (isMobile$ | async)" [routerLink]="dashboardRoute">
+          <img src="/images/logo.svg" alt="GymForge Logo" class="mobile-brand-logo">
+        </a>
+
         <!-- Location Switcher Dropdown (Only for Gym Owners) -->
         <div class="topbar-context-selector" *ngIf="isGymOwner" (click)="$event.stopPropagation()">
           <button class="selector-trigger" (click)="isBranchDropdownOpen = !isBranchDropdownOpen"
