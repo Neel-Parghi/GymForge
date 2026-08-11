@@ -304,6 +304,13 @@
 }
 
 /*   Main Two-Column Split Layout  */
+.workout-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
 .wt-split-container {
   display: grid;
   grid-template-columns: 320px 1fr;
