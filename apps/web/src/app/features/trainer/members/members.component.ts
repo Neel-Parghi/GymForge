@@ -26,6 +26,7 @@ export class PTMembersTrackComponent implements OnInit {
   assignedMembers: any[] = [];
   isLoading = true;
   trainerId = '';
+  isOwnerContext = false;
   gridConfig = AppGridConfig['PTClients'];
 
   ngOnInit(): void {
@@ -33,6 +34,7 @@ export class PTMembersTrackComponent implements OnInit {
     
     if (routeTrainerId) {
       this.trainerId = routeTrainerId;
+      this.isOwnerContext = true;
       this.loadMembers();
     } else {
       this.authService.userProfile$.subscribe(profile => {
@@ -94,5 +96,9 @@ export class PTMembersTrackComponent implements OnInit {
     } else if (event.action === 'delete') {
       this.deallocateMember(event.row);
     }
+  }
+
+  goBackToStaff(): void {
+    this.router.navigate(['/gym-owner/staff']);
   }
 }

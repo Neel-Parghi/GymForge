@@ -72,7 +72,7 @@ export class AnnouncementsComponent implements OnInit {
   loadAnnouncements(): void {
     this.announcementService.getAnnouncements().subscribe({
       next: (res) => {
-        this.announcements = (res.data as any[]) || [];
+        this.announcements = this.unwrapArray(res);
         this.announcements.sort((a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime());
         this.totalItems = this.announcements.length;
       },
@@ -86,7 +86,7 @@ export class AnnouncementsComponent implements OnInit {
   loadTemplates(): void {
     this.templateService.getTemplates().subscribe({
       next: (res: any) => {
-        this.templates = (res.data as any[]) || [];
+        this.templates = this.unwrapArray(res);
         this.templateOptions = this.templates.map(t => ({ value: t.id, label: t.name }));
       },
       error: (err) => {
@@ -185,5 +185,11 @@ export class AnnouncementsComponent implements OnInit {
         }
       });
     }
+  }
+
+  private unwrapArray(response: any): any[] {
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.data)) return response.data;
+    return [];
   }
 }

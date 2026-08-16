@@ -73,14 +73,18 @@ export class PTMemberDetailComponent implements OnInit {
     const routeTrainerId = this.route.snapshot.paramMap.get('trainerId');
     if (routeTrainerId) {
       this.currentUserId = routeTrainerId;
+      this.setupMemberDataLoading();
     } else {
       this.authService.userProfile$.subscribe(profile => {
         if (profile) {
           this.currentUserId = profile.id;
+          this.setupMemberDataLoading();
         }
       });
     }
+  }
 
+  setupMemberDataLoading(): void {
     this.route.paramMap.subscribe(params => {
       this.memberId = params.get('memberId') || '';
       if (this.memberId) {
@@ -394,32 +398,45 @@ export class PTMemberDetailComponent implements OnInit {
   }
 
   loadMemberInfo(): void {
-    this.authService.userProfile$.subscribe(profile => {
-      if (profile) {
-        this.staffService.getAssignedMembers(profile.id).subscribe({
-          next: (res: any) => {
-            const list = res?.data || [];
-            const assignmentInfo = list.find((m: any) => m.memberId === this.memberId) || null;
-            if (assignmentInfo) {
-              this.memberService.getMemberById(this.memberId).subscribe({
-                next: (profileRes: any) => {
-                  const fullProfile = profileRes?.data || profileRes;
-                  this.memberInfo = {
-                    ...assignmentInfo,
-                    ...fullProfile
-                  };
-                },
-                error: (err) => {
-                  console.error('Error fetching full member details, falling back to assignment info:', err);
-                  this.memberInfo = assignmentInfo;
-                }
-              });
-            } else {
+    if (!this.currentUserId) return;
+    this.staffService.getAssignedMembers(this.currentUserId).subscribe({
+      next: (res: any) => {
+        const list = res?.data || [];
+        const assignmentInfo = list.find((m: any) => m.memberId === this.memberId) || null;
+        if (assignmentInfo) {
+          this.memberService.getMemberById(this.memberId).subscribe({
+            next: (profileRes: any) => {
+              const fullProfile = profileRes?.data || profileRes;
+              this.memberInfo = {
+                ...assignmentInfo,
+                ...fullProfile
+              };
+            },
+            error: (err) => {
+              console.error('Error fetching full member details, falling back to assignment info:', err);
+              this.memberInfo = assignmentInfo;
+            }
+          });
+        } else {
+          // Fallback to fetch member details directly
+          this.memberService.getMemberById(this.memberId).subscribe({
+            next: (profileRes: any) => {
+              this.memberInfo = profileRes?.data || profileRes;
+            },
+            error: (err) => {
+              console.error('Error fetching member details directly:', err);
               this.memberInfo = null;
             }
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching member details:', err);
+        this.memberService.getMemberById(this.memberId).subscribe({
+          next: (profileRes: any) => {
+            this.memberInfo = profileRes?.data || profileRes;
           },
-          error: (err) => {
-            console.error('Error fetching member details:', err);
+          error: () => {
             this.memberInfo = null;
           }
         });
@@ -743,6 +760,12 @@ export class PTMemberDetailComponent implements OnInit {
     if (this.activeTab === 'workout-track' && this.previousTab === 'workout-calendar') {
       this.onCancelWorkoutTrack();
     } else {
+      const fromSource = this.route.snapshot.queryParamMap.get('from');
+      if (fromSource === 'directory') {
+        this.router.navigate(['/gym-owner/members']);
+        return;
+      }
+
       const routeTrainerId = this.route.snapshot.paramMap.get('trainerId');
       if (routeTrainerId) {
         this.router.navigate([`/gym-owner/trainers/${routeTrainerId}/members`]);

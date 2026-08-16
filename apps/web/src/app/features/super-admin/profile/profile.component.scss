@@ -191,6 +191,15 @@
   }
 }
 
+.demo-disabled-wrapper {
+  display: inline-flex;
+  width: fit-content;
+
+  &:has(button:disabled) button {
+    pointer-events: none;
+  }
+}
+
 /* Tabs Styling */
 .profile-tabs {
   padding: 0 40px;
@@ -665,6 +674,10 @@
     border: none;
     font-weight: 700;
     cursor: pointer;
+  }
+
+  .demo-disabled-wrapper {
+    width: 100%;
   }
 }
 

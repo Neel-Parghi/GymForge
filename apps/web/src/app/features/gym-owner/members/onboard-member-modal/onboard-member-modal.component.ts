@@ -219,14 +219,14 @@ export class OnboardMemberModal implements OnChanges, OnInit {
           this.cdr.detectChanges();
         }, 100);
       } else if (!this.isEdit) {
-        const activeBranchId = this.branchContextService.getActiveBranchId() || '';
+        const defaultBranchId = this.getDefaultBranchId() || this.branchContextService.getActiveBranchId() || '';
         this.form.reset({
           gender: '',
           bloodGroup: '',
           gymPlanId: '',
           paymentStatus: PaymentStatus.Paid,
           fitnessGoals: [],
-          branchId: activeBranchId,
+          branchId: defaultBranchId,
           address: {
             line1: '', line2: '', city: '', state: '', country: '', postalCode: ''
           }
@@ -392,6 +392,13 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     const plan = this.plans.find(p => p.id === planId);
     if (!plan) return 'Not Selected';
     return `${plan.name} — ₹${plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price} / ${plan.durationMonths} mo`;
+  }
+
+  getDefaultBranchId(): string {
+    if (this.branches && this.branches.length > 0) {
+      return this.branches[0].id;
+    }
+    return '';
   }
 
   get branchOptions(): DropdownOption[] {

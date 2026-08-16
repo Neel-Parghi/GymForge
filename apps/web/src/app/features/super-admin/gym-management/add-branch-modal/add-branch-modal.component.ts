@@ -4,12 +4,13 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { GymService } from '../../../../core/services/gym.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message.component';
+import { TimePickerComponent } from '../../../../shared/components/time-picker/time-picker.component';
 import { CONSTANTS } from '../../../../core/constants/constants';
 
 @Component({
   selector: 'app-add-branch-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ValidationMessage],
+  imports: [CommonModule, ReactiveFormsModule, ValidationMessage, TimePickerComponent],
   templateUrl: './add-branch-modal.component.html',
   styleUrl: './add-branch-modal.component.scss'
 })

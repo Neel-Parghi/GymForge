@@ -14,9 +14,15 @@
         <i class="fa-solid fa-download"></i>
         Export Report
       </button>
-      <button class="primary-btn" id="btn-onboard-member" (click)="openOnboardModal()">
-        Onboard New Member
-      </button>
+      <div class="tooltip-wrapper" [class.disabled]="allPlans.length === 0">
+        <button class="primary-btn" id="btn-onboard-member" [disabled]="allPlans.length === 0"
+          (click)="openOnboardModal()">
+          Onboard New Member
+        </button>
+        <div class="btn-tooltip" *ngIf="allPlans.length === 0">
+          Please create gym plans first
+        </div>
+      </div>
     </div>
   </div>
 
@@ -191,6 +197,20 @@
   <app-data-grid *ngIf="viewMode === 'list' && !loading" [config]="gridConfig" [data]="filteredMembers"
     [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage" (actionEvent)="onAction($event)"
     (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
+
+    <ng-template gridCell="personalTrainer" let-row>
+      <span *ngIf="row.personalTrainer === 'Unassigned'" class="unassigned-text">Unassigned</span>
+      <div *ngIf="row.personalTrainer !== 'Unassigned'" class="trainer-cell-content">
+        <a [routerLink]="['/gym-owner/trainers', row.personalTrainerId, 'members']" class="trainer-link"
+          title="Click to view all PT clients assigned to this trainer">
+          {{ row.personalTrainer }}
+        </a>
+        <a [routerLink]="['/gym-owner/trainers', row.personalTrainerId, 'members', row.id]"
+          [queryParams]="{ from: 'directory' }" class="pt-details-link" title="View this member's PT logs & calendar">
+          <i class="fa-solid fa-chart-line"></i>
+        </a>
+      </div>
+    </ng-template>
 
     <ng-template #emptyState>
       <div class="empty-state">

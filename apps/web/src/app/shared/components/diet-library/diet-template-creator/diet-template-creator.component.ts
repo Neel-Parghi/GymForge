@@ -5,11 +5,12 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { DropdownComponent } from '../../dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../core/constants/constants';
+import { TimePickerComponent } from '../../time-picker/time-picker.component';
 
 @Component({
   selector: 'app-diet-template-creator',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DropdownComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DropdownComponent, TimePickerComponent],
   templateUrl: './diet-template-creator.component.html',
   styleUrl: './diet-template-creator.component.scss'
 })

@@ -11,13 +11,14 @@ import { ValidationMessage } from "../../../../shared/components/validation-mess
 import { PricingPlan } from '../../../../shared/models/pricing.model';
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { DateTimePickerComponent } from '../../../../shared/components/date-time-picker/date-time-picker.component';
+import { TimePickerComponent } from '../../../../shared/components/time-picker/time-picker.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../core/constants/constants';
 
 @Component({
   selector: 'app-gym-onboarding-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent, DateTimePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent, DateTimePickerComponent, TimePickerComponent],
   templateUrl: './gym-onboarding-modal.component.html',
   styleUrl: './gym-onboarding-modal.component.scss'
 })

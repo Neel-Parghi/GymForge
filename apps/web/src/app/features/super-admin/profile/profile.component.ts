@@ -29,6 +29,7 @@ export class ProfileComponent implements OnInit {
   passwordChangeSuccess = false;
   passwordChangeError = '';
   activeTab: 'personal' | 'security' = 'personal';
+  readonly demoRestrictionMessage = 'Not available in demo mode, please register and login to use feature';
 
   get isDemo(): boolean {
     return this.authApi.isDemoUser();

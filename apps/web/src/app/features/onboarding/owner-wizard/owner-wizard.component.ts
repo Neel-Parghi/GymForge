@@ -11,6 +11,7 @@ import { GymService } from '../../../core/services/gym.service';
 import { ProfileService } from '../../../core/services/profile.service';
 import { ValidationMessage } from "../../../shared/components/validation-message/validation-message.component";
 import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
+import { TimePickerComponent } from '../../../shared/components/time-picker/time-picker.component';
 import { CONSTANTS } from '../../../core/constants/constants';
 
 declare var Razorpay: any;
@@ -18,7 +19,7 @@ declare var Razorpay: any;
 @Component({
   selector: 'app-owner-wizard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ValidationMessage, DateTimePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, ValidationMessage, DateTimePickerComponent, TimePickerComponent],
   templateUrl: './owner-wizard.component.html',
   styleUrls: ['./owner-wizard.component.scss']
 })

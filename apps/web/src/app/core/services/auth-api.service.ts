@@ -24,6 +24,7 @@ import {
 })
 export class AuthApiService extends BaseApiService {
 
+  private readonly persistenceKey = 'authPersistence';
   private router = inject(Router);
   private userProfileSubject = new BehaviorSubject<UserProfile | null>(this.loadStoredProfile());
   public userProfile$ = this.userProfileSubject.asObservable();
@@ -55,7 +56,7 @@ export class AuthApiService extends BaseApiService {
     return null;
   }
 
-  login(credentials: LoginRequestDto, rememberMe: boolean = true): Observable<ApiResponse<TokenResponseDto>> {
+  login(credentials: LoginRequestDto, rememberMe: boolean = false): Observable<ApiResponse<TokenResponseDto>> {
     return this.post<ApiResponse<TokenResponseDto>>(API_CONSTANTS.AUTH.LOGIN, credentials).pipe(
       tap((res) => this.saveTokens(res, rememberMe))
     );
@@ -88,7 +89,7 @@ export class AuthApiService extends BaseApiService {
     return this.get<ApiResponse<UserProfile>>(API_CONSTANTS.AUTH.ME);
   }
 
-  saveTokens(res: ApiResponse<TokenResponseDto> | { accessToken?: string, refreshToken?: string } | null | undefined, rememberMe: boolean = true) {
+  saveTokens(res: ApiResponse<TokenResponseDto> | { accessToken?: string, refreshToken?: string } | null | undefined, rememberMe: boolean = false) {
     const data = (res as any)?.data || res;
     const storage = rememberMe ? localStorage : sessionStorage;
 
@@ -96,14 +97,17 @@ export class AuthApiService extends BaseApiService {
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('refreshToken');
       sessionStorage.removeItem('userProfile');
+      sessionStorage.removeItem(this.persistenceKey);
     } else {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userProfile');
+      localStorage.removeItem(this.persistenceKey);
     }
 
     if (data?.accessToken) storage.setItem('token', data.accessToken);
     if (data?.refreshToken) storage.setItem('refreshToken', data.refreshToken);
+    if (data?.accessToken || data?.refreshToken) storage.setItem(this.persistenceKey, rememberMe ? 'local' : 'session');
   }
 
   getToken(): string | null {
@@ -117,7 +121,7 @@ export class AuthApiService extends BaseApiService {
   refreshToken(): Observable<ApiResponse<TokenResponseDto>> {
     const accessToken = this.getToken();
     const refreshToken = this.getRefreshToken();
-    const rememberMe = !!localStorage.getItem('token');
+    const rememberMe = this.getPersistenceStorage() === localStorage;
     const payload: RefreshTokenRequestDto = { accessToken: accessToken || '', refreshToken: refreshToken || '' };
     return this.post<ApiResponse<TokenResponseDto>>(API_CONSTANTS.AUTH.REFRESH, payload).pipe(
       tap(res => this.saveTokens(res, rememberMe))
@@ -144,15 +148,28 @@ export class AuthApiService extends BaseApiService {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userProfile');
+    localStorage.removeItem(this.persistenceKey);
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('refreshToken');
     sessionStorage.removeItem('userProfile');
+    sessionStorage.removeItem(this.persistenceKey);
     this.userProfileSubject.next(null);
     this.router.navigate(['/login']);
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token || token === 'undefined') return false;
+
+    const decoded = this.decodeToken();
+    if (!decoded) return false;
+
+    if (!this.isTokenExpired(decoded)) return true;
+
+    // If an access token is expired but a refresh token exists, let the
+    // interceptor refresh it on the next API call. This is what keeps
+    // "Keep me signed in" users alive after the 15-minute access token window.
+    return !!this.getRefreshToken();
   }
 
   getUserRole(): string | null {
@@ -193,6 +210,19 @@ export class AuthApiService extends BaseApiService {
     }
   }
 
+  private isTokenExpired(decoded: JwtToken): boolean {
+    if (!decoded.exp) return false;
+    return Date.now() >= decoded.exp * 1000;
+  }
+
+  private getPersistenceStorage(): Storage {
+    const localPersistence = localStorage.getItem(this.persistenceKey);
+    if (localPersistence === 'local' || (!localPersistence && (localStorage.getItem('token') || localStorage.getItem('refreshToken')))) {
+      return localStorage;
+    }
+    return sessionStorage;
+  }
+
   redirectUserByRole() {
     const role = this.getUserRole();
     switch (role) {
@@ -218,7 +248,7 @@ export class AuthApiService extends BaseApiService {
   }
 
   setUserProfile(profile: UserProfile | null) {
-    const rememberMe = !!localStorage.getItem('token');
+    const rememberMe = this.getPersistenceStorage() === localStorage;
     const storage = rememberMe ? localStorage : sessionStorage;
 
     if (profile) {

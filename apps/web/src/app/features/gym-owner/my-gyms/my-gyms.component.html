@@ -17,7 +17,7 @@
         <h1>{{ gymData?.gymName || 'GymForge Elite Athletics' }}</h1>
         <div class="status-row">
           <span class="badge active-partner">ACTIVE PARTNER</span>
-          <span class="since-text">Partner since {{ (gymData?.establishedDate | date:'MMM yyyy') || 'Oct 2021' }}</span>
+          <span class="since-text">Partner since {{ (gymData?.createdOn | date:'MMM yyyy') || 'Oct 2021' }}</span>
         </div>
       </div>
     </div>
@@ -204,11 +204,11 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Open Time</label>
-                <input type="time" formControlName="openTime">
+                <app-time-picker formControlName="openTime"></app-time-picker>
               </div>
               <div class="form-group">
                 <label>Close Time</label>
-                <input type="time" formControlName="closeTime">
+                <app-time-picker formControlName="closeTime"></app-time-picker>
               </div>
             </div>
 
@@ -282,10 +282,10 @@
               <i class="fa-solid fa-chevron-left"></i>
             </button>
             <div class="carousel-viewport">
-              <div class="plans-grid" [style.--carousel-transform]="getCarouselTransform()" [class.no-transition]="isResetting">
+              <div class="plans-grid" [style.--carousel-transform]="getCarouselTransform()"
+                [class.no-transition]="isResetting">
                 <div class="plan-card" *ngFor="let plan of displayPlans"
-                  [class.active-plan]="gymData?.planName === plan.name"
-                  [class.featured]="plan.id === featuredPlanId">
+                  [class.active-plan]="gymData?.planName === plan.name" [class.featured]="plan.id === featuredPlanId">
                   <div class="active-badge" *ngIf="gymData?.planName === plan.name">ACTIVE PLAN</div>
                   <div class="plan-header">
                     <h3>{{ plan.name }}</h3>
@@ -318,8 +318,10 @@
 
                   <button class="btn-upgrade-action" [disabled]="gymData?.planName === plan.name || isProcessingPayment"
                     (click)="payForPlan(plan)">
-                    <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment && selectedUpgradePlanId === plan.id"></i>
-                    {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' : 'UPGRADE
+                    <i class="fas fa-spinner fa-spin"
+                      *ngIf="isProcessingPayment && selectedUpgradePlanId === plan.id"></i>
+                    {{ gymData?.planName === plan.name ? 'CURRENT PLAN' : (isProcessingPayment ? 'Processing...' :
+                    'UPGRADE
                     NOW') }}
                   </button>
                 </div>

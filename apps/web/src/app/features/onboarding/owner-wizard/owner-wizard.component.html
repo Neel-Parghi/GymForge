@@ -303,14 +303,14 @@
                           <app-validation-message [control]="branch.get('contactNumber')"
                             fieldName="Phone number"></app-validation-message>
                         </div>
-                        <div class="form-group">
-                          <label>Opening Time</label>
-                          <input type="time" formControlName="openTime">
-                        </div>
-                        <div class="form-group">
-                          <label>Closing Time</label>
-                          <input type="time" formControlName="closeTime">
-                        </div>
+                          <div class="form-group">
+                            <label>Opening Time</label>
+                            <app-time-picker formControlName="openTime"></app-time-picker>
+                          </div>
+                          <div class="form-group">
+                            <label>Closing Time</label>
+                            <app-time-picker formControlName="closeTime"></app-time-picker>
+                          </div>
                       </div>
                     </div>
                   </div>

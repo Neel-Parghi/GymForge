@@ -774,3 +774,102 @@
     transform: rotate(-15deg);
   }
 }
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+
+  &.disabled {
+    cursor: not-allowed;
+
+    button {
+      pointer-events: none;
+    }
+  }
+
+  .btn-tooltip {
+    position: absolute;
+    top: 125%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    background: #0f172a;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.725rem;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #0f172a transparent;
+    }
+  }
+
+  &:hover .btn-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.unassigned-text {
+  color: var(--slate-400, #94a3b8);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.trainer-cell-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.pt-details-link {
+  color: var(--slate-400, #94a3b8);
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+
+  &:hover {
+    color: #2563eb;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    transform: scale(1.05);
+  }
+}
+
+.trainer-link {
+  color: var(--primary-color, #2563eb);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--primary-hover, #1d4ed8);
+    text-decoration: underline;
+  }
+}

@@ -11,8 +11,10 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
-import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
+import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
+import { StaffService } from '../../../core/services/staff.service';
+import { RouterLink } from '@angular/router';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal.component';
 import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer.component';
@@ -26,7 +28,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
 @Component({
   selector: 'app-members-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, OnboardMemberModal, MemberDetailDrawer, DropdownComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, GridCellDirective, RouterLink, OnboardMemberModal, MemberDetailDrawer, DropdownComponent],
   templateUrl: './members-list.component.html',
   styleUrl: './members-list.component.scss'
 })
@@ -38,6 +40,10 @@ export class MembersListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private confirmationService = inject(ConfirmationService);
   private fb = inject(FormBuilder);
+  private staffService = inject(StaffService);
+
+  memberTrainerMap = new Map<string, { trainerId: string, trainerName: string }>();
+  isLoadingTrainersMap = false;
   private destroyRef = inject(DestroyRef);
   private branchContextService = inject(BranchContextService);
 
@@ -160,6 +166,7 @@ export class MembersListComponent implements OnInit {
 
     if (this.gymId) {
       this.loadPlans();
+      this.loadTrainersAndAssignments();
       this.gymService.getMyBranches().subscribe({
         next: (res) => this.branches = res.data || [],
         error: () => { }
@@ -217,7 +224,7 @@ export class MembersListComponent implements OnInit {
               paymentStatusLabel: this.getPaymentStatusLabel(m.currentSubscription.paymentStatus)
             } : undefined
           }));
-          this.applyLocalFilters();
+          this.mapTrainersToMembers();
         },
         error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.LOAD_ERROR)
       });
@@ -466,5 +473,59 @@ export class MembersListComponent implements OnInit {
 
   sendNotification(member: any): void {
     this.notificationService.success(CONSTANTS.MEMBERS_MODULE.ALERT_SUCCESS.replace('{name}', member.name));
+  }
+
+  loadTrainersAndAssignments(): void {
+    this.isLoadingTrainersMap = true;
+    this.staffService.getUnscopedGymStaff(1, 100).subscribe({
+      next: (res: any) => {
+        const staffList = res?.data?.items || res?.data || [];
+        const trainers = staffList.filter((s: any) => s.role === 1 || s.roleName?.toLowerCase() === 'trainer');
+
+        let completedCalls = 0;
+        if (trainers.length === 0) {
+          this.isLoadingTrainersMap = false;
+          return;
+        }
+
+        trainers.forEach((trainer: any) => {
+          this.staffService.getAssignedMembers(trainer.id).subscribe({
+            next: (membersRes: any) => {
+              const assignedMembers = membersRes?.data || [];
+              assignedMembers.forEach((member: any) => {
+                this.memberTrainerMap.set(member.memberId, {
+                  trainerId: trainer.id,
+                  trainerName: `${trainer.firstName} ${trainer.lastName}`
+                });
+              });
+            },
+            complete: () => {
+              completedCalls++;
+              if (completedCalls === trainers.length) {
+                this.isLoadingTrainersMap = false;
+                this.mapTrainersToMembers();
+              }
+            }
+          });
+        });
+      },
+      error: () => {
+        this.isLoadingTrainersMap = false;
+      }
+    });
+  }
+
+  mapTrainersToMembers(): void {
+    if (this.members.length === 0) return;
+    this.members.forEach(member => {
+      const assignment = this.memberTrainerMap.get(member.id);
+      if (assignment) {
+        (member as any).personalTrainer = assignment.trainerName;
+        (member as any).personalTrainerId = assignment.trainerId;
+      } else {
+        (member as any).personalTrainer = 'Unassigned';
+      }
+    });
+    this.filteredMembers = [...this.members];
   }
 }

@@ -15,11 +15,12 @@ import { PricingPlan } from '../../../shared/models/pricing.model';
 import { StaffService } from '../../../core/services/staff.service';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
+import { TimePickerComponent } from '../../../shared/components/time-picker/time-picker.component';
 
 @Component({
   selector: 'app-my-gyms',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, DropdownComponent, TimePickerComponent],
   templateUrl: './my-gyms.component.html',
   styleUrl: './my-gyms.component.scss',
 })
