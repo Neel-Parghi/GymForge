@@ -1,13 +1,16 @@
 using AutoMapper;
 using GymForge.Application.Modules.Auth.Interface;
 using GymForge.Application.Modules.Common.Interfaces;
+using GymForge.Application.Modules.PlanGeneration.Interface;
 using GymForge.Application.Modules.Users.Interface;
+using GymForge.Contracts.PlanGeneration;
 using GymForge.Contracts.Users;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using GymForge.Contracts.Common;
 using GymForge.Shared.Models;
 
@@ -25,18 +28,22 @@ namespace GymForge.Application.Modules.Users.Services
         private readonly IFileStorageService _fileStorageService;
         private readonly IAddressRepository _addressRepository;
         private readonly IMapper _mapper;
+        private readonly IPlanGenerationService _planGenerationService;
+        private readonly ILogger<UserService> _logger;
 
         public UserService(
-            IAuthRepository authRepository, 
+            IAuthRepository authRepository,
             IUserRepository userRepository,
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             IPasswordService passwordService,
             IEmailService emailService,
             ICurrentUserService currentUserService,
             IConfiguration config,
             IFileStorageService fileStorageService,
             IAddressRepository addressRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IPlanGenerationService planGenerationService,
+            ILogger<UserService> logger)
         {
             _authRepository = authRepository;
             _userRepository = userRepository;
@@ -48,6 +55,8 @@ namespace GymForge.Application.Modules.Users.Services
             _fileStorageService = fileStorageService;
             _addressRepository = addressRepository;
             _mapper = mapper;
+            _planGenerationService = planGenerationService;
+            _logger = logger;
         }
 
         public async Task InviteOwnerAsync(InviteOwnerRequestDto inviteOwnerRequestDto)
@@ -366,6 +375,7 @@ namespace GymForge.Application.Modules.Users.Services
                 user.Preference.TargetWeight = (double)dto.TargetWeight.Value;
             }
             user.Preference.PrimaryGoal = dto.PrimaryGoal;
+            user.Preference.ExperienceLevel = dto.ExperienceLevel;
 
             double heightInMeters = (double)dto.Height / 100.0;
             double bmi = 0;
@@ -390,6 +400,25 @@ namespace GymForge.Application.Modules.Users.Services
 
             await _userRepository.UpdateUserAsync(user);
             await _unitOfWork.SaveChangesAsync();
+
+            try
+            {
+                StarterPlanResultDto starterPlans = await _planGenerationService.GenerateStarterPlansAsync(
+                    user.Id, dto.PrimaryGoal, dto.ExperienceLevel, dto.Height, dto.Weight, dto.DOB, dto.Gender);
+
+                user.Preference.TargetCalories = starterPlans.TargetCalories;
+                user.Preference.TargetProtein = starterPlans.TargetProtein;
+                user.Preference.TargetCarbs = starterPlans.TargetCarbs;
+                user.Preference.TargetFats = starterPlans.TargetFats;
+
+                await _userRepository.UpdateUserAsync(user);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Starter plan generation is a best-effort enhancement — onboarding must succeed regardless.
+                _logger.LogError(ex, "Failed to generate starter plans for user {UserId} during onboarding.", user.Id);
+            }
         }
 
         public async Task<UserDashboardSummaryDto> GetUserDashboardSummaryAsync()

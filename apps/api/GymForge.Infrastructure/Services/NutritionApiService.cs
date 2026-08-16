@@ -1,70 +1,40 @@
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using GymForge.Application.Modules.Diet.Interfaces;
 using GymForge.Contracts.DietTracking;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace GymForge.Infrastructure.Services;
 
+/// <summary>
+/// Tries each configured food-search provider in order and returns the first match.
+/// USDA FoodData Central goes first (free, effectively no request cap); CalorieNinjas
+/// is the fallback for foods USDA doesn't have (e.g. restaurant/branded items).
+/// </summary>
 public class NutritionApiService : INutritionApiService
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
+    private readonly UsdaFoodDataProvider _usdaProvider;
+    private readonly CalorieNinjasFoodSearchProvider _calorieNinjasProvider;
     private readonly ILogger<NutritionApiService> _logger;
 
-    public NutritionApiService(HttpClient httpClient, IConfiguration configuration, ILogger<NutritionApiService> logger)
+    public NutritionApiService(
+        UsdaFoodDataProvider usdaProvider,
+        CalorieNinjasFoodSearchProvider calorieNinjasProvider,
+        ILogger<NutritionApiService> logger)
     {
-        _httpClient = httpClient;
-        _configuration = configuration;
+        _usdaProvider = usdaProvider;
+        _calorieNinjasProvider = calorieNinjasProvider;
         _logger = logger;
     }
 
     public async Task<FoodNutritionDto?> GetNutritionForFoodAsync(string query)
     {
-        try
+        var result = await _usdaProvider.SearchAsync(query);
+        if (result != null)
         {
-            var apiKey = _configuration["CalorieNinjas:ApiKey"];
-            var baseUrl = _configuration["CalorieNinjas:BaseUrl"] ?? "https://api.calorieninjas.com/v1/nutrition";
-
-            if (string.IsNullOrWhiteSpace(apiKey) || apiKey == "YOUR_CALORIENINJAS_API_KEY")
-            {
-                _logger.LogWarning("CalorieNinjas API Key is not configured.");
-                return null;
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}?query={Uri.EscapeDataString(query)}");
-            request.Headers.Add("X-Api-Key", apiKey);
-
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(content);
-            var root = doc.RootElement;
-            
-            if (root.TryGetProperty("items", out var items) && items.GetArrayLength() > 0)
-            {
-                var item = items[0];
-                return new FoodNutritionDto
-                {
-                    Name = item.GetProperty("name").GetString() ?? query,
-                    Calories = item.GetProperty("calories").GetDouble(),
-                    Protein = item.GetProperty("protein_g").GetDouble(),
-                    Carbs = item.GetProperty("carbohydrates_total_g").GetDouble(),
-                    Fats = item.GetProperty("fat_total_g").GetDouble()
-                };
-            }
-
-            return null;
+            return result;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching nutrition data for query: {Query}", query);
-            return null;
-        }
+
+        _logger.LogInformation("USDA FoodData Central had no match for '{Query}', falling back to CalorieNinjas.", query);
+        return await _calorieNinjasProvider.SearchAsync(query);
     }
 }
