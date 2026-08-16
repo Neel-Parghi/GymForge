@@ -1,11 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
-import { Observable, shareReplay, tap } from 'rxjs';
+import { Observable, shareReplay, tap, from, switchMap } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { UpdateUserProfile, UserProfile, UploadAvatarResponseDto } from '../../shared/models/user-profile.model';
 import { AuthApiService } from './auth-api.service';
 import { ChangePasswordRequestDto } from '../../shared/models/auth.model';
+import { compressImage } from '../../shared/utils/image-compressor';
 
 @Injectable({
   providedIn: 'root'
@@ -55,9 +56,12 @@ export class ProfileService extends BaseApiService {
   }
 
   uploadAvatar(file: File): Observable<ApiResponse<UploadAvatarResponseDto>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.post<ApiResponse<UploadAvatarResponseDto>>(API_CONSTANTS.USER.UPLOAD_AVATAR, formData).pipe(
+    return from(compressImage(file)).pipe(
+      switchMap(compressedFile => {
+        const formData = new FormData();
+        formData.append('file', compressedFile);
+        return this.post<ApiResponse<UploadAvatarResponseDto>>(API_CONSTANTS.USER.UPLOAD_AVATAR, formData);
+      }),
       tap(() => this.clearProfileCache())
     );
   }
