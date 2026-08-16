@@ -19,5 +19,7 @@ namespace GymForge.Domain.Interface
         Task AddOrUpdateScheduleDayAsync(MemberWorkoutScheduleDay scheduleDay);
 
         Task<IEnumerable<MemberPlanAssignment>> GetPlanAssignmentsAsync(Guid memberOrUserId);
+
+        Task<IEnumerable<MemberPlanAssignment>> GetAllActiveAssignmentsAsync();
     }
 }

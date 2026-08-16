@@ -93,6 +93,8 @@ namespace GymForge.Application
             
             services.AddScoped<GymForge.Application.BackgroundJobs.SaaSExpiryJob>();
 
+            services.AddScoped<GymForge.Application.BackgroundJobs.WorkoutReminderJob>();
+
             return services;
         }
     }

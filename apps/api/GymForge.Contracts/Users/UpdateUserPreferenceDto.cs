@@ -9,6 +9,9 @@ namespace GymForge.Contracts.Users
         public int? TargetCarbs { get; set; }
         public int? TargetFats { get; set; }
         public int? TargetTrainingTime { get; set; }
+
+        public bool? EmailNotificationsEnabled { get; set; }
+        public bool? WorkoutRemindersEnabled { get; set; }
     }
 
     public class UserPreferenceDto : UpdateUserPreferenceDto
