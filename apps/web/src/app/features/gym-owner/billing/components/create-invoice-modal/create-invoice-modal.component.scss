@@ -105,6 +105,15 @@
     font-size: 0.82rem;
     font-weight: 700;
     color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .label-hint {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #94a3b8;
+    }
   }
 
   .form-input-premium {

@@ -10,6 +10,11 @@ namespace GymForge.Domain.Entities
         [ForeignKey("MemberId")]
         public virtual GymMember Member { get; set; } = null!;
 
+        public Guid? TrainerId { get; set; }
+
+        [ForeignKey("TrainerId")]
+        public virtual Staff? Trainer { get; set; }
+
         public string BillingType { get; set; } = string.Empty; 
         public string Description { get; set; } = string.Empty;
 

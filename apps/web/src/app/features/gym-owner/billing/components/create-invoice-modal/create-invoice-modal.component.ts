@@ -20,7 +20,9 @@ export class CreateInvoiceModalComponent implements OnInit {
   private billingService = inject(BillingService);
 
   @Input() gymMembers: any[] = [];
+  @Input() gymTrainers: any[] = [];
   @Input() memberDropdownOptions: DropdownOption[] = [];
+  @Input() trainerDropdownOptions: DropdownOption[] = [];
   @Input() categoryDropdownOptions: DropdownOption[] = [];
   @Input() statusDropdownOptions: DropdownOption[] = [];
   @Input() prefillData?: any;
@@ -30,14 +32,26 @@ export class CreateInvoiceModalComponent implements OnInit {
 
   createInvoiceForm!: FormGroup;
 
+  get isTrainerCategory(): boolean {
+    const type = this.createInvoiceForm?.get('type')?.value ?? '';
+    return type === 'Personal Training' || type === 'Rehab & Therapy';
+  }
+
   ngOnInit(): void {
     this.initCustomInvoiceForm();
+
+    this.createInvoiceForm.get('type')?.valueChanges.subscribe(() => {
+      if (!this.isTrainerCategory) {
+        this.createInvoiceForm.patchValue({ trainerIndex: null });
+      }
+    });
   }
 
   initCustomInvoiceForm(): void {
     this.createInvoiceForm = this.fb.group({
       memberIndex: [this.prefillData?.memberIndex ?? 0, Validators.required],
       type: [this.prefillData?.type ?? 'Personal Training', Validators.required],
+      trainerIndex: [this.prefillData?.trainerIndex ?? null],
       itemName: [this.prefillData?.itemName ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       amount: [this.prefillData ? this.prefillData.amount : 1000, [Validators.required, Validators.min(0), Validators.max(100000)]],
       status: [this.prefillData?.status ?? 'Pending', Validators.required]
@@ -58,12 +72,20 @@ export class CreateInvoiceModalComponent implements OnInit {
       return;
     }
 
+    const selectedTrainer = (val.trainerIndex !== null && val.trainerIndex !== undefined)
+      ? this.gymTrainers[val.trainerIndex]
+      : null;
+
+    const paymentStatus = val.status.split('-');
+    const paymentMethod = paymentStatus[1];
+
     const payload = {
       memberId: selectedMember.id,
+      trainerId: selectedTrainer?.id ?? null,
       billingType: val.type,
       amount: val.amount,
-      status: val.status,
-      paymentMethod: 'UPI'
+      status: paymentStatus[0],
+      paymentMethod: paymentMethod || null
     };
 
     this.billingService.createCustomInvoice(payload).subscribe({

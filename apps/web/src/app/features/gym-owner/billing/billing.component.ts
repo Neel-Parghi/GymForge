@@ -9,6 +9,8 @@ import { DropdownOption } from '../../../shared/models/dropdown.model';
 import { MemberInvoice, PlatformInvoice, StaffPayout, GymSubscriptionStatus } from '../../../shared/models/payment.model';
 import { BillingService } from '../../../core/services/billing.service';
 import { MemberService } from '../../../core/services/member.service';
+import { StaffService } from '../../../core/services/staff.service';
+import { AuthApiService } from '../../../core/services/auth-api.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { GymService } from '../../../core/services/gym.service';
 import { PricingService } from '../../../core/services/pricing.service';
@@ -57,6 +59,8 @@ export class BillingComponent implements OnInit {
   private pricingService = inject(PricingService);
   private configService = inject(ConfigurationService);
   private branchContextService = inject(BranchContextService);
+  private staffService = inject(StaffService);
+  private authService = inject(AuthApiService);
   private destroyRef = inject(DestroyRef);
 
   private isInitialBranchLoad = true;
@@ -87,6 +91,9 @@ export class BillingComponent implements OnInit {
   showPayrollRulesModal = false;
   selectedPayrollStaff: StaffPayout | null = null;
 
+  gymTrainers: any[] = [];
+  trainerDropdownOptions: DropdownOption[] = [];
+
   // Dropdown Lists
   memberDropdownOptions: DropdownOption[] = [];
   categoryDropdownOptions: DropdownOption[] = [
@@ -99,7 +106,8 @@ export class BillingComponent implements OnInit {
   ];
   statusDropdownOptions: DropdownOption[] = [
     { label: 'Pending Payment', value: 'Pending' },
-    { label: 'Paid (Register immediately)', value: 'Paid' }
+    { label: 'Paid - Cash', value: 'Paid-CASH' },
+    { label: 'Paid - UPI', value: 'Paid-UPI' }
   ];
 
   settingsForm!: FormGroup;
@@ -130,6 +138,7 @@ export class BillingComponent implements OnInit {
     this.generatePayrollMonths();
     this.initPeriodForm();
     this.loadGymMembers();
+    this.loadGymTrainers();
     this.loadPlatformInvoices();
     this.loadGymSettingsAndMonths();
     this.loadPlatformConfig();
@@ -344,6 +353,22 @@ export class BillingComponent implements OnInit {
     });
   }
 
+  loadGymTrainers(): void {
+    this.staffService.getUnscopedGymStaff(1, 100).subscribe({
+      next: (res) => {
+        if (res.data?.items) {
+          this.gymTrainers = res.data.items.filter((s: any) =>
+            s.role === 1 || s.roleName?.toLowerCase().includes('trainer')
+          );
+          this.trainerDropdownOptions = this.gymTrainers.map((t: any, index: number) => ({
+            label: `${t.firstName} ${t.lastName}`,
+            value: index
+          }));
+        }
+      }
+    });
+  }
+
   loadMemberBillingOverview(month: string): void {
     this.billingService.getMemberBillingOverview(month).subscribe({
       next: (res) => {
@@ -354,7 +379,8 @@ export class BillingComponent implements OnInit {
           this.gymDetails = {
             gymName: overview.gymName,
             brandName: overview.gymBrandName,
-            gstNumber: overview.gymGstNumber
+            gstNumber: overview.gymGstNumber,
+            ownerName: this.authService.getUserProfile()?.fullName || `${this.authService.getUserProfile()?.firstName ?? ''} ${this.authService.getUserProfile()?.lastName ?? ''}`.trim()
           };
           if (overview.gymGstNumber) {
             this.settingsForm.patchValue({
@@ -382,6 +408,7 @@ export class BillingComponent implements OnInit {
             type: matchedType,
             amount: inv.amount,
             status: (inv.status || 'Paid') as any,
+            paymentMethod: inv.paymentMethod,
             dateIssued: new Date(inv.dateIssued),
             dueDate: new Date(inv.dueDate),
             itemName: inv.billingType || inv.description || 'Gym Item',

@@ -9,6 +9,7 @@ export interface MemberInvoiceDto {
     dateIssued: string;
     dueDate: string;
     status: string;
+    paymentMethod: string;
     membershipNumber?: string;
     realRecordId?: string;
     branchId?: string;
@@ -37,6 +38,7 @@ export interface MemberBillingOverviewDto {
 
 export interface CreateCustomInvoiceRequest {
     memberId: string;
+    trainerId?: string | null;
     billingType: string;
     amount: number;
     status: string;

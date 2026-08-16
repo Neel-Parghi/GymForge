@@ -53,7 +53,9 @@
               <i class="fa-solid fa-circle-exclamation error-icon"></i>
               <span>Amount must be up to ₹1,00,000.</span>
             </div>
-            <span class="help-text">Applies default tax automatically.</span>
+            <span class="help-text">
+              {{ isTrainerCategory ? 'No GST applied on PT / Rehab services.' : 'Default GST applied automatically.' }}
+            </span>
           </div>
         </div>
 
@@ -63,6 +65,19 @@
             <label>Payment Status</label>
             <app-dropdown [options]="statusDropdownOptions" formControlName="status"
               placeholder="Select Status..."></app-dropdown>
+          </div>
+
+          <!-- Trainer Dropdown — only shown for PT / Rehab categories -->
+          <div class="form-group-premium" *ngIf="isTrainerCategory">
+            <label>
+              Assigned Trainer
+              <span class="label-hint">(for commission tracking)</span>
+            </label>
+            <app-dropdown [options]="trainerDropdownOptions" formControlName="trainerIndex" [isSearchable]="true"
+              placeholder="Select Trainer (optional)...">
+            </app-dropdown>
+
+            <div class="form-group-premium"></div>
           </div>
         </div>
 

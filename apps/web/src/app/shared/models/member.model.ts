@@ -37,6 +37,7 @@ export interface MemberSubscription {
   endDate: string;
   isActive: boolean;
   paymentStatus: PaymentStatus;
+  paymentMethod: string;
   paymentStatusLabel?: string;
 }
 

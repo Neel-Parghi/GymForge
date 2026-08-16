@@ -77,7 +77,7 @@
         </div>
         <div class="bar-item">
           <span class="lbl">PAYMENT METHOD</span>
-          <span class="val">BHIM UPI Instant Gateway</span>
+          <span class="val">{{invoice.paymentMethod}}</span>
         </div>
       </div>
 
@@ -135,8 +135,13 @@
       <!-- Legal Footer Declarations -->
       <div class="invoice-terms-footer">
         <div class="footer-sign">
+          <div class="signature-block">
+            <span class="signature-cursive">{{ gymDetails?.ownerName || gymDetails?.gymName || 'Authorized Signatory'
+              }}</span>
+            <div class="signature-line"></div>
+            <span class="sign-name">{{ gymDetails?.gymName || 'Gym Owner' }}</span>
+          </div>
           <span class="sign-label">Authorized Signatory</span>
-          <div class="signature-line"></div>
         </div>
         <div class="footer-decl">
           <p>This is a computer-generated document and does not require a physical signature.</p>

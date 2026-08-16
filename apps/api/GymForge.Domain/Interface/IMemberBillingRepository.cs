@@ -20,6 +20,7 @@ namespace GymForge.Domain.Interface
         Task AddCustomInvoiceAsync(CustomInvoice invoice);
         Task<CustomInvoice?> GetCustomInvoiceByIdAsync(Guid recordId);
         Task<IEnumerable<CustomInvoice>> GetCustomInvoicesByMonthAsync(Guid gymId, DateTime startDate, DateTime endDate);
+        Task<IEnumerable<CustomInvoice>> GetCustomInvoicesByTrainerAndMonthAsync(Guid trainerId, DateTime startDate, DateTime endDate);
 
         // Staff Payroll repository methods
         Task<IEnumerable<StaffPayrollRule>> GetPayrollRulesAsync(Guid gymId, Guid? branchId = null);

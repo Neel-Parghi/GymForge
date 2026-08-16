@@ -145,5 +145,15 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(x => x.GymId == gymId && x.TransactionDate >= startDate && x.TransactionDate <= endDate)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<CustomInvoice>> GetCustomInvoicesByTrainerAndMonthAsync(Guid trainerId, DateTime startDate, DateTime endDate)
+        {
+            return await _dbContext.CustomInvoices
+                .Where(x => x.TrainerId == trainerId
+                         && x.TransactionDate >= startDate
+                         && x.TransactionDate <= endDate
+                         && !x.PaymentMethod.StartsWith("Pending"))
+                .ToListAsync();
+        }
     }
 }
