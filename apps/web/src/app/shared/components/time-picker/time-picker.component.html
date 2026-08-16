@@ -1,0 +1,71 @@
+<div class="time-picker-container" [class.disabled]="disabled">
+  <!-- Picker Trigger Button -->
+  <div class="calendar-trigger" [class.active]="showDropdown" [class.has-value]="selectedTime"
+    (click)="toggleDropdown()">
+    <i class="fa-solid fa-clock"></i>
+    <span class="trigger-text">
+      <ng-container *ngIf="selectedTime; else placeholderText">
+        {{ displayTime }}
+      </ng-container>
+      <ng-template #placeholderText>{{ placeholder }}</ng-template>
+    </span>
+    <button type="button" class="clear-date-btn" *ngIf="selectedTime && !disabled" (click)="clearTime($event)">
+      <i class="fa-solid fa-circle-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Custom Time Picker Dropdown -->
+  <div class="calendar-dropdown" [ngClass]="[dropdownAlign, dropdownVerticalAlign]"
+    [class.fixed-position]="!insideDrawer" [class.absolute-position]="insideDrawer"
+    [style.top]="insideDrawer ? null : dropdownTop" [style.bottom]="insideDrawer ? null : dropdownBottom"
+    [style.left]="insideDrawer ? null : dropdownLeft" *ngIf="showDropdown">
+
+    <!-- Conditionally Rendered Time Picker Section -->
+    <div class="time-picker-section">
+      <div class="time-picker-label">
+        <i class="fa-solid fa-clock"></i> Select Time
+      </div>
+
+      <div class="time-picker-controls">
+        <!-- Hour Select -->
+        <div class="time-selector">
+          <button type="button" class="time-arrow" (click)="incrementHours($event)">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <input type="text" class="time-display-input" [(ngModel)]="hoursInput" (input)="onHourInput($event)"
+            (blur)="onHourBlur()" (click)="$event.stopPropagation()" maxlength="2" pattern="[0-9]*" inputmode="numeric">
+          <button type="button" class="time-arrow" (click)="decrementHours($event)">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <span class="time-colon">:</span>
+
+        <!-- Minute Select -->
+        <div class="time-selector">
+          <button type="button" class="time-arrow" (click)="incrementMinutes($event)">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <input type="text" class="time-display-input" [(ngModel)]="minutesInput" (input)="onMinuteInput($event)"
+            (blur)="onMinuteBlur()" (click)="$event.stopPropagation()" maxlength="2" pattern="[0-9]*"
+            inputmode="numeric">
+          <button type="button" class="time-arrow" (click)="decrementMinutes($event)">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <!-- AM/PM Toggle Button -->
+        <button type="button" class="am-pm-toggle" (click)="togglePeriod($event)">
+          {{ period }}
+        </button>
+      </div>
+
+      <!-- Action Button for Time Picker -->
+      <div class="time-picker-footer">
+        <button type="button" class="time-apply-btn" (click)="applyTime($event)">
+          Apply Time
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
