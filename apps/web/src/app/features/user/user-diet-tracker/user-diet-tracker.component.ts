@@ -18,6 +18,9 @@ export class UserDietTrackerComponent implements OnInit {
   showAddModal = false;
   selectedMealType = 'Breakfast';
 
+  // Collapsed by default on mobile — the macro ring/bars expand on tap to cut down scroll length.
+  macrosExpanded = false;
+
   mealForm: FormGroup;
   searchQueryControl = new FormControl('');
   isSearching = false;

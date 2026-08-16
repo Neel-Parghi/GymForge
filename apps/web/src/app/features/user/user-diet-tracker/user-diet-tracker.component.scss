@@ -85,8 +85,18 @@
   gap: 40px;
 
   @include bp.mobile {
-    gap: 24px;
+    gap: 12px;
     justify-content: center;
+    transition: gap 0.3s ease;
+
+    &.mobile-collapsed {
+      gap: 0;
+
+      .macro-stats {
+        max-height: 0;
+        opacity: 0;
+      }
+    }
   }
 
   .main-calorie-ring {
@@ -94,9 +104,8 @@
     width: 180px;
     height: 180px;
 
-    @include bp.mobile-sm {
-      width: 140px;
-      height: 140px;
+    @include bp.mobile {
+      display: none;
     }
 
     .circular-chart {
@@ -145,11 +154,105 @@
     }
   }
 
+  .mobile-macro-summary {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .fa-fire {
+      color: #f97316;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .val {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      flex-shrink: 0;
+    }
+
+    .lbl {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .mini-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+
+      &.protein {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
+      &.carbs {
+        background: rgba(234, 179, 8, 0.12);
+        color: #a16207;
+      }
+
+      &.fats {
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+      }
+    }
+
+    .toggle-caret {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      margin-left: auto;
+      transition: transform 0.25s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+
+    @include bp.mobile {
+      display: flex;
+    }
+  }
+
   .macro-stats {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 16px;
+
+    @include bp.mobile {
+      overflow: hidden;
+      max-height: 300px;
+      opacity: 1;
+      transition: max-height 0.3s ease, opacity 0.2s ease;
+    }
 
     .macro-item {
       .label {
@@ -202,6 +305,10 @@
   flex-direction: column;
   overflow: hidden;
   padding-bottom: 0; // Let scroll area handle bottom padding
+
+  @include bp.mobile {
+    max-height: 280px;
+  }
 }
 
 .sticky-header {
@@ -215,29 +322,20 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: 16px;
-  padding-right: 8px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 
-  /* Custom Scrollbar */
   &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--slate-300);
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--slate-400);
+    display: none; /* Chrome/Safari/Edge */
   }
 }
 
 .meal-section {
   padding: 16px 20px;
+
+  @include bp.mobile {
+    padding: 12px 14px;
+  }
 
   .meal-header {
     display: flex;
@@ -247,10 +345,19 @@
     padding-bottom: 12px;
     border-bottom: 1px solid var(--slate-100);
 
+    @include bp.mobile {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+    }
+
     h3 {
       font-size: 1.1rem;
       margin: 0;
       color: var(--slate-800);
+
+      @include bp.mobile {
+        font-size: 0.95rem;
+      }
 
       i {
         color: var(--accent-color);
@@ -282,6 +389,11 @@
     align-items: center;
     padding: 12px 0;
     border-bottom: 1px dashed var(--slate-200);
+    gap: 8px;
+
+    @include bp.mobile {
+      padding: 8px 0;
+    }
 
     &:last-child {
       border-bottom: none;
@@ -291,6 +403,7 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      min-width: 0;
 
       .food-name {
         font-weight: 600;
@@ -298,7 +411,12 @@
         font-size: 0.95rem;
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 8px;
+
+        @include bp.mobile {
+          font-size: 0.88rem;
+        }
 
         .tag {
           font-size: 0.7rem;
@@ -319,6 +437,24 @@
         font-size: 0.8rem;
         color: var(--slate-500);
         margin-top: 4px;
+
+        @include bp.mobile {
+          font-size: 0.72rem;
+        }
+      }
+
+      .food-desc {
+        font-size: 0.78rem;
+        color: var(--slate-400);
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+
+        @include bp.mobile {
+          font-size: 0.7rem;
+        }
       }
     }
 
@@ -376,16 +512,6 @@
         text-decoration-color: #545454;
         text-decoration-thickness: 1px;
       }
-    }
-  }
-
-  .logged-tag {
-    background: #dcfce7 !important;
-    color: #16a34a !important;
-    border: 1px solid #86efac;
-
-    i {
-      font-size: 0.65rem;
     }
   }
 
