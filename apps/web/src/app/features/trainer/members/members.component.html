@@ -1,8 +1,14 @@
 <div class="trainer-members-container">
   <header class="page-header">
     <div class="header-info">
-      <h1>My PT Clients</h1>
-      <p class="subtitle">View and manage members assigned to you for Personal Training</p>
+      <div class="header-title-row">
+        <button class="back-btn" *ngIf="isOwnerContext" (click)="goBackToStaff()" title="Back to Staff Directory">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h1>{{ isOwnerContext ? "Trainer's PT Clients" : "My PT Clients" }}</h1>
+      </div>
+      <p class="subtitle">{{ isOwnerContext ? "View and manage members assigned to this trainer for Personal Training" :
+        "View and manage members assigned to you for Personal Training" }}</p>
     </div>
     <button class="btn-refresh" (click)="loadMembers(true)">
       <i class="fa-solid fa-arrows-rotate"></i> Sync Clients
