@@ -32,7 +32,6 @@ export class CreateInvoiceModalComponent implements OnInit {
 
   createInvoiceForm!: FormGroup;
 
-  /** Whether the selected billing type requires a trainer */
   get isTrainerCategory(): boolean {
     const type = this.createInvoiceForm?.get('type')?.value ?? '';
     return type === 'Personal Training' || type === 'Rehab & Therapy';
@@ -41,7 +40,6 @@ export class CreateInvoiceModalComponent implements OnInit {
   ngOnInit(): void {
     this.initCustomInvoiceForm();
 
-    // React to category changes — clear trainer selection when switching away
     this.createInvoiceForm.get('type')?.valueChanges.subscribe(() => {
       if (!this.isTrainerCategory) {
         this.createInvoiceForm.patchValue({ trainerIndex: null });

@@ -20,7 +20,7 @@
       <button type="button" class="wizard-step-btn" [class.active]="activeFormTab === 'meals'"
         (click)="activeFormTab = 'meals'">
         <span class="step-num">2</span>
-        <span class="step-label">Prescribed Meals ({{ meals.length }})</span>
+        <span class="step-label"> Meals ({{ meals.length }})</span>
       </button>
     </div>
 
@@ -117,7 +117,7 @@
         <!-- STEP 2: Prescribed Meals Builder -->
         <div class="wizard-step-content meals-step animate-scale-in" *ngIf="activeFormTab === 'meals'">
           <div class="canvas-header">
-            <h3 class="font-bold-text">Prescribed Meals ({{ meals.length }} entries)</h3>
+            <h3 class="font-bold-text"> Meals ({{ meals.length }} entries)</h3>
             <button type="button" class="btn-secondary btn-sm" (click)="addMeal()">
               <i class="fa-solid fa-plus-circle"></i> Add Meal
             </button>
@@ -205,7 +205,7 @@
       <div class="drawer-actions" *ngIf="activeFormTab === 'details'">
         <button type="button" class="btn-outline" (click)="onClose()">Cancel</button>
         <button type="button" class="btn-primary" (click)="activeFormTab = 'meals'">
-          Next: Prescribed Meals <i class="fa-solid fa-arrow-right icon-right"></i>
+          Next: Meals <i class="fa-solid fa-arrow-right icon-right"></i>
         </button>
       </div>
 

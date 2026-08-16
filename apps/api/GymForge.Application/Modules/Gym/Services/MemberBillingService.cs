@@ -29,8 +29,6 @@ namespace GymForge.Application.Modules.Gym.Services
                 BillingType = request.BillingType,
                 Description = $"{request.BillingType} Invoice",
                 Amount = request.Amount,
-                // Service-type billing (PT, Rehab, Other) carries 0% GST;
-                // product/membership billing carries 18% GST
                 TaxRate = (request.BillingType == "Personal Training" ||
                            request.BillingType == "Rehab & Therapy" ||
                            request.BillingType == "Other Charges") ? 0 : 18,

@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Gym.Billing;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
-using GymForge.Application.Modules.Gym.Interfaces;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -79,7 +75,6 @@ namespace GymForge.Application.Modules.Gym.Services
                     IEnumerable<PTAssignment> assignments = await _staffRepository.GetAssignmentsByTrainerIdAsync(staff.Id);
                     List<Guid> activeMemberIds = assignments.Where(a => a.IsActive).Select(a => a.MemberId).ToList();
 
-                    // --- Commission from SaleTransactions (inventory items) ---
                     if (activeMemberIds.Count > 0)
                     {
                         IEnumerable<SaleTransaction> paidPTTransactions = transactions.Where(t => 
@@ -103,7 +98,6 @@ namespace GymForge.Application.Modules.Gym.Services
                         commissions = Math.Round(ptCommissions + rehabCommissions, 2);
                     }
 
-                    // --- Commission from CustomInvoices linked to this trainer ---
                     IEnumerable<CustomInvoice> trainerCustomInvoices =
                         await _billingRepository.GetCustomInvoicesByTrainerAndMonthAsync(staff.Id, startDate, endDate);
 
@@ -119,7 +113,6 @@ namespace GymForge.Application.Modules.Gym.Services
                         customPTAmount * (rule.PTCommissionRate / 100m) +
                         customRehabAmount * (rule.RehabCommissionRate / 100m), 2);
 
-                    // Fallback: if still no commissions but trainer has active members, use default rates
                     if (commissions == 0 && activeMemberIds.Count > 0)
                     {
                         commissions = Math.Round(activeMemberIds.Count * 1500m * (rule.PTCommissionRate / 100m), 2);

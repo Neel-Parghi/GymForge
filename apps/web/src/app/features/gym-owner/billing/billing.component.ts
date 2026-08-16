@@ -357,7 +357,6 @@ export class BillingComponent implements OnInit {
     this.staffService.getUnscopedGymStaff(1, 100).subscribe({
       next: (res) => {
         if (res.data?.items) {
-          // role is a numeric enum: Trainer = 1
           this.gymTrainers = res.data.items.filter((s: any) =>
             s.role === 1 || s.roleName?.toLowerCase().includes('trainer')
           );
