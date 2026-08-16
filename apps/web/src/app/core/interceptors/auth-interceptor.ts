@@ -2,10 +2,11 @@ import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpE
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthApiService } from '../services/auth-api.service';
-import { catchError, switchMap, throwError, BehaviorSubject, filter, take, Observable } from 'rxjs';
+import { catchError, switchMap, throwError, BehaviorSubject, Subject, filter, take, race, Observable } from 'rxjs';
 
 let isRefreshing = false;
 const refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+const refreshFailedSubject = new Subject<unknown>();
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthApiService);
@@ -60,21 +61,28 @@ function handle401Error(authService: AuthApiService, request: HttpRequest<any>, 
       }),
       catchError((err) => {
         isRefreshing = false;
+        refreshFailedSubject.next(err);
         authService.logout();
         return throwError(() => err);
       })
     );
   } else {
-    return refreshTokenSubject.pipe(
-      filter(token => token != null),
-      take(1),
-      switchMap(jwt => {
-        return next(request.clone({
-          setHeaders: {
-            Authorization: `Bearer ${jwt}`
-          }
-        }));
-      })
+    return race(
+      refreshTokenSubject.pipe(
+        filter(token => token != null),
+        take(1),
+        switchMap(jwt => {
+          return next(request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${jwt}`
+            }
+          }));
+        })
+      ),
+      refreshFailedSubject.pipe(
+        take(1),
+        switchMap(err => throwError(() => err))
+      )
     );
   }
 }
