@@ -9,6 +9,7 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { UserService } from '../../../core/services/user.service';
 import { GymService } from '../../../core/services/gym.service';
 import { ProfileService } from '../../../core/services/profile.service';
+import { PaymentService } from '../../../core/services/payment.service';
 import { ValidationMessage } from "../../../shared/components/validation-message/validation-message.component";
 import { DateTimePickerComponent } from '../../../shared/components/date-time-picker/date-time-picker.component';
 import { TimePickerComponent } from '../../../shared/components/time-picker/time-picker.component';
@@ -35,6 +36,7 @@ export class OwnerWizardComponent implements OnInit {
   selectedPlanId: string | null = null;
   isProcessingPayment = false;
   isSubmitting = false;
+  createdGymId: string | null = null;
 
   gymForm!: FormGroup;
 
@@ -46,6 +48,7 @@ export class OwnerWizardComponent implements OnInit {
   private userService = inject(UserService);
   private gymService = inject(GymService);
   private profileService = inject(ProfileService);
+  private paymentService = inject(PaymentService);
   private ngZone = inject(NgZone);
 
   ngOnInit(): void {
@@ -294,16 +297,70 @@ export class OwnerWizardComponent implements OnInit {
   processPayment() {
     this.isProcessingPayment = true;
 
+    if (this.createdGymId) {
+      this.initiateRazorpayOrder();
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const ownerId = this.authService.getUserId() || this.authService.getUserProfile()?.id;
+    if (!ownerId) {
+      this.toastr.error('User profile not found. Please log in again.');
+      this.isSubmitting = false;
+      this.isProcessingPayment = false;
+      return;
+    }
+
+    const formValue = this.gymForm.value;
+    const payload = {
+      ...formValue.gymInfo,
+      branches: formValue.branches,
+      assignedOwnerId: ownerId,
+      planId: this.selectedPlanId,
+      isTrial: false
+    };
+
+    this.gymService.onboardGym(payload).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.createdGymId = res.data.gymId;
+        this.initiateRazorpayOrder();
+      },
+      error: () => {
+        this.toastr.error('Failed to set up your gym. Please try again.');
+        this.isSubmitting = false;
+        this.isProcessingPayment = false;
+      }
+    });
+  }
+
+  private initiateRazorpayOrder() {
+    if (!this.createdGymId || !this.selectedPlanId) {
+      this.isProcessingPayment = false;
+      return;
+    }
+
+    this.paymentService.initiatePayment({ gymId: this.createdGymId, planId: this.selectedPlanId }).subscribe({
+      next: (res) => this.openRazorpayCheckout(res.data),
+      error: () => {
+        this.toastr.error('Failed to start payment. Please try again.');
+        this.isProcessingPayment = false;
+      }
+    });
+  }
+
+  private openRazorpayCheckout(order: { razorpayOrderId: string; amount: number }) {
     const options = {
       key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
-      amount: this.getSelectedPlanPrice() * 100, // Amount in paise
+      amount: order.amount,
       currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
       name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
       description: `Subscription for ${this.getSelectedPlanName()}`,
+      order_id: order.razorpayOrderId,
       handler: (response: any) => {
         this.ngZone.run(() => {
-          this.toastr.success('Payment completed successfully!');
-          this.submitGymSetup(response.razorpay_payment_id);
+          this.verifyAndFinish(response);
         });
       },
       prefill: {
@@ -325,27 +382,14 @@ export class OwnerWizardComponent implements OnInit {
     rzp.open();
   }
 
-  submitGymSetup(transactionId: string | null = null) {
+  private verifyAndFinish(response: any) {
     this.isSubmitting = true;
 
-    const ownerId = this.authService.getUserId() || this.authService.getUserProfile()?.id;
-    if (!ownerId) {
-      this.toastr.error('User profile not found. Please log in again.');
-      this.isSubmitting = false;
-      return;
-    }
-
-    const formValue = this.gymForm.value;
-    const payload = {
-      ...formValue.gymInfo,
-      branches: formValue.branches,
-      assignedOwnerId: ownerId,
-      planId: this.selectedPlanId,
-      isTrial: false,
-      transactionId: transactionId
-    };
-
-    this.gymService.onboardGym(payload).subscribe({
+    this.paymentService.verifyPayment({
+      orderId: response.razorpay_order_id,
+      paymentId: response.razorpay_payment_id,
+      signature: response.razorpay_signature
+    }).subscribe({
       next: () => {
         localStorage.removeItem('gymForge_ownerWizardDraft');
         this.toastr.success('Welcome to GymForge!');
@@ -356,8 +400,9 @@ export class OwnerWizardComponent implements OnInit {
         });
       },
       error: () => {
-        this.toastr.error('Failed to complete setup');
+        this.toastr.error('Payment verification failed. Please try again or contact support.');
         this.isSubmitting = false;
+        this.isProcessingPayment = false;
       }
     });
   }

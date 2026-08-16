@@ -28,7 +28,5 @@ namespace GymForge.Contracts.Gym.Onboarding
 
         public Guid PlanId { get; set; }
         public bool IsTrial { get; set; }
-        
-        public string? TransactionId { get; set; }
     }
 }

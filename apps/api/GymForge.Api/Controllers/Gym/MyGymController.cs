@@ -57,9 +57,9 @@ namespace GymForge.Api.Controllers.Gym
             if (dto == null) 
                 return BadRequest("Invalid request data.");
 
-            await _gymManagementService.OnboardGymAsync(UserId, dto);
-            
-            return Ok(new { message = "Gym onboarded successfully" });
+            Guid newGymId = await _gymManagementService.OnboardGymAsync(UserId, dto, activateImmediately: false);
+
+            return Ok(new { message = "Gym onboarded successfully", gymId = newGymId });
         }
 
         [Authorize(Roles = "GymOwner")]

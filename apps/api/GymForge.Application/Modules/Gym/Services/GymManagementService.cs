@@ -17,26 +17,23 @@ namespace GymForge.Application.Modules.Gym.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAddressRepository _addressRepository;
-        private readonly ISaaSPaymentRepository _saasPaymentRepository;
         private readonly ISaaSPlanRepository _saasPlanRepository;
 
         public GymManagementService(
-            IGymManagementRepository repository, 
-            IUnitOfWork unitOfWork, 
-            IMapper mapper, 
+            IGymManagementRepository repository,
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
             IAddressRepository addressRepository,
-            ISaaSPaymentRepository saasPaymentRepository,
             ISaaSPlanRepository saasPlanRepository)
         {
             _gymManagementRepository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _addressRepository = addressRepository;
-            _saasPaymentRepository = saasPaymentRepository;
             _saasPlanRepository = saasPlanRepository;
         }
 
-        public async Task OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto)
+        public async Task<Guid> OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto, bool activateImmediately)
         {
             // 1 Setup and Add Address
             Address address = _mapper.Map<Address>(gymOnboardingDto.Address);
@@ -94,31 +91,16 @@ namespace GymForge.Application.Modules.Gym.Services
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddDays(gymOnboardingDto.IsTrial ? 14 : 30),
                 IsTrial = gymOnboardingDto.IsTrial,
-                IsActive = true,
+                IsActive = activateImmediately,
                 PriceAtPurchase = amount,
                 Notes = "Initial Onboarding Subscription"
             };
             await _gymManagementRepository.AddGymSubscriptionAsync(subscription);
 
-            // 6 Setup SaaS Payment Transaction
-            if (!string.IsNullOrEmpty(gymOnboardingDto.TransactionId))
-            {
-                SaaSPaymentTransaction paymentTransaction = new()
-                {
-                    Id = Guid.NewGuid(),
-                    GymId = gym.Id,
-                    SubscriptionId = subscription.Id,
-                    Amount = amount,
-                    Currency = "INR",
-                    Status = "Paid",
-                    GatewayTransactionId = gymOnboardingDto.TransactionId,
-                    GatewayResponse = "Successful Onboarding Payment"
-                };
-                await _saasPaymentRepository.AddAsync(paymentTransaction);
-            }
-
-            // 7 Commit Transaction
+            // 6 Commit Transaction
             await _unitOfWork.SaveChangesAsync();
+
+            return gym.Id;
         }
     
         public async Task<PagedResponse<GymOwnersDto>> GetGymOwnersList(PaginationParams pagination)

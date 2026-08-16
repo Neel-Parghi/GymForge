@@ -516,7 +516,6 @@ export class MembersListComponent implements OnInit {
   }
 
   mapTrainersToMembers(): void {
-    if (this.members.length === 0) return;
     this.members.forEach(member => {
       const assignment = this.memberTrainerMap.get(member.id);
       if (assignment) {

@@ -63,8 +63,8 @@ export class GymService extends BaseApiService {
         }
     }
 
-    onboardGym(payload: OnboardGymRequest): Observable<ApiResponse<unknown>> {
-        return this.post<ApiResponse<unknown>>(API_CONSTANTS.GYM.ONBOARD, payload).pipe(
+    onboardGym(payload: OnboardGymRequest): Observable<ApiResponse<{ message: string; gymId: string }>> {
+        return this.post<ApiResponse<{ message: string; gymId: string }>>(API_CONSTANTS.GYM.ONBOARD, payload).pipe(
             tap(() => this.clearGymListCache())
         );
     }

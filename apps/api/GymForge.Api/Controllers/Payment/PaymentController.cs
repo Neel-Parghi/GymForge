@@ -28,6 +28,27 @@ namespace GymForge.Api.Controllers.Payment
             return Ok(history);
         }
 
+        [HttpPost("initiate")]
+        [Authorize(Roles = "GymOwner")]
+        public async Task<IActionResult> InitiatePayment([FromBody] CreatePaymentDto request)
+        {
+            InitiatePaymentResponseDto response = await _paymentService.InitiateSaaSPaymentAsync(request);
+            return Ok(response);
+        }
+
+        [HttpPost("verify")]
+        [Authorize(Roles = "GymOwner")]
+        public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentRequestDto request)
+        {
+            bool verified = await _paymentService.ProcessSuccessfulPaymentAsync(request.OrderId, request.PaymentId, request.Signature);
+            if (!verified)
+            {
+                return BadRequest(new { message = "Payment verification failed." });
+            }
+
+            return Ok(new { message = "Payment verified successfully." });
+        }
+
         [HttpPost("renew")]
         [Authorize(Roles = "GymOwner")]
         public async Task<IActionResult> RenewSubscription([FromBody] RenewSaaSRequestDto request)

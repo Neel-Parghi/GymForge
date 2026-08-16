@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { CreatePaymentRequest, GymSubscriptionStatus, PaymentStats, PaymentTransaction, SaaSConfiguration } from '../../shared/models/payment.model';
+import { CreatePaymentRequest, GymSubscriptionStatus, InitiatePaymentResponse, PaymentStats, PaymentTransaction, SaaSConfiguration, VerifyPaymentRequest } from '../../shared/models/payment.model';
 import { API_CONSTANTS } from '../constants/api-constants';
 
 @Injectable({
@@ -50,8 +50,8 @@ export class PaymentService extends BaseApiService {
     return this.transactionsCache$;
   }
 
-  initiatePayment(payload: CreatePaymentRequest): Observable<ApiResponse<{ transactionId: string }>> {
-    return this.post<ApiResponse<{ transactionId: string }>>(API_CONSTANTS.PAYMENTS.INITIATE, payload).pipe(
+  initiatePayment(payload: CreatePaymentRequest): Observable<ApiResponse<InitiatePaymentResponse>> {
+    return this.post<ApiResponse<InitiatePaymentResponse>>(API_CONSTANTS.PAYMENTS.INITIATE, payload).pipe(
       tap(() => {
         this.clearStatsCache();
         this.clearTransactionsCache();
@@ -60,8 +60,8 @@ export class PaymentService extends BaseApiService {
     );
   }
 
-  verifyPayment(payload: unknown): Observable<ApiResponse<PaymentTransaction>> {
-    return this.post<ApiResponse<PaymentTransaction>>(API_CONSTANTS.PAYMENTS.VERIFY, payload).pipe(
+  verifyPayment(payload: VerifyPaymentRequest): Observable<ApiResponse<{ message: string }>> {
+    return this.post<ApiResponse<{ message: string }>>(API_CONSTANTS.PAYMENTS.VERIFY, payload).pipe(
       tap(() => {
         this.clearStatsCache();
         this.clearTransactionsCache();

@@ -9,7 +9,7 @@ namespace GymForge.Application.Modules.Gym.Interfaces
 {
     public interface IGymManagementService
     {
-        Task OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto);
+        Task<Guid> OnboardGymAsync(Guid ownerId, GymOnboardingDto gymOnboardingDto, bool activateImmediately);
 
         Task<PagedResponse<GymOwnersDto>> GetGymOwnersList(PaginationParams pagination);
         Task<GymOwnersDto> UpdateGymOwner(UpdateGymOwnerDto updateGymOwnerDto);

@@ -28,9 +28,9 @@ namespace GymForge.Api.Controllers.Gym
             
             if (ownerId == Guid.Empty) return BadRequest("Owner assignment is required.");
 
-            await _gymManagementService.OnboardGymAsync(ownerId, dto);
-            
-            return Ok(new { message = "Gym onboarded successfully" });
+            Guid newGymId = await _gymManagementService.OnboardGymAsync(ownerId, dto, activateImmediately: true);
+
+            return Ok(new { message = "Gym onboarded successfully", gymId = newGymId });
         }
 
         [HttpGet]

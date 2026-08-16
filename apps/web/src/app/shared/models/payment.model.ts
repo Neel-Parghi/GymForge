@@ -20,6 +20,18 @@ export interface CreatePaymentRequest {
   planId: string;
 }
 
+export interface InitiatePaymentResponse {
+  transactionId: string;
+  razorpayOrderId: string;
+  amount: number;
+}
+
+export interface VerifyPaymentRequest {
+  orderId: string;
+  paymentId: string;
+  signature: string;
+}
+
 export interface SaaSConfiguration {
   id: string;
   platformName: string;
