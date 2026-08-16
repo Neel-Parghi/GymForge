@@ -11,14 +11,14 @@
         <ng-content select="[user-toggle]"></ng-content>
       </div>
       <div class="header-actions" *ngIf="activeDiet">
-        <button class="btn-outline" (click)="openCreateCustomModal()">
-          <i class="fa-solid fa-edit"></i> Edit / Create Custom Diet
+        <button class="btn-outline" (click)="openCreateCustomModal()" title="Edit / Create Custom Diet">
+          <i class="fa-solid fa-edit"></i> <span class="btn-label">Edit / Create Custom Diet</span>
         </button>
-        <button class="btn-danger" (click)="onRemoveActiveDiet()">
-          <i class="fa-solid fa-trash-can"></i> Remove Diet
+        <button class="btn-danger" (click)="onRemoveActiveDiet()" title="Remove Diet">
+          <i class="fa-solid fa-trash-can"></i> <span class="btn-label">Remove Diet</span>
         </button>
-        <button class="btn-primary" (click)="onOpenAssignModal()">
-          <i class="fa-solid fa-exchange-alt"></i> Assign Template
+        <button class="btn-primary" (click)="onOpenAssignModal()" title="Assign Template">
+          <i class="fa-solid fa-exchange-alt"></i> <span class="btn-label">Assign Template</span>
         </button>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <div class="diet-dashboard-row">
         <!-- Left: Macros Dashboard Card (40%) -->
         <div class="macros-summary-panel">
-          <div class="macros-summary-card">
+          <div class="macros-summary-card" [class.mobile-collapsed]="!macrosExpanded">
             <div class="macro-donut-wrapper">
               <svg viewBox="0 0 160 160" class="donut-svg">
                 <!-- Base ring -->
@@ -49,8 +49,24 @@
               </div>
             </div>
 
+            <!-- Compact, tappable calorie summary shown only on mobile — expands/collapses the full macro breakdown -->
+            <button type="button" class="mobile-kcal-summary" (click)="macrosExpanded = !macrosExpanded"
+              [attr.aria-expanded]="macrosExpanded">
+              <span class="summary-row">
+                <i class="fa-solid fa-fire"></i>
+                <span class="val">{{ activeDiet.calories }}</span>
+                <span class="lbl">total kcal</span>
+                <i class="fa-solid fa-chevron-down toggle-caret" [class.rotated]="macrosExpanded"></i>
+              </span>
+              <span class="mini-chips">
+                <span class="chip protein">{{ activeDiet.macros?.protein || 0 }}g P</span>
+                <span class="chip carbs">{{ activeDiet.macros?.carbs || 0 }}g C</span>
+                <span class="chip fats">{{ activeDiet.macros?.fats || 0 }}g F</span>
+              </span>
+            </button>
+
             <!-- Macros list details -->
-            <div class="macro-bars-list">
+            <div class="macro-bars-list" [class.mobile-collapsed]="!macrosExpanded">
               <div class="macro-bar-item protein">
                 <div class="bar-header">
                   <span class="macro-label-name">Protein</span>
@@ -93,12 +109,18 @@
 
         <!-- Right: Meals List Section (60%) -->
         <div class="meals-list-panel">
-          <h4 class="meals-section-title"><i class="fa-solid fa-utensils"></i> Prescribed Meal Schedule</h4>
+          <h4 class="meals-section-title"><i class="fa-solid fa-utensils"></i> Meal Schedule</h4>
           <div class="meals-grid-list">
             <div class="meal-plan-card" *ngFor="let m of activeDiet.meals">
               <div class="meal-card-top">
-                <h4>{{ m.name }}</h4>
-                <span class="meal-cal-badge">{{ m.calories }} kcal | {{ m.protein || 0 }}g protein</span>
+                <div class="meal-name-group">
+                  <span class="meal-time"><i class="fa-regular fa-clock"></i> {{ getMealTime(m) }}</span>
+                  <h4>{{ getMealTitle(m) }}</h4>
+                </div>
+                <div class="meal-badge-row">
+                  <span class="meal-cal-badge kcal">{{ m.calories }} kcal</span>
+                  <span class="meal-cal-badge protein" *ngIf="m.protein">{{ m.protein }}g protein</span>
+                </div>
               </div>
               <p class="meal-items-text" *ngIf="m.items">{{ m.items }}</p>
             </div>

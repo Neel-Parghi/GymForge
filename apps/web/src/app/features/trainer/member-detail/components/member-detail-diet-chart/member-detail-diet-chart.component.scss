@@ -74,6 +74,25 @@
       justify-content: flex-end;
       gap: 12px;
       align-items: center;
+
+      @include bp.mobile {
+        gap: 8px;
+        flex: 0 0 auto;
+
+        button {
+          width: 38px;
+          height: 38px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 10px;
+
+          .btn-label {
+            display: none;
+          }
+        }
+      }
     }
   }
 }
@@ -119,6 +138,105 @@
   gap: 24px;
   width: 100%;
   box-shadow: var(--card-shadow);
+
+  @include bp.mobile {
+    padding: 16px;
+    gap: 12px;
+    transition: gap 0.3s ease;
+
+    &.mobile-collapsed {
+      gap: 0;
+    }
+  }
+}
+
+.mobile-kcal-summary {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+
+  .summary-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .fa-fire {
+    color: var(--warning-color);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-main);
+    flex-shrink: 0;
+  }
+
+  .lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  .mini-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+
+    &.protein {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    &.carbs {
+      background: rgba(var(--accent-rgb), 0.1);
+      color: var(--accent-color);
+    }
+
+    &.fats {
+      background: var(--warning-bg);
+      color: var(--warning-color);
+    }
+  }
+
+  .toggle-caret {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: transform 0.25s ease;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  @include bp.mobile {
+    display: flex;
+  }
 }
 
 .meals-list-panel {
@@ -129,6 +247,11 @@
   gap: 16px;
   overflow: hidden;
   height: 100%;
+
+  @include bp.tablet {
+    height: auto;
+    overflow: visible;
+  }
 
   .meals-section-title {
     font-size: 1rem;
@@ -153,6 +276,12 @@
     overflow-y: auto;
     flex: 1;
     padding-right: 6px;
+
+    @include bp.tablet {
+      overflow-y: visible;
+      flex: none;
+      padding-right: 0;
+    }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -184,6 +313,11 @@
   transition: all 0.2s;
   box-shadow: var(--card-shadow);
 
+  @include bp.mobile {
+    padding: 14px 16px;
+    gap: 6px;
+  }
+
   &:hover {
     border-color: rgba(var(--accent-rgb), 0.2);
     box-shadow: var(--card-shadow-hover);
@@ -194,12 +328,52 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 12px;
 
     h4 {
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--text-main);
       margin: 0;
+    }
+
+    .meal-name-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+
+      h4 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .meal-time {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+    }
+
+    .meal-badge-row {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+
+      @include bp.mobile {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 4px;
+      }
     }
 
     .meal-cal-badge {
@@ -210,6 +384,18 @@
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 6px;
+      white-space: nowrap;
+
+      @include bp.mobile {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+      }
+
+      &.protein {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: var(--success-color);
+      }
     }
   }
 
@@ -228,6 +414,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @include bp.mobile {
+    display: none;
+  }
 
   .donut-svg {
     width: 100%;
@@ -262,6 +452,20 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
+
+  @include bp.mobile {
+    gap: 10px;
+    max-height: 400px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+
+    &.mobile-collapsed {
+      max-height: 0;
+      opacity: 0;
+      gap: 0;
+    }
+  }
 
   .macro-bar-item {
     display: flex;

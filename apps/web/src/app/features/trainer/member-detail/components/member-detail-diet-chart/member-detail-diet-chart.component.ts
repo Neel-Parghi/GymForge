@@ -32,6 +32,9 @@ export class PTMemberDetailDietChartComponent implements OnChanges {
   showCreateCustomModal = false;
   customPlanData: any = null;
 
+  // Collapsed by default on mobile — the macro breakdown expands on tap to cut down scroll before the meal schedule.
+  macrosExpanded = false;
+
   // Diet Tracking Data
   // Diet Tracking Data
   dietLog: any = null;
