@@ -79,6 +79,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     IEnumerable<PTAssignment> assignments = await _staffRepository.GetAssignmentsByTrainerIdAsync(staff.Id);
                     List<Guid> activeMemberIds = assignments.Where(a => a.IsActive).Select(a => a.MemberId).ToList();
 
+                    // --- Commission from SaleTransactions (inventory items) ---
                     if (activeMemberIds.Count > 0)
                     {
                         IEnumerable<SaleTransaction> paidPTTransactions = transactions.Where(t => 
@@ -90,11 +91,6 @@ namespace GymForge.Application.Modules.Gym.Services
                         decimal totalPaidPT = paidPTTransactions.Sum(t => t.TotalAmount);
                         decimal ptCommissions = totalPaidPT * (rule.PTCommissionRate / 100m);
 
-                        if (ptCommissions == 0)
-                        {
-                            ptCommissions = activeMemberIds.Count * 1500m * (rule.PTCommissionRate / 100m);
-                        }
-
                         IEnumerable<SaleTransaction> paidRehabTransactions = transactions.Where(t => 
                             activeMemberIds.Contains(t.MemberId) && 
                             !t.PaymentMethod.StartsWith("Pending") &&
@@ -103,12 +99,34 @@ namespace GymForge.Application.Modules.Gym.Services
 
                         decimal totalPaidRehab = paidRehabTransactions.Sum(t => t.TotalAmount);
                         decimal rehabCommissions = totalPaidRehab * (rule.RehabCommissionRate / 100m);
-                        if (rehabCommissions == 0 && staff.Role.ToString().Contains("Rehab"))
-                        {
-                            rehabCommissions = activeMemberIds.Count * 1800m * (rule.RehabCommissionRate / 100m);
-                        }
 
                         commissions = Math.Round(ptCommissions + rehabCommissions, 2);
+                    }
+
+                    // --- Commission from CustomInvoices linked to this trainer ---
+                    IEnumerable<CustomInvoice> trainerCustomInvoices =
+                        await _billingRepository.GetCustomInvoicesByTrainerAndMonthAsync(staff.Id, startDate, endDate);
+
+                    decimal customPTAmount = trainerCustomInvoices
+                        .Where(i => i.BillingType.Contains("PT") || i.BillingType.Contains("Personal Training"))
+                        .Sum(i => i.Amount);
+
+                    decimal customRehabAmount = trainerCustomInvoices
+                        .Where(i => i.BillingType.Contains("Rehab") || i.BillingType.Contains("Therapy"))
+                        .Sum(i => i.Amount);
+
+                    commissions += Math.Round(
+                        customPTAmount * (rule.PTCommissionRate / 100m) +
+                        customRehabAmount * (rule.RehabCommissionRate / 100m), 2);
+
+                    // Fallback: if still no commissions but trainer has active members, use default rates
+                    if (commissions == 0 && activeMemberIds.Count > 0)
+                    {
+                        commissions = Math.Round(activeMemberIds.Count * 1500m * (rule.PTCommissionRate / 100m), 2);
+                        if (staff.Role.ToString().Contains("Rehab"))
+                        {
+                            commissions = Math.Round(activeMemberIds.Count * 1800m * (rule.RehabCommissionRate / 100m), 2);
+                        }
                     }
                 }
 

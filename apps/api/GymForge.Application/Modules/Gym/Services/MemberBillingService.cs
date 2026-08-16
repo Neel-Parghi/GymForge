@@ -25,10 +25,15 @@ namespace GymForge.Application.Modules.Gym.Services
                 GymId = gymId,
                 BranchId = branchId,
                 MemberId = request.MemberId,
+                TrainerId = request.TrainerId,
                 BillingType = request.BillingType,
                 Description = $"{request.BillingType} Invoice",
                 Amount = request.Amount,
-                TaxRate = 18,
+                // Service-type billing (PT, Rehab, Other) carries 0% GST;
+                // product/membership billing carries 18% GST
+                TaxRate = (request.BillingType == "Personal Training" ||
+                           request.BillingType == "Rehab & Therapy" ||
+                           request.BillingType == "Other Charges") ? 0 : 18,
                 PaymentMethod = request.Status == "Pending" ? "Pending-" + request.PaymentMethod : request.PaymentMethod,
                 Status = request.Status,
                 TransactionDate = DateTime.UtcNow,
@@ -136,7 +141,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     continue;
 
                 Branch? resolvedBranch = invoice.Branch ?? mainBranch;
-                
+
                 unifiedInvoices.Add(new MemberInvoiceDto
                 {
                     Id = $"GF-{invoice.TransactionDate:yyyy}-{invoice.Id.ToString()[..4].ToUpper()}",
@@ -149,6 +154,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     DateIssued = invoice.TransactionDate,
                     DueDate = invoice.DueDate,
                     Status = invoice.PaymentMethod.StartsWith("Pending") ? "Pending" : "Paid",
+                    PaymentMethod = invoice.PaymentMethod,
                     MembershipNumber = invoice?.Member?.MembershipNumber ?? string.Empty,
                     RealRecordId = invoice.Id,
                     CreatedOn = invoice.CreatedOn,

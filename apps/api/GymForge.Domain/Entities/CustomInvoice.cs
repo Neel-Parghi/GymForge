@@ -10,6 +10,12 @@ namespace GymForge.Domain.Entities
         [ForeignKey("MemberId")]
         public virtual GymMember Member { get; set; } = null!;
 
+        // Trainer who delivered the PT/Rehab session (nullable — only set for trainer-linked invoices)
+        public Guid? TrainerId { get; set; }
+
+        [ForeignKey("TrainerId")]
+        public virtual Staff? Trainer { get; set; }
+
         public string BillingType { get; set; } = string.Empty; 
         public string Description { get; set; } = string.Empty;
 
