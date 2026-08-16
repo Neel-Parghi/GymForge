@@ -1,0 +1,4 @@
+<app-diet-library [ownerMode]="true" (onAssign)="onAssign($event)"></app-diet-library>
+
+<app-member-picker-modal [isOpen]="showPicker" [planName]="selectedPlan?.name" (close)="closePicker()"
+  (select)="onMemberSelected($event)"></app-member-picker-modal>

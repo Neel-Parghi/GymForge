@@ -1,0 +1,40 @@
+@if (isOpen) {
+<div class="picker-overlay" (click)="onClose()">
+  <div class="picker-card" (click)="$event.stopPropagation()">
+    <div class="picker-header">
+      <div>
+        <h3>Assign to Member</h3>
+        <p class="picker-subtitle" *ngIf="planName">"{{ planName }}"</p>
+      </div>
+      <button class="close-btn" (click)="onClose()" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="picker-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search members by name or email..." [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)" />
+    </div>
+
+    <div class="picker-list">
+      @if (loading) {
+      <div class="picker-state">Loading members...</div>
+      } @else if (members.length === 0) {
+      <div class="picker-state">No members found.</div>
+      } @else {
+      @for (member of members; track member.id) {
+      <button class="member-row" (click)="onSelect(member)">
+        <div class="member-avatar">{{ member.firstName.charAt(0) }}{{ member.lastName.charAt(0) }}</div>
+        <div class="member-info">
+          <span class="member-name">{{ member.firstName }} {{ member.lastName }}</span>
+          <span class="member-email">{{ member.email }}</span>
+        </div>
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+      }
+      }
+    </div>
+  </div>
+</div>
+}

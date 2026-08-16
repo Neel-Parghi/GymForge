@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -42,6 +42,10 @@ export class WorkoutPlannerComponent implements OnInit {
 
   currentUserId = '';
   activeTab: 'splits' | 'weekly' | 'daily' = 'splits';
+
+  /** Gym-owner mode: bypass per-trainer edit ownership and expose the Assign action. Purely additive — defaults to false, so the trainer's own page is unaffected. */
+  @Input() ownerMode: boolean = false;
+  @Output() onAssign = new EventEmitter<any>();
 
   // Modal toggle states
   showCreateSplitModal = false;
@@ -187,8 +191,13 @@ export class WorkoutPlannerComponent implements OnInit {
   }
 
   canEdit(plan: any): boolean {
-    if (!this.currentUserId) return true;
+    if (this.ownerMode || !this.currentUserId) return true;
     return plan.createdBy && plan.createdBy.toLowerCase() === this.currentUserId.toLowerCase();
+  }
+
+  assignPlanner(plan: WorkoutPlan, event: Event): void {
+    event.stopPropagation();
+    this.onAssign.emit(plan);
   }
 
   editPlanner(plan: WorkoutPlan, type: 'split' | 'weekly' | 'daily', event?: Event): void {

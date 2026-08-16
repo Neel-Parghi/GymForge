@@ -127,6 +127,16 @@ export const routes: Routes = [
       {
         path: 'trainers/:trainerId/members/:memberId',
         loadComponent: () => import('./features/trainer/member-detail/member-detail.component').then(m => m.PTMemberDetailComponent)
+      },
+      {
+        path: 'resources/workout-library',
+        loadComponent: () => import('./features/gym-owner/resources/workout-library/workout-library.component').then(m => m.GymOwnerWorkoutLibraryComponent),
+        canActivate: [roleGuard]
+      },
+      {
+        path: 'resources/diet-library',
+        loadComponent: () => import('./features/gym-owner/resources/diet-library/diet-library.component').then(m => m.GymOwnerDietLibraryComponent),
+        canActivate: [roleGuard]
       }
     ]
   },

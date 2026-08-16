@@ -23,6 +23,7 @@ export class DietLibraryComponent implements OnInit {
   @Input() currentUserId?: string;
   @Input() activeDietId?: string;
   @Input() isCardView: boolean = false;
+  @Input() ownerMode: boolean = false;
   @Output() onAssign = new EventEmitter<any>();
 
   loggedInUserId: string = '';
@@ -56,8 +57,8 @@ export class DietLibraryComponent implements OnInit {
     if (!this.loggedInUserId) return;
     this.dietPlanService.getPlans(undefined, forceRefresh).subscribe({
       next: (plans) => {
-        if (!this.currentUserId) {
-          // Trainer mode: Trainer sees ONLY their own generic templates
+        if (this.ownerMode || !this.currentUserId) {
+          // Trainer/owner mode: see all non-custom templates in the gym
           this.dietPlans = (plans || []).filter((p: any) => !p.isCustom);
         } else {
           // User mode: User sees global templates + their own plans
@@ -152,7 +153,7 @@ export class DietLibraryComponent implements OnInit {
   }
 
   canEdit(plan: any): boolean {
-    if (!this.currentUserId) return true; // Trainer mode
+    if (this.ownerMode || !this.currentUserId) return true; // Trainer/owner mode
     return plan.createdBy && plan.createdBy.toLowerCase() === this.currentUserId.toLowerCase(); // User mode
   }
 

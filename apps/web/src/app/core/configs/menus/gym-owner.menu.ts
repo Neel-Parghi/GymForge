@@ -62,6 +62,18 @@ export const GymOwnerMenu: NavItem[] = [
         roles: ['GymOwner'] // Branch setup and settings are restricted to Owner only
     },
     {
+        label: 'Workout Library',
+        icon: 'fa-solid fa-dumbbell',
+        route: '/gym-owner/resources/workout-library',
+        roles: ['GymOwner', 'Staff']
+    },
+    {
+        label: 'Diet Library',
+        icon: 'fa-solid fa-utensils',
+        route: '/gym-owner/resources/diet-library',
+        roles: ['GymOwner', 'Staff']
+    },
+    {
         label: 'FINANCES',
         icon: '',
         roles: ['GymOwner', 'Staff'],
