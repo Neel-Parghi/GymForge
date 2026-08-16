@@ -355,20 +355,47 @@
     .footer-sign {
       display: flex;
       flex-direction: column;
-      gap: 40px;
+      gap: 6px;
 
-      .sign-label {
-        font-size: 0.72rem;
-        font-weight: 800;
-        color: #64748b;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
+      .signature-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-bottom: 6px;
+      }
+
+      .signature-cursive {
+        font-family: 'Dancing Script', cursive;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.1;
+        letter-spacing: 0.02em;
+        display: block;
+        white-space: nowrap;
       }
 
       .signature-line {
-        width: 180px;
+        width: 220px;
         height: 1px;
         background: #475569;
+        margin-top: 4px;
+      }
+
+      .sign-name {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #334155;
+        margin-top: 4px;
+        display: block;
+      }
+
+      .sign-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #94a3b8;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
     }
 

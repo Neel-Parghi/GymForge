@@ -1,35 +1,35 @@
 export interface PaymentTransaction {
-    id: string;
-    gymName: string;
-    planName: string;
-    amount: number;
-    currency: string;
-    status: string;
-    createdAt: Date;
-    gatewayTransactionId: string;
+  id: string;
+  gymName: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: Date;
+  gatewayTransactionId: string;
 }
 
 export interface PaymentStats {
-    totalRevenue: number;
-    monthlyRecurringRevenue: number;
-    activeSubscriptions: number;
+  totalRevenue: number;
+  monthlyRecurringRevenue: number;
+  activeSubscriptions: number;
 }
 
 export interface CreatePaymentRequest {
-    gymId: string;
-    planId: string;
+  gymId: string;
+  planId: string;
 }
 
 export interface SaaSConfiguration {
-    id: string;
-    platformName: string;
-    billingEmail: string;
-    taxPercentage: number;
-    gracePeriodDays: number;
-    currency: string;
-    billingAddress?: string;
-    gstNo?: string;
-    supportPhone?: string;
+  id: string;
+  platformName: string;
+  billingEmail: string;
+  taxPercentage: number;
+  gracePeriodDays: number;
+  currency: string;
+  billingAddress?: string;
+  gstNo?: string;
+  supportPhone?: string;
 }
 
 export interface MemberInvoice {
@@ -40,10 +40,11 @@ export interface MemberInvoice {
   type: 'Membership Renewal' | 'Store Purchase' | 'Personal Training' | 'Registration' | 'Rehab & Therapy' | 'Other Charges';
   amount: number;
   status: 'Paid' | 'Pending' | 'Overdue' | 'Refunded';
+  paymentMethod: string;
   dateIssued: Date;
   dueDate: Date;
   itemName: string;
-  taxRate: number; 
+  taxRate: number;
   membershipNumber?: string;
   realRecordId?: string;
 

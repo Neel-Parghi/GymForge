@@ -81,7 +81,6 @@ export class UserBillingComponent implements OnInit {
       next: (res) => {
         if (res && res.data) {
           this.availablePlans = res.data as any[];
-          console.log(this.availablePlans)
         } else if (Array.isArray(res)) {
           this.availablePlans = res;
         }

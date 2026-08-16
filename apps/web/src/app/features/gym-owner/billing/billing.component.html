@@ -435,8 +435,9 @@
   (close)="closeInvoiceModal()">
 </app-invoice-detail-modal>
 
-<app-create-invoice-modal *ngIf="showCreateInvoiceModal" [gymMembers]="gymMembers"
-  [memberDropdownOptions]="memberDropdownOptions" [categoryDropdownOptions]="categoryDropdownOptions"
+<app-create-invoice-modal *ngIf="showCreateInvoiceModal" [gymMembers]="gymMembers" [gymTrainers]="gymTrainers"
+  [memberDropdownOptions]="memberDropdownOptions" [trainerDropdownOptions]="trainerDropdownOptions"
+  [categoryDropdownOptions]="categoryDropdownOptions"
   [statusDropdownOptions]="statusDropdownOptions" [prefillData]="prefillInvoiceData" (close)="closeCreateInvoiceModal()"
   (invoiceCreated)="loadMemberBillingOverview(selectedPayrollMonth)">
 </app-create-invoice-modal>
