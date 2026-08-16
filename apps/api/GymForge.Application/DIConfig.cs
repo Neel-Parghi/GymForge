@@ -14,6 +14,8 @@ using GymForge.Application.Modules.Common.Interfaces;
 using GymForge.Application.Modules.Workout.Interface;
 using GymForge.Application.Modules.Workout.Services;
 using GymForge.Application.Modules.Diet.Interface;
+using GymForge.Application.Modules.PlanGeneration.Interface;
+using GymForge.Application.Modules.PlanGeneration.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -74,8 +76,10 @@ namespace GymForge.Application
             services.AddScoped<IDietPlanService, DietPlanService>();
 
             services.AddScoped<IMemberDietService, MemberDietService>();
-            
+
             services.AddScoped<IDietTrackingService, DietTrackingService>();
+
+            services.AddScoped<IPlanGenerationService, PlanGenerationService>();
             
             services.AddScoped<IGymAnnouncementService, GymAnnouncementService>();
             

@@ -6,6 +6,7 @@ namespace GymForge.Domain.Entities
         public User User { get; set; } = null!;
 
         public string? PrimaryGoal { get; set; }
+        public string? ExperienceLevel { get; set; } // Beginner, Intermediate, Advanced
         public double? TargetWeight { get; set; }
         public int? TargetCalories { get; set; }
         public int? TargetProtein { get; set; }
