@@ -11,11 +11,12 @@ import { ValidationMessage } from '../../../../shared/components/validation-mess
 import { DropdownComponent } from '../../../../shared/components/dropdown/dropdown.component';
 import { BranchContextService } from '../../../../core/services/branch-context.service';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
+import { TimePickerComponent } from '../../../../shared/components/time-picker/time-picker.component';
 
 @Component({
   selector: 'app-onboard-staff-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmationPopupComponent, ValidationMessage, DropdownComponent, TimePickerComponent],
   templateUrl: './onboard-staff-modal.component.html',
   styleUrl: './onboard-staff-modal.component.scss'
 })
@@ -51,7 +52,7 @@ export class OnboardStaffModalComponent implements OnInit {
     this.isGymOwner = this.authService.getUserRole() === 'GymOwner';
     const defaultBranchId = this.isEdit
       ? (this.staff?.branchId || '')
-      : (this.branchContextService.getActiveBranchId() || '');
+      : (this.getDefaultBranchId() || this.branchContextService.getActiveBranchId() || '');
 
     let defaultStart = '08:00';
     let defaultEnd = '20:00';
@@ -141,6 +142,13 @@ export class OnboardStaffModalComponent implements OnInit {
         }
       });
     }
+  }
+
+  getDefaultBranchId(): string {
+    if (this.branches && this.branches.length > 0) {
+      return this.branches[0].id;
+    }
+    return '';
   }
 
   get branchOptions(): DropdownOption[] {
