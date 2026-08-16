@@ -262,7 +262,9 @@ namespace GymForge.Application.Modules.Users.Services
                 TargetProtein = user.Preference?.TargetProtein,
                 TargetCarbs = user.Preference?.TargetCarbs,
                 TargetFats = user.Preference?.TargetFats,
-                TargetTrainingTime = user.Preference?.TargetTrainingTime
+                TargetTrainingTime = user.Preference?.TargetTrainingTime,
+                EmailNotificationsEnabled = user.Preference?.EmailNotificationsEnabled ?? true,
+                WorkoutRemindersEnabled = user.Preference?.WorkoutRemindersEnabled ?? true
             };
         }
 
@@ -281,6 +283,8 @@ namespace GymForge.Application.Modules.Users.Services
             user.Preference.TargetCarbs = dto.TargetCarbs;
             user.Preference.TargetFats = dto.TargetFats;
             user.Preference.TargetTrainingTime = dto.TargetTrainingTime;
+            user.Preference.EmailNotificationsEnabled = dto.EmailNotificationsEnabled ?? true;
+            user.Preference.WorkoutRemindersEnabled = dto.WorkoutRemindersEnabled ?? true;
             user.Preference.ModifiedOn = DateTime.UtcNow;
 
             await _userRepository.UpdateUserAsync(user);

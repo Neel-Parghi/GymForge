@@ -47,14 +47,12 @@ export class UserSettingsComponent implements OnInit {
 
     this.notificationsForm = this.fb.group({
       emailNotifications: [true],
-      pushNotifications: [false],
       workoutReminders: [true]
     });
   }
 
   ngOnInit() {
     this.loadPreferences();
-    this.loadNotificationPreferences();
   }
 
   loadPreferences() {
@@ -71,6 +69,10 @@ export class UserSettingsComponent implements OnInit {
             targetFats: data.targetFats,
             targetTrainingTime: data.targetTrainingTime
           });
+          this.notificationsForm.patchValue({
+            emailNotifications: data.emailNotificationsEnabled ?? true,
+            workoutReminders: data.workoutRemindersEnabled ?? true
+          });
         }
         this.isLoading = false;
       },
@@ -81,19 +83,6 @@ export class UserSettingsComponent implements OnInit {
     });
   }
 
-  loadNotificationPreferences() {
-    const saved = localStorage.getItem('gf_notification_preferences');
-    if (saved) {
-      try {
-        this.notificationsForm.patchValue(JSON.parse(saved));
-      } catch (e) { }
-    }
-  }
-
-  saveNotificationPreferences() {
-    localStorage.setItem('gf_notification_preferences', JSON.stringify(this.notificationsForm.value));
-  }
-
   saveChanges() {
     if (this.fitnessForm.invalid) {
       this.notificationService.error('Please check the form for errors.');
@@ -101,9 +90,14 @@ export class UserSettingsComponent implements OnInit {
     }
 
     this.isSaving = true;
-    this.saveNotificationPreferences();
 
-    this.userService.updatePreferences(this.fitnessForm.value).subscribe({
+    const payload = {
+      ...this.fitnessForm.value,
+      emailNotificationsEnabled: this.notificationsForm.value.emailNotifications,
+      workoutRemindersEnabled: this.notificationsForm.value.workoutReminders
+    };
+
+    this.userService.updatePreferences(payload).subscribe({
       next: () => {
         this.isSaving = false;
         this.notificationService.success('Settings saved successfully!');

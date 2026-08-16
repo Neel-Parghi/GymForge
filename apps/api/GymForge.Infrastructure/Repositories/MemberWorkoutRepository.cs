@@ -28,6 +28,15 @@ namespace GymForge.Infrastructure.Repositories
             await _dbContext.MemberPlanAssignments.AddAsync(assignment);
         }
 
+        public async Task<IEnumerable<MemberPlanAssignment>> GetAllActiveAssignmentsAsync()
+        {
+            return await _dbContext.MemberPlanAssignments
+                .Include(mpa => mpa.Member!).ThenInclude(m => m.User!).ThenInclude(u => u.Preference)
+                .Include(mpa => mpa.User!).ThenInclude(u => u.Preference)
+                .Where(mpa => mpa.IsActive)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<WorkoutSessionLog>> GetWorkoutLogsAsync(Guid memberOrUserId)
         {
             return await _dbContext.WorkoutSessionLogs

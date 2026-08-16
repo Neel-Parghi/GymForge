@@ -151,4 +151,9 @@ RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.SaaSExpiryJob>(
     job => job.ExecuteAsync(),
     Cron.Daily(1, 0)); // 1:00 AM UTC
 
+RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.WorkoutReminderJob>(
+    "daily-workout-reminders",
+    job => job.ExecuteAsync(),
+    Cron.Daily(4, 30)); // 4:30 AM UTC — a fixed time, not per-user local time
+
 app.Run();
