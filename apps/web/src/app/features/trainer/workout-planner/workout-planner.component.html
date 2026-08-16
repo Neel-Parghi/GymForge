@@ -6,7 +6,7 @@
     </div>
     <div class="actions">
       <button class="btn-primary" (click)="openCreatorModal()">
-        Create {{ activeTab === 'splits' ? 'Split' : (activeTab === 'weekly' ? 'Weekly' : 'Standalone') }} Planner
+        Create {{ activeTab === 'splits' ? 'Split' : (activeTab === 'weekly' ? 'Weekly' : 'Standalone') }} Plans
       </button>
     </div>
   </header>
@@ -17,13 +17,13 @@
     <div class="library-tabs-bar">
       <div class="tabs-list">
         <button class="tab-item" [class.active]="activeTab === 'splits'" (click)="setTab('splits')">
-          <i class="fa-solid fa-cubes tab-icon"></i> Split Planners
+          <i class="fa-solid fa-cubes tab-icon"></i> Split Plans
         </button>
         <button class="tab-item" [class.active]="activeTab === 'weekly'" (click)="setTab('weekly')">
-          <i class="fa-solid fa-calendar-days tab-icon"></i> Weekly Planners
+          <i class="fa-solid fa-calendar-days tab-icon"></i> Weekly Plans
         </button>
         <button class="tab-item" [class.active]="activeTab === 'daily'" (click)="setTab('daily')">
-          <i class="fa-solid fa-dumbbell tab-icon"></i> Standalone Days
+          <i class="fa-solid fa-dumbbell tab-icon"></i> Single Plan
         </button>
       </div>
     </div>
@@ -42,6 +42,10 @@
             <span class="badge goal">{{ plan.goal }}</span>
           </div>
           <div class="card-actions-group">
+            <button class="btn-edit" *ngIf="ownerMode" (click)="assignPlanner(plan, $event)"
+              title="Assign to Member">
+              <i class="fa-solid fa-user-plus"></i>
+            </button>
             <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'split', $event)"
               title="Edit Template">
               <i class="fa-solid fa-pen-to-square"></i>
@@ -94,6 +98,10 @@
             <span class="badge goal">{{ plan.goal }}</span>
           </div>
           <div class="card-actions-group">
+            <button class="btn-edit" *ngIf="ownerMode" (click)="assignPlanner(plan, $event)"
+              title="Assign to Member">
+              <i class="fa-solid fa-user-plus"></i>
+            </button>
             <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'weekly', $event)"
               title="Edit Template">
               <i class="fa-solid fa-pen-to-square"></i>
@@ -148,6 +156,10 @@
             <span class="badge goal">{{ plan.goal }}</span>
           </div>
           <div class="card-actions-group">
+            <button class="btn-edit" *ngIf="ownerMode" (click)="assignPlanner(plan, $event)"
+              title="Assign to Member">
+              <i class="fa-solid fa-user-plus"></i>
+            </button>
             <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'daily', $event)"
               title="Edit Template">
               <i class="fa-solid fa-pen-to-square"></i>

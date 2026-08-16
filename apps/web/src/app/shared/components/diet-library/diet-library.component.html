@@ -1,7 +1,7 @@
 <div class="diet-planner-container" [class.is-card-view]="isCardView">
   <header class="page-header">
     <div class="header-info">
-      <h3>Diet Templates Library</h3>
+      <h3>Diet Templates</h3>
       <p class="subtitle">Create standard nutrition plans and meal schedules</p>
     </div>
     <div class="toggle-slot">
@@ -44,11 +44,11 @@
         <div class="card-body">
           <div class="title-row">
             <h3 class="card-title" [title]="diet.name">{{ diet.name | truncate:50:true }}</h3>
-            <button class="btn-primary-sm" *ngIf="currentUserId && activeDietId !== diet.id"
+            <button class="btn-primary-sm" *ngIf="(currentUserId || ownerMode) && activeDietId !== diet.id"
               (click)="assignTemplate(diet, $event)" title="Set as Active Plan">
               Assign
             </button>
-            <button class="btn-assigned" *ngIf="currentUserId && activeDietId === diet.id" disabled
+            <button class="btn-assigned" *ngIf="(currentUserId || ownerMode) && activeDietId === diet.id" disabled
               title="Currently Active Plan">
               Assigned
             </button>
@@ -109,7 +109,7 @@
         <div class="icon-wrap"><i class="fa-solid fa-utensils"></i></div>
         <div class="title-text">
           <h3>{{ drawerPlan?.name }}</h3>
-          <p class="drawer-subtitle">{{ drawerPlan?.meals?.length }} prescribed meals &bull; {{ drawerPlan?.calories }}
+          <p class="drawer-subtitle">{{ drawerPlan?.meals?.length }}  meals &bull; {{ drawerPlan?.calories }}
             kcal daily</p>
         </div>
       </div>
@@ -143,7 +143,7 @@
       </div>
     </div>
 
-    <p class="drawer-section-label">Prescribed Meals</p>
+    <p class="drawer-section-label"> Meals</p>
 
     <!-- Meal Timeline -->
     <div class="drawer-meal-timeline">
@@ -172,11 +172,11 @@
     </div>
 
     <div class="drawer-footer-actions">
-      <button class="btn-primary-sm" *ngIf="currentUserId && activeDietId !== drawerPlan?.id"
+      <button class="btn-primary-sm" *ngIf="(currentUserId || ownerMode) && activeDietId !== drawerPlan?.id"
         (click)="assignTemplate(drawerPlan!, $event); closeMealDrawer()">
         Assign Plan
       </button>
-      <button class="btn-assigned" *ngIf="currentUserId && activeDietId === drawerPlan?.id" disabled>
+      <button class="btn-assigned" *ngIf="(currentUserId || ownerMode) && activeDietId === drawerPlan?.id" disabled>
         Currently Assigned
       </button>
       <button class="btn-outline-sm" *ngIf="canEdit(drawerPlan!)"

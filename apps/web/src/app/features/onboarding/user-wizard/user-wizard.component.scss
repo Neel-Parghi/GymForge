@@ -814,6 +814,71 @@
   background-image: url('/images/features/feature_progress.png');
 }
 
+.level-heading {
+  margin-top: 32px;
+}
+
+.level-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+
+  @include bp.mobile {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .level-card {
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    background: var(--bg-surface);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      border-color: rgba(0, 91, 188, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &.selected {
+      border-color: var(--primary-navy);
+      background: rgba(0, 91, 188, 0.03);
+      box-shadow: 0 8px 20px rgba(0, 91, 188, 0.1);
+    }
+
+    h4 {
+      margin: 0 0 6px 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    [data-theme="dark"] & {
+      background: var(--slate-800);
+      border-color: var(--slate-700);
+
+      &:hover {
+        border-color: var(--accent-color);
+      }
+
+      &.selected {
+        border-color: var(--accent-color);
+        background: rgba(59, 130, 246, 0.1);
+      }
+    }
+  }
+}
+
 .bg-general-fitness {
   background-image: url('/images/goals/general_fitness.png');
 }

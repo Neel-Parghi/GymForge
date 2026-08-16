@@ -25,9 +25,11 @@ import {
 export class AuthApiService extends BaseApiService {
 
   private readonly persistenceKey = 'authPersistence';
+  private readonly refreshBufferMs = 60_000;
   private router = inject(Router);
   private userProfileSubject = new BehaviorSubject<UserProfile | null>(this.loadStoredProfile());
   public userProfile$ = this.userProfileSubject.asObservable();
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   getUserProfile(): UserProfile | null {
     return this.userProfileSubject.value;
@@ -41,6 +43,8 @@ export class AuthApiService extends BaseApiService {
 
   constructor() {
     super();
+    if (this.getToken()) 
+      this.scheduleTokenRefresh();
   }
 
   private loadStoredProfile(): UserProfile | null {
@@ -108,6 +112,9 @@ export class AuthApiService extends BaseApiService {
     if (data?.accessToken) storage.setItem('token', data.accessToken);
     if (data?.refreshToken) storage.setItem('refreshToken', data.refreshToken);
     if (data?.accessToken || data?.refreshToken) storage.setItem(this.persistenceKey, rememberMe ? 'local' : 'session');
+
+    if (data?.accessToken) 
+      this.scheduleTokenRefresh();
   }
 
   getToken(): string | null {
@@ -145,6 +152,7 @@ export class AuthApiService extends BaseApiService {
   }
 
   private clearSession() {
+    this.clearRefreshTimer();
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userProfile');
@@ -157,6 +165,35 @@ export class AuthApiService extends BaseApiService {
     this.router.navigate(['/login']);
   }
 
+  private clearRefreshTimer() {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
+
+  private scheduleTokenRefresh() {
+    this.clearRefreshTimer();
+
+    if (!this.getRefreshToken()) 
+      return;
+
+    const decoded = this.decodeToken();
+    if (!decoded?.exp) 
+      return;
+
+    const delay = decoded.exp * 1000 - Date.now() - this.refreshBufferMs;
+
+    if (delay <= 0) {
+      this.refreshToken().subscribe({ error: () => {} });
+      return;
+    }
+
+    this.refreshTimer = setTimeout(() => {
+      this.refreshToken().subscribe({ error: () => {} });
+    }, delay);
+  }
+
   isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token || token === 'undefined') return false;
@@ -166,9 +203,6 @@ export class AuthApiService extends BaseApiService {
 
     if (!this.isTokenExpired(decoded)) return true;
 
-    // If an access token is expired but a refresh token exists, let the
-    // interceptor refresh it on the next API call. This is what keeps
-    // "Keep me signed in" users alive after the 15-minute access token window.
     return !!this.getRefreshToken();
   }
 

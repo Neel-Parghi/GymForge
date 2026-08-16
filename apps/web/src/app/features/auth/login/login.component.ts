@@ -33,7 +33,7 @@ export class LoginComponent {
       Validators.maxLength(30),
       Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])/)
     ]],
-    rememberMe: [false]
+    rememberMe: [true]
   });
 
   showPassword = false;

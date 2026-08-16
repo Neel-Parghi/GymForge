@@ -148,6 +148,17 @@ app-health-tracker-report {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(10, 31, 68, 0.2);
   }
+
+  @include bp.mobile {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+
+    .btn-label {
+      display: none;
+    }
+  }
 }
 
 .btn-action-secondary {

@@ -124,6 +124,19 @@
                   </div>
                   }
                 </div>
+
+                <h2 class="level-heading">What's your experience level?</h2>
+                <p class="subtitle">This helps us build a workout intensity that's right for you.</p>
+
+                <div class="level-selector">
+                  @for (level of experienceLevels; track level.id) {
+                  <div class="level-card" [class.selected]="selectedExperienceLevel === level.id"
+                    (click)="selectExperienceLevel(level.id)">
+                    <h4>{{ level.label }}</h4>
+                    <p>{{ level.desc }}</p>
+                  </div>
+                  }
+                </div>
               </div>
               }
 
@@ -204,7 +217,7 @@
             </div>
             <div class="footer-right">
               <button *ngIf="currentStep < 3" type="button" class="btn btn-primary" (click)="nextStep()"
-                [disabled]="currentStep === 2 && !selectedGoal">
+                [disabled]="currentStep === 2 && (!selectedGoal || !selectedExperienceLevel)">
                 Continue
               </button>
               <button *ngIf="currentStep === 3" type="button" class="btn btn-primary" (click)="submitMetrics()"

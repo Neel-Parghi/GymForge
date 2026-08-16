@@ -29,8 +29,6 @@
               <span class="food-name">
                 {{meal.name}}
                 <small class="tag">Assigned</small>
-                <small class="tag logged-tag" *ngIf="isAssignedMealLogged(meal)"><i
-                    class="fa-solid fa-circle-check"></i> Logged</small>
               </span>
               <span class="food-macros">{{meal.calories}} kcal • P: {{meal.protein}}g • C: {{meal.carbs}}g • F:
                 {{meal.fats}}g</span>
@@ -50,7 +48,7 @@
     <!-- Right Column: Macro Dashboard & Consumed Foods -->
     <div class="col-right" [class.full-width]="assignedMealsPending.length === 0">
       <!-- Macro Dashboard -->
-      <div class="macro-dashboard card">
+      <div class="macro-dashboard card" [class.mobile-collapsed]="!macrosExpanded">
         <div class="main-calorie-ring">
           <svg viewBox="0 0 36 36" class="circular-chart blue">
             <path class="circle-bg" d="M18 2.0845
@@ -66,6 +64,22 @@
             <span class="target">/ {{dietLog.targetCalories || 2000}} kcal</span>
           </div>
         </div>
+
+        <!-- Compact, tappable summary shown only on mobile — expands/collapses the ring & macro bars -->
+        <button type="button" class="mobile-macro-summary" (click)="macrosExpanded = !macrosExpanded"
+          [attr.aria-expanded]="macrosExpanded">
+          <span class="summary-row">
+            <i class="fa-solid fa-fire"></i>
+            <span class="val">{{dietLog.totalCalories}}</span>
+            <span class="lbl">/ {{dietLog.targetCalories || 2000}} kcal</span>
+            <i class="fa-solid fa-chevron-down toggle-caret" [class.rotated]="macrosExpanded"></i>
+          </span>
+          <span class="mini-chips">
+            <span class="chip protein">{{dietLog.totalProtein}}/{{dietLog.targetProtein || 150}}g P</span>
+            <span class="chip carbs">{{dietLog.totalCarbs}}/{{dietLog.targetCarbs || 250}}g C</span>
+            <span class="chip fats">{{dietLog.totalFats}}/{{dietLog.targetFats || 65}}g F</span>
+          </span>
+        </button>
 
         <div class="macro-stats">
           <div class="macro-item protein">

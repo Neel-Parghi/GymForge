@@ -39,6 +39,12 @@ export class UserWizardComponent implements OnInit {
 
   goalOptions = this.goals.map(g => ({ label: g.label, value: g.id }));
 
+  experienceLevels = [
+    { id: 'Beginner', label: 'Beginner', desc: 'New to structured training' },
+    { id: 'Intermediate', label: 'Intermediate', desc: 'Training consistently for a while' },
+    { id: 'Advanced', label: 'Advanced', desc: 'Experienced with structured programs' }
+  ];
+
   genderOptions = [
     { label: 'Male', value: 'Male' },
     { label: 'Female', value: 'Female' },
@@ -46,6 +52,7 @@ export class UserWizardComponent implements OnInit {
   ];
 
   selectedGoal: string | null = null;
+  selectedExperienceLevel: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -140,6 +147,7 @@ export class UserWizardComponent implements OnInit {
     const draft = {
       currentStep: this.currentStep,
       selectedGoal: this.selectedGoal,
+      selectedExperienceLevel: this.selectedExperienceLevel,
       metricsForm: this.metricsForm.value
     };
     localStorage.setItem('gymForge_userWizardDraft', JSON.stringify(draft));
@@ -152,6 +160,7 @@ export class UserWizardComponent implements OnInit {
         const draft = JSON.parse(draftStr);
         if (draft.currentStep) this.currentStep = draft.currentStep;
         if (draft.selectedGoal) this.selectedGoal = draft.selectedGoal;
+        if (draft.selectedExperienceLevel) this.selectedExperienceLevel = draft.selectedExperienceLevel;
         if (draft.metricsForm) {
           this.metricsForm.patchValue(draft.metricsForm, { emitEvent: false });
         }
@@ -166,6 +175,11 @@ export class UserWizardComponent implements OnInit {
     this.saveDraft();
   }
 
+  selectExperienceLevel(levelId: string) {
+    this.selectedExperienceLevel = levelId;
+    this.saveDraft();
+  }
+
   nextStep() {
     if (this.currentStep === 1) {
       this.currentStep = 2;
@@ -174,6 +188,10 @@ export class UserWizardComponent implements OnInit {
     } else if (this.currentStep === 2) {
       if (!this.selectedGoal) {
         this.toastr.warning('Please select a primary goal.');
+        return;
+      }
+      if (!this.selectedExperienceLevel) {
+        this.toastr.warning('Please select your experience level.');
         return;
       }
       this.currentStep = 3;
@@ -208,6 +226,7 @@ export class UserWizardComponent implements OnInit {
 
     const payload = {
       primaryGoal: this.selectedGoal,
+      experienceLevel: this.selectedExperienceLevel,
       ...this.metricsForm.value
     };
 

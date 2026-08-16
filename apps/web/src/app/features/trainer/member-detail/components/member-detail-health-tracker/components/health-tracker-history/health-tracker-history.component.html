@@ -4,8 +4,8 @@
     <p class="subtitle">View member composition history and trend logs</p>
   </div>
   <div class="header-right">
-    <button type="button" class="btn-action-primary" (click)="recordNewEntry.emit()">
-      <i class="fa-solid fa-plus"></i> Record New Entry
+    <button type="button" class="btn-action-primary" (click)="recordNewEntry.emit()" title="Record New Entry">
+      <i class="fa-solid fa-plus"></i> <span class="btn-label">Record New Entry</span>
     </button>
   </div>
 </div>
@@ -57,6 +57,47 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Mobile Card List (replaces the table below the mobile breakpoint) -->
+    <div class="mobile-logs-list" *ngIf="measurements.length > 0">
+      <div class="log-card" *ngFor="let log of measurements" (click)="openDetails.emit(log)">
+        <div class="log-header">
+          <span class="log-date">
+            <i class="fa-regular fa-calendar"></i>
+            {{ log.date | date:'mediumDate' }}
+          </span>
+          <span class="bmi-badge-inline" [ngClass]="getBmiClass(log.bmi)">
+            {{ log.bmi }} ({{ getBmiText(log.bmi) }})
+          </span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="label">Weight</span>
+            <span class="value">{{ log.weight }} kg</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">Height</span>
+            <span class="value">{{ log.height }} cm</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">Body Fat</span>
+            <span class="value">{{ log.bodyFatPercentage ? log.bodyFatPercentage + '%' : '--' }}</span>
+          </div>
+        </div>
+
+        <p class="log-notes" *ngIf="log.notes">{{ log.notes }}</p>
+
+        <div class="log-footer">
+          <span class="mode-badge-inline" [class.advanced]="log.isAdvanced">
+            {{ log.isAdvanced ? 'Advanced' : 'Basic' }}
+          </span>
+          <span class="view-details-hint">
+            View details <i class="fa-solid fa-chevron-right"></i>
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="empty-state" *ngIf="measurements.length === 0">
