@@ -24,6 +24,70 @@
     </div>
   </div>
 
+  <!-- Compact First-Time Setup Checklist (Shown only when setup is incomplete) -->
+  <div class="setup-checklist-card compact" *ngIf="isFirstTimeSetup && !isLoading">
+    <div class="checklist-info">
+      <div class="info-text">
+        <h3>Gym Setup</h3>
+        <span class="progress-badge">{{ getSetupProgress() }}% Completed</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" [style.width.%]="getSetupProgress()"></div>
+      </div>
+    </div>
+
+    <div class="checklist-divider"></div>
+
+    <div class="checklist-steps-row">
+      <!-- Step 1: Create Membership Plans -->
+      <a class="step-compact-item" [class.completed]="isPlansSetup()"
+        [routerLink]="isPlansSetup() ? null : ['/gym-owner/plans']"
+        [attr.title]="isPlansSetup() ? 'Membership plans created' : 'Click to create membership plans'">
+        <div class="step-icon">
+          <i class="fa-solid fa-circle-check check-active" *ngIf="isPlansSetup()"></i>
+          <i class="fa-solid fa-circle-plus" *ngIf="!isPlansSetup()"></i>
+        </div>
+        <div class="step-meta">
+          <span class="step-title">Create Plans</span>
+          <span class="step-status-text">{{ isPlansSetup() ? 'Completed' : 'Pending' }}</span>
+        </div>
+      </a>
+
+      <!-- Step 2: Onboard Staff & Trainers -->
+      <a class="step-compact-item" [class.completed]="isStaffSetup()"
+        [routerLink]="isStaffSetup() ? null : ['/gym-owner/staff']"
+        [attr.title]="isStaffSetup() ? 'Gym staff onboarded' : 'Click to onboard staff'">
+        <div class="step-icon">
+          <i class="fa-solid fa-circle-check check-active" *ngIf="isStaffSetup()"></i>
+          <i class="fa-solid fa-circle-plus" *ngIf="!isStaffSetup()"></i>
+        </div>
+        <div class="step-meta">
+          <span class="step-title">Onboard Staff</span>
+          <span class="step-status-text">{{ isStaffSetup() ? 'Completed' : 'Pending' }}</span>
+        </div>
+      </a>
+
+      <!-- Step 3: Onboard Your First Member -->
+      <a class="step-compact-item" [class.completed]="isMembersSetup()"
+        [class.disabled]="!isPlansSetup() && !isMembersSetup()"
+        [routerLink]="(!isPlansSetup() || isMembersSetup()) ? null : ['/gym-owner/members']">
+        <div class="step-icon">
+          <i class="fa-solid fa-circle-check check-active" *ngIf="isMembersSetup()"></i>
+          <i class="fa-solid fa-circle-plus" *ngIf="!isMembersSetup()"></i>
+        </div>
+        <div class="step-meta">
+          <span class="step-title">Onboard Member</span>
+          <span class="step-status-text">{{ isMembersSetup() ? 'Completed' : (!isPlansSetup() ? 'Locked' : 'Pending')
+            }}</span>
+        </div>
+        <!-- Tooltip -->
+        <div class="step-tooltip" *ngIf="!isPlansSetup() && !isMembersSetup()">
+          Please create gym plans first
+        </div>
+      </a>
+    </div>
+  </div>
+
   <!-- Row 1: Stats Grid (3 columns) -->
   <div class="stats-grid-premium">
     <!-- Card 1: Total Revenue -->

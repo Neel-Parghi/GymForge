@@ -9,6 +9,7 @@ import { Router, RouterLink } from '@angular/router';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { GymService } from '../../../core/services/gym.service';
 import { GymListResponse } from '../../../shared/models/gym.model';
+import { GymPlanService } from '../../../core/services/gym-plan.service';
 
 @Component({
   selector: 'app-gym-owner-dashboard',
@@ -24,6 +25,7 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private branchContextService = inject(BranchContextService);
+  private planService = inject(GymPlanService);
 
   stats: GymOwnerStats | null = null;
   gymData: GymListResponse | null = null;
@@ -32,6 +34,8 @@ export class DashboardComponent implements OnInit {
   selectedDensityRange: 'today' | 'week' = 'today';
   todayDate = new Date();
   showDensityDropdown = false;
+  plansCount: number = 0;
+  isFirstTimeSetup = false;
 
   toggleDensityDropdown() {
     this.showDensityDropdown = !this.showDensityDropdown;
@@ -48,6 +52,7 @@ export class DashboardComponent implements OnInit {
     ).subscribe(() => {
       this.loadStats();
       this.loadGymData();
+      this.loadPlansCount();
     });
   }
 
@@ -77,9 +82,7 @@ export class DashboardComponent implements OnInit {
       next: (res: any) => {
         const data = res?.data || res;
         this.stats = data;
-
-
-
+        this.checkSetupStatus();
         this.isLoading = false;
       },
       error: (err) => {
@@ -210,5 +213,45 @@ export class DashboardComponent implements OnInit {
       return '6 MONTH';
     }
     return '1 MONTH';
+  }
+
+  loadPlansCount(): void {
+    this.planService.getGymPlans().subscribe({
+      next: (res) => {
+        this.plansCount = res.data?.length || 0;
+        this.checkSetupStatus();
+      },
+      error: (err) => {
+        console.error('Error loading plans count:', err);
+      }
+    });
+  }
+
+  checkSetupStatus(): void {
+    if (!this.stats) return;
+    const hasPlans = this.plansCount > 0;
+    const hasStaff = (this.stats.activeTrainers + this.stats.supportStaffCount) > 0;
+    const hasMembers = this.stats.totalMembers > 0;
+    this.isFirstTimeSetup = !hasPlans || !hasStaff || !hasMembers;
+  }
+
+  getSetupProgress(): number {
+    let completed = 0;
+    if (this.plansCount > 0) completed++;
+    if (this.stats && (this.stats.activeTrainers + this.stats.supportStaffCount) > 0) completed++;
+    if (this.stats && this.stats.totalMembers > 0) completed++;
+    return Math.round((completed / 3) * 100);
+  }
+
+  isPlansSetup(): boolean {
+    return this.plansCount > 0;
+  }
+
+  isStaffSetup(): boolean {
+    return !!(this.stats && (this.stats.activeTrainers + this.stats.supportStaffCount) > 0);
+  }
+
+  isMembersSetup(): boolean {
+    return !!(this.stats && this.stats.totalMembers > 0);
   }
 }

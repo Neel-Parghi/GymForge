@@ -1510,3 +1510,226 @@
     }
   }
 }
+
+.setup-checklist-card.compact {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 12px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  animation: slideDownFade 0.4s ease-out;
+  flex-wrap: wrap;
+
+  .checklist-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+
+    .info-text {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+      }
+
+      .progress-badge {
+        font-size: 0.725rem;
+        font-weight: 700;
+        color: #2563eb;
+        background: #eff6ff;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 5px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      overflow: hidden;
+
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2563eb, #3b82f6);
+        border-radius: 10px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+  }
+
+  .checklist-divider {
+    width: 1px;
+    height: 36px;
+    background: #e2e8f0;
+    align-self: center;
+
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+
+  .checklist-steps-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 2;
+    min-width: 320px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    .step-compact-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #f1f5f9;
+      background: #f8fafc;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      flex: 1;
+      min-width: 130px;
+
+      &:hover {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+        transform: translateY(-1px);
+      }
+
+      &.completed {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: default;
+        pointer-events: none;
+
+        .step-icon i {
+          color: #10b981;
+        }
+
+        .step-meta {
+          .step-title {
+            color: #64748b;
+            text-decoration: line-through;
+          }
+
+          .step-status-text {
+            color: #10b981;
+          }
+        }
+      }
+
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8fafc;
+        border-color: #f1f5f9;
+        pointer-events: auto;
+
+        &:hover {
+          background: #f8fafc;
+          border-color: #f1f5f9;
+          transform: none;
+        }
+
+        .step-icon i {
+          color: #94a3b8;
+        }
+
+        .step-meta {
+          .step-title {
+            color: #94a3b8;
+          }
+
+          .step-status-text {
+            color: #ef4444;
+          }
+        }
+      }
+
+      .step-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+
+        i {
+          color: #64748b;
+
+          &.check-active {
+            color: #10b981;
+          }
+        }
+      }
+
+      .step-meta {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+
+        .step-title {
+          font-size: 0.775rem;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .step-status-text {
+          font-size: 0.65rem;
+          font-weight: 600;
+          color: #64748b;
+        }
+      }
+
+      .step-tooltip {
+        position: absolute;
+        top: 125%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-4px);
+        background: #0f172a;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border-width: 5px;
+          border-style: solid;
+          border-color: transparent transparent #0f172a transparent;
+        }
+      }
+
+      &:hover .step-tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  }
+}
