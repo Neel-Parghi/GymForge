@@ -6,6 +6,8 @@ export interface MemberInvoiceDto {
     billingType: string;
     description: string;
     amount: number;
+    amountPaid: number;
+    balance: number;
     dateIssued: string;
     dueDate: string;
     status: string;
@@ -43,6 +45,20 @@ export interface CreateCustomInvoiceRequest {
     amount: number;
     status: string;
     paymentMethod: string;
+}
+
+export interface RecordPaymentRequest {
+    amount: number;
+    paymentMethod: string;
+    notes?: string | null;
+}
+
+export interface PaymentRecordDto {
+    id: string;
+    amount: number;
+    paymentMethod: string;
+    notes?: string | null;
+    paidAt: string;
 }
 
 export interface StaffPayoutDto {

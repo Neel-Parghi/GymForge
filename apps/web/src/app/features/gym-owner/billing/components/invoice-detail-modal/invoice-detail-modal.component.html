@@ -63,6 +63,10 @@
             (invoice.membershipNumber || invoice.initials + '-' + invoice.id.slice(-4))) }}</p>
           <p class="meta-field"><strong>Status:</strong> <span class="st-lbl"
               [ngClass]="invoice.status.toLowerCase()">{{ invoice.status }}</span></p>
+          <ng-container *ngIf="!isSaaSInvoice(invoice) && invoice.status !== 'Paid'">
+            <p class="meta-field"><strong>Paid:</strong> ₹{{ invoice.amountPaid | number:'1.2-2' }}</p>
+            <p class="meta-field"><strong>Balance Due:</strong> ₹{{ invoice.balance | number:'1.2-2' }}</p>
+          </ng-container>
         </div>
       </div>
 

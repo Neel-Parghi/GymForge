@@ -1,6 +1,7 @@
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
+using GymForge.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymForge.Infrastructure.Repositories
@@ -153,6 +154,19 @@ namespace GymForge.Infrastructure.Repositories
                          && x.TransactionDate >= startDate
                          && x.TransactionDate <= endDate
                          && !x.PaymentMethod.StartsWith("Pending"))
+                .ToListAsync();
+        }
+
+        public async Task AddPaymentRecordAsync(PaymentRecord record)
+        {
+            await _dbContext.PaymentRecords.AddAsync(record);
+        }
+
+        public async Task<IEnumerable<PaymentRecord>> GetPaymentRecordsBySourceAsync(PaymentSourceType sourceType, Guid sourceId)
+        {
+            return await _dbContext.PaymentRecords
+                .Where(x => x.SourceType == sourceType && x.SourceId == sourceId)
+                .OrderByDescending(x => x.PaidAt)
                 .ToListAsync();
         }
     }

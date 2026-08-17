@@ -115,6 +115,10 @@
     text-align: center;
     transition: transform 0.2s;
 
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
     &:hover {
       transform: translateY(-2px);
     }

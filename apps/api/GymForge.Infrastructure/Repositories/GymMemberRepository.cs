@@ -136,6 +136,14 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<GymMember>> GetMembersDueForUnfreezeAsync(DateTime asOf)
+        {
+            return await _dbContext.GymMembers
+                .Include(x => x.Subscriptions)
+                .Where(x => x.Status == MemberStatus.Freeze && x.FreezeUntil != null && x.FreezeUntil <= asOf)
+                .ToListAsync();
+        }
+
         public async Task<MemberDashboardResponse> GetMemberDashboardDataAsync(Guid gymId, Guid? branchId = null)
         {
             DateTime today = DateTime.UtcNow.Date;

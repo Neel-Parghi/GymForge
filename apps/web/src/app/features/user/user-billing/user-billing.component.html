@@ -151,8 +151,7 @@
 </div>
 
 @if (selectedInvoice) {
-<app-invoice-detail-modal [invoice]="selectedInvoice" [gymDetails]="myGymDetails"
-  [invoicePrefix]="myGymDetails?.invoicePrefix || 'GF-'" (close)="closeInvoiceModal()">
+<app-invoice-detail-modal [invoice]="selectedInvoice" [gymDetails]="myGymDetails" (close)="closeInvoiceModal()">
 </app-invoice-detail-modal>
 }
 

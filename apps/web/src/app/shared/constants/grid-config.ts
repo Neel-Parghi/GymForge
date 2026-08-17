@@ -160,6 +160,7 @@ export const AppGridConfig: Record<string, GridConfigDef> = {
       { key: 'memberName', label: 'Member', type: 'profile', subKey: 'email' },
       { key: 'type', label: 'Billing Type', type: 'text' },
       { key: 'amount', label: 'Amount', type: 'currency' },
+      { key: 'balance', label: 'Balance Due', type: 'currency' },
       { key: 'dateIssued', label: 'Date Issued', type: 'date' },
       { key: 'dueDate', label: 'Due Date', type: 'date' },
       { key: 'status', label: 'Status', type: 'badge' },

@@ -53,18 +53,28 @@ namespace GymForge.Api.Controllers.Gym
         }
 
         [HttpPost("pay/{recordId}")]
-        public async Task<ActionResult> MarkAsPaid(Guid recordId)
+        public async Task<ActionResult> RecordPayment(Guid recordId, [FromBody] RecordPaymentRequest request)
         {
-            if (GymId == null) 
+            if (GymId == null)
                 return Unauthorized();
 
-            bool success = await _billingService.MarkAsPaidAsync(GymId.Value, recordId);
-            if (success)
+            RecordPaymentResult result = await _billingService.RecordPaymentAsync(GymId.Value, SecureBranchId, recordId, request);
+            if (result.Success)
             {
-                return Ok(new { message = "Transaction marked as Paid successfully" });
+                return Ok(new { message = "Payment recorded successfully" });
             }
 
-            return BadRequest(new { message = "Failed to mark transaction as Paid" });
+            return BadRequest(new { message = result.ErrorMessage ?? "Failed to record payment" });
+        }
+
+        [HttpGet("pay/{recordId}/history")]
+        public async Task<ActionResult> GetPaymentHistory(Guid recordId)
+        {
+            if (GymId == null)
+                return Unauthorized();
+
+            IEnumerable<PaymentRecordDto> history = await _billingService.GetPaymentHistoryAsync(recordId);
+            return Ok(history);
         }
     }
 }

@@ -18,6 +18,7 @@ import { RouterLink } from '@angular/router';
 import { BranchContextService } from '../../../core/services/branch-context.service';
 import { OnboardMemberModal } from './onboard-member-modal/onboard-member-modal.component';
 import { MemberDetailDrawer } from './member-detail-drawer/member-detail-drawer.component';
+import { FreezeMemberModalComponent } from './freeze-member-modal/freeze-member-modal.component';
 import { GymMember, MemberStatus, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../shared/models/member.model';
 import { GymPlan } from '../../../shared/models/gym-plan.model';
 import { PaymentStatus } from '../../../shared/enums/member-enums';
@@ -28,7 +29,7 @@ import { CONSTANTS } from '../../../core/constants/constants';
 @Component({
   selector: 'app-members-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, GridCellDirective, RouterLink, OnboardMemberModal, MemberDetailDrawer, DropdownComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DataGrid, GridCellDirective, RouterLink, OnboardMemberModal, MemberDetailDrawer, FreezeMemberModalComponent, DropdownComponent],
   templateUrl: './members-list.component.html',
   styleUrl: './members-list.component.scss'
 })
@@ -133,6 +134,8 @@ export class MembersListComponent implements OnInit {
   isEditMode = false;
   isDrawerOpen = false;
   selectedMember: GymMember | null = null;
+  showFreezeModal = false;
+  memberIdPendingFreeze: string | null = null;
 
   // Stats
   get totalCount(): number {
@@ -399,13 +402,30 @@ export class MembersListComponent implements OnInit {
   }
 
   handleFreeze(memberId: string): void {
-    this.memberService.freezeMember(memberId).subscribe({
+    this.memberIdPendingFreeze = memberId;
+    this.showFreezeModal = true;
+  }
+
+  closeFreezeModal(): void {
+    this.showFreezeModal = false;
+    this.memberIdPendingFreeze = null;
+  }
+
+  confirmFreeze(freezeUntil: Date): void {
+    if (!this.memberIdPendingFreeze) return;
+    const memberId = this.memberIdPendingFreeze;
+
+    this.memberService.freezeMember(memberId, freezeUntil.toISOString()).subscribe({
       next: () => {
         this.notificationService.success(CONSTANTS.MEMBERS_MODULE.FREEZE_SUCCESS);
         this.memberService.clearCache();
         this.refreshDrawer(memberId);
+        this.closeFreezeModal();
       },
-      error: () => this.notificationService.error(CONSTANTS.MEMBERS_MODULE.FREEZE_ERROR)
+      error: (err) => {
+        const msg = err?.error?.message ?? CONSTANTS.MEMBERS_MODULE.FREEZE_ERROR;
+        this.notificationService.error(msg);
+      }
     });
   }
 

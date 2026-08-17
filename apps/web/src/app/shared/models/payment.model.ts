@@ -51,7 +51,9 @@ export interface MemberInvoice {
   initials: string;
   type: 'Membership Renewal' | 'Store Purchase' | 'Personal Training' | 'Registration' | 'Rehab & Therapy' | 'Other Charges';
   amount: number;
-  status: 'Paid' | 'Pending' | 'Overdue' | 'Refunded';
+  amountPaid: number;
+  balance: number;
+  status: 'Paid' | 'Pending' | 'Partial' | 'Overdue' | 'Refunded';
   paymentMethod: string;
   dateIssued: Date;
   dueDate: Date;

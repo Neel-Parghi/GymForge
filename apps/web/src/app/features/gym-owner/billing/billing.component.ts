@@ -18,6 +18,7 @@ import { PricingPlan } from '../../../shared/models/pricing.model';
 import { InvoiceDetailModalComponent } from './components/invoice-detail-modal/invoice-detail-modal.component';
 import { CreateInvoiceModalComponent } from './components/create-invoice-modal/create-invoice-modal.component';
 import { PayrollRulesModalComponent } from './components/payroll-rules-modal/payroll-rules-modal.component';
+import { RecordPaymentModalComponent } from './components/record-payment-modal/record-payment-modal.component';
 import { DataGrid, GridCellDirective } from '../../../shared/components/data-grid/data-grid.component';
 import { AppGridConfig } from '../../../shared/constants/grid-config';
 import { ConfigurationService } from '../../../core/services/configuration.service';
@@ -35,6 +36,7 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
     InvoiceDetailModalComponent,
     CreateInvoiceModalComponent,
     PayrollRulesModalComponent,
+    RecordPaymentModalComponent,
     DataGrid,
     GridCellDirective
   ],
@@ -85,11 +87,14 @@ export class BillingComponent implements OnInit {
   selectedInvoice: any | null = null;
   invoiceSearch = '';
   invoiceSearchControl = new FormControl('');
-  statusFilter: 'All' | 'Paid' | 'Pending' | 'Overdue' = 'All';
+  statusFilter: 'All' | 'Paid' | 'Pending' | 'Partial' | 'Overdue' = 'All';
   showCreateInvoiceModal = false;
 
   showPayrollRulesModal = false;
   selectedPayrollStaff: StaffPayout | null = null;
+
+  showRecordPaymentModal = false;
+  selectedInvoiceForPayment: MemberInvoice | null = null;
 
   gymTrainers: any[] = [];
   trainerDropdownOptions: DropdownOption[] = [];
@@ -175,6 +180,7 @@ export class BillingComponent implements OnInit {
 
       if (params['createInvoice'] === 'true') {
         const memberId = params['memberId'];
+        const trainerId = params['trainerId'];
         const reason = params['reason'] || 'PT';
         const duration = params['duration'] || 'ongoing';
 
@@ -201,22 +207,47 @@ export class BillingComponent implements OnInit {
               else if (duration === '365_days') { desc = 'Personal Training - 1 Year Package'; }
               else { desc = 'Personal Training - Ongoing (Monthly)'; }
 
-              this.prefillInvoiceData = {
-                memberIndex: validIndex,
-                type: 'Personal Training',
-                itemName: desc,
-                amount: null,
-                status: 'Pending'
+              const openPrefilledModal = (trainerIndex: number | null) => {
+                this.prefillInvoiceData = {
+                  memberIndex: validIndex,
+                  type: 'Personal Training',
+                  trainerIndex,
+                  itemName: desc,
+                  amount: null,
+                  status: 'Pending'
+                };
+
+                this.showCreateInvoiceModal = true;
+
+                this.router.navigate([], {
+                  relativeTo: this.route,
+                  queryParams: { createInvoice: null, memberId: null, trainerId: null, reason: null, duration: null },
+                  queryParamsHandling: 'merge',
+                  replaceUrl: true
+                });
               };
 
-              this.showCreateInvoiceModal = true;
+              if (trainerId) {
+                this.staffService.getUnscopedGymStaff(1, 100).subscribe({
+                  next: (staffRes) => {
+                    if (staffRes.data?.items) {
+                      this.gymTrainers = staffRes.data.items.filter((s: any) =>
+                        s.role === 1 || s.roleName?.toLowerCase().includes('trainer')
+                      );
+                      this.trainerDropdownOptions = this.gymTrainers.map((t: any, index: number) => ({
+                        label: `${t.firstName} ${t.lastName}`,
+                        value: index
+                      }));
+                    }
 
-              this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { createInvoice: null, memberId: null, reason: null, duration: null },
-                queryParamsHandling: 'merge',
-                replaceUrl: true
-              });
+                    const tIndex = this.gymTrainers.findIndex((t: any) => t.id === trainerId);
+                    openPrefilledModal(tIndex > -1 ? tIndex : null);
+                  },
+                  error: () => openPrefilledModal(null)
+                });
+              } else {
+                openPrefilledModal(null);
+              }
             }
           }
         });
@@ -407,6 +438,8 @@ export class BillingComponent implements OnInit {
             initials: initials,
             type: matchedType,
             amount: inv.amount,
+            amountPaid: inv.amountPaid,
+            balance: inv.balance,
             status: (inv.status || 'Paid') as any,
             paymentMethod: inv.paymentMethod,
             dateIssued: new Date(inv.dateIssued),
@@ -513,7 +546,7 @@ export class BillingComponent implements OnInit {
     });
   }
 
-  setStatusFilter(filter: 'All' | 'Paid' | 'Pending' | 'Overdue'): void {
+  setStatusFilter(filter: 'All' | 'Paid' | 'Pending' | 'Partial' | 'Overdue'): void {
     this.statusFilter = filter;
     this.memberInvoicesCurrentPage = 1;
   }
@@ -563,15 +596,19 @@ export class BillingComponent implements OnInit {
   }
 
   getPaidSum(): number {
-    return (this.memberInvoices || []).filter(i => i.status === 'Paid').reduce((sum, i) => sum + i.amount, 0);
+    return (this.memberInvoices || []).reduce((sum, i) => sum + (i.amountPaid ?? 0), 0);
   }
 
   getPendingSum(): number {
-    return (this.memberInvoices || []).filter(i => i.status === 'Pending').reduce((sum, i) => sum + i.amount, 0);
+    return (this.memberInvoices || [])
+      .filter(i => i.status === 'Pending' || i.status === 'Partial')
+      .reduce((sum, i) => sum + (i.balance ?? i.amount), 0);
   }
 
   getOverdueSum(): number {
-    return (this.memberInvoices || []).filter(i => i.status === 'Overdue').reduce((sum, i) => sum + i.amount, 0);
+    return (this.memberInvoices || [])
+      .filter(i => i.status === 'Overdue')
+      .reduce((sum, i) => sum + (i.balance ?? i.amount), 0);
   }
 
   getTaxSum(): number {
@@ -685,7 +722,7 @@ export class BillingComponent implements OnInit {
     this.notification.success(CONSTANTS.BILLING_MODULE.WHATSAPP_EMAIL_REMINDER_SUCCESS.replace('{name}', invoice.memberName));
   }
 
-  markAsPaid(invoice: MemberInvoice, event: Event): void {
+  openRecordPaymentModal(invoice: MemberInvoice, event: Event): void {
     event.stopPropagation();
     if (!invoice.realRecordId) {
       invoice.status = 'Paid';
@@ -693,16 +730,17 @@ export class BillingComponent implements OnInit {
       return;
     }
 
-    this.billingService.payInvoice(invoice.realRecordId).subscribe({
-      next: () => {
-        invoice.status = 'Paid';
-        this.notification.success(CONSTANTS.BILLING_MODULE.INVOICE_PAID_SUCCESS_FULL.replace('{id}', invoice.id));
-        this.loadMemberBillingOverview(this.selectedPayrollMonth);
-      },
-      error: () => {
-        this.notification.error(CONSTANTS.BILLING_MODULE.INVOICE_PAID_ERROR);
-      }
-    });
+    this.selectedInvoiceForPayment = invoice;
+    this.showRecordPaymentModal = true;
+  }
+
+  closeRecordPaymentModal(): void {
+    this.showRecordPaymentModal = false;
+    this.selectedInvoiceForPayment = null;
+  }
+
+  onPaymentRecorded(): void {
+    this.loadMemberBillingOverview(this.selectedPayrollMonth);
   }
 
   saveSettings(): void {
@@ -732,21 +770,7 @@ export class BillingComponent implements OnInit {
   }
 
   getFormattedInvoiceId(invoice: any): string {
-    if (!invoice?.id) return '';
-
-    if (invoice.planName || invoice.billingDate) {
-      return invoice.id;
-    }
-
-    const prefix = this.settingsForm?.get('invoicePrefix')?.value || this.gymDetails?.invoicePrefix || 'GF-';
-    const rawId = invoice.id.toString();
-
-    if (rawId.startsWith(prefix)) {
-      return rawId;
-    }
-
-    const displayId = rawId.length > 8 ? rawId.substring(0, 8).toUpperCase() : rawId.toUpperCase();
-    return `${prefix}${displayId}`;
+    return invoice?.id ?? '';
   }
 
   downloadInvoicePdf(invoice: any, event: Event): void {

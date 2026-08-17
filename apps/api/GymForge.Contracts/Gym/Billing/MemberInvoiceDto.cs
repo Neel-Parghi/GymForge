@@ -9,6 +9,8 @@ namespace GymForge.Contracts.Gym.Billing
         public string BillingType { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Amount { get; set; }
+        public decimal AmountPaid { get; set; }
+        public decimal Balance { get; set; }
         public DateTime DateIssued { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime CreatedOn { get; set; }

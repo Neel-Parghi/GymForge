@@ -31,7 +31,10 @@ namespace GymForge.Domain.Entities
         public List<string>? FitnessGoals { get; set; }
 
         public DateTime JoiningDate { get; set; }
-        public MemberStatus Status { get; set; } 
+        public MemberStatus Status { get; set; }
+
+        public DateTime? FreezeStartDate { get; set; }
+        public DateTime? FreezeUntil { get; set; }
 
         public Gym Gym { get; set; } = null!;
         public Branch? Branch { get; set; }

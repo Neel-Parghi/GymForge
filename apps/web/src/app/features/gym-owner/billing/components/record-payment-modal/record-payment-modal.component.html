@@ -1,0 +1,79 @@
+<div class="modal-overlay-backdrop" (click)="close.emit()">
+  <div class="invoice-modal-content-wrapper payment-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header-controls">
+      <span class="title">Record Payment — {{ invoice.id }}</span>
+      <button class="close-btn" (click)="close.emit()" title="Close dialog">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-form-body">
+      <!-- Balance Summary -->
+      <div class="balance-summary-row">
+        <div class="summary-tile">
+          <span class="lbl">Total Bill</span>
+          <span class="val">₹{{ invoice.amount | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-tile paid">
+          <span class="lbl">Paid So Far</span>
+          <span class="val">₹{{ invoice.amountPaid | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-tile balance">
+          <span class="lbl">Remaining Balance</span>
+          <span class="val">₹{{ balance | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <form [formGroup]="recordPaymentForm" (ngSubmit)="submitPayment()" class="create-invoice-form-wrapper">
+        <div class="form-grid-2">
+          <!-- Amount -->
+          <div class="form-group-premium">
+            <label for="paymentAmount">Amount Received</label>
+            <div class="input-unit-wrapper">
+              <input type="number" id="paymentAmount" formControlName="amount"
+                class="form-input-premium unit-input unit-left" min="0.01" [max]="balance" step="0.01">
+              <span class="unit-box left-unit">₹</span>
+            </div>
+            <div class="validation-error"
+              *ngIf="recordPaymentForm.get('amount')?.invalid && recordPaymentForm.get('amount')?.touched">
+              <i class="fa-solid fa-circle-exclamation error-icon"></i>
+              <span>Amount must be between ₹0.01 and the remaining balance of ₹{{ balance | number:'1.2-2' }}.</span>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="form-group-premium">
+            <label>Payment Method</label>
+            <app-dropdown [options]="paymentMethodOptions" formControlName="paymentMethod"
+              placeholder="Select Method..."></app-dropdown>
+          </div>
+        </div>
+
+        <div class="form-group-premium">
+          <label for="paymentNotes">Notes <span class="label-hint">(optional)</span></label>
+          <textarea id="paymentNotes" formControlName="notes" class="form-input-premium" rows="2"
+            placeholder="e.g. Installment 2 of 3, paid via bank transfer"></textarea>
+        </div>
+
+        <!-- Payment History -->
+        <div class="payment-history-section" *ngIf="paymentHistory.length > 0">
+          <span class="section-label">Payment History</span>
+          <div class="history-list">
+            <div class="history-row" *ngFor="let entry of paymentHistory">
+              <span class="hist-amount">₹{{ entry.amount | number:'1.2-2' }}</span>
+              <span class="hist-method">{{ entry.paymentMethod }}</span>
+              <span class="hist-date">{{ entry.paidAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-form-actions">
+          <button type="button" class="btn-cancel" (click)="close.emit()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="recordPaymentForm.invalid || isSubmitting">
+            <i class="fa-solid fa-circle-check"></i> {{ isSubmitting ? 'Recording...' : 'Record Payment' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

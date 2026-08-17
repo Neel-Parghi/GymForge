@@ -298,6 +298,13 @@
       font-weight: 900;
     }
   }
+
+  .hint-msg {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 8px;
+  }
 }
 
 .dropdown-checkbox-container {

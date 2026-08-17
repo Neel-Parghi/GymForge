@@ -19,6 +19,8 @@ export interface GymMember {
   fitnessGoals?: string[];
   joiningDate: string;
   status: MemberStatus;
+  freezeStartDate?: string;
+  freezeUntil?: string;
   currentSubscription?: MemberSubscription;
   branchId?: string;
   // computed client-side for grid badge rendering
@@ -31,6 +33,7 @@ export interface MemberSubscription {
   gymPlanId: string;
   planNameSnapshot: string;
   pricePaid: number;
+  amountPaid: number;
   durationMonths: number;
   extendedMonths: number;
   startDate: string;
@@ -58,6 +61,7 @@ export interface OnboardMemberRequest {
   startDate?: string;
   paymentStatus?: PaymentStatus;
   branchId?: string;
+  amountPaid?: number;
 }
 
 export interface RenewSubscriptionRequest {

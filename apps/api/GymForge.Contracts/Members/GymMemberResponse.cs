@@ -20,6 +20,8 @@ namespace GymForge.Contracts.Members
         public List<string>? FitnessGoals { get; set; }
         public DateTime JoiningDate { get; set; }
         public MemberStatus Status { get; set; }
+        public DateTime? FreezeStartDate { get; set; }
+        public DateTime? FreezeUntil { get; set; }
         public Guid? BranchId { get; set; }
         public MemberSubscriptionResponse? CurrentSubscription { get; set; }
     }
@@ -30,6 +32,7 @@ namespace GymForge.Contracts.Members
         public Guid GymPlanId { get; set; }
         public string PlanNameSnapshot { get; set; } = string.Empty;
         public decimal PricePaid { get; set; }
+        public decimal AmountPaid { get; set; }
         public int DurationMonths { get; set; }
         public int ExtendedMonths { get; set; }
         public DateTime StartDate { get; set; }

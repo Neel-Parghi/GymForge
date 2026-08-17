@@ -199,9 +199,10 @@ export class StaffDetailDrawerComponent {
     const durationDays = parseInt(this.durationControl.value || '0', 10);
     const passDuration = durationDays > 0 ? durationDays : undefined;
     const selectedMemberId = this.memberSelectControl.value!;
+    const trainerId = this.staff.id;
 
     this.staffService.assignTrainerToMember(
-      this.staff.id,
+      trainerId,
       selectedMemberId,
       this.preferredSlotControl.value || '',
       passDuration
@@ -225,6 +226,7 @@ export class StaffDetailDrawerComponent {
               queryParams: {
                 createInvoice: 'true',
                 memberId: selectedMemberId,
+                trainerId: trainerId,
                 reason: 'PT',
                 duration: durationDays > 0 ? `${durationDays}_days` : 'ongoing'
               }

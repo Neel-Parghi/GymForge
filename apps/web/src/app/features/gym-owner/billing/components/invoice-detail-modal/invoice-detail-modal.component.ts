@@ -16,7 +16,6 @@ export class InvoiceDetailModalComponent {
   @Input() invoice!: any;
   @Input() gymDetails: any = null;
   @Input() platformConfig: any = null;
-  @Input() invoicePrefix: string = 'GF-';
 
   @Output() close = new EventEmitter<void>();
 
@@ -33,19 +32,7 @@ export class InvoiceDetailModalComponent {
   }
 
   getFormattedInvoiceId(invoice: any): string {
-    if (!invoice?.id) return '';
-
-    if (invoice.planName || invoice.billingDate) {
-      return invoice.id;
-    }
-
-    const rawId = invoice.id.toString();
-    if (rawId.startsWith(this.invoicePrefix)) {
-      return rawId;
-    }
-
-    const displayId = rawId.length > 8 ? rawId.substring(0, 8).toUpperCase() : rawId.toUpperCase();
-    return `${this.invoicePrefix}${displayId}`;
+    return invoice?.id ?? '';
   }
 
   downloadInvoicePdf(invoice: any, event: Event): void {

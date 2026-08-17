@@ -8,9 +8,10 @@ namespace GymForge.Domain.Entities
         public Guid GymPlanId { get; set; } 
 
         
-        public string PlanNameSnapshot { get; set; } = string.Empty; 
-        public decimal PricePaid { get; set; } 
-        public int DurationMonths { get; set; } 
+        public string PlanNameSnapshot { get; set; } = string.Empty;
+        public decimal PricePaid { get; set; }
+        public decimal AmountPaid { get; set; }
+        public int DurationMonths { get; set; }
         public int ExtendedMonths { get; set; } 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

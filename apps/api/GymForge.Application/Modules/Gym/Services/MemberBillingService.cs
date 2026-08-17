@@ -2,6 +2,7 @@ using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.Gym.Billing;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Shared.Enums;
 
 namespace GymForge.Application.Modules.Gym.Services
 {
@@ -29,6 +30,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 BillingType = request.BillingType,
                 Description = $"{request.BillingType} Invoice",
                 Amount = request.Amount,
+                AmountPaid = request.Status == "Paid" ? request.Amount : 0,
                 TaxRate = (request.BillingType == "Personal Training" ||
                            request.BillingType == "Rehab & Therapy" ||
                            request.BillingType == "Other Charges") ? 0 : 18,
@@ -41,7 +43,7 @@ namespace GymForge.Application.Modules.Gym.Services
 
             await _billingRepository.AddCustomInvoiceAsync(invoice);
             int saved = await _unitOfWork.SaveChangesAsync();
-            
+
             return saved > 0;
         }
 
@@ -55,13 +57,16 @@ namespace GymForge.Application.Modules.Gym.Services
 
             List<MemberInvoiceDto> unifiedInvoices = [];
 
+            GymForge.Domain.Entities.Gym? gym = await _billingRepository.GetGymByIdAsync(gymId);
+            string invoicePrefix = string.IsNullOrWhiteSpace(gym?.InvoicePrefix) ? "GF-" : gym.InvoicePrefix;
+
             Branch? mainBranch = await _billingRepository.GetMainBranchAsync(gymId);
 
             IEnumerable<MemberSubscription> subscriptions = await _billingRepository.GetSubscriptionsByMonthAsync(gymId, startDate, endDate);
 
             foreach (MemberSubscription sub in subscriptions)
             {
-                if (branchId.HasValue && sub.Member.BranchId != branchId.Value) 
+                if (branchId.HasValue && sub.Member.BranchId != branchId.Value)
                     continue;
 
                 bool isFirstSubscription = !sub.Member.Subscriptions.Any(prev => prev.StartDate < sub.StartDate);
@@ -71,13 +76,15 @@ namespace GymForge.Application.Modules.Gym.Services
 
                 unifiedInvoices.Add(new MemberInvoiceDto
                 {
-                    Id = $"GF-{sub.StartDate:yyyy}-{sub.Id.ToString()[..4].ToUpper()}",
+                    Id = $"{invoicePrefix}{sub.StartDate:yyyy}-{sub.Id.ToString()[..4].ToUpper()}",
                     MemberId = sub.MemberId,
                     MemberName = $"{sub.Member.FirstName} {sub.Member.LastName}",
                     Email = sub.Member.Email,
                     BillingType = billingCategory,
                     Description = sub.PlanNameSnapshot ?? "Membership Plan Access",
                     Amount = sub.PricePaid,
+                    AmountPaid = sub.AmountPaid,
+                    Balance = sub.PricePaid - sub.AmountPaid,
                     DateIssued = sub.StartDate,
                     DueDate = sub.StartDate.AddDays(15),
                     Status = sub.PaymentStatus.ToString(),
@@ -100,25 +107,29 @@ namespace GymForge.Application.Modules.Gym.Services
 
             foreach (SaleTransaction tx in retailSales)
             {
-                if (branchId.HasValue && tx.BranchId != branchId.Value) 
+                if (branchId.HasValue && tx.BranchId != branchId.Value)
                     continue;
 
                 Branch? resolvedBranch = tx.Branch ?? mainBranch;
-                
+                decimal saleAmount = tx?.TotalAmount ?? 0;
+                bool saleIsPaid = !tx!.PaymentMethod.StartsWith("Pending");
+
                 unifiedInvoices.Add(new MemberInvoiceDto
                 {
-                    Id = $"GF-{tx.TransactionDate:yyyy}-{tx.Id.ToString()[..4].ToUpper()}",
+                    Id = $"{invoicePrefix}{tx.TransactionDate:yyyy}-{tx.Id.ToString()[..4].ToUpper()}",
                     MemberId = tx.MemberId,
                     MemberName = $"{tx?.Member?.FirstName} {tx?.Member?.LastName}",
                     Email = tx?.Member?.Email ?? "N/A",
                     BillingType = "Store Purchase",
                     Description = tx?.InventoryItem?.Name ?? "Retail Sale Item",
-                    Amount = tx?.TotalAmount ?? 0,
-                    DateIssued = tx.TransactionDate,
+                    Amount = saleAmount,
+                    AmountPaid = saleIsPaid ? saleAmount : 0,
+                    Balance = saleIsPaid ? 0 : saleAmount,
+                    DateIssued = tx!.TransactionDate,
                     DueDate = tx.TransactionDate,
-                    Status = tx.PaymentMethod.StartsWith("Pending") ? "Pending" : "Paid",
+                    Status = saleIsPaid ? "Paid" : "Pending",
                     MembershipNumber = tx?.Member?.MembershipNumber ?? string.Empty,
-                    RealRecordId = tx.Id,
+                    RealRecordId = tx!.Id,
                     CreatedOn = tx.CreatedOn,
 
                     BranchId = resolvedBranch?.Id,
@@ -135,26 +146,28 @@ namespace GymForge.Application.Modules.Gym.Services
 
             foreach (CustomInvoice invoice in customInvoices)
             {
-                if (branchId.HasValue && invoice.BranchId != branchId.Value) 
+                if (branchId.HasValue && invoice.BranchId != branchId.Value)
                     continue;
 
                 Branch? resolvedBranch = invoice.Branch ?? mainBranch;
 
                 unifiedInvoices.Add(new MemberInvoiceDto
                 {
-                    Id = $"GF-{invoice.TransactionDate:yyyy}-{invoice.Id.ToString()[..4].ToUpper()}",
+                    Id = $"{invoicePrefix}{invoice.TransactionDate:yyyy}-{invoice.Id.ToString()[..4].ToUpper()}",
                     MemberId = invoice.MemberId,
                     MemberName = $"{invoice?.Member?.FirstName} {invoice?.Member?.LastName}",
                     Email = invoice?.Member?.Email ?? "N/A",
                     BillingType = invoice?.BillingType ?? string.Empty,
                     Description = invoice?.Description ?? invoice?.BillingType ?? string.Empty,
                     Amount = invoice?.Amount ?? 0,
-                    DateIssued = invoice.TransactionDate,
+                    AmountPaid = invoice?.AmountPaid ?? 0,
+                    Balance = (invoice?.Amount ?? 0) - (invoice?.AmountPaid ?? 0),
+                    DateIssued = invoice!.TransactionDate,
                     DueDate = invoice.DueDate,
-                    Status = invoice.PaymentMethod.StartsWith("Pending") ? "Pending" : "Paid",
+                    Status = invoice.Status,
                     PaymentMethod = invoice.PaymentMethod,
                     MembershipNumber = invoice?.Member?.MembershipNumber ?? string.Empty,
-                    RealRecordId = invoice.Id,
+                    RealRecordId = invoice!.Id,
                     CreatedOn = invoice.CreatedOn,
 
                     // Branch scoping details
@@ -170,11 +183,10 @@ namespace GymForge.Application.Modules.Gym.Services
 
             List<MemberInvoiceDto> sortedInvoices = [..unifiedInvoices.OrderByDescending(x => x.CreatedOn)];
 
-            decimal totalCollected = sortedInvoices.Where(x => x.Status == "Paid").Sum(x => x.Amount);
-            decimal pendingReceivables = sortedInvoices.Where(x => x.Status == "Pending").Sum(x => x.Amount);
-            decimal overdueBalances = sortedInvoices.Where(x => x.Status == "Unpaid" || x.Status == "Overdue").Sum(x => x.Amount);
-
-            GymForge.Domain.Entities.Gym? gym = await _billingRepository.GetGymByIdAsync(gymId);
+            decimal totalCollected = sortedInvoices.Sum(x => x.AmountPaid);
+            decimal pendingReceivables = sortedInvoices.Where(x => x.Status == "Pending" || x.Status == "Partial").Sum(x => x.Balance);
+            decimal overdueBalances = sortedInvoices.Where(x => x.Status == "Unpaid" || x.Status == "Overdue").Sum(x => x.Balance);
+            decimal totalInvoiced = sortedInvoices.Sum(x => x.Amount);
 
             return new MemberBillingOverviewDto
             {
@@ -184,7 +196,7 @@ namespace GymForge.Application.Modules.Gym.Services
                     TotalCollected = totalCollected,
                     PendingReceivables = pendingReceivables,
                     OverdueBalances = overdueBalances,
-                    TotalInvoiced = totalCollected + pendingReceivables + overdueBalances
+                    TotalInvoiced = totalInvoiced
                 },
                 GymName = gym?.GymName ?? string.Empty,
                 GymBrandName = gym?.BrandName ?? string.Empty,
@@ -192,45 +204,116 @@ namespace GymForge.Application.Modules.Gym.Services
             };
         }
 
-        public async Task<bool> MarkAsPaidAsync(Guid gymId, Guid recordId)
+        public async Task<RecordPaymentResult> RecordPaymentAsync(Guid gymId, Guid? branchId, Guid recordId, RecordPaymentRequest request)
         {
+            if (request.Amount <= 0)
+                return RecordPaymentResult.Fail("Payment amount must be greater than zero.");
+
             MemberSubscription? subscription = await _billingRepository.GetSubscriptionByIdAsync(recordId);
             if (subscription != null)
             {
-                subscription.PaymentStatus = GymForge.Shared.Enums.PaymentStatus.Paid;
+                decimal balance = subscription.PricePaid - subscription.AmountPaid;
+                if (request.Amount > balance)
+                    return RecordPaymentResult.Fail($"Payment amount exceeds the remaining balance of {balance:0.00}.");
+
+                PaymentRecord ledgerEntry = new()
+                {
+                    Id = Guid.NewGuid(),
+                    MemberId = subscription.MemberId,
+                    SourceType = PaymentSourceType.Subscription,
+                    SourceId = subscription.Id,
+                    Amount = request.Amount,
+                    PaymentMethod = request.PaymentMethod,
+                    Notes = request.Notes,
+                    PaidAt = DateTime.UtcNow,
+                    GymId = gymId,
+                    BranchId = branchId,
+                    CreatedOn = DateTime.UtcNow
+                };
+                await _billingRepository.AddPaymentRecordAsync(ledgerEntry);
+
+                subscription.AmountPaid += request.Amount;
+                subscription.PaymentStatus = subscription.AmountPaid >= subscription.PricePaid
+                    ? PaymentStatus.Paid
+                    : PaymentStatus.Partial;
                 subscription.ModifiedOn = DateTime.UtcNow;
-                
+
                 int savedSub = await _unitOfWork.SaveChangesAsync();
-                return savedSub > 0;
+                return savedSub > 0 ? RecordPaymentResult.Ok() : RecordPaymentResult.Fail("Failed to save payment.");
             }
 
             SaleTransaction? transaction = await _billingRepository.GetTransactionByIdAsync(recordId);
             if (transaction != null)
             {
-                if (transaction.PaymentMethod.StartsWith("Pending-"))
-                {
-                    transaction.PaymentMethod = transaction.PaymentMethod.Replace("Pending-", "");
-                }
-                
+                bool isPending = transaction.PaymentMethod.StartsWith("Pending-");
+                if (!isPending)
+                    return RecordPaymentResult.Fail("This transaction is already fully paid.");
+
+                if (request.Amount != transaction.TotalAmount)
+                    return RecordPaymentResult.Fail($"Store purchases must be paid in full ({transaction.TotalAmount:0.00}). Partial payments are not supported for retail sales.");
+
+                transaction.PaymentMethod = transaction.PaymentMethod.Replace("Pending-", "");
+
                 int savedTx = await _unitOfWork.SaveChangesAsync();
-                return savedTx > 0;
+                return savedTx > 0 ? RecordPaymentResult.Ok() : RecordPaymentResult.Fail("Failed to save payment.");
             }
 
             CustomInvoice? invoice = await _billingRepository.GetCustomInvoiceByIdAsync(recordId);
             if (invoice != null)
             {
+                decimal balance = invoice.Amount - invoice.AmountPaid;
+                if (request.Amount > balance)
+                    return RecordPaymentResult.Fail($"Payment amount exceeds the remaining balance of {balance:0.00}.");
+
+                PaymentRecord ledgerEntry = new()
+                {
+                    Id = Guid.NewGuid(),
+                    MemberId = invoice.MemberId,
+                    SourceType = PaymentSourceType.CustomInvoice,
+                    SourceId = invoice.Id,
+                    Amount = request.Amount,
+                    PaymentMethod = request.PaymentMethod,
+                    Notes = request.Notes,
+                    PaidAt = DateTime.UtcNow,
+                    GymId = gymId,
+                    BranchId = branchId,
+                    CreatedOn = DateTime.UtcNow
+                };
+                await _billingRepository.AddPaymentRecordAsync(ledgerEntry);
+
+                invoice.AmountPaid += request.Amount;
+                invoice.Status = invoice.AmountPaid >= invoice.Amount ? "Paid" : "Partial";
                 if (invoice.PaymentMethod.StartsWith("Pending-"))
                 {
-                    invoice.PaymentMethod = invoice.PaymentMethod.Replace("Pending-", "");
+                    invoice.PaymentMethod = invoice.Status == "Paid"
+                        ? invoice.PaymentMethod.Replace("Pending-", "")
+                        : invoice.PaymentMethod;
                 }
-                invoice.Status = "Paid";
                 invoice.ModifiedOn = DateTime.UtcNow;
 
                 int savedInvoice = await _unitOfWork.SaveChangesAsync();
-                return savedInvoice > 0;
+                return savedInvoice > 0 ? RecordPaymentResult.Ok() : RecordPaymentResult.Fail("Failed to save payment.");
             }
 
-            return false;
+            return RecordPaymentResult.Fail("Billing record not found.");
+        }
+
+        public async Task<IEnumerable<PaymentRecordDto>> GetPaymentHistoryAsync(Guid recordId)
+        {
+            IEnumerable<PaymentRecord> records = await _billingRepository.GetPaymentRecordsBySourceAsync(PaymentSourceType.Subscription, recordId);
+            if (!records.Any())
+            {
+                records = await _billingRepository.GetPaymentRecordsBySourceAsync(PaymentSourceType.CustomInvoice, recordId);
+            }
+
+            return records.Select(r => new PaymentRecordDto
+            {
+                Id = r.Id,
+                Amount = r.Amount,
+                PaymentMethod = r.PaymentMethod,
+                Notes = r.Notes,
+                PaidAt = r.PaidAt
+            });
         }
     }
 }

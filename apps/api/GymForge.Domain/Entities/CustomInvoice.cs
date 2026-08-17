@@ -22,6 +22,9 @@ namespace GymForge.Domain.Entities
         public decimal Amount { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        public decimal AmountPaid { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal TaxRate { get; set; } = 18;
 
         public string PaymentMethod { get; set; } = "UPI";

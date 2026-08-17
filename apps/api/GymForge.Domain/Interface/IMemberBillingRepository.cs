@@ -1,4 +1,5 @@
 using GymForge.Domain.Entities;
+using GymForge.Shared.Enums;
 
 namespace GymForge.Domain.Interface
 {
@@ -21,6 +22,10 @@ namespace GymForge.Domain.Interface
         Task<CustomInvoice?> GetCustomInvoiceByIdAsync(Guid recordId);
         Task<IEnumerable<CustomInvoice>> GetCustomInvoicesByMonthAsync(Guid gymId, DateTime startDate, DateTime endDate);
         Task<IEnumerable<CustomInvoice>> GetCustomInvoicesByTrainerAndMonthAsync(Guid trainerId, DateTime startDate, DateTime endDate);
+
+        // Payment ledger methods
+        Task AddPaymentRecordAsync(PaymentRecord record);
+        Task<IEnumerable<PaymentRecord>> GetPaymentRecordsBySourceAsync(PaymentSourceType sourceType, Guid sourceId);
 
         // Staff Payroll repository methods
         Task<IEnumerable<StaffPayrollRule>> GetPayrollRulesAsync(Guid gymId, Guid? branchId = null);

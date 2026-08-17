@@ -1,0 +1,41 @@
+<div class="modal-overlay-backdrop" *ngIf="isOpen" (click)="onCancel()">
+  <div class="freeze-modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header-controls">
+      <span class="title"><i class="fa-solid fa-snowflake"></i> Freeze Member</span>
+      <button class="close-btn" (click)="onCancel()" title="Close dialog">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-form-body">
+      <form [formGroup]="form">
+        <div class="form-group-premium">
+          <label>Freeze Duration</label>
+          <app-dropdown [options]="durationOptions" formControlName="duration"
+            placeholder="Select Duration"></app-dropdown>
+        </div>
+
+        <div class="form-group-premium" *ngIf="isCustom">
+          <label>Custom Duration (Days)</label>
+          <input type="number" formControlName="customDays" min="1" max="365" placeholder="e.g. 45">
+        </div>
+
+        <div class="freeze-preview" *ngIf="isValid">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>
+            Member will be frozen until <strong>{{ freezeUntilDate | date:'dd MMM yyyy' }}</strong>
+            ({{ resolvedDays }} day{{ resolvedDays === 1 ? '' : 's' }}) and automatically reactivated after that.
+            Their membership expiry date will be pushed back by the same number of days once unfrozen.
+          </span>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button type="button" class="btn-submit" [disabled]="!isValid" (click)="onConfirm()">
+        <i class="fa-solid fa-snowflake"></i> Freeze Member
+      </button>
+    </div>
+  </div>
+</div>

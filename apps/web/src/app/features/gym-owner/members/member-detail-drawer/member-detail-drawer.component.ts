@@ -35,6 +35,7 @@ export class MemberDetailDrawer implements OnChanges, OnInit {
   private gymService = inject(GymService);
 
   MemberStatus = MemberStatus;
+  PaymentStatus = PaymentStatus;
   subscriptionHistory: MemberSubscription[] = [];
   loadingHistory = false;
   gymName = 'GYMFORGE';

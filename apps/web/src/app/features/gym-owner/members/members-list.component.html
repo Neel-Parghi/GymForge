@@ -238,3 +238,7 @@
   (drawerClose)="isDrawerOpen = false" (manage)="openEditModal($event)" (freeze)="handleFreeze($event)"
   (unfreeze)="handleUnfreeze($event)" (toggle)="handleToggle($event)" (renew)="handleRenew($event)">
 </app-member-detail-drawer>
+
+<!-- Freeze Duration Modal -->
+<app-freeze-member-modal [isOpen]="showFreezeModal" (close)="closeFreezeModal()" (confirm)="confirmFreeze($event)">
+</app-freeze-member-modal>

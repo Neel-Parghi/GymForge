@@ -71,7 +71,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     emergencyContactPhone: ['', [Validators.pattern(/^\+?[0-9]{7,15}$/)]],
     gymPlanId: ['', Validators.required],
     startDate: [''],
-    paymentStatus: [PaymentStatus.Paid, Validators.required]
+    paymentStatus: [PaymentStatus.Paid, Validators.required],
+    amountPaid: ['']
   });
 
   submitting = false;
@@ -151,6 +152,35 @@ export class OnboardMemberModal implements OnChanges, OnInit {
 
   ngOnInit(): void {
     this.isGymOwner = this.authService.getUserRole() === 'GymOwner';
+
+    this.form.get('paymentStatus')?.valueChanges.subscribe(() => this.updateAmountPaidValidators());
+    this.form.get('gymPlanId')?.valueChanges.subscribe(() => this.updateAmountPaidValidators());
+    this.updateAmountPaidValidators();
+  }
+
+  get selectedPlanPrice(): number {
+    const planId = this.form.get('gymPlanId')?.value;
+    const plan = this.plans.find(p => p.id === planId);
+    if (!plan) return 0;
+    return plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price;
+  }
+
+  get isPartialPayment(): boolean {
+    return Number(this.form.get('paymentStatus')?.value) === PaymentStatus.Partial;
+  }
+
+  private updateAmountPaidValidators(): void {
+    const amountPaidControl = this.form.get('amountPaid');
+    if (!amountPaidControl) return;
+
+    if (this.isPartialPayment) {
+      const planPrice = this.selectedPlanPrice;
+      const maxAmount = planPrice > 0.01 ? planPrice - 0.01 : 0.01;
+      amountPaidControl.setValidators([Validators.required, Validators.min(0.01), Validators.max(maxAmount)]);
+    } else {
+      amountPaidControl.clearValidators();
+    }
+    amountPaidControl.updateValueAndValidity({ emitEvent: false });
   }
 
   toggleFitnessGoals(): void {
@@ -212,10 +242,12 @@ export class OnboardMemberModal implements OnChanges, OnInit {
             emergencyContactPhone: this.member!.emergencyContactPhone || '',
             gymPlanId: planId,
             startDate: this.member!.currentSubscription?.startDate?.split('T')?.[0] || '',
-            paymentStatus: this.member!.currentSubscription?.paymentStatus ?? PaymentStatus.Paid
+            paymentStatus: this.member!.currentSubscription?.paymentStatus ?? PaymentStatus.Paid,
+            amountPaid: this.member!.currentSubscription?.amountPaid || ''
           });
 
           this.form.get('gymPlanId')?.updateValueAndValidity();
+          this.updateAmountPaidValidators();
           this.cdr.detectChanges();
         }, 100);
       } else if (!this.isEdit) {
@@ -225,12 +257,14 @@ export class OnboardMemberModal implements OnChanges, OnInit {
           bloodGroup: '',
           gymPlanId: '',
           paymentStatus: PaymentStatus.Paid,
+          amountPaid: '',
           fitnessGoals: [],
           branchId: defaultBranchId,
           address: {
             line1: '', line2: '', city: '', state: '', country: '', postalCode: ''
           }
         });
+        this.updateAmountPaidValidators();
         this.cdr.detectChanges();
       }
     }
@@ -252,7 +286,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       return true;
     }
     if (this.currentStep === 3) {
-      return !!this.form.get('gymPlanId')?.valid;
+      return !!(this.form.get('gymPlanId')?.valid &&
+        (!this.isPartialPayment || this.form.get('amountPaid')?.valid));
     }
     return true;
   }
@@ -269,6 +304,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       this.form.get('emergencyContactPhone')?.markAsTouched();
     } else if (this.currentStep === 3) {
       this.form.get('gymPlanId')?.markAsTouched();
+      this.form.get('amountPaid')?.markAsTouched();
     }
 
     if (this.currentStep < this.totalSteps && this.isCurrentStepValid()) {
@@ -337,7 +373,8 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       gymPlanId: v.gymPlanId,
       startDate: v.startDate || undefined,
       paymentStatus: Number(v.paymentStatus),
-      branchId: v.branchId || undefined
+      branchId: v.branchId || undefined,
+      amountPaid: this.isPartialPayment ? Number(v.amountPaid) : undefined
     };
     this.submitting = true;
     this.submitted.emit(payload);

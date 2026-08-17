@@ -38,6 +38,15 @@
         </div>
       </div>
 
+      <div class="quick-stats" *ngIf="isFrozen && member.freezeUntil">
+        <div class="stat-item full-width">
+          <span class="stat-label">Frozen Until</span>
+          <span class="stat-value" style="color: #3b82f6;">
+            {{ member.freezeUntil | date:'dd MMM yyyy' }} — auto-reactivates on this date
+          </span>
+        </div>
+      </div>
+
       <!-- Ultra Premium Membership Card -->
       <div class="membership-card-wrap">
         <div class="membership-card" *ngIf="sub; else noSub">
@@ -175,6 +184,11 @@
                 <span class="pay-status" [ngClass]="getPaymentStatusClass(history.paymentStatus)">
                   {{ getPaymentStatusLabel(history.paymentStatus) }}
                 </span>
+              </div>
+              <div class="history-meta" *ngIf="history.paymentStatus === PaymentStatus.Partial">
+                <span class="date-range">Paid ₹{{ history.amountPaid | number:'1.2-2' }} of ₹{{ history.pricePaid |
+                  number:'1.2-2' }}</span>
+                <span class="pay-status">Balance ₹{{ (history.pricePaid - history.amountPaid) | number:'1.2-2' }}</span>
               </div>
             </div>
           </div>

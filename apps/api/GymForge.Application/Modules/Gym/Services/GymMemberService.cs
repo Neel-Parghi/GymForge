@@ -91,6 +91,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 CreatedBy = createdBy,
                 CreatedOn = DateTime.UtcNow
             };
+            ApplyAmountPaid(subscription, request.AmountPaid);
 
             await _memberRepository.AddSubscriptionAsync(subscription);
 
@@ -205,6 +206,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 if (activeSub != null)
                 {
                     activeSub.PaymentStatus = request.PaymentStatus.Value;
+                    ApplyAmountPaid(activeSub, request.AmountPaid);
                     activeSub.ModifiedBy = updatedBy;
                     activeSub.ModifiedOn = DateTime.UtcNow;
                 }
@@ -226,6 +228,7 @@ namespace GymForge.Application.Modules.Gym.Services
                         activeSub.DurationMonths = planTemplate.DurationMonths;
                         activeSub.ExtendedMonths = planTemplate.ExtendedMonths ?? 0;
                         activeSub.EndDate = activeSub.StartDate.AddMonths(planTemplate.DurationMonths + (planTemplate.ExtendedMonths ?? 0));
+                        ApplyAmountPaid(activeSub, request.AmountPaid);
                         activeSub.ModifiedBy = updatedBy;
                         activeSub.ModifiedOn = DateTime.UtcNow;
                     }
@@ -252,6 +255,7 @@ namespace GymForge.Application.Modules.Gym.Services
                             CreatedBy = updatedBy,
                             CreatedOn = DateTime.UtcNow
                         };
+                        ApplyAmountPaid(newSub, request.AmountPaid);
                         await _memberRepository.AddSubscriptionAsync(newSub);
                     }
                 }
@@ -283,12 +287,17 @@ namespace GymForge.Application.Modules.Gym.Services
             return true;
         }
 
-        public async Task<bool> FreezeMemberAsync(Guid id, Guid updatedBy)
+        public async Task<bool> FreezeMemberAsync(Guid id, Guid updatedBy, DateTime freezeUntil)
         {
             GymMember? member = await _memberRepository.GetByIdAsync(id);
             if (member == null) return false;
 
+            if (freezeUntil.Date <= DateTime.UtcNow.Date)
+                throw new InvalidOperationException("Freeze end date must be in the future.");
+
             member.Status = MemberStatus.Freeze;
+            member.FreezeStartDate = DateTime.UtcNow;
+            member.FreezeUntil = freezeUntil;
             member.ModifiedBy = updatedBy;
             member.ModifiedOn = DateTime.UtcNow;
             await _unitOfWork.SaveChangesAsync();
@@ -300,7 +309,7 @@ namespace GymForge.Application.Modules.Gym.Services
             GymMember? member = await _memberRepository.GetByIdAsync(id);
             if (member == null) return false;
 
-            member.Status = MemberStatus.Active;
+            MemberFreezeCalculator.Unfreeze(member, DateTime.UtcNow);
             member.ModifiedBy = updatedBy;
             member.ModifiedOn = DateTime.UtcNow;
             await _unitOfWork.SaveChangesAsync();
@@ -338,6 +347,7 @@ namespace GymForge.Application.Modules.Gym.Services
                 CreatedBy = updatedBy,
                 CreatedOn = DateTime.UtcNow
             };
+            ApplyAmountPaid(renewal, null);
 
             await _memberRepository.AddSubscriptionAsync(renewal);
 
@@ -352,6 +362,27 @@ namespace GymForge.Application.Modules.Gym.Services
 
             GymMember? refreshed = await _memberRepository.GetByIdAsync(memberId);
             return _mapper.Map<GymMemberResponse>(refreshed!);
+        }
+
+        private static void ApplyAmountPaid(MemberSubscription subscription, decimal? requestedAmountPaid)
+        {
+            subscription.AmountPaid = subscription.PaymentStatus switch
+            {
+                PaymentStatus.Paid => subscription.PricePaid,
+                PaymentStatus.Partial => ValidatePartialAmount(requestedAmountPaid, subscription.PricePaid),
+                _ => 0m
+            };
+        }
+
+        private static decimal ValidatePartialAmount(decimal? amountPaid, decimal price)
+        {
+            if (!amountPaid.HasValue || amountPaid.Value <= 0)
+                throw new InvalidOperationException("Amount paid is required and must be greater than zero when payment status is Partial.");
+
+            if (amountPaid.Value >= price)
+                throw new InvalidOperationException("Partial payment amount must be less than the total plan price.");
+
+            return amountPaid.Value;
         }
 
         public async Task<bool> DeleteMemberAsync(Guid id)

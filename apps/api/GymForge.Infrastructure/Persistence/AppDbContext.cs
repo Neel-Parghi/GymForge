@@ -75,6 +75,8 @@ namespace GymForge.Infrastructure.Persistence
 
         public DbSet<CustomInvoice> CustomInvoices { get; set; }
 
+        public DbSet<PaymentRecord> PaymentRecords { get; set; }
+
         public DbSet<StaffAttendanceLog> StaffAttendanceLogs { get; set; }
 
         public DbSet<GymHoliday> GymHolidays { get; set; }
@@ -314,6 +316,20 @@ namespace GymForge.Infrastructure.Persistence
             modelBuilder.Entity<StaffPayoutLog>()
                 .Property(x => x.TotalPayout)
                 .HasPrecision(18, 2);
+
+            // Precision for member billing/payment ledger entities
+            modelBuilder.Entity<MemberSubscription>()
+                .Property(x => x.PricePaid)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<MemberSubscription>()
+                .Property(x => x.AmountPaid)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<PaymentRecord>(entity =>
+            {
+                entity.HasIndex(x => x.GymId);
+                entity.HasIndex(x => new { x.SourceType, x.SourceId });
+            });
 
             // AttendanceLog configuration
             modelBuilder.Entity<AttendanceLog>(entity =>

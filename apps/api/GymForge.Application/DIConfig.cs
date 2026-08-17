@@ -95,6 +95,8 @@ namespace GymForge.Application
 
             services.AddScoped<GymForge.Application.BackgroundJobs.WorkoutReminderJob>();
 
+            services.AddScoped<GymForge.Application.BackgroundJobs.MemberAutoUnfreezeJob>();
+
             return services;
         }
     }

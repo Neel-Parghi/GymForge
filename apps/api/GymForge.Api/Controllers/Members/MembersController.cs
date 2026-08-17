@@ -81,6 +81,10 @@ namespace GymForge.Api.Controllers.Members
                 GymMemberResponse response = await _memberService.UpdateMemberAsync(id, securedRequest, UserId);
                 return Ok(response);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
@@ -96,11 +100,18 @@ namespace GymForge.Api.Controllers.Members
         }
 
         [HttpPatch("{id}/status/freeze")]
-        public async Task<ActionResult> FreezeMember(Guid id)
+        public async Task<ActionResult> FreezeMember(Guid id, [FromBody] FreezeMemberRequest request)
         {
-            bool success = await _memberService.FreezeMemberAsync(id, UserId);
-            if (!success) return NotFound();
-            return Ok(new { success = true });
+            try
+            {
+                bool success = await _memberService.FreezeMemberAsync(id, UserId, request.FreezeUntil);
+                if (!success) return NotFound();
+                return Ok(new { success = true });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPatch("{id}/status/unfreeze")]
@@ -118,6 +129,10 @@ namespace GymForge.Api.Controllers.Members
             {
                 GymMemberResponse response = await _memberService.RenewSubscriptionAsync(id, request, UserId);
                 return Ok(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {

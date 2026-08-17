@@ -142,6 +142,8 @@
               (click)="setStatusFilter('Paid')">Paid</button>
             <button class="filter-pill pending" [class.active]="statusFilter === 'Pending'"
               (click)="setStatusFilter('Pending')">Pending</button>
+            <button class="filter-pill pending" [class.active]="statusFilter === 'Partial'"
+              (click)="setStatusFilter('Partial')">Partial</button>
             <button class="filter-pill overdue" [class.active]="statusFilter === 'Overdue'"
               (click)="setStatusFilter('Overdue')">Overdue</button>
           </div>
@@ -167,9 +169,9 @@
         <!-- Custom Template for Actions -->
         <ng-template gridCell="actions" let-invoice>
           <div class="actions-cell-wrapper" (click)="$event.stopPropagation()">
-            <!-- Mark as Paid -->
+            <!-- Record Payment -->
             <button class="table-action-btn check" *ngIf="invoice.status !== 'Paid'"
-              (click)="markAsPaid(invoice, $event)" title="Mark as Paid">
+              (click)="openRecordPaymentModal(invoice, $event)" title="Record Payment">
               <i class="fa-solid fa-circle-check"></i>
             </button>
             <!-- Send Reminder -->
@@ -430,9 +432,7 @@
 </div>
 
 <app-invoice-detail-modal *ngIf="selectedInvoice" [invoice]="selectedInvoice" [gymDetails]="gymDetails"
-  [platformConfig]="platformConfig"
-  [invoicePrefix]="settingsForm.get('invoicePrefix')?.value || gymDetails?.invoicePrefix || 'GF-'"
-  (close)="closeInvoiceModal()">
+  [platformConfig]="platformConfig" (close)="closeInvoiceModal()">
 </app-invoice-detail-modal>
 
 <app-create-invoice-modal *ngIf="showCreateInvoiceModal" [gymMembers]="gymMembers" [gymTrainers]="gymTrainers"
@@ -446,3 +446,8 @@
   [selectedPayrollStaff]="selectedPayrollStaff" [selectedPayrollMonth]="selectedPayrollMonth"
   (close)="closePayrollRulesModal()" (rulesSaved)="loadStaffPayoutsForMonth(selectedPayrollMonth)">
 </app-payroll-rules-modal>
+
+<app-record-payment-modal *ngIf="showRecordPaymentModal && selectedInvoiceForPayment"
+  [invoice]="selectedInvoiceForPayment" (close)="closeRecordPaymentModal()"
+  (paymentRecorded)="onPaymentRecorded()">
+</app-record-payment-modal>

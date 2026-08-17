@@ -1,0 +1,8 @@
+namespace GymForge.Shared.Enums
+{
+    public enum PaymentSourceType
+    {
+        Subscription = 1,
+        CustomInvoice = 2
+    }
+}

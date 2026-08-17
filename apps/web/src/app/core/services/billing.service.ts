@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { BaseApiService } from "./base-api.service";
 import { BranchContextService } from "./branch-context.service";
 import { Observable, shareReplay, tap } from "rxjs";
-import { MemberBillingOverviewDto, CreateCustomInvoiceRequest, StaffPayrollOverviewDto, UpdateStaffPayrollRuleRequest, ReleaseStaffPayoutRequest } from "../../shared/models/member-invoice.model";
+import { MemberBillingOverviewDto, CreateCustomInvoiceRequest, StaffPayrollOverviewDto, UpdateStaffPayrollRuleRequest, ReleaseStaffPayoutRequest, RecordPaymentRequest, PaymentRecordDto } from "../../shared/models/member-invoice.model";
 import { API_CONSTANTS } from "../constants/api-constants";
 import { ApiResponse } from "../../shared/models/api-response.model";
 
@@ -51,10 +51,14 @@ export class BillingService extends BaseApiService {
         );
     }
 
-    payInvoice(recordId: string): Observable<ApiResponse<null>> {
-        return this.post<ApiResponse<null>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}`, {}).pipe(
+    recordPayment(recordId: string, payload: RecordPaymentRequest): Observable<ApiResponse<null>> {
+        return this.post<ApiResponse<null>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}`, payload).pipe(
             tap(() => this.clearCache())
         );
+    }
+
+    getPaymentHistory(recordId: string): Observable<ApiResponse<PaymentRecordDto[]>> {
+        return this.get<ApiResponse<PaymentRecordDto[]>>(`${API_CONSTANTS.BILLING.PAY_INVOICE}/${recordId}/history`);
     }
 
     getStaffPayrollOverview(monthKey: string, forceRefresh = false): Observable<ApiResponse<StaffPayrollOverviewDto>> {

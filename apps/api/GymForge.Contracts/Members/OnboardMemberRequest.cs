@@ -19,6 +19,7 @@ namespace GymForge.Contracts.Members
         Guid GymPlanId,
         DateTime? StartDate = null,
         PaymentStatus? PaymentStatus = null,
-        Guid? BranchId = null
+        Guid? BranchId = null,
+        decimal? AmountPaid = null
     );
 }

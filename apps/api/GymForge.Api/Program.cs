@@ -140,20 +140,40 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
+// All times below are IST (Asia/Kolkata) wall-clock times, not UTC — Hangfire's
+// Cron.Daily() is UTC by default, so an explicit TimeZone is required or "4:30" silently
+// means 4:30 UTC (10:00 IST).
+TimeZoneInfo istTimeZone;
+try
+{
+    istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+}
+catch (TimeZoneNotFoundException)
+{
+    istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+}
+
+RecurringJobOptions istSchedule = new() { TimeZone = istTimeZone };
+
 // Schedule automated notifications to run every day using Hangfire
 RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>(
     "daily-notifications",
     job => job.ExecuteAsync(),
-    Cron.Daily(0, 0)); // Midnight UTC
+    Cron.Daily(0, 0), istSchedule); // Midnight IST
 
 RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.SaaSExpiryJob>(
     "daily-saas-expiry",
     job => job.ExecuteAsync(),
-    Cron.Daily(1, 0)); // 1:00 AM UTC
+    Cron.Daily(1, 0), istSchedule); // 1:00 AM IST
 
 RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.WorkoutReminderJob>(
     "daily-workout-reminders",
     job => job.ExecuteAsync(),
-    Cron.Daily(4, 30)); // 4:30 AM UTC — a fixed time, not per-user local time
+    Cron.Daily(4, 30), istSchedule); // 4:30 AM IST
+
+RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.MemberAutoUnfreezeJob>(
+    "daily-member-auto-unfreeze",
+    job => job.ExecuteAsync(),
+    Cron.Daily(2, 0), istSchedule); // 2:00 AM IST
 
 app.Run();

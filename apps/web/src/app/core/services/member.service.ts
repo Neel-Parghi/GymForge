@@ -100,8 +100,8 @@ export class MemberService extends BaseApiService {
     );
   }
 
-  freezeMember(id: string): Observable<ApiResponse<{ success: boolean }>> {
-    return this.patch<ApiResponse<{ success: boolean }>>(API_CONSTANTS.MEMBERS.FREEZE.replace('{id}', id), {}).pipe(
+  freezeMember(id: string, freezeUntil: string): Observable<ApiResponse<{ success: boolean }>> {
+    return this.patch<ApiResponse<{ success: boolean }>>(API_CONSTANTS.MEMBERS.FREEZE.replace('{id}', id), { freezeUntil }).pipe(
       tap(() => this.clearCache())
     );
   }

@@ -223,6 +223,19 @@
               </app-dropdown>
             </div>
 
+            <div class="form-group" *ngIf="isPartialPayment">
+              <label>Amount Paid Now *</label>
+              <input type="number" formControlName="amountPaid" min="0.01" [max]="selectedPlanPrice" step="0.01"
+                placeholder="e.g. 1500" [class.error]="isInvalid('amountPaid')">
+              <span class="error-msg" *ngIf="isInvalid('amountPaid')">
+                Enter an amount between ₹0.01 and ₹{{ selectedPlanPrice }} (the full plan price).
+              </span>
+              <span class="hint-msg" *ngIf="!isInvalid('amountPaid') && selectedPlanPrice > 0">
+                Balance of ₹{{ selectedPlanPrice - (form.get('amountPaid')?.value || 0) | number:'1.2-2' }} will
+                remain pending.
+              </span>
+            </div>
+
             <div class="form-group lg" *ngIf="isGymOwner && branches.length > 0">
               <label>Assign to Branch</label>
               <app-dropdown [options]="branchOptions" formControlName="branchId" placeholder="Select Branch (Optional)">
@@ -275,6 +288,13 @@
               <div><span>Plan:</span> {{ getSelectedPlanName() }}</div>
               <div><span>Start Date:</span> {{ form.get('startDate')?.value ? (form.get('startDate')?.value | date:'dd
                 MMM yyyy') : 'Immediate (Today)' }}</div>
+              <div *ngIf="isPartialPayment">
+                <span>Amount Paid Now:</span> ₹{{ form.get('amountPaid')?.value | number:'1.2-2' }}
+              </div>
+              <div *ngIf="isPartialPayment">
+                <span>Balance Pending:</span> ₹{{ selectedPlanPrice - (form.get('amountPaid')?.value || 0) |
+                number:'1.2-2' }}
+              </div>
             </div>
           </div>
 
