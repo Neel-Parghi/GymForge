@@ -39,6 +39,7 @@ export class UserDashboardComponent implements OnInit {
   // Data for Trainer UI Replica
   todayDate: Date = new Date();
   workoutStreak = 0;
+  streakAtRisk = false;
 
   // Row 1: Activity & Goals
   caloriesBurnedToday = 0;
@@ -233,6 +234,7 @@ export class UserDashboardComponent implements OnInit {
         this.caloriesBurnedToday = data.caloriesBurnedToday || 0;
         this.activeTrainingTimeMinutes = data.activeTrainingTimeMinutes || 0;
         this.workoutStreak = data.workoutStreak || 0;
+        this.streakAtRisk = data.streakAtRisk || false;
 
         this.monthlySessionCount = data.monthlySessionCount || 0;
         this.monthlySessionTarget = data.monthlySessionTarget || 20;

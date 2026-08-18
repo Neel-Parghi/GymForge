@@ -24,9 +24,10 @@
     </div>
 
     <!-- Streak Badge in Top Right -->
-    <div class="floating-streak">
+    <div class="floating-streak" [class.at-risk]="streakAtRisk">
       <i class="fa-solid fa-bolt"></i>
       <div class="streak-text">{{ workoutStreak }}<span>DAYS</span></div>
+      <span class="streak-risk-note" *ngIf="streakAtRisk">Log today to keep it!</span>
     </div>
   </div>
   <!-- Asymmetric Layout: Main Content (Left) + Sidebar (Right) -->

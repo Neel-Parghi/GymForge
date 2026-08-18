@@ -19,6 +19,7 @@ namespace GymForge.Contracts.Users
         public int CaloriesBurnedToday { get; set; }
         public int ActiveTrainingTimeMinutes { get; set; }
         public int WorkoutStreak { get; set; }
+        public bool StreakAtRisk { get; set; } // Today is a scheduled workout day and hasn't been logged yet
         
         // Monthly stats
         public int MonthlySessionCount { get; set; }

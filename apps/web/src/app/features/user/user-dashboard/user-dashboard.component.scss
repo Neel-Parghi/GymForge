@@ -527,6 +527,18 @@
       margin-left: 2px;
     }
   }
+
+  .streak-risk-note {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #dc2626;
+    white-space: nowrap;
+  }
+
+  &.at-risk {
+    border-color: #dc2626;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  }
 }
 
 @keyframes floatIn {
