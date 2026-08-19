@@ -38,6 +38,12 @@ export const UserMenu: NavItem[] = [
         roles: ['User']
     },
     {
+        label: 'Exercise Progress',
+        icon: 'fa-solid fa-arrow-trend-up',
+        route: '/user/exercise-progress',
+        roles: ['User']
+    },
+    {
         label: 'Diet Planner',
         icon: 'fa-solid fa-utensils',
         route: '/user/diet-planner',

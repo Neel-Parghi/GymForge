@@ -11,5 +11,7 @@ namespace GymForge.Domain.Interface
         Task<List<Exercise>> GetExercisesByCategory(string category);
 
         Task<Exercise?> GetExerciseBySlug(string slug);
+
+        Task<Dictionary<string, string>> GetCategoriesForNamesAsync(IEnumerable<string> names);
     }
 }

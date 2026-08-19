@@ -30,6 +30,7 @@ export class UserBottomNavComponent {
   ];
 
   readonly moreItems: BottomNavItem[] = [
+    { label: 'Exercise Progress', icon: 'fa-solid fa-arrow-trend-up', route: '/user/exercise-progress' },
     { label: 'Workout Planner', icon: 'fa-solid fa-calendar-check', route: '/user/workout-planner' },
     { label: 'Diet Planner', icon: 'fa-solid fa-utensils', route: '/user/diet-planner' },
     { label: 'Health Tracker', icon: 'fa-solid fa-heart-pulse', route: '/user/health-tracker' },

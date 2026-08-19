@@ -73,6 +73,8 @@ namespace GymForge.Application
             
             services.AddScoped<IMemberWorkoutService, MemberWorkoutService>();
 
+            services.AddScoped<IUserWorkoutProgressService, UserWorkoutProgressService>();
+
             services.AddScoped<IDietPlanService, DietPlanService>();
 
             services.AddScoped<IMemberDietService, MemberDietService>();

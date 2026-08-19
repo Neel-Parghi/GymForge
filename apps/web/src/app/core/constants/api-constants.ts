@@ -152,6 +152,10 @@ export const API_CONSTANTS = {
     TRAINER_GET_LOG: (memberId: string, date: string) => `trainer/diet-tracking/${memberId}/${date}`,
     TRAINER_SUMMARY: (memberId: string, endDate: string) => `trainer/diet-tracking/${memberId}/summary/${endDate}`,
   },
+  WORKOUT_PROGRESS: {
+    EXERCISES: 'user/workout-progress/exercises',
+    PROGRESS: 'user/workout-progress'
+  },
   COMMON: {
     UPLOAD: 'fileupload'
   },

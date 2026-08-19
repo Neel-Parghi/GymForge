@@ -202,6 +202,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/user/user-workout-calendar/user-workout-calendar.component').then(m => m.UserWorkoutCalendarComponent)
       },
       {
+        path: 'exercise-progress',
+        loadComponent: () => import('./features/user/user-exercise-progress/user-exercise-progress.component').then(m => m.UserExerciseProgressComponent)
+      },
+      {
         path: 'workout-planner',
         loadComponent: () => import('./features/user/user-workout-planner/user-workout-planner.component').then(m => m.UserWorkoutPlannerComponent)
       },

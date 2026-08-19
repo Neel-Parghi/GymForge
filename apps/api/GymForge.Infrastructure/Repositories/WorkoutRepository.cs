@@ -66,5 +66,19 @@ namespace GymForge.Infrastructure.Repositories
 
             return exercise;
         }
+
+        public async Task<Dictionary<string, string>> GetCategoriesForNamesAsync(IEnumerable<string> names)
+        {
+            List<string> lowerNames = [.. names.Select(n => n.ToLower())];
+
+            List<Exercise> matches = await _dbContext.Exercises
+                .AsNoTracking()
+                .Where(e => lowerNames.Contains(e.Name.ToLower()))
+                .ToListAsync();
+
+            return matches
+                .GroupBy(e => e.Name.ToLower())
+                .ToDictionary(g => g.Key, g => g.First().Category);
+        }
     }
 }

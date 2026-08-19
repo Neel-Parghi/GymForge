@@ -1,0 +1,100 @@
+<div class="progress-page">
+  <div class="header">
+    <h2>Exercise Progress</h2>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoadingNames">
+    <div class="spinner"></div>
+    <p>Loading your logged exercises...</p>
+  </div>
+
+  <div class="card empty-card" *ngIf="!isLoadingNames && exerciseNames.length === 0">
+    <span class="empty-icon">
+      <i class="fa-solid fa-chart-line"></i>
+    </span>
+    <h3>No exercises logged yet</h3>
+    <p>Log a workout session with some sets and reps, then come back here to watch your strength trend build up.</p>
+    <button type="button" class="btn-primary" (click)="goToWorkoutLog()">
+      <i class="fa-solid fa-plus"></i> Log a Workout
+    </button>
+  </div>
+
+  <div class="content" *ngIf="!isLoadingNames && exerciseNames.length > 0">
+    <div class="card selector-card">
+      <app-dropdown [options]="exerciseOptions" [isSearchable]="true" [ngModel]="selectedExerciseValue"
+        (selectionChange)="onExerciseValueChange($event)" placeholder="Select exercise...">
+      </app-dropdown>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoadingProgress">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="layout-grid" *ngIf="!isLoadingProgress && progress">
+      <div class="col-left">
+        <div class="card hero-stats">
+          <div class="stat">
+            <span class="stat-icon gold"><i class="fa-solid fa-trophy"></i></span>
+            <span class="stat-val">{{ progress.personalBest }}<span class="unit">kg</span></span>
+            <span class="stat-lbl">Personal Best</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-icon blue"><i class="fa-solid fa-calendar-check"></i></span>
+            <span class="stat-val">{{ progress.totalSessions }}</span>
+            <span class="stat-lbl">Sessions</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-icon green"><i class="fa-solid fa-clock"></i></span>
+            <span class="stat-val">{{ progress.lastLoggedDate | date:'MMM d' }}</span>
+            <span class="stat-lbl">Last Logged</span>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="chart-head">
+            <div>
+              <h3>
+                Weight Progression
+                <span class="group-pill" *ngIf="progress.muscleGroup">{{ progress.muscleGroup }}</span>
+              </h3>
+              <span class="est-1rm" *ngIf="progress.estimatedOneRepMax">Est. 1RM ~{{ progress.estimatedOneRepMax }}kg</span>
+            </div>
+            <span class="trend-pill" [class.down]="!trend.isUp" *ngIf="trend as trend">
+              <i class="fa-solid" [class.fa-arrow-trend-up]="trend.isUp" [class.fa-arrow-trend-down]="!trend.isUp"></i>
+              {{ trend.isUp ? '+' : '-' }}{{ trend.kg }}kg ({{ trend.pct }}%)
+            </span>
+          </div>
+
+          <div class="chart-wrap" *ngIf="progress.points.length > 1">
+            <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
+          </div>
+          <p class="single-point-note" *ngIf="progress.points.length === 1">
+            Log one more session for {{ progress.exerciseName }} to see your progress trend.
+          </p>
+        </div>
+      </div>
+
+      <div class="card log-card">
+        <h3>Session Log</h3>
+        <div class="log-list scrollable-entries">
+          <div class="log-row" *ngFor="let s of sessionRows">
+            <div class="log-date">
+              <span class="d">{{ s.date | date:'dd' }}</span>
+              <span class="m">{{ s.date | date:'MMM' | uppercase }}</span>
+            </div>
+            <div class="log-mid">
+              <span class="w">
+                {{ s.weight }}kg
+                <span class="pr-chip" *ngIf="s.isPr">PR</span>
+              </span>
+              <span class="r">{{ s.reps }} reps</span>
+            </div>
+            <span class="delta" [ngClass]="s.deltaClass">{{ s.deltaLabel }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
