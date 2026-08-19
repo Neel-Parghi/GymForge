@@ -205,6 +205,8 @@ namespace GymForge.Application.Modules.PlanGeneration.Services
                 Time = time,
                 Calories = (int)Math.Round(macros.Calories * share),
                 Protein = Math.Round(macros.ProteinGrams * share, 1),
+                Carbs = Math.Round(macros.CarbGrams * share, 1),
+                Fats = Math.Round(macros.FatGrams * share, 1),
                 Items = SuggestItems(name),
                 SortOrder = 0
             };

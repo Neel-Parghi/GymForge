@@ -9,6 +9,8 @@ namespace GymForge.Domain.Entities
         public string Time { get; set; } = "08:00 AM";
         public int Calories { get; set; }
         public decimal Protein { get; set; }
+        public decimal Carbs { get; set; }
+        public decimal Fats { get; set; }
         public string Items { get; set; } = string.Empty;
         public int SortOrder { get; set; }
     }

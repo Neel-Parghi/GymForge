@@ -107,13 +107,14 @@
       </div>
 
       <!-- Consumed Foods Section -->
-      <div class="meal-section card">
+      <div class="meal-section card consumed-foods-card">
         <div class="meal-header">
-          <h3><i class="fa-solid fa-utensils"></i> Consumed Foods</h3>
+          <h3><i class="fa-solid fa-utensils"></i> Consumed Foods <span class="count-badge"
+              *ngIf="consumedFoods.length > 0">{{consumedFoods.length}}</span></h3>
           <button class="btn-outline-small" (click)="openAddModal()">+ Add Custom Food</button>
         </div>
 
-        <div class="meal-entries">
+        <div class="meal-entries scrollable-entries">
           <div class="empty-state" *ngIf="consumedFoods.length === 0">
             No food logged today.
           </div>

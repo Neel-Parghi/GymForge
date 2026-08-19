@@ -58,6 +58,8 @@ namespace GymForge.Application.Modules.Diet.Services
                         Time = m.Time,
                         Calories = m.Calories,
                         Protein = m.Protein,
+                        Carbs = m.Carbs,
+                        Fats = m.Fats,
                         Items = m.Items,
                         SortOrder = m.SortOrder
                     }).OrderBy(m => m.SortOrder).ToList()

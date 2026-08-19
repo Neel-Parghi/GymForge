@@ -58,7 +58,7 @@
 .col-right {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
 
   &.full-width {
     grid-column: 1 / -1;
@@ -86,12 +86,13 @@
 
   @include bp.mobile {
     gap: 12px;
+    margin-bottom: 0px;
     justify-content: center;
     transition: gap 0.3s ease;
 
     &.mobile-collapsed {
       gap: 0;
-
+      margin-bottom: 0px;
       .macro-stats {
         max-height: 0;
         opacity: 0;
@@ -311,6 +312,37 @@
   }
 }
 
+.consumed-foods-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 460px;
+  overflow: hidden;
+  padding-bottom: 0; // Let scroll area handle bottom padding
+
+  @include bp.mobile {
+    max-height: 320px;
+  }
+
+  .meal-entries {
+    flex: 1;
+  }
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border-radius: 10px;
+  background: var(--slate-100);
+  color: var(--slate-600);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .sticky-header {
   position: sticky;
   top: 0;
@@ -335,6 +367,7 @@
 
   @include bp.mobile {
     padding: 12px 14px;
+    margin-bottom: 0px;
   }
 
   .meal-header {

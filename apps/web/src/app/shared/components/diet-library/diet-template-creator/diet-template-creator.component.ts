@@ -69,12 +69,16 @@ export class DietTemplateCreatorComponent implements OnInit {
       mealTime: [parsedTime, [Validators.required]],
       calories: [meal?.calories ?? null, [Validators.required, Validators.min(0), Validators.max(5000)]],
       protein: [meal?.protein ?? null, [Validators.required, Validators.min(0), Validators.max(300)]],
+      carbs: [meal?.carbs ?? null, [Validators.required, Validators.min(0), Validators.max(500)]],
+      fats: [meal?.fats ?? null, [Validators.required, Validators.min(0), Validators.max(200)]],
       items: [meal?.items || '']
     });
 
     mealGroup.valueChanges.subscribe(changes => {
       let newCalories = changes.calories;
       let newProtein = changes.protein;
+      let newCarbs = changes.carbs;
+      let newFats = changes.fats;
       let updated = false;
 
       if (newCalories !== null && newCalories !== undefined) {
@@ -85,9 +89,17 @@ export class DietTemplateCreatorComponent implements OnInit {
         if (newProtein > 300) { newProtein = 300; updated = true; }
         if (newProtein < 0) { newProtein = 0; updated = true; }
       }
+      if (newCarbs !== null && newCarbs !== undefined) {
+        if (newCarbs > 500) { newCarbs = 500; updated = true; }
+        if (newCarbs < 0) { newCarbs = 0; updated = true; }
+      }
+      if (newFats !== null && newFats !== undefined) {
+        if (newFats > 200) { newFats = 200; updated = true; }
+        if (newFats < 0) { newFats = 0; updated = true; }
+      }
 
       if (updated) {
-        mealGroup.patchValue({ calories: newCalories, protein: newProtein }, { emitEvent: false });
+        mealGroup.patchValue({ calories: newCalories, protein: newProtein, carbs: newCarbs, fats: newFats }, { emitEvent: false });
       }
     });
 
@@ -244,6 +256,8 @@ export class DietTemplateCreatorComponent implements OnInit {
         time: this.to12h(m.mealTime),
         calories: m.calories,
         protein: m.protein,
+        carbs: m.carbs,
+        fats: m.fats,
         items: m.items,
         sortOrder: idx
       }))

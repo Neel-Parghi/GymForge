@@ -11,7 +11,6 @@ namespace GymForge.Infrastructure.Repositories
     {
         private readonly AppDbContext _dbContext;
 
-        // Calories / active minutes heuristic constants
         private const double StrengthMinutesPerSet = 3.0;
         private const double CardioMinutesPerSet = 8.0;
         private const double StrengthCaloriesPerMinute = 6.0;
@@ -33,8 +32,7 @@ namespace GymForge.Infrastructure.Repositories
         };
         private const int RecoveryLookbackDays = 30;
 
-        // Streak calculation constants
-        private const int StreakLookbackDays = 400; // safety bound on how far back we scan
+        private const int StreakLookbackDays = 400;
 
         public UserRepository(AppDbContext dbContext)
         {
@@ -204,9 +202,6 @@ namespace GymForge.Infrastructure.Repositories
             summary.MonthlySessionTarget = 20;
             summary.MonthlyCompletionPct = summary.MonthlySessionTarget > 0 ? (summary.MonthlySessionCount * 100) / summary.MonthlySessionTarget : 0;
 
-            // Calories & active minutes: derived from actual completed sets today, split by
-            // cardio vs strength (different time-per-set and calorie burn rates), plus a small
-            // volume bonus so heavier/higher-rep sets burn more than light ones.
             var todaySets = await _dbContext.WorkoutSessionLogs
                 .Where(l => l.UserId == userId && l.Date.Date == today && l.Status == "Completed")
                 .SelectMany(l => l.LoggedExercises)
@@ -277,9 +272,6 @@ namespace GymForge.Infrastructure.Repositories
             var sevenDaysAgo = today.AddDays(-7);
             var recoveryLookbackStart = today.AddDays(-RecoveryLookbackDays);
 
-            // Look back far enough (30 days) to find the last time each muscle group was
-            // actually trained, so groups untouched for >7 days still resolve to "Ready"
-            // instead of silently disappearing from the recovery list.
             var recentExercises = await _dbContext.WorkoutSessionLogs
                 .Where(l => l.UserId == userId && l.Date >= recoveryLookbackStart && l.Status == "Completed")
                 .SelectMany(l => l.LoggedExercises)
@@ -333,8 +325,7 @@ namespace GymForge.Infrastructure.Repositories
                     Pct = recoveryPct
                 });
 
-                // Activation Heatmap Logic: volume is still scoped to the last 7 days only,
-                // independent of the wider recovery lookback above.
+                // Activation Heatmap Logic: volume is still scoped to the last 7 days only
                 var totalSetsLast7Days = group.Where(e => e.Date >= sevenDaysAgo).Sum(e => e.SetCount);
                 if (totalSetsLast7Days <= 0) continue;
 
@@ -398,12 +389,6 @@ namespace GymForge.Infrastructure.Repositories
 
         private enum DayStatus { Completed, RestDay, Missed, Pending, NoSchedule }
 
-        // Consecutive-day streak that respects the workout calendar: a completed workout
-        // extends it, a single rest day passes through without breaking it, two consecutive
-        // rest days end it (an extended break is treated as intentional), and a scheduled
-        // workout day with no log ends it. Today is never allowed to break the streak by
-        // itself (StreakAtRisk flags that case instead) - it just isn't counted until logged
-        // or until the calendar shows it wasn't a workout day in the first place.
         private async Task<(int Streak, bool StreakAtRisk)> CalculateWorkoutStreakAsync(Guid userId, DateTime today)
         {
             var lookbackStart = today.AddDays(-StreakLookbackDays);
@@ -444,9 +429,6 @@ namespace GymForge.Infrastructure.Repositories
 
             var todayStatus = ResolveDayStatus(today, isToday: true);
 
-            // Grace period: if today is a scheduled workout day that hasn't been logged yet,
-            // don't break the streak for it right now - just leave it out of the count and
-            // flag it as at-risk. It only turns into a real break once the day has passed.
             var cursor = (todayStatus == DayStatus.Pending || todayStatus == DayStatus.NoSchedule)
                 ? today.AddDays(-1)
                 : today;
@@ -472,7 +454,7 @@ namespace GymForge.Infrastructure.Repositories
                 }
                 else
                 {
-                    break; // Missed a scheduled workout day, or no schedule to evaluate further back
+                    break; 
                 }
             }
 
@@ -480,10 +462,6 @@ namespace GymForge.Infrastructure.Repositories
             return (streak, streakAtRisk);
         }
 
-        // Resolves whether a given date was a rest day per the plan/schedule that was active
-        // on that date: an explicit recurring weekday override wins, then a plan day whose
-        // name names that weekday, then a Monday-indexed positional fallback (mirrors the
-        // resolution the Angular workout calendar performs client-side).
         private static bool ResolveIsRestDay(DateTime date, MemberPlanAssignment assignment)
         {
             var weekday = date.DayOfWeek.ToString();

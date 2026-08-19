@@ -141,14 +141,21 @@
               [class.collapsed]="expandedMealIndex !== idx">
               <div class="meal-item-header clickable" (click)="toggleMealExpand(idx)">
                 <div class="header-left">
-                  <span class="meal-number">Meal #{{ idx + 1 }}</span>
+                  <span class="meal-number">
+                    <span class="full-label">Meal #{{ idx + 1 }}</span>
+                    <span class="short-label">#{{ idx + 1 }}</span>
+                  </span>
                   <!-- Short summary shown when collapsed -->
                   <span class="collapsed-summary" *ngIf="expandedMealIndex !== idx">
                     <strong class="summary-name">{{ meal.get('mealTitle')?.value || 'Unnamed Meal' }}</strong>
                     <span class="badge calories"><i class="fa-solid fa-fire"></i> {{ meal.get('calories')?.value || 0 }}
                       kcal</span>
                     <span class="badge protein"><i class="fa-solid fa-dumbbell"></i> {{ meal.get('protein')?.value || 0
-                      }}g</span>
+                      }}g P</span>
+                    <span class="badge carbs badge-extra"><i class="fa-solid fa-wheat-awn"></i> {{
+                      meal.get('carbs')?.value || 0 }}g C</span>
+                    <span class="badge fats badge-extra"><i class="fa-solid fa-droplet"></i> {{ meal.get('fats')?.value
+                      || 0 }}g F</span>
                   </span>
                 </div>
                 <div class="header-right">
@@ -176,7 +183,7 @@
                     <app-time-picker formControlName="mealTime"></app-time-picker>
                   </div>
                 </div>
-                <div class="form-row mt-10">
+                <div class="form-row macro-row mt-10">
                   <div class="form-group">
                     <label>Calories (kcal) <span class="required">*</span></label>
                     <input type="number" formControlName="calories" min="0" max="5000" class="form-input form-input-sm"
@@ -187,6 +194,20 @@
                     <label>Protein (g) <span class="required">*</span></label>
                     <input type="number" formControlName="protein" min="0" max="300" class="form-input form-input-sm"
                       placeholder="e.g. 30"
+                      (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
+                  </div>
+                </div>
+                <div class="form-row macro-row mt-10">
+                  <div class="form-group">
+                    <label>Carbs (g) <span class="required">*</span></label>
+                    <input type="number" formControlName="carbs" min="0" max="500" class="form-input form-input-sm"
+                      placeholder="e.g. 50"
+                      (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
+                  </div>
+                  <div class="form-group">
+                    <label>Fats (g) <span class="required">*</span></label>
+                    <input type="number" formControlName="fats" min="0" max="200" class="form-input form-input-sm"
+                      placeholder="e.g. 15"
                       (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
                   </div>
                 </div>

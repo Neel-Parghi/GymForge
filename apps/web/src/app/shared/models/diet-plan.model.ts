@@ -21,6 +21,8 @@ export interface DietPlanMealDto {
   time: string;
   calories: number;
   protein: number;
+  carbs: number;
+  fats: number;
   items: string;
   sortOrder: number;
 }
@@ -55,6 +57,8 @@ export interface CreateDietPlanMealDto {
   time: string;
   calories: number;
   protein: number;
+  carbs: number;
+  fats: number;
   items: string;
   sortOrder: number;
 }

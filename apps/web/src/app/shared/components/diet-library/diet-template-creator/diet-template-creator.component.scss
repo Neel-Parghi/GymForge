@@ -134,6 +134,11 @@
         &.three-cols {
           grid-template-columns: 1fr;
         }
+
+        &.macro-row {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: 10px;
+        }
       }
     }
 
@@ -638,6 +643,20 @@
       color: var(--accent-color);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+
+      .short-label {
+        display: none;
+      }
+
+      @include bp.mobile {
+        .full-label {
+          display: none;
+        }
+
+        .short-label {
+          display: inline;
+        }
+      }
     }
 
     .collapsed-summary {
@@ -676,6 +695,22 @@
         &.protein {
           background: var(--success-bg);
           color: var(--success-color);
+        }
+
+        &.carbs {
+          background: var(--accent-bg);
+          color: var(--accent-color);
+        }
+
+        &.fats {
+          background: var(--warning-bg);
+          color: var(--warning-color);
+        }
+
+        &.badge-extra {
+          @include bp.mobile {
+            display: none;
+          }
         }
       }
     }
