@@ -199,13 +199,13 @@
                 </div>
                 <div class="form-row macro-row mt-10">
                   <div class="form-group">
-                    <label>Carbs (g) <span class="required">*</span></label>
+                    <label>Carbs (g) <span class="optional-hint">(optional)</span></label>
                     <input type="number" formControlName="carbs" min="0" max="500" class="form-input form-input-sm"
                       placeholder="e.g. 50"
                       (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">
                   </div>
                   <div class="form-group">
-                    <label>Fats (g) <span class="required">*</span></label>
+                    <label>Fats (g) <span class="optional-hint">(optional)</span></label>
                     <input type="number" formControlName="fats" min="0" max="200" class="form-input form-input-sm"
                       placeholder="e.g. 15"
                       (keydown)="($event.key === '-' || $event.key === 'e' || $event.key === '+' || $event.key === '.') ? $event.preventDefault() : null">

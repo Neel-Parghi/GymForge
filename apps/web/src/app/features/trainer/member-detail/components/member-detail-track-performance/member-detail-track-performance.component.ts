@@ -5,6 +5,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../../core/constants/constants';
+import { WorkoutMasterService } from '../../../../../core/services/workout-master.service';
 
 @Component({
   selector: 'app-member-detail-track-performance',
@@ -15,6 +16,7 @@ import { CONSTANTS } from '../../../../../core/constants/constants';
 })
 export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChanges {
   private notification = inject(NotificationService);
+  private workoutMasterService = inject(WorkoutMasterService);
 
   @Input() todayWorkout: any = null;
   @Input() activeSplit: any = null;
@@ -72,6 +74,12 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
   }
 
   showAddExerciseModal = false;
+  showSwapExerciseModal = false;
+  swapExerciseControl = new FormControl('');
+  swapExerciseIndex: number | null = null;
+  addExerciseUseCustomName = false;
+  swapExerciseUseCustomName = false;
+  exerciseCatalogOptions: DropdownOption[] = [];
 
   private getPlainDayName(dayName: string): string {
     return dayName ? dayName.split(' - ')[0] : dayName;
@@ -86,10 +94,25 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       }
     }
     this.setupDropdownOptions();
+    this.loadExerciseCatalog();
 
     this.daySelectControl.valueChanges.subscribe(val => {
       if (val) {
         this.onDaySelect(val);
+      }
+    });
+  }
+
+  loadExerciseCatalog(): void {
+    this.workoutMasterService.getExercises().subscribe({
+      next: (exercises) => {
+        this.exerciseCatalogOptions = (exercises || []).map(e => ({
+          label: `${e.name} (${e.category})`,
+          value: e.name
+        }));
+      },
+      error: () => {
+        this.exerciseCatalogOptions = [];
       }
     });
   }
@@ -314,11 +337,16 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   openAddExerciseModal(): void {
     this.newExerciseControl.setValue('');
+    this.addExerciseUseCustomName = false;
     this.showAddExerciseModal = true;
   }
 
   closeAddExerciseModal(): void {
     this.showAddExerciseModal = false;
+  }
+
+  toggleAddExerciseCustomName(): void {
+    this.addExerciseUseCustomName = !this.addExerciseUseCustomName;
   }
 
   confirmAddExercise(): void {
@@ -377,6 +405,61 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     this.selectedExerciseIndex = this.todayWorkout.exercises.length - 1;
     this.closeAddExerciseModal();
     this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.ADDED_EXERCISE_PREFIX + exName + CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.ADDED_EXERCISE_SUFFIX);
+  }
+
+  openSwapExerciseModal(index: number): void {
+    this.swapExerciseIndex = index;
+    this.swapExerciseControl.setValue('');
+    this.swapExerciseUseCustomName = false;
+    this.showSwapExerciseModal = true;
+  }
+
+  closeSwapExerciseModal(): void {
+    this.showSwapExerciseModal = false;
+    this.swapExerciseIndex = null;
+  }
+
+  toggleSwapExerciseCustomName(): void {
+    this.swapExerciseUseCustomName = !this.swapExerciseUseCustomName;
+  }
+
+  confirmSwapExercise(): void {
+    const newName = this.swapExerciseControl.value?.trim();
+    if (!newName) {
+      this.notification.warning(CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.INVALID_SWAP_EXERCISE_NAME);
+      return;
+    }
+
+    const index = this.swapExerciseIndex;
+    if (index === null || !this.todayWorkout?.exercises?.[index]) {
+      this.closeSwapExerciseModal();
+      return;
+    }
+
+    const exercise = this.todayWorkout.exercises[index];
+    const oldName = exercise.name;
+    const wasCardio = exercise.isCardio;
+    const isCardio = this.isCardioExercise(newName);
+
+    exercise.name = newName;
+    exercise.isCardio = isCardio;
+    exercise.skipped = false;
+    exercise.sets = exercise.sets.map((s: any) => ({
+      setNo: s.setNo,
+      target: isCardio !== wasCardio ? (isCardio ? '20 mins' : '8-12 reps') : s.target,
+      weight: isCardio ? '' : 20,
+      reps: isCardio ? 20 : 10,
+      completed: false
+    }));
+
+    this.buildWorkoutForm();
+    this.selectedExerciseIndex = index;
+    this.closeSwapExerciseModal();
+    this.notification.success(
+      CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWAPPED_EXERCISE_PREFIX + oldName +
+      CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWAPPED_EXERCISE_MID + newName +
+      CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.SWAPPED_EXERCISE_SUFFIX
+    );
   }
 
   toggleExerciseMode(exercise: any): void {

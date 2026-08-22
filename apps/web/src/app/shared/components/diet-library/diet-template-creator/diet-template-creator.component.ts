@@ -43,8 +43,8 @@ export class DietTemplateCreatorComponent implements OnInit {
       description: [plan?.description || '', [Validators.maxLength(300)]],
       goal: [plan?.goal || 'Muscle Gain', [Validators.required]],
       protein: [plan?.protein ?? null, [Validators.required, Validators.min(0)]],
-      carbs: [plan?.carbs ?? null, [Validators.required, Validators.min(0)]],
-      fats: [plan?.fats ?? null, [Validators.required, Validators.min(0)]],
+      carbs: [plan?.carbs ?? null, [Validators.min(0)]],
+      fats: [plan?.fats ?? null, [Validators.min(0)]],
       meals: this.fb.array([])
     });
 
@@ -69,8 +69,8 @@ export class DietTemplateCreatorComponent implements OnInit {
       mealTime: [parsedTime, [Validators.required]],
       calories: [meal?.calories ?? null, [Validators.required, Validators.min(0), Validators.max(5000)]],
       protein: [meal?.protein ?? null, [Validators.required, Validators.min(0), Validators.max(300)]],
-      carbs: [meal?.carbs ?? null, [Validators.required, Validators.min(0), Validators.max(500)]],
-      fats: [meal?.fats ?? null, [Validators.required, Validators.min(0), Validators.max(200)]],
+      carbs: [meal?.carbs ?? null, [Validators.min(0), Validators.max(500)]],
+      fats: [meal?.fats ?? null, [Validators.min(0), Validators.max(200)]],
       items: [meal?.items || '']
     });
 
@@ -248,16 +248,16 @@ export class DietTemplateCreatorComponent implements OnInit {
       description: val.description || '',
       calories: this.computedCalories,
       protein: val.protein,
-      carbs: val.carbs,
-      fats: val.fats,
+      carbs: val.carbs ?? 0,
+      fats: val.fats ?? 0,
       goal: val.goal,
       meals: val.meals.map((m: any, idx: number) => ({
         name: m.mealTitle.trim(),
         time: this.to12h(m.mealTime),
         calories: m.calories,
         protein: m.protein,
-        carbs: m.carbs,
-        fats: m.fats,
+        carbs: m.carbs ?? 0,
+        fats: m.fats ?? 0,
         items: m.items,
         sortOrder: idx
       }))

@@ -129,13 +129,23 @@
                   <button class="btn-skip-toggle" (click)="toggleExerciseMode(selectedEx)"
                     title="Toggle between Strength and Cardio tracking mode">
                     <i class="fa-solid" [ngClass]="selectedEx.isCardio ? 'fa-dumbbell' : 'fa-person-running'"></i>
-                    {{ selectedEx.isCardio ? 'Strength Mode' : 'Cardio Mode' }}
+                    <span class="text-full">{{ selectedEx.isCardio ? 'Strength Mode' : 'Cardio Mode' }}</span>
+                    <span class="text-short">{{ selectedEx.isCardio ? 'Strength' : 'Cardio' }}</span>
+                  </button>
+
+                  <button class="btn-skip-toggle" *ngIf="!selectedEx.skipped"
+                    (click)="openSwapExerciseModal(selectedExerciseIndex)"
+                    title="Replace this exercise with a different one you actually performed">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span class="text-full">Swap Exercise</span>
+                    <span class="text-short">Swap</span>
                   </button>
 
                   <button class="btn-skip-toggle" [class.active-skip]="selectedEx.skipped"
                     (click)="toggleExerciseSkipped(selectedEx)">
                     <i class="fa-solid" [ngClass]="selectedEx.skipped ? 'fa-play' : 'fa-ban'"></i>
-                    {{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}
+                    <span class="text-full">{{ selectedEx.skipped ? 'Resume Exercise' : 'Skip Exercise' }}</span>
+                    <span class="text-short">{{ selectedEx.skipped ? 'Resume' : 'Skip' }}</span>
                   </button>
                 </div>
               </div>
@@ -313,16 +323,64 @@
     </div>
     <div class="modal-card-body">
       <div class="modal-form-group">
-        <label for="new-ex-name">Exercise Name</label>
-        <input type="text" id="new-ex-name" class="modal-input-field" [formControl]="newExerciseControl"
-          placeholder="e.g. Incline Dumbbell Bench Press" (keyup.enter)="confirmAddExercise()" autofocus>
-        <span class="input-helper-text">Enter the name of the exercise to start tracking logs immediately.</span>
+        <div class="modal-label-row">
+          <label for="new-ex-name">Exercise Name</label>
+          <button type="button" class="btn-toggle-custom-name" (click)="toggleAddExerciseCustomName()">
+            <i class="fa-solid" [ngClass]="addExerciseUseCustomName ? 'fa-list' : 'fa-keyboard'"></i>
+            {{ addExerciseUseCustomName ? 'Pick from library' : 'Type manually' }}
+          </button>
+        </div>
+        <app-dropdown *ngIf="!addExerciseUseCustomName" [options]="exerciseCatalogOptions"
+          [formControl]="newExerciseControl" placeholder="Search exercise library..." [isSearchable]="true"
+          minWidth="100%" direction="auto"></app-dropdown>
+        <input *ngIf="addExerciseUseCustomName" type="text" id="new-ex-name" class="modal-input-field"
+          [formControl]="newExerciseControl" placeholder="e.g. Incline Dumbbell Bench Press"
+          (keyup.enter)="confirmAddExercise()" autofocus>
+        <span class="input-helper-text">Search the exercise library, or switch to type your own exercise
+          name.</span>
       </div>
     </div>
     <div class="modal-card-footer">
       <button class="btn-outline btn-small" (click)="closeAddExerciseModal()">Cancel</button>
       <button class="btn-primary btn-small" (click)="confirmAddExercise()">
         <i class="fa-solid fa-check"></i> Add Exercise
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BEAUTIFUL CUSTOM MODAL POPUP FOR SWAPPING AN EXERCISE -->
+<div class="custom-overlay-modal" *ngIf="showSwapExerciseModal" (click)="closeSwapExerciseModal()">
+  <div class="custom-modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-card-header">
+      <h3><i class="fa-solid fa-arrows-rotate"></i> Swap Exercise</h3>
+      <button class="btn-close-modal-x" (click)="closeSwapExerciseModal()">&times;</button>
+    </div>
+    <div class="modal-card-body">
+      <div class="modal-form-group">
+        <div class="modal-label-row">
+          <label for="swap-ex-name">Replacement Exercise Name</label>
+          <button type="button" class="btn-toggle-custom-name" (click)="toggleSwapExerciseCustomName()">
+            <i class="fa-solid" [ngClass]="swapExerciseUseCustomName ? 'fa-list' : 'fa-keyboard'"></i>
+            {{ swapExerciseUseCustomName ? 'Pick from library' : 'Type manually' }}
+          </button>
+        </div>
+        <app-dropdown *ngIf="!swapExerciseUseCustomName" [options]="exerciseCatalogOptions"
+          [formControl]="swapExerciseControl" placeholder="Search exercise library..." [isSearchable]="true"
+          minWidth="100%" direction="auto"></app-dropdown>
+        <input *ngIf="swapExerciseUseCustomName" type="text" id="swap-ex-name" class="modal-input-field"
+          [formControl]="swapExerciseControl" placeholder="e.g. Leg Press" (keyup.enter)="confirmSwapExercise()"
+          autofocus>
+        <span class="input-helper-text">
+          Did a different exercise instead of "{{ todayWorkout?.exercises?.[swapExerciseIndex ?? -1]?.name }}"?
+          Search the library or type your own — its sets will reset so you can log fresh numbers.
+        </span>
+      </div>
+    </div>
+    <div class="modal-card-footer">
+      <button class="btn-outline btn-small" (click)="closeSwapExerciseModal()">Cancel</button>
+      <button class="btn-primary btn-small" (click)="confirmSwapExercise()">
+        <i class="fa-solid fa-check"></i> Swap Exercise
       </button>
     </div>
   </div>

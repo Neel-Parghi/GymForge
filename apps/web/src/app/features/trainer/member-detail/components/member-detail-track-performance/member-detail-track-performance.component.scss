@@ -623,6 +623,23 @@
   gap: 8px;
   transition: all 0.2s;
 
+  .text-short {
+    display: none;
+  }
+
+  @include bp.mobile {
+    padding: 8px 12px;
+    gap: 6px;
+
+    .text-full {
+      display: none;
+    }
+
+    .text-short {
+      display: inline;
+    }
+  }
+
   &:hover {
     background: var(--slate-200);
     color: var(--text-main);
@@ -1143,6 +1160,9 @@
   border-radius: 16px;
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1150,6 +1170,11 @@
   @include bp.mobile {
     margin: 0;
     max-width: 100%;
+    // Dynamic viewport height so the sheet respects the visible area once
+    // mobile browser toolbars/keyboard are accounted for; vh is the fallback
+    // for browsers that don't support dvh.
+    max-height: 85vh;
+    max-height: 85dvh;
     border-radius: 20px 20px 0 0;
     animation: modalSlideUpMobile 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -1182,6 +1207,7 @@
   padding: 18px 24px;
   border-bottom: 1px solid var(--border-color);
   background: var(--slate-50);
+  flex-shrink: 0;
 
   h3 {
     font-size: 1.1rem;
@@ -1215,6 +1241,8 @@
 
 .modal-card-body {
   padding: 24px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .modal-form-group {
@@ -1228,6 +1256,33 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  .modal-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .btn-toggle-custom-name {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+    padding: 2px 4px;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .modal-input-field {
@@ -1262,6 +1317,7 @@
   padding: 16px 24px;
   background: var(--slate-50);
   border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 /*   Backdating Notice Banner    */

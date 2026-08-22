@@ -436,7 +436,11 @@ export const CONSTANTS = {
             SWITCHED_MODE_PREFIX: 'Switched ',
             SWITCHED_MODE_MID: ' to ',
             SWITCHED_MODE_SUFFIX: ' tracking mode.',
-            
+            INVALID_SWAP_EXERCISE_NAME: 'Please enter a valid replacement exercise name.',
+            SWAPPED_EXERCISE_PREFIX: 'Swapped ',
+            SWAPPED_EXERCISE_MID: ' for ',
+            SWAPPED_EXERCISE_SUFFIX: '. Sets have been reset for the new exercise.',
+
             CARDIO_KEYWORDS: [
                 'treadmill', 'cycling', 'cardio', 'elliptical', 'jog', 'swimming', 'rowing', 'aerobic', 'hiit', 'spin class'
             ],

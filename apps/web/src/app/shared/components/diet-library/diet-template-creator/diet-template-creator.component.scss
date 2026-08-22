@@ -167,6 +167,15 @@
           color: var(--error-color);
           margin-left: 2px;
         }
+
+        .optional-hint {
+          color: var(--slate-400);
+          font-weight: 600;
+          text-transform: none;
+          letter-spacing: normal;
+          font-size: 0.72rem;
+          margin-left: 2px;
+        }
       }
 
       .form-input {
