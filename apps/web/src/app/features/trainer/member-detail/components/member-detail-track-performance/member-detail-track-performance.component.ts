@@ -366,7 +366,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
       skipped: false,
       isCardio: isCardio,
       sets: [
-        { setNo: 1, target: isCardio ? '20 mins' : '8-12 reps', weight: isCardio ? '' : 20, reps: isCardio ? 20 : 10, completed: false }
+        { setNo: 1, target: isCardio ? '20 mins' : '8-12 reps', weight: '', reps: isCardio ? 20 : 10, completed: false }
       ]
     };
     this.todayWorkout.exercises.push(newExObj);
@@ -447,7 +447,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
     exercise.sets = exercise.sets.map((s: any) => ({
       setNo: s.setNo,
       target: isCardio !== wasCardio ? (isCardio ? '20 mins' : '8-12 reps') : s.target,
-      weight: isCardio ? '' : 20,
+      weight: '',
       reps: isCardio ? 20 : 10,
       completed: false
     }));

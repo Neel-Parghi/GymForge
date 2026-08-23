@@ -159,7 +159,7 @@ export class PTMemberDetailComponent implements OnInit {
                 return {
                   setNo: i + 1,
                   target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
-                  weight: 20,
+                  weight: '',
                   reps: 10,
                   completed: false
                 };
@@ -203,7 +203,7 @@ export class PTMemberDetailComponent implements OnInit {
           sets: Array.from({ length: typeof ex.sets === 'number' ? ex.sets : (parseInt(ex.reps) || 3) }, (_, i) => ({
             setNo: i + 1,
             target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
-            weight: 20,
+            weight: '',
             reps: 10,
             completed: false
           }))
@@ -327,7 +327,7 @@ export class PTMemberDetailComponent implements OnInit {
           sets: Array.from({ length: typeof ex.sets === 'number' ? ex.sets : 3 }, (_, i) => ({
             setNo: i + 1,
             target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
-            weight: 20,
+            weight: '',
             reps: 10,
             completed: false
           }))
@@ -695,6 +695,8 @@ export class PTMemberDetailComponent implements OnInit {
               time: m.time,
               calories: m.calories,
               protein: m.protein,
+              carbs: m.carbs,
+              fats: m.fats,
               items: m.items
             }))
           };
@@ -743,6 +745,8 @@ export class PTMemberDetailComponent implements OnInit {
             time: m.time,
             calories: m.calories,
             protein: m.protein,
+            carbs: m.carbs,
+            fats: m.fats,
             items: m.items
           }))
         };

@@ -54,6 +54,8 @@ export class UserDietPlannerComponent implements OnInit {
               time: m.time,
               calories: m.calories,
               protein: m.protein,
+              carbs: m.carbs,
+              fats: m.fats,
               items: m.items
             }))
           };
@@ -80,6 +82,8 @@ export class UserDietPlannerComponent implements OnInit {
             time: m.time,
             calories: m.calories,
             protein: m.protein,
+            carbs: m.carbs,
+            fats: m.fats,
             items: m.items
           }))
         };

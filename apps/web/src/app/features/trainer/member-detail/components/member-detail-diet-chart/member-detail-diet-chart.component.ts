@@ -93,8 +93,11 @@ export class PTMemberDetailDietChartComponent implements OnChanges {
         fats: this.activeDiet.macros?.fats,
         meals: (this.activeDiet.meals || []).map((m: any) => ({
           name: m.name,
+          time: m.time,
           calories: m.calories,
           protein: m.protein,
+          carbs: m.carbs,
+          fats: m.fats,
           items: m.items
         }))
       };

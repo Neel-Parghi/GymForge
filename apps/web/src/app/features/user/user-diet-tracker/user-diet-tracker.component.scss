@@ -47,7 +47,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 
   @include bp.tablet {
     grid-template-columns: 1fr;
@@ -315,6 +315,7 @@
 .consumed-foods-card {
   display: flex;
   flex-direction: column;
+  flex: 1;
   max-height: 460px;
   overflow: hidden;
   padding-bottom: 0; // Let scroll area handle bottom padding
