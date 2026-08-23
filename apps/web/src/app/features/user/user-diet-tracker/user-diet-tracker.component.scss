@@ -13,7 +13,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 
     h2 {
       font-size: clamp(1.1rem, 4vw, 1.4rem);
@@ -71,7 +71,7 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
   padding: 24px;
-  margin-bottom: 20px;
+  // margin-bottom: 20px;
 
   @include bp.mobile {
     padding: 16px;
