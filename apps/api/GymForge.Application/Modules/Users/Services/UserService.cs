@@ -369,7 +369,7 @@ namespace GymForge.Application.Modules.Users.Services
             user.Preference ??= new UserPreference { CreatedOn = DateTime.UtcNow };
 
             user.Profile.DateOfBirth = dto.DOB;
-            if (Enum.TryParse<Gender>(dto.Gender, true, out var genderEnum))
+            if (Enum.TryParse<Gender>(dto.Gender, true, out Gender genderEnum))
             {
                 user.Profile.Gender = genderEnum;
             }
@@ -388,7 +388,7 @@ namespace GymForge.Application.Modules.Users.Services
                 bmi = Math.Round((double)dto.Weight / (heightInMeters * heightInMeters), 1);
             }
 
-            var measurement = new MemberMeasurement
+            MemberMeasurement measurement = new MemberMeasurement
             {
                 UserId = user.Id,
                 Height = (double)dto.Height,
@@ -434,9 +434,9 @@ namespace GymForge.Application.Modules.Users.Services
         public async Task<IEnumerable<DailyRoutineDto>> GetDailyRoutinesAsync()
         {
             Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
-            var routines = await _userRepository.GetDailyRoutinesAsync(userId);
-            var completion = await _userRepository.GetDailyRoutineCompletionAsync(userId, DateTime.UtcNow.Date);
-            var completedIds = completion?.CompletedRoutineIds ?? new List<Guid>();
+            IEnumerable<DailyRoutine> routines = await _userRepository.GetDailyRoutinesAsync(userId);
+            DailyRoutineCompletion? completion = await _userRepository.GetDailyRoutineCompletionAsync(userId, DateTime.UtcNow.Date);
+            List<Guid> completedIds = completion?.CompletedRoutineIds ?? new List<Guid>();
 
             return routines.Select(r => new DailyRoutineDto
             {
@@ -452,7 +452,7 @@ namespace GymForge.Application.Modules.Users.Services
         public async Task<DailyRoutineDto> CreateDailyRoutineAsync(CreateDailyRoutineDto dto)
         {
             Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
-            var routine = new DailyRoutine
+            DailyRoutine routine = new DailyRoutine
             {
                 UserId = userId,
                 Title = dto.Title,
@@ -479,7 +479,7 @@ namespace GymForge.Application.Modules.Users.Services
 
         public async Task UpdateDailyRoutineAsync(Guid id, UpdateDailyRoutineDto dto)
         {
-            var routine = await _userRepository.GetDailyRoutineByIdAsync(id);
+            DailyRoutine? routine = await _userRepository.GetDailyRoutineByIdAsync(id);
             if (routine == null) throw new Exception("Routine not found");
 
             routine.Title = dto.Title;
@@ -494,7 +494,7 @@ namespace GymForge.Application.Modules.Users.Services
 
         public async Task DeleteDailyRoutineAsync(Guid id)
         {
-            var routine = await _userRepository.GetDailyRoutineByIdAsync(id);
+            DailyRoutine? routine = await _userRepository.GetDailyRoutineByIdAsync(id);
             if (routine == null) throw new Exception("Routine not found");
 
             routine.IsActive = false;
@@ -507,7 +507,7 @@ namespace GymForge.Application.Modules.Users.Services
         public async Task ToggleDailyRoutineAsync(Guid id)
         {
             Guid userId = _currentUserService.UserId ?? throw new Exception("Unauthorized access.");
-            var completion = await _userRepository.GetDailyRoutineCompletionAsync(userId, DateTime.UtcNow.Date);
+            DailyRoutineCompletion? completion = await _userRepository.GetDailyRoutineCompletionAsync(userId, DateTime.UtcNow.Date);
 
             if (completion == null)
             {

@@ -1,6 +1,6 @@
+using GymForge.Contracts.Gym.Management;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
-using GymForge.Contracts.Gym.Management;
 using Microsoft.Extensions.Logging;
 
 namespace GymForge.Application.BackgroundJobs
@@ -38,10 +38,10 @@ namespace GymForge.Application.BackgroundJobs
             {
                 try
                 {
-                    var subscription = await _saasPaymentRepository.GetLatestSubscriptionByGymIdAsync(gym.Id);
+                    SubscriptionRecord? subscription = await _saasPaymentRepository.GetLatestSubscriptionByGymIdAsync(gym.Id);
                     if (subscription == null) continue;
 
-                    var gymEntity = await _gymRepository.GetGymByIdAsync(gym.Id);
+                    Gym? gymEntity = await _gymRepository.GetGymByIdAsync(gym.Id);
                     if (gymEntity == null || gymEntity.Owner == null || string.IsNullOrEmpty(gymEntity.Owner.Email)) continue;
 
                     DateTime endDate = subscription.EndDate.Date;

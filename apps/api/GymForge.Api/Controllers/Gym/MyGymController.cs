@@ -1,10 +1,11 @@
+using GymForge.Api.Filters;
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Application.Modules.Users.Interface;
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Shared;
+using GymForge.Contracts.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Gym
 {
@@ -31,7 +32,7 @@ namespace GymForge.Api.Controllers.Gym
                 Guid? targetGymId = GymId;
                 if (targetGymId == null || targetGymId == Guid.Empty)
                 {
-                    var userProfile = await _userService.GetUserProfileAsync(UserId);
+                    UserProfileDto userProfile = await _userService.GetUserProfileAsync(UserId);
                     targetGymId = userProfile?.GymId;
                 }
 

@@ -82,7 +82,7 @@ namespace GymForge.Api.Controllers.User
         [Authorize]
         public async Task<IActionResult> GetPreferences()
         {
-            var preferences = await _userService.GetMyPreferencesAsync();
+            UserPreferenceDto preferences = await _userService.GetMyPreferencesAsync();
             return Ok(preferences);
         }
 
@@ -117,7 +117,7 @@ namespace GymForge.Api.Controllers.User
         [Authorize]
         public async Task<IActionResult> GetMySubscriptions()
         {
-            var subscriptions = await _memberService.GetSubscriptionHistoryByUserIdAsync(UserId);
+            IEnumerable<MemberSubscriptionResponse> subscriptions = await _memberService.GetSubscriptionHistoryByUserIdAsync(UserId);
             return Ok(subscriptions);
         }
 
@@ -175,7 +175,7 @@ namespace GymForge.Api.Controllers.User
         [Authorize]
         public async Task<IActionResult> GetDashboardSummary()
         {
-            var summary = await _userService.GetUserDashboardSummaryAsync();
+            UserDashboardSummaryDto summary = await _userService.GetUserDashboardSummaryAsync();
             return Ok(summary);
         }
 
@@ -183,7 +183,7 @@ namespace GymForge.Api.Controllers.User
         [Authorize]
         public async Task<IActionResult> GetDailyRoutines()
         {
-            var routines = await _userService.GetDailyRoutinesAsync();
+            IEnumerable<DailyRoutineDto> routines = await _userService.GetDailyRoutinesAsync();
             return Ok(routines);
         }
 
@@ -191,7 +191,7 @@ namespace GymForge.Api.Controllers.User
         [Authorize]
         public async Task<IActionResult> CreateDailyRoutine([FromBody] CreateDailyRoutineDto dto)
         {
-            var routine = await _userService.CreateDailyRoutineAsync(dto);
+            DailyRoutineDto routine = await _userService.CreateDailyRoutineAsync(dto);
             return Ok(routine);
         }
 

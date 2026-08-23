@@ -1,9 +1,9 @@
 using AutoMapper;
-using GymForge.Contracts.Gym.Inventory;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Common;
+using GymForge.Contracts.Gym.Inventory;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
-using GymForge.Contracts.Common;
 using GymForge.Shared.Models;
 
 namespace GymForge.Application.Modules.Gym.Services
@@ -23,14 +23,14 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<PagedResponse<EquipmentDto>> GetEquipmentAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
-            var (items, totalCount) = await _equipmentRepository.GetPagedEquipmentAsync(
+            (IEnumerable<Equipment>? items, int totalCount) = await _equipmentRepository.GetPagedEquipmentAsync(
                 gymId, 
                 pagination.PageNumber, 
                 pagination.PageSize, 
                 pagination.SearchTerm, 
                 branchId);
 
-            var dtos = _mapper.Map<List<EquipmentDto>>(items);
+            List<EquipmentDto> dtos = _mapper.Map<List<EquipmentDto>>(items);
             return new PagedResponse<EquipmentDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 

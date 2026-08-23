@@ -72,7 +72,7 @@ namespace GymForge.Application.BackgroundJobs
             IEnumerable<MemberSubscription> subscriptions = await _memberRepository.GetActiveSubscriptionsByGymIdAsync(gymId);
             DateTime today = DateTime.UtcNow.Date;
 
-            foreach (var sub in subscriptions)
+            foreach (MemberSubscription sub in subscriptions)
             {
                 DateTime endDate = sub.EndDate.Date;
 

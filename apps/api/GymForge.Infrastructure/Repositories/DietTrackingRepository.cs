@@ -2,10 +2,6 @@ using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -20,9 +16,9 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<DietLog?> GetDietLogWithEntriesAsync(Guid memberId, DateTime date)
         {
-            var start = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
-            var end = DateTime.SpecifyKind(start.AddDays(1), DateTimeKind.Utc);
-            var logs = await _context.DietLogs
+            DateTime start = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+            DateTime end = DateTime.SpecifyKind(start.AddDays(1), DateTimeKind.Utc);
+            List<DietLog> logs = await _context.DietLogs
                 .Include(d => d.MealEntries)
                 .Where(d => d.MemberId == memberId && d.LogDate >= start && d.LogDate < end)
                 .ToListAsync();

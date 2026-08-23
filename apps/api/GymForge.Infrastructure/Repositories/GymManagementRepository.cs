@@ -1,6 +1,5 @@
 using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.Gym.Owners;
-using GymForge.Contracts.Gym.Onboarding;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
@@ -375,7 +374,7 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task DeleteHolidayAsync(Guid gymId, Guid holidayId)
         {
-            var holiday = await _dbContext.GymHolidays
+            GymHoliday? holiday = await _dbContext.GymHolidays
                 .FirstOrDefaultAsync(h => h.GymId == gymId && h.Id == holidayId);
             if (holiday != null)
             {

@@ -27,28 +27,28 @@ namespace GymForge.Api.Controllers.User
         [HttpGet("{date}")]
         public async Task<IActionResult> GetDietLog(DateTime date)
         {
-            var log = await _dietTrackingService.GetDietLogAsync(GetMemberId(), date);
+            DietLogDto log = await _dietTrackingService.GetDietLogAsync(GetMemberId(), date);
             return Ok(log);
         }
 
         [HttpPost("meals")]
         public async Task<IActionResult> AddMealEntry([FromBody] AddMealEntryRequestDto request)
         {
-            var log = await _dietTrackingService.AddMealEntryAsync(GetMemberId(), request);
+            DietLogDto log = await _dietTrackingService.AddMealEntryAsync(GetMemberId(), request);
             return Ok(log);
         }
 
         [HttpDelete("meals/{mealEntryId}")]
         public async Task<IActionResult> RemoveMealEntry(Guid mealEntryId)
         {
-            var log = await _dietTrackingService.RemoveMealEntryAsync(GetMemberId(), mealEntryId);
+            DietLogDto log = await _dietTrackingService.RemoveMealEntryAsync(GetMemberId(), mealEntryId);
             return Ok(log);
         }
 
         [HttpGet("summary/{endDate}")]
         public async Task<IActionResult> GetWeeklySummary(DateTime endDate)
         {
-            var summary = await _dietTrackingService.GetWeeklySummaryAsync(GetMemberId(), endDate);
+            List<DietLogSummaryDto> summary = await _dietTrackingService.GetWeeklySummaryAsync(GetMemberId(), endDate);
             return Ok(summary);
         }
 
@@ -58,7 +58,7 @@ namespace GymForge.Api.Controllers.User
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Query cannot be empty.");
 
-            var result = await _nutritionApiService.GetNutritionForFoodAsync(query);
+            FoodNutritionDto? result = await _nutritionApiService.GetNutritionForFoodAsync(query);
             if (result == null)
                 return NotFound("No nutrition data found for the given query.");
 

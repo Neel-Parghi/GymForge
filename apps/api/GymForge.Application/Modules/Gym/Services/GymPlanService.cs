@@ -1,5 +1,6 @@
 using AutoMapper;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.Gym.Management;
 using GymForge.Contracts.GymPlans;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
@@ -82,21 +83,21 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<bool> PromotePlanAsync(Guid planId, Guid ownerId)
         {
-            var plan = await _gymPlanRepository.GetPlanByIdAsync(planId);
+            GymPlan? plan = await _gymPlanRepository.GetPlanByIdAsync(planId);
             if (plan == null) 
                 return false;
 
-            var gymResponse = await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId);
+            GymListResponseDto? gymResponse = await _gymManagementRepository.GetGymByOwnerIdAsync(ownerId);
             if (gymResponse == null) 
                 return false;
 
-            var members = await _gymMemberRepository.GetAllByGymIdAsync(gymResponse.Id, null);
+            IEnumerable<GymMember> members = await _gymMemberRepository.GetAllByGymIdAsync(gymResponse.Id, null);
             if (!members.Any()) 
                 return false;
 
             foreach (var member in members)
             {
-                var notification = new UserNotification
+                UserNotification notification = new UserNotification
                 {
                     Id = Guid.NewGuid(),
                     UserId = member.UserId ?? Guid.Empty,
@@ -114,16 +115,16 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<IEnumerable<GymPlanDto>> GetAvailablePlansForMemberAsync(Guid userId)
         {
-            var member = await _gymMemberRepository.GetByUserIdAsync(userId);
+            GymMember? member = await _gymMemberRepository.GetByUserIdAsync(userId);
             if (member == null) 
                 return Enumerable.Empty<GymPlanDto>();
 
-            var gym = await _gymManagementRepository.GetGymByIdAsync(member.GymId);
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(member.GymId);
             if (gym == null) 
                 return Enumerable.Empty<GymPlanDto>();
 
-            var plans = await _gymPlanRepository.GetPlansByOwnerIdAsync(gym.OwnerUserId);
-            var activePlans = plans.Where(p => p.IsActive);
+            IEnumerable<GymPlan> plans = await _gymPlanRepository.GetPlansByOwnerIdAsync(gym.OwnerUserId);
+            IEnumerable<GymPlan> activePlans = plans.Where(p => p.IsActive);
             
             return _mapper.Map<IEnumerable<GymPlanDto>>(activePlans);
         }

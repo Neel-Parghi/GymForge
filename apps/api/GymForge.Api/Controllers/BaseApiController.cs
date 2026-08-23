@@ -1,4 +1,6 @@
 using GymForge.Api.Filters;
+using GymForge.Application.Modules.Users.Interface;
+using GymForge.Contracts.Users;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers
@@ -26,10 +28,10 @@ namespace GymForge.Api.Controllers
 
                 if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("User"))
                 {
-                    var userService = HttpContext.RequestServices.GetService(typeof(GymForge.Application.Modules.Users.Interface.IUserService)) as GymForge.Application.Modules.Users.Interface.IUserService;
+                    IUserService? userService = HttpContext.RequestServices.GetService(typeof(IUserService)) as IUserService;
                     if (userService != null)
                     {
-                        var profile = userService.GetUserProfileAsync(UserId).GetAwaiter().GetResult();
+                        UserProfileDto profile = userService.GetUserProfileAsync(UserId).GetAwaiter().GetResult();
                         return profile?.GymId;
                     }
                 }

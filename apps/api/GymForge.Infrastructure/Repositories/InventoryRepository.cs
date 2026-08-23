@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
-using GymForge.Infrastructure.Persistence;
 using GymForge.Infrastructure.Extensions;
+using GymForge.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -128,7 +128,7 @@ namespace GymForge.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                var lowerTerm = searchTerm.ToLower();
+                string lowerTerm = searchTerm.ToLower();
                 query = query.Where(x => 
                     (x.InventoryItem != null && x.InventoryItem.Name.ToLower().Contains(lowerTerm)) || 
                     (x.Member != null && (x.Member.FirstName.ToLower().Contains(lowerTerm) || x.Member.LastName.ToLower().Contains(lowerTerm)))
@@ -137,7 +137,7 @@ namespace GymForge.Infrastructure.Repositories
 
             int totalCount = await query.CountAsync();
 
-            var items = await query
+            List<SaleTransaction> items = await query
                 .OrderByDescending(x => x.TransactionDate)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

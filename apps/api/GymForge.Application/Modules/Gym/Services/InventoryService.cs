@@ -136,14 +136,14 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<PagedResponse<SaleTransactionDto>> GetSalesHistoryAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
-            var (items, totalCount) = await _inventoryRepository.GetPagedSalesAsync(
+            (IEnumerable<SaleTransaction>? items, int totalCount) = await _inventoryRepository.GetPagedSalesAsync(
                 gymId,
                 pagination.PageNumber,
                 pagination.PageSize,
                 pagination.SearchTerm,
                 branchId);
 
-            var dtos = _mapper.Map<List<SaleTransactionDto>>(items);
+            List<SaleTransactionDto> dtos = _mapper.Map<List<SaleTransactionDto>>(items);
             return new PagedResponse<SaleTransactionDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
 

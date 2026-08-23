@@ -1,7 +1,7 @@
 using GymForge.Application.Modules.Gym.Interfaces;
 using GymForge.Contracts.GymPlans;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.User
 {
@@ -19,7 +19,7 @@ namespace GymForge.Api.Controllers.User
         [HttpGet("available")]
         public async Task<ActionResult<IEnumerable<GymPlanDto>>> GetAvailablePlans()
         {
-            var activePlans = await _gymPlanService.GetAvailablePlansForMemberAsync(UserId);
+            IEnumerable<GymPlanDto> activePlans = await _gymPlanService.GetAvailablePlansForMemberAsync(UserId);
             
             if (!activePlans.Any())
                 return Ok(new List<GymPlanDto>());

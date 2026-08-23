@@ -1,11 +1,10 @@
 using GymForge.Application.Modules.Diet.Interfaces;
 using GymForge.Application.Modules.Gym.Interfaces;
+using GymForge.Contracts.DietTracking;
+using GymForge.Contracts.Staff;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace GymForge.Api.Controllers.Trainer
 {
@@ -25,13 +24,13 @@ namespace GymForge.Api.Controllers.Trainer
 
         private async Task<bool> IsAuthorizedToViewMemberAsync(Guid memberId)
         {
-            var role = User.FindFirstValue(ClaimTypes.Role);
-            var currentUserId = UserId;
+            string? role = User.FindFirstValue(ClaimTypes.Role);
+            Guid currentUserId = UserId;
             if (currentUserId == Guid.Empty) return false;
 
             if (role == "Trainer")
             {
-                var assignedMembers = await _staffService.GetAssignedMembersAsync(currentUserId);
+                IEnumerable<TrainerMemberResponse> assignedMembers = await _staffService.GetAssignedMembersAsync(currentUserId);
                 return assignedMembers.Any(m => m.MemberId == memberId);
             }
             
@@ -47,7 +46,7 @@ namespace GymForge.Api.Controllers.Trainer
         public async Task<IActionResult> GetMemberDietLog(Guid memberId, DateTime date)
         {
             if (!await IsAuthorizedToViewMemberAsync(memberId)) return Forbid();
-            var log = await _dietTrackingService.GetDietLogAsync(memberId, date);
+            DietLogDto log = await _dietTrackingService.GetDietLogAsync(memberId, date);
             return Ok(log);
         }
 
@@ -55,7 +54,7 @@ namespace GymForge.Api.Controllers.Trainer
         public async Task<IActionResult> GetMemberWeeklySummary(Guid memberId, DateTime endDate)
         {
             if (!await IsAuthorizedToViewMemberAsync(memberId)) return Forbid();
-            var summary = await _dietTrackingService.GetWeeklySummaryAsync(memberId, endDate);
+            List<DietLogSummaryDto> summary = await _dietTrackingService.GetWeeklySummaryAsync(memberId, endDate);
             return Ok(summary);
         }
     }

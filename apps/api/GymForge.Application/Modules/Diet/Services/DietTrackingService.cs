@@ -18,9 +18,9 @@ namespace GymForge.Application.Modules.Diet.Services
 
         public async Task<DietLogDto> GetDietLogAsync(Guid memberId, DateTime logDate)
         {
-            var date = DateTime.SpecifyKind(logDate.Date, DateTimeKind.Utc);
-            var activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
-            var log = await _repository.GetDietLogWithEntriesAsync(memberId, date);
+            DateTime date = DateTime.SpecifyKind(logDate.Date, DateTimeKind.Utc);
+            MemberDietAssignment? activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
+            DietLog? log = await _repository.GetDietLogWithEntriesAsync(memberId, date);
 
             if (log == null)
             {
@@ -32,16 +32,16 @@ namespace GymForge.Application.Modules.Diet.Services
 
         public async Task<DietLogDto> AddMealEntryAsync(Guid memberId, AddMealEntryRequestDto request)
         {
-            var date = DateTime.SpecifyKind(request.LogDate.Date, DateTimeKind.Utc);
-            var activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
-            var log = await _repository.GetDietLogWithEntriesAsync(memberId, date);
+            DateTime date = DateTime.SpecifyKind(request.LogDate.Date, DateTimeKind.Utc);
+            MemberDietAssignment? activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
+            DietLog? log = await _repository.GetDietLogWithEntriesAsync(memberId, date);
 
             if (log == null)
             {
                 log = await CreateEmptyLogAsync(memberId, date, activeAssignment);
             }
 
-            var entry = new MealLogEntry
+            MealLogEntry entry = new MealLogEntry
             {
                 DietLogId = log.Id,
                 MealType = request.MealType,
@@ -66,14 +66,14 @@ namespace GymForge.Application.Modules.Diet.Services
 
         public async Task<DietLogDto> RemoveMealEntryAsync(Guid memberId, Guid mealEntryId)
         {
-            var entry = await _repository.GetMealEntryWithLogAsync(mealEntryId);
+            MealLogEntry? entry = await _repository.GetMealEntryWithLogAsync(mealEntryId);
 
             if (entry == null || entry.DietLog?.MemberId != memberId)
             {
                 throw new Exception("Meal entry not found or unauthorized.");
             }
 
-            var log = entry.DietLog!;
+            DietLog log = entry.DietLog!;
             _repository.RemoveMealEntry(entry);
             
             // Force load all other entries to update totals accurately
@@ -82,22 +82,22 @@ namespace GymForge.Application.Modules.Diet.Services
             UpdateLogTotals(log);
             await _repository.SaveChangesAsync();
 
-            var activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
+            MemberDietAssignment? activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
             return MapToDto(log, activeAssignment);
         }
 
         public async Task<List<DietLogSummaryDto>> GetWeeklySummaryAsync(Guid memberId, DateTime endDate)
         {
-            var startDate = endDate.Date.AddDays(-6);
-            
-            var logs = await _repository.GetDietLogsByDateRangeAsync(memberId, startDate, endDate);
+            DateTime startDate = endDate.Date.AddDays(-6);
 
-            var summary = new List<DietLogSummaryDto>();
+            List<DietLog> logs = await _repository.GetDietLogsByDateRangeAsync(memberId, startDate, endDate);
+
+            List<DietLogSummaryDto> summary = new List<DietLogSummaryDto>();
 
             for (int i = 0; i <= 6; i++)
             {
-                var targetDate = startDate.AddDays(i);
-                var log = logs.FirstOrDefault(l => l.LogDate.Date == targetDate.Date);
+                DateTime targetDate = startDate.AddDays(i);
+                DietLog? log = logs.FirstOrDefault(l => l.LogDate.Date == targetDate.Date);
 
                 if (log != null)
                 {
@@ -130,7 +130,7 @@ namespace GymForge.Application.Modules.Diet.Services
 
         private async Task<DietLog> CreateEmptyLogAsync(Guid memberId, DateTime date, MemberDietAssignment? activeAssignment)
         {
-            var log = new DietLog
+            DietLog log = new DietLog
             {
                 MemberId = memberId,
                 LogDate = DateTime.SpecifyKind(date, DateTimeKind.Utc),
@@ -166,15 +166,20 @@ namespace GymForge.Application.Modules.Diet.Services
 
         private DietLogDto MapToDto(DietLog log, MemberDietAssignment? activeAssignment)
         {
-            var dto = new DietLogDto
+            int targetCalories = activeAssignment?.DietPlan != null ? activeAssignment.DietPlan.Calories : log.TargetCalories;
+            decimal targetProtein = activeAssignment?.DietPlan != null ? activeAssignment.DietPlan.Protein : log.TargetProtein;
+            decimal targetCarbs = activeAssignment?.DietPlan != null ? activeAssignment.DietPlan.Carbs : log.TargetCarbs;
+            decimal targetFats = activeAssignment?.DietPlan != null ? activeAssignment.DietPlan.Fats : log.TargetFats;
+
+            DietLogDto dto = new DietLogDto
             {
                 Id = log.Id,
                 MemberId = log.MemberId,
                 LogDate = log.LogDate,
-                TargetCalories = log.TargetCalories,
-                TargetProtein = log.TargetProtein,
-                TargetCarbs = log.TargetCarbs,
-                TargetFats = log.TargetFats,
+                TargetCalories = targetCalories,
+                TargetProtein = targetProtein,
+                TargetCarbs = targetCarbs,
+                TargetFats = targetFats,
                 TotalCalories = log.TotalCalories,
                 TotalProtein = log.TotalProtein,
                 TotalCarbs = log.TotalCarbs,
@@ -201,8 +206,8 @@ namespace GymForge.Application.Modules.Diet.Services
                     Time = m.Time,
                     Calories = m.Calories,
                     Protein = m.Protein,
-                    Carbs = 0, // Since DietPlanMeal only tracks calories & protein for now
-                    Fats = 0,
+                    Carbs = m.Carbs,
+                    Fats = m.Fats,
                     Items = m.Items
                 }).ToList();
             }

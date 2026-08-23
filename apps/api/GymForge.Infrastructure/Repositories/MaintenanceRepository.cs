@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
 using GymForge.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -62,7 +62,7 @@ namespace GymForge.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                var lowerTerm = searchTerm.ToLower();
+                string lowerTerm = searchTerm.ToLower();
                 query = query.Where(x => 
                     x.TechnicianName.ToLower().Contains(lowerTerm) || 
                     x.ServiceType.ToLower().Contains(lowerTerm) || 
@@ -72,7 +72,7 @@ namespace GymForge.Infrastructure.Repositories
 
             int totalCount = await query.CountAsync();
 
-            var items = await query
+            List<MaintenanceLog> items = await query
                 .OrderByDescending(x => x.StartDate)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

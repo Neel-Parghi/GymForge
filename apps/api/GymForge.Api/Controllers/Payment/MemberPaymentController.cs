@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.Payments;
+using GymForge.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GymForge.Api.Controllers.Payment
 {
@@ -20,7 +21,7 @@ namespace GymForge.Api.Controllers.Payment
         public async Task<ActionResult> InitiateCheckout([FromBody] InitiateMemberPaymentRequest request)
         {
             request.UserId = UserId;
-            var response = await _paymentService.InitiateCheckoutAsync(request);
+            ApiResponse<PaymentInitiationResponse> response = await _paymentService.InitiateCheckoutAsync(request);
             if (!response.Success)
             {
                 return BadRequest(response.Message);
@@ -31,8 +32,8 @@ namespace GymForge.Api.Controllers.Payment
         [HttpPost("verify-checkout")]
         public async Task<ActionResult> VerifyCheckout([FromBody] VerifyMemberPaymentRequest request)
         {
-            request.UserId = UserId; 
-            var response = await _paymentService.VerifyCheckoutAsync(request);
+            request.UserId = UserId;
+            ApiResponse<PaymentVerificationResponse> response = await _paymentService.VerifyCheckoutAsync(request);
             if (!response.Success)
             {
                 return BadRequest(response.Message);
@@ -44,7 +45,7 @@ namespace GymForge.Api.Controllers.Payment
         public async Task<ActionResult> OfflineCheckout([FromBody] OfflineCheckoutRequest request)
         {
             request.UserId = UserId;
-            var response = await _paymentService.InitiateOfflineCheckoutAsync(request);
+            ApiResponse<OfflineCheckoutResponse> response = await _paymentService.InitiateOfflineCheckoutAsync(request);
             if (!response.Success)
             {
                 return BadRequest(response.Message);

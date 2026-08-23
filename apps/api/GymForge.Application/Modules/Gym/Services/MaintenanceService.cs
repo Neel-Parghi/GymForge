@@ -75,14 +75,14 @@ namespace GymForge.Application.Modules.Gym.Services
 
         public async Task<PagedResponse<MaintenanceLogDto>> GetAllMaintenanceLogsAsync(Guid gymId, PaginationParams pagination, Guid? branchId = null)
         {
-            var (items, totalCount) = await _maintenanceRepository.GetPagedMaintenanceLogsAsync(
+            (IEnumerable<MaintenanceLog>? items, int totalCount) = await _maintenanceRepository.GetPagedMaintenanceLogsAsync(
                 gymId,
                 pagination.PageNumber,
                 pagination.PageSize,
                 pagination.SearchTerm,
                 branchId);
-            
-            var dtos = _mapper.Map<List<MaintenanceLogDto>>(items);
+
+            List<MaintenanceLogDto> dtos = _mapper.Map<List<MaintenanceLogDto>>(items);
             return new PagedResponse<MaintenanceLogDto>(dtos, totalCount, pagination.PageNumber, pagination.PageSize);
         }
     }

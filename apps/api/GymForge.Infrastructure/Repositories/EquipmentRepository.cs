@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
-using GymForge.Infrastructure.Persistence;
 using GymForge.Infrastructure.Extensions;
+using GymForge.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymForge.Infrastructure.Repositories
 {
@@ -44,13 +44,13 @@ namespace GymForge.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                var lowerTerm = searchTerm.ToLower();
+                string lowerTerm = searchTerm.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(lowerTerm) || x.Category.ToLower().Contains(lowerTerm));
             }
 
             int totalCount = await query.CountAsync();
 
-            var items = await query
+            List<Equipment> items = await query
                 .OrderByDescending(x => x.ModifiedOn ?? x.CreatedOn)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

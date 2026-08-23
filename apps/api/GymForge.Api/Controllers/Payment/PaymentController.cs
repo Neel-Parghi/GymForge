@@ -1,9 +1,9 @@
+using GymForge.Api.Filters;
 using GymForge.Application.Modules.Payments.Interfaces;
 using GymForge.Contracts.SaaSPayments;
 using GymForge.Contracts.SuperAdmin.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using GymForge.Api.Filters;
 
 namespace GymForge.Api.Controllers.Payment
 {
@@ -55,7 +55,7 @@ namespace GymForge.Api.Controllers.Payment
         {
             if (GymId == null) return Unauthorized();
 
-            var status = await _paymentService.RenewGymSubscriptionAsync(GymId.Value, request.PlanId);
+            GymSubscriptionStatusDto status = await _paymentService.RenewGymSubscriptionAsync(GymId.Value, request.PlanId);
             return Ok(status);
         }
 

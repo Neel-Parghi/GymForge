@@ -34,19 +34,19 @@ namespace GymForge.Application.Modules.Payments.Services
 
         public async Task<ApiResponse<PaymentInitiationResponse>> InitiateCheckoutAsync(InitiateMemberPaymentRequest request)
         {
-            var member = await _gymMemberRepository.GetByUserIdAsync(request.UserId);
+            GymMember? member = await _gymMemberRepository.GetByUserIdAsync(request.UserId);
             if (member == null) return new ApiResponse<PaymentInitiationResponse> { Success = false, Message = "Member not found." };
 
             var gym = await _gymManagementRepository.GetGymByIdAsync(member.GymId);
             if (gym == null) return new ApiResponse<PaymentInitiationResponse> { Success = false, Message = "Gym not found." };
 
-            var config = await _gymManagementRepository.GetGymConfigurationAsync(gym.Id);
+            GymConfiguration? config = await _gymManagementRepository.GetGymConfigurationAsync(gym.Id);
             if (config == null || string.IsNullOrEmpty(config.RazorpayKeyId) || string.IsNullOrEmpty(config.RazorpayKeySecret))
             {
                 return new ApiResponse<PaymentInitiationResponse> { Success = false, Message = "Gym has not configured payment gateway." };
             }
 
-            var plan = await _gymPlanRepository.GetPlanByIdAsync(request.PlanId);
+            GymPlan? plan = await _gymPlanRepository.GetPlanByIdAsync(request.PlanId);
             if (plan == null) return new ApiResponse<PaymentInitiationResponse> { Success = false, Message = "Plan not found." };
 
             decimal amountToPay = plan.IsOffer && plan.DiscountedPrice.HasValue ? plan.DiscountedPrice.Value : plan.Price;
@@ -76,10 +76,10 @@ namespace GymForge.Application.Modules.Payments.Services
 
         public async Task<ApiResponse<PaymentVerificationResponse>> VerifyCheckoutAsync(VerifyMemberPaymentRequest request)
         {
-            var member = await _gymMemberRepository.GetByUserIdAsync(request.UserId);
+            GymMember? member = await _gymMemberRepository.GetByUserIdAsync(request.UserId);
             if (member == null) return new ApiResponse<PaymentVerificationResponse> { Success = false, Message = "Member not found." };
 
-            var config = await _gymManagementRepository.GetGymConfigurationAsync(member.GymId);
+            GymConfiguration? config = await _gymManagementRepository.GetGymConfigurationAsync(member.GymId);
             if (config == null || string.IsNullOrEmpty(config.RazorpayKeyId) || string.IsNullOrEmpty(config.RazorpayKeySecret))
             {
                 return new ApiResponse<PaymentVerificationResponse> { Success = false, Message = "Gym has not configured payment gateway." };
@@ -101,13 +101,13 @@ namespace GymForge.Application.Modules.Payments.Services
                 return new ApiResponse<PaymentVerificationResponse> { Success = false, Message = "Signature verification failed." };
             }
 
-            var plan = await _gymPlanRepository.GetPlanByIdAsync(request.PlanId);
+            GymPlan? plan = await _gymPlanRepository.GetPlanByIdAsync(request.PlanId);
             if (plan == null) return new ApiResponse<PaymentVerificationResponse> { Success = false, Message = "Plan not found." };
 
             decimal amountPaid = plan.IsOffer && plan.DiscountedPrice.HasValue ? plan.DiscountedPrice.Value : plan.Price;
             int totalMonths = plan.DurationMonths + (plan.IsOffer && plan.ExtendedMonths.HasValue ? plan.ExtendedMonths.Value : 0);
 
-            var subscription = new MemberSubscription
+            MemberSubscription subscription = new MemberSubscription
             {
                 Id = Guid.NewGuid(),
                 MemberId = member.Id,
@@ -140,16 +140,16 @@ namespace GymForge.Application.Modules.Payments.Services
 
         public async Task<ApiResponse<OfflineCheckoutResponse>> InitiateOfflineCheckoutAsync(OfflineCheckoutRequest request)
         {
-            var member = await _gymMemberRepository.GetByUserIdAsync(request.UserId);
+            GymMember? member = await _gymMemberRepository.GetByUserIdAsync(request.UserId);
             if (member == null) return new ApiResponse<OfflineCheckoutResponse> { Success = false, Message = "Member not found." };
 
-            var plan = await _gymPlanRepository.GetPlanByIdAsync(request.PlanId);
+            GymPlan? plan = await _gymPlanRepository.GetPlanByIdAsync(request.PlanId);
             if (plan == null) return new ApiResponse<OfflineCheckoutResponse> { Success = false, Message = "Plan not found." };
 
             decimal amountPaid = plan.IsOffer && plan.DiscountedPrice.HasValue ? plan.DiscountedPrice.Value : plan.Price;
             int totalMonths = plan.DurationMonths + (plan.IsOffer && plan.ExtendedMonths.HasValue ? plan.ExtendedMonths.Value : 0);
 
-            var subscription = new MemberSubscription
+            MemberSubscription subscription = new MemberSubscription
             {
                 Id = Guid.NewGuid(),
                 MemberId = member.Id,
