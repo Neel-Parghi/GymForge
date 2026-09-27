@@ -43,8 +43,9 @@ export class WorkoutPlannerComponent implements OnInit {
   currentUserId = '';
   activeTab: 'splits' | 'weekly' | 'daily' = 'splits';
 
-  /** Gym-owner mode: bypass per-trainer edit ownership and expose the Assign action. Purely additive — defaults to false, so the trainer's own page is unaffected. */
+  /** Gym-owner mode: bypass per-trainer edit ownership and expose the Assign action. Purely additive - defaults to false, so the trainer's own page is unaffected. */
   @Input() ownerMode: boolean = false;
+  @Input() embedded: boolean = false;
   @Output() onAssign = new EventEmitter<any>();
 
   // Modal toggle states

@@ -1,389 +1,388 @@
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { catchError, filter, forkJoin, map, of, take } from 'rxjs';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { MemberService } from '../../../core/services/member.service';
 import { UserService } from '../../../core/services/user.service';
+import { DietTrackingService } from '../../../core/services/diet-tracking.service';
 import { AnnouncementService } from '../../../core/services/announcement.service';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { DailyRoutineItem } from '../../../core/models/user-dashboard.model';
+import { DietLogDto } from '../../../shared/models/diet-tracking.model';
+import { GymAnnouncementResponse } from '../../../shared/models/announcement.model';
+import { ActivePlanView, WorkoutSessionLogDto } from '../../../shared/models/workout-plan.model';
+import { exerciseSetCount, resolveScheduledDay, startOfWeek, toDateKey } from '../../../shared/utils/workout-schedule';
+import { mealTimeToMinutes } from '../../../shared/utils/meal-time';
+import { NUTRITION_TARGET_FALLBACK, percentOf } from '../../../shared/utils/nutrition';
+import {
+  ActivityRing, DailyRoutineItem, MacroProgress, NutritionToday, RoutineForm, TodayWorkout,
+  UserDashboardSummary, WeekDay, WeekDayState
+} from '../../../core/models/user-dashboard.model';
+
+const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const RING_RADII = { calories: 58, active: 44, goal: 30 };
+const ROUTINE_PREVIEW = 5;
 
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DragDropModule],
+  imports: [DatePipe, RouterLink, ReactiveFormsModule, DragDropModule],
   templateUrl: './user-dashboard.component.html',
-  styleUrl: './user-dashboard.component.scss'
+  styleUrl: './user-dashboard.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserDashboardComponent implements OnInit {
   private authService = inject(AuthApiService);
   private memberService = inject(MemberService);
   private userService = inject(UserService);
+  private dietTrackingService = inject(DietTrackingService);
   private announcementService = inject(AnnouncementService);
-  private fb = inject(FormBuilder);
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
-  routineForm!: FormGroup;
+  readonly today = new Date();
+  readonly greeting = this.greetingFor(this.today.getHours());
+  readonly isFirstTime = signal(false);
 
-  showProfileAlert = false;
-  userId: string = '';
-  gymId: string | null = null;
-  userName = 'Member';
-  greeting = 'Good morning';
-  greetingTheme = 'theme-morning';
+  private readonly profile = toSignal(this.authService.userProfile$, { initialValue: null });
 
-  // Data for Trainer UI Replica
-  todayDate: Date = new Date();
-  workoutStreak = 0;
-  streakAtRisk = false;
+  readonly summary = signal<UserDashboardSummary | null>(null);
+  readonly routines = signal<DailyRoutineItem[]>([]);
+  readonly todayWorkout = signal<TodayWorkout | null>(null);
+  readonly week = signal<WeekDay[]>(this.buildWeek([]));
+  readonly nutrition = signal<NutritionToday | null>(null);
+  readonly isAddingRoutine = signal(false);
+  readonly showAllRoutines = signal(false);
+  readonly announcements = signal<GymAnnouncementResponse[]>([]);
+  readonly showAllAnnouncements = signal(false);
 
-  // Row 1: Activity & Goals
-  caloriesBurnedToday = 0;
-  targetCalories = 0;
-  activeTrainingTimeMinutes = 0;
-  targetTrainingTime = 0;
-  goalTitle = 'General Fitness';
-  goalProgressPct = 0;
+  readonly visibleAnnouncements = computed(() =>
+    this.showAllAnnouncements() ? this.announcements() : this.announcements().slice(0, 1)
+  );
 
-  monthlySessionCount = 0;
-  monthlySessionTarget = 0;
-  monthlyCompletionPct = 0;
+  readonly routineForm = new FormGroup<RoutineForm>({
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    amount: new FormControl('', { nonNullable: true, validators: [this.routineAmountValidator()] })
+  });
 
-  // Row 2: Body & Trends
-  currentWeight = '0';
-  bodyFat = '0';
-  bmi = '0';
+  readonly userName = computed(() => this.summary()?.userName || this.profile()?.firstName || 'Member');
 
-  // Row 3: Training & PRs
-  activeWorkoutPlan: any = { name: 'No Plan Assigned' };
-  activeDietPlan: any = { name: 'No Plan Assigned' };
+  readonly initials = computed(() => {
+    const p = this.profile();
+    const fromProfile = ((p?.firstName?.charAt(0) ?? '') + (p?.lastName?.charAt(0) ?? '')).toUpperCase();
+    return fromProfile || this.userName().charAt(0).toUpperCase();
+  });
 
-  personalRecords: any[] = [];
+  readonly goalTitle = computed(() => {
+    const raw = this.summary()?.goalTitle || 'general_fitness';
+    return raw.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  });
 
-  muscleRecovery: any[] = [];
+  readonly activity = computed(() => {
+    const s = this.summary();
+    const calories = s?.caloriesBurnedToday ?? 0;
+    const calorieTarget = s?.targetCalories || 2500;
+    const active = s?.activeTrainingTimeMinutes ?? 0;
+    const activeTarget = s?.targetTrainingTime || 60;
+    const goalPct = s?.goalProgressPct ?? 0;
+    return {
+      calories,
+      calorieTarget,
+      active,
+      activeTarget,
+      goalPct,
+      rings: [
+        this.ring('calories', percentOf(calories, calorieTarget)),
+        this.ring('active', percentOf(active, activeTarget)),
+        this.ring('goal', Math.min(goalPct, 100))
+      ] as ActivityRing[]
+    };
+  });
 
-  muscleHeatmap: any[] = [];
+  /** Personal records as medal tiles: rank, split weight ("110 kg" → 110 + kg) and a rank icon. */
+  readonly prTiles = computed(() =>
+    (this.summary()?.personalRecords ?? []).map((pr, i) => {
+      const match = /^\s*([\d.,]+)\s*(.*)$/.exec(pr.weight ?? '');
+      const rank = i + 1;
+      return {
+        ...pr,
+        rank,
+        value: match ? match[1] : pr.weight,
+        unit: match ? match[2] || 'kg' : '',
+        icon: rank === 1 ? 'fa-trophy' : rank <= 3 ? 'fa-medal' : 'fa-dumbbell'
+      };
+    })
+  );
 
-  // Original properties needed for compilation
-  myGymInfo: any = null;
-  announcements: any[] = [];
-  activePlanName = 'No plan assigned';
-  todayWorkoutName: string | null = null;
-  weeklyWorkoutsCount = 0;
-  isEditingCalories = false;
-  dailyRoutines: any[] = [];
-  newRoutineTitle = '';
-  newRoutineValue = '';
-  isAddingRoutine = false;
+  readonly doneRoutineCount = computed(() => this.routines().filter(r => r.completed).length);
 
-  // Ring Calculations (Apple Fitness Style)
-  readonly ringCircumference = 314.159; // 2 * PI * 50
-  calorieDashoffset = this.ringCircumference;
-  activeTimeDashoffset = this.ringCircumference;
-  streakDashoffset = this.ringCircumference;
+  /** Keeps the card a steady height: the first few routines, the rest behind "Show all". */
+  readonly visibleRoutines = computed(() => {
+    const all = this.routines();
+    return this.showAllRoutines() || all.length <= ROUTINE_PREVIEW + 1 ? all : all.slice(0, ROUTINE_PREVIEW);
+  });
 
-  private routineStorageKey = 'gymforge_daily_routine';
-  private routineDateKey = 'gymforge_daily_routine_date';
-  private calorieTargetKey = 'gymforge_calorie_target';
+  readonly hasMoreRoutines = computed(() => this.routines().length > ROUTINE_PREVIEW + 1);
 
-  isFirstTime = false;
-  isBodyCompositionOpen = false;
+  readonly bmiCategory = computed(() => {
+    const bmi = this.summary()?.bmi ?? 0;
+    if (!bmi) return null;
+    if (bmi < 18.5) return { label: 'Underweight', tone: 'warn' };
+    if (bmi < 25) return { label: 'Normal', tone: 'good' };
+    if (bmi < 30) return { label: 'Overweight', tone: 'warn' };
+    return { label: 'Obese', tone: 'bad' };
+  });
 
-  toggleBodyComposition(): void {
-    this.isBodyCompositionOpen = !this.isBodyCompositionOpen;
-  }
-
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (sessionStorage.getItem('justFinishedOnboarding') === 'true') {
-        this.isFirstTime = true;
-        sessionStorage.removeItem('justFinishedOnboarding');
-        setTimeout(() => this.triggerConfetti(), 500);
-      }
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId) && sessionStorage.getItem('justFinishedOnboarding') === 'true') {
+      this.isFirstTime.set(true);
+      sessionStorage.removeItem('justFinishedOnboarding');
+      setTimeout(() => this.triggerConfetti(), 500);
     }
 
-    this.routineForm = this.fb.group({
-      title: ['', [Validators.required]],
-      amount: ['', [this.routineAmountValidator()]]
-    });
+    this.loadSummary();
+    this.loadNutrition();
+    this.loadAnnouncements();
 
-    this.authService.userProfile$.subscribe(profile => {
-      if (profile) {
-        this.userName = profile.firstName || 'Member';
-        this.userId = profile.id;
-        this.gymId = profile.gymId || null;
-        this.checkProfileCompletion(profile);
-        this.loadDashboardData();
-      }
-    });
-
-    this.setGreeting();
-    this.loadRoutine();
-    this.loadCalorieTarget();
-
-    // Animate rings on load
-    setTimeout(() => this.calculateRings(), 300);
+    this.authService.userProfile$.pipe(
+      filter(profile => !!profile?.id),
+      take(1),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(profile => this.loadTraining(profile!.id));
   }
 
-  private calculateRings() {
-    // Calorie Ring
-    const calPct = this.targetCalories > 0 ? Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100) : 0;
-    this.calorieDashoffset = this.ringCircumference - (calPct / 100) * this.ringCircumference;
-
-    // Active Time Ring
-    const timePct = this.targetTrainingTime > 0 ? Math.min((this.activeTrainingTimeMinutes / this.targetTrainingTime) * 100, 100) : 0;
-    this.activeTimeDashoffset = this.ringCircumference - (timePct / 100) * this.ringCircumference;
-
-    // Streak Ring (weekly streak goal of 7 days)
-    const streakPct = Math.min((this.workoutStreak / 7) * 100, 100);
-    this.streakDashoffset = this.ringCircumference - (streakPct / 100) * this.ringCircumference;
-  }
-
-  triggerConfetti() {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    import('canvas-confetti').then((module) => {
-      const confetti = module.default || module;
-      const duration = 3 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
-
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-      const interval: any = setInterval(function () {
-        const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-        });
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-        });
-      }, 250);
-    });
-  }
-
-  private checkProfileCompletion(profile: any) {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    // Show alert if no gymId or incomplete details and not dismissed
-    const dismissed = localStorage.getItem('gymforge_profile_banner_dismissed');
-    if (!dismissed) {
-      this.showProfileAlert = true; // In a real app we might check profile fields
-    }
-  }
-
-  dismissProfileAlert() {
-    this.showProfileAlert = false;
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('gymforge_profile_banner_dismissed', 'true');
-    }
-  }
-
-  setGreeting(): void {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      this.greeting = 'Good morning';
-      this.greetingTheme = 'theme-morning';
-    } else if (hour < 19) {
-      this.greeting = 'Good afternoon';
-      this.greetingTheme = 'theme-afternoon';
-    } else {
-      this.greeting = 'Good evening';
-      this.greetingTheme = 'theme-evening';
-    }
-  }
-
-  loadDashboardData() {
-    if (!this.userId) return;
-
-    this.userService.getMyGym().pipe(catchError(() => of({ data: null }))).subscribe(myGym => {
-      if (myGym && myGym.data) {
-        this.myGymInfo = myGym.data;
-        this.loadAnnouncements();
-      }
-    });
-
-    this.userService.getDashboardSummary().subscribe({
-      next: (res: any) => {
-        const data = res.data || {};
-
-        // Format raw goal IDs like 'weight_loss' into 'Weight Loss'
-        let rawGoal = data.goalTitle || 'General Fitness';
-        this.goalTitle = rawGoal.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
-        if (data.userName) this.userName = data.userName;
-        if (data.greeting) this.greeting = data.greeting;
-        this.goalProgressPct = data.goalProgressPct || 0;
-        this.targetCalories = data.targetCalories || 2500;
-        this.targetTrainingTime = data.targetTrainingTime || 60;
-
-        this.caloriesBurnedToday = data.caloriesBurnedToday || 0;
-        this.activeTrainingTimeMinutes = data.activeTrainingTimeMinutes || 0;
-        this.workoutStreak = data.workoutStreak || 0;
-        this.streakAtRisk = data.streakAtRisk || false;
-
-        this.monthlySessionCount = data.monthlySessionCount || 0;
-        this.monthlySessionTarget = data.monthlySessionTarget || 20;
-        this.monthlyCompletionPct = data.monthlyCompletionPct || 0;
-
-        this.currentWeight = data.currentWeight?.toString() || '0';
-        this.bodyFat = data.bodyFat?.toString() || '0';
-        this.bmi = data.bmi?.toString() || '0';
-
-        this.activeWorkoutPlan = data.activeWorkoutPlan || { name: 'No Plan Assigned' };
-        this.activePlanName = this.activeWorkoutPlan.name;
-        this.activeDietPlan = data.activeDietPlan || { name: 'No Plan Assigned' };
-
-        this.todayWorkoutName = 'Workout';
-
-        if (data.personalRecords && data.personalRecords.length) this.personalRecords = data.personalRecords;
-        if (data.muscleRecovery && data.muscleRecovery.length) this.muscleRecovery = data.muscleRecovery;
-        if (data.muscleHeatmap && data.muscleHeatmap.length) this.muscleHeatmap = data.muscleHeatmap;
-
-        this.dailyRoutines = data.dailyRoutines || [];
-
-        setTimeout(() => this.calculateRings(), 300);
+  private loadSummary(): void {
+    this.userService.getDashboardSummary().pipe(
+      map(res => (res?.data ?? null) as UserDashboardSummary | null),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: summary => {
+        this.summary.set(summary);
+        this.routines.set([...(summary?.dailyRoutines ?? [])]);
       },
-      error: (err) => console.error('Error fetching dashboard summary:', err)
+      error: err => console.error('Error fetching dashboard summary:', err)
     });
   }
 
-  loadAnnouncements() {
-    this.announcementService.getMyGymAnnouncements().subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          const now = new Date();
-          const announcementList = res.data as any[];
-          this.announcements = announcementList
-            .filter((a: any) => a.isActive && (!a.validUntil || new Date(a.validUntil) > now))
-            .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        }
-      },
-      error: (err) => console.error('Failed to load announcements', err)
+  private loadTraining(userId: string): void {
+    this.memberService.getTrainingOverview(userId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ plan, logs }) => {
+      this.week.set(this.buildWeek(logs));
+      this.todayWorkout.set(this.buildTodayWorkout(plan, logs));
     });
   }
 
-  get caloriePercentage(): number {
-    if (this.targetCalories === 0) return 0;
-    return Math.min((this.caloriesBurnedToday / this.targetCalories) * 100, 100);
+  private loadAnnouncements(): void {
+    this.announcementService.getMyGymAnnouncementList().pipe(
+      catchError(() => of([] as GymAnnouncementResponse[])),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(list => this.announcements.set(list));
   }
 
-  get formattedTrainingTime(): string {
-    const hours = Math.floor(this.activeTrainingTimeMinutes / 60);
-    const mins = this.activeTrainingTimeMinutes % 60;
-    if (hours > 0) {
-      return `${hours}h ${mins > 0 ? mins + 'm' : ''}`;
+  private loadNutrition(): void {
+    this.dietTrackingService.getUserDietLog(toDateKey(this.today)).pipe(
+      map(res => res?.data ?? null),
+      catchError(() => of(null)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(log => this.nutrition.set(log ? this.buildNutrition(log) : null));
+  }
+
+  private buildTodayWorkout(plan: ActivePlanView | null, logs: WorkoutSessionLogDto[]): TodayWorkout {
+    const todayKey = toDateKey(this.today);
+    const planName = plan?.name ?? '';
+    const loggedToday = logs.find(l => toDateKey(new Date(l.date)) === todayKey);
+
+    if (loggedToday) {
+      const isRest = loggedToday.status === 'RestDay';
+      return {
+        state: isRest ? 'rest' : 'done',
+        planName,
+        title: isRest ? 'Rest day logged' : loggedToday.dayName,
+        muscles: '',
+        exerciseCount: loggedToday.exercisesCompleted ?? 0,
+        setCount: loggedToday.totalSets ?? 0
+      };
     }
-    return `${mins}m`;
-  }
 
-  loadCalorieTarget() {
-    // Handled by API now
-  }
+    if (!plan?.days?.length) {
+      return { state: 'none', planName, title: 'No workout plan yet', muscles: '', exerciseCount: 0, setCount: 0 };
+    }
 
-  saveCalorieTarget() {
-    // Ideally this calls an API to update UserPreference, but we'll mock close it for now
-    this.isEditingCalories = false;
-  }
+    const day = resolveScheduledDay(plan.days, this.today);
+    if (!day || day.isRestDay) {
+      return { state: 'rest', planName, title: 'Rest day', muscles: '', exerciseCount: 0, setCount: 0 };
+    }
 
-  // --- Daily Routine Tracker ---
-  loadRoutine() {
-    // Handled by API GetDashboardSummary now
-  }
-
-  saveRoutine() {
-    // Deprecated
-  }
-
-  toggleRoutine(item: DailyRoutineItem) {
-    item.completed = !item.completed;
-    this.userService.toggleDailyRoutine(item.id).subscribe();
-  }
-
-  routineAmountValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      if (!value) return null;
-
-      const strVal = value.toString().trim();
-      if (strVal.length > 20) {
-        return { maxLengthExceeded: true };
-      }
-
-      if (/^-?\d+$/.test(strVal)) {
-        if (strVal.replace('-', '').length > 5) {
-          return { maxDigitsExceeded: true };
-        }
-      }
-      return null;
+    const exercises = day.exercises ?? [];
+    return {
+      state: 'ready',
+      planName,
+      title: day.dayName,
+      muscles: (day.category ?? '').split(',').map(c => c.trim()).filter(Boolean).join(' · '),
+      exerciseCount: exercises.length,
+      setCount: exercises.reduce((sum, ex) => sum + exerciseSetCount(ex.sets), 0)
     };
   }
 
-  addRoutine() {
+  private buildWeek(logs: WorkoutSessionLogDto[]): WeekDay[] {
+    const statusByDate = new Map(logs.map(l => [toDateKey(new Date(l.date)), l.status]));
+    const todayKey = toDateKey(this.today);
+    const monday = startOfWeek(this.today);
+
+    return WEEK_LABELS.map((label, i) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      const key = toDateKey(date);
+      const status = statusByDate.get(key);
+
+      let state: WeekDayState;
+      if (status) state = status === 'RestDay' ? 'rest' : 'done';
+      else if (key === todayKey) state = 'today';
+      else state = key < todayKey ? 'missed' : 'upcoming';
+
+      return { label, state };
+    });
+  }
+
+  private buildNutrition(log: DietLogDto): NutritionToday {
+    const target = log.targetCalories || NUTRITION_TARGET_FALLBACK.calories;
+    const eaten = log.totalCalories ?? 0;
+    const loggedMealIds = new Set((log.mealEntries ?? []).map(e => e.sourceDietPlanMealId).filter(Boolean));
+    const nextMeal = [...(log.assignedMeals ?? [])]
+      .sort((a, b) => mealTimeToMinutes(a.time) - mealTimeToMinutes(b.time))
+      .find(m => !loggedMealIds.has(m.id)) ?? null;
+
+    const macro = (label: string, tone: MacroProgress['tone'], value: number, macroTarget: number): MacroProgress =>
+      ({ label, tone, value: value ?? 0, target: macroTarget, pct: percentOf(value ?? 0, macroTarget) });
+
+    return {
+      eaten,
+      target,
+      left: Math.max(target - eaten, 0),
+      pct: percentOf(eaten, target),
+      nextMeal,
+      macros: [
+        macro('Protein', 'protein', log.totalProtein, log.targetProtein || NUTRITION_TARGET_FALLBACK.protein),
+        macro('Carbs', 'carbs', log.totalCarbs, log.targetCarbs || NUTRITION_TARGET_FALLBACK.carbs),
+        macro('Fats', 'fats', log.totalFats, log.targetFats || NUTRITION_TARGET_FALLBACK.fats)
+      ]
+    };
+  }
+
+  private ring(key: ActivityRing['key'], pct: number): ActivityRing {
+    const radius = RING_RADII[key];
+    const circumference = 2 * Math.PI * radius;
+    return { key, radius, dash: `${(circumference * pct / 100).toFixed(1)} ${circumference.toFixed(1)}` };
+  }
+
+  private greetingFor(hour: number): string {
+    if (hour < 12) return 'Good morning';
+    if (hour < 19) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  startTodaysWorkout(): void {
+    this.router.navigate(['/user/performance']);
+  }
+
+  logMeal(): void {
+    this.router.navigate(['/user/diet-tracker']);
+  }
+
+  toggleAllAnnouncements(): void {
+    this.showAllAnnouncements.update(all => !all);
+  }
+
+  toggleShowAllRoutines(): void {
+    this.showAllRoutines.update(all => !all);
+  }
+
+  toggleAddRoutine(): void {
+    this.isAddingRoutine.update(open => !open);
+  }
+
+  toggleRoutine(item: DailyRoutineItem): void {
+    this.routines.update(list => list.map(r => (r.id === item.id ? { ...r, completed: !r.completed } : r)));
+    this.userService.toggleDailyRoutine(item.id).subscribe();
+  }
+
+  addRoutine(): void {
     if (this.routineForm.invalid) {
       this.routineForm.markAllAsTouched();
       return;
     }
 
-    const titleVal = this.routineForm.value.title;
-    const amountVal = this.routineForm.value.amount;
+    const { title, amount } = this.routineForm.getRawValue();
+    const dto = { title: title.trim(), amount: amount.trim() || null, order: this.routines().length };
 
-    const dto = {
-      title: titleVal.trim(),
-      amount: amountVal?.trim() || null,
-      order: this.dailyRoutines.length
-    };
     this.userService.createDailyRoutine(dto).subscribe(res => {
-      const newRoutine = res.data ? res.data : res;
-      this.dailyRoutines.push(newRoutine);
+      const created = (res?.data ?? res) as DailyRoutineItem;
+      this.routines.update(list => [...list, created]);
+      // Make sure the routine just added is visible
+      if (this.hasMoreRoutines()) this.showAllRoutines.set(true);
       this.routineForm.reset();
-      this.isAddingRoutine = false;
+      this.isAddingRoutine.set(false);
     });
   }
 
-  removeRoutine(item: DailyRoutineItem) {
+  removeRoutine(item: DailyRoutineItem): void {
     this.userService.deleteDailyRoutine(item.id).subscribe(() => {
-      this.dailyRoutines = this.dailyRoutines.filter(r => r.id !== item.id);
+      this.routines.update(list => list.filter(r => r.id !== item.id));
     });
   }
 
-  dropRoutine(event: CdkDragDrop<any[]>) {
-    moveItemInArray(this.dailyRoutines, event.previousIndex, event.currentIndex);
+  dropRoutine(event: CdkDragDrop<DailyRoutineItem[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
 
-    // Sync order with the backend
-    const updates = this.dailyRoutines.map((routine, index) => {
-      routine.order = index;
-      const dto = {
+    const reordered = [...this.routines()];
+    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+    this.routines.set(reordered.map((r, index) => ({ ...r, order: index })));
+
+    forkJoin(this.routines().map((routine, index) =>
+      this.userService.updateDailyRoutine(routine.id, {
         title: routine.title,
         amount: routine.amount,
         time: routine.time,
         order: index
-      };
-      return this.userService.updateDailyRoutine(routine.id, dto);
+      })
+    )).subscribe();
+  }
+
+  private routineAmountValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+
+      const strVal = value.toString().trim();
+      if (strVal.length > 20) return { maxLengthExceeded: true };
+      if (/^-?\d+$/.test(strVal) && strVal.replace('-', '').length > 5) return { maxDigitsExceeded: true };
+      return null;
+    };
+  }
+
+  private triggerConfetti(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    import('canvas-confetti').then(module => {
+      const confetti = module.default || module;
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          return;
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      }, 250);
     });
-
-    forkJoin(updates).subscribe();
-  }
-
-  startTodaysWorkout() {
-    this.router.navigate(['/user/performance']);
-  }
-
-  logMeal() {
-    this.router.navigate(['/user/diet-tracker']);
   }
 }

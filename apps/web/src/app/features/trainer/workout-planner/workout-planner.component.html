@@ -1,252 +1,187 @@
-<div class="plan-library-container is-card-view">
-  <header class="page-header">
-    <div class="header-info">
-      <h1>Workout & Schedule Planner</h1>
-      <p class="subtitle">Design athletic multi-day splits and training calendars</p>
-    </div>
-    <div class="actions">
-      <button class="btn-primary" (click)="openCreatorModal()">
-        Create {{ activeTab === 'splits' ? 'Split' : (activeTab === 'weekly' ? 'Weekly' : 'Standalone') }} Plans
+<div class="library" [class.embedded]="embedded">
+
+  @if (!embedded) {
+    <header class="lib-head">
+      <div>
+        <h1>Workout planner</h1>
+        <p>Build multi-day splits, weekly schedules and single-day sessions.</p>
+      </div>
+      <button type="button" class="btn-primary" (click)="openCreatorModal()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        New {{ activeTab === 'splits' ? 'split' : (activeTab === 'weekly' ? 'weekly plan' : 'single day') }}
+      </button>
+    </header>
+  }
+
+  <div class="toolbar">
+    <div class="type-chips" role="tablist" aria-label="Plan types">
+      <button type="button" role="tab" class="type-chip" [class.active]="activeTab === 'splits'"
+        [attr.aria-selected]="activeTab === 'splits'" (click)="setTab('splits')">
+        Split plans <span class="count">{{ splitPlanners.length }}</span>
+      </button>
+      <button type="button" role="tab" class="type-chip" [class.active]="activeTab === 'weekly'"
+        [attr.aria-selected]="activeTab === 'weekly'" (click)="setTab('weekly')">
+        Weekly plans <span class="count">{{ weeklyPlanners.length }}</span>
+      </button>
+      <button type="button" role="tab" class="type-chip" [class.active]="activeTab === 'daily'"
+        [attr.aria-selected]="activeTab === 'daily'" (click)="setTab('daily')">
+        Single day <span class="count">{{ dailyPlanners.length }}</span>
       </button>
     </div>
-  </header>
-
-  <div class="catalog-wrapper">
-
-    <!-- Tabs Navigation -->
-    <div class="library-tabs-bar">
-      <div class="tabs-list">
-        <button class="tab-item" [class.active]="activeTab === 'splits'" (click)="setTab('splits')">
-          <i class="fa-solid fa-cubes tab-icon"></i> Split Plans
-        </button>
-        <button class="tab-item" [class.active]="activeTab === 'weekly'" (click)="setTab('weekly')">
-          <i class="fa-solid fa-calendar-days tab-icon"></i> Weekly Plans
-        </button>
-        <button class="tab-item" [class.active]="activeTab === 'daily'" (click)="setTab('daily')">
-          <i class="fa-solid fa-dumbbell tab-icon"></i> Single Plan
-        </button>
-      </div>
-    </div>
-
-    <!-- SPLIT PLANNERS CATALOG -->
-    <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'splits' && splitPlanners.length > 0">
-      <div class="template-card hover-glow-card" *ngFor="let plan of splitPlanners"
-        (click)="openDetailsModal(plan, 'split')">
-        <div class="card-glow-element"></div>
-        <div class="card-top">
-          <div class="badge-row">
-            <span class="badge level" [ngClass]="plan.level.toLowerCase()">
-              <span class="pulse-indicator"></span>
-              {{ plan.level }}
-            </span>
-            <span class="badge goal">{{ plan.goal }}</span>
-          </div>
-          <div class="card-actions-group">
-            <button class="btn-edit" *ngIf="ownerMode" (click)="assignPlanner(plan, $event)"
-              title="Assign to Member">
-              <i class="fa-solid fa-user-plus"></i>
-            </button>
-            <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'split', $event)"
-              title="Edit Template">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn-edit" *ngIf="!canEdit(plan)" (click)="editPlanner(plan, 'split', $event)"
-              title="Inherit & Edit Template">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <button class="btn-delete" *ngIf="canEdit(plan)" (click)="deletePlanner(plan.id, 'split', $event)"
-              title="Delete Template">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <h3 class="card-title">{{ plan.name }}</h3>
-          <p class="desc">{{ plan.description }}</p>
-
-          <div class="stats-row">
-            <span class="stat-item"><strong>{{ plan.daysCount }}</strong> split
-              days</span>
-            <span class="stat-item"><strong>{{ plan.exercisesCount }}</strong>
-              exercises</span>
-          </div>
-
-          <div class="split-visual-overview">
-            <span class="split-dot-badge" *ngFor="let d of plan.days">
-              {{ d.category }}
-            </span>
-          </div>
-
-          <div class="card-action-trigger">
-            <span>Click to view timetable</span>
-            <i class="fa-solid fa-arrow-right-long"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WEEKLY PLANNERS CATALOG -->
-    <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'weekly' && weeklyPlanners.length > 0">
-      <div class="template-card weekly-card hover-glow-card" *ngFor="let plan of weeklyPlanners"
-        (click)="openDetailsModal(plan, 'weekly')">
-        <div class="card-glow-element weekly-glow"></div>
-        <div class="card-top">
-          <div class="badge-row">
-            <span class="badge active-days"><i class="fa-solid fa-calendar-day"></i> {{ plan.activeDaysCount }} Workout
-              Days</span>
-            <span class="badge goal">{{ plan.goal }}</span>
-          </div>
-          <div class="card-actions-group">
-            <button class="btn-edit" *ngIf="ownerMode" (click)="assignPlanner(plan, $event)"
-              title="Assign to Member">
-              <i class="fa-solid fa-user-plus"></i>
-            </button>
-            <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'weekly', $event)"
-              title="Edit Template">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn-edit" *ngIf="!canEdit(plan)" (click)="editPlanner(plan, 'weekly', $event)"
-              title="Inherit & Edit Template">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <button class="btn-delete" *ngIf="canEdit(plan)" (click)="deletePlanner(plan.id, 'weekly', $event)"
-              title="Delete Template">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <h3 class="card-title">{{ plan.name }}</h3>
-          <p class="desc">{{ plan.description }}</p>
-
-          <!-- Dynamic horizontal calendar nodes preview -->
-          <div class="calendar-horizontal-nodes">
-            <div class="calendar-node" *ngFor="let d of plan.calendar" [ngClass]="d.type">
-              <span class="calendar-day-lbl">{{ d.dayName.substring(0, 1) }}</span>
-              <div class="calendar-circle-badge">
-                <i class="fa-solid" *ngIf="d.type === 'workout'"
-                  [ngClass]="getCategoryIcon(d.targetCategory || '')"></i>
-                <span class="rest-dot" *ngIf="d.type === 'rest'"></span>
-              </div>
-              <span class="calendar-target-tag">{{ d.type === 'workout' ? d.targetCategory : 'Rest' }}</span>
-            </div>
-          </div>
-
-          <div class="card-action-trigger">
-            <span>View Weekly schedule</span>
-            <i class="fa-solid fa-arrow-right-long"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STANDALONE DAILY PLANNERS CATALOG -->
-    <div class="catalog-grid animate-fade-in" *ngIf="activeTab === 'daily' && dailyPlanners.length > 0">
-      <div class="template-card hover-glow-card" *ngFor="let plan of dailyPlanners"
-        (click)="openDetailsModal(plan, 'daily')">
-        <div class="card-glow-element daily-glow"></div>
-        <div class="card-top">
-          <div class="badge-row">
-            <span class="badge level" [ngClass]="plan.level.toLowerCase()">
-              <span class="pulse-indicator"></span>
-              {{ plan.level }}
-            </span>
-            <span class="badge goal">{{ plan.goal }}</span>
-          </div>
-          <div class="card-actions-group">
-            <button class="btn-edit" *ngIf="ownerMode" (click)="assignPlanner(plan, $event)"
-              title="Assign to Member">
-              <i class="fa-solid fa-user-plus"></i>
-            </button>
-            <button class="btn-edit" *ngIf="canEdit(plan)" (click)="editPlanner(plan, 'daily', $event)"
-              title="Edit Template">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn-edit" *ngIf="!canEdit(plan)" (click)="editPlanner(plan, 'daily', $event)"
-              title="Inherit & Edit Template">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <button class="btn-delete" *ngIf="canEdit(plan)" (click)="deletePlanner(plan.id, 'daily', $event)"
-              title="Delete Template">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <h3 class="card-title">{{ plan.name }}</h3>
-          <p class="desc">{{ plan.description }}</p>
-
-          <div class="stats-row">
-            <span class="stat-item">Standalone Session</span>
-            <span class="stat-item"><strong>{{ plan.exercises.length }}</strong> exercises</span>
-          </div>
-
-          <div class="split-visual-overview">
-            <span class="split-dot-badge">
-              {{ plan.targetCategory }}
-            </span>
-          </div>
-
-          <div class="card-action-trigger">
-            <span>Click to view routine</span>
-            <i class="fa-solid fa-arrow-right-long"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EMPTY STATES -->
-    <div class="empty-state-container animate-fade-in" *ngIf="activeTab === 'splits' && splitPlanners.length === 0">
-      <div class="empty-state-card glass-card">
-        <i class="fa-solid fa-folder-open"></i>
-        <h2>No Split Plans Created</h2>
-        <p>You haven't created any multi-day split plans yet. Create your first split to assign it.</p>
-        <button class="btn-primary" (click)="openCreatorModal()"><i class="fa-solid fa-plus"></i> Create Split
-          Plan</button>
-      </div>
-    </div>
-
-    <div class="empty-state-container animate-fade-in" *ngIf="activeTab === 'weekly' && weeklyPlanners.length === 0">
-      <div class="empty-state-card glass-card">
-        <i class="fa-solid fa-folder-open"></i>
-        <h2>No Weekly Plans Created</h2>
-        <p>You haven't created any weekly training calendars yet. Create your first weekly plan.</p>
-        <button class="btn-primary" (click)="openCreatorModal()"><i class="fa-solid fa-plus"></i> Create Weekly
-          Plan</button>
-      </div>
-    </div>
-
-    <div class="empty-state-container animate-fade-in" *ngIf="activeTab === 'daily' && dailyPlanners.length === 0">
-      <div class="empty-state-card glass-card">
-        <i class="fa-solid fa-folder-open"></i>
-        <h2>No Standalone Days Created</h2>
-        <p>You haven't created any standalone workout days yet. Create one to use as templates or overrides.</p>
-        <button class="btn-primary" (click)="openCreatorModal()"><i class="fa-solid fa-plus"></i> Create Standalone
-          Day</button>
-      </div>
-    </div>
-
+    @if (embedded) {
+      <button type="button" class="btn-primary" (click)="openCreatorModal()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Create plan
+      </button>
+    }
   </div>
 
-  <!-- TIMETABLE DETAILS POPUP MODAL COMPONENT -->
+  <ng-template #planCard let-plan let-type="type">
+    <article class="plan-card" (click)="openDetailsModal(plan, type)">
+      <div class="card-top">
+        <div class="badges">
+          @if (type === 'weekly') {
+            <span class="pill info">{{ plan.activeDaysCount }} training days</span>
+          } @else if (plan.level) {
+            <span class="pill" [attr.data-level]="plan.level.toLowerCase()">{{ plan.level }}</span>
+          }
+          @if (plan.goal) {
+            <span class="pill">{{ plan.goal }}</span>
+          }
+        </div>
+        <div class="card-actions">
+          @if (ownerMode) {
+            <button type="button" class="icon-btn" (click)="assignPlanner(plan, $event)" aria-label="Assign to member" title="Assign to member">
+              <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+            </button>
+          }
+          @if (canEdit(plan)) {
+            <button type="button" class="icon-btn" (click)="editPlanner(plan, type, $event)" aria-label="Edit plan" title="Edit">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="icon-btn danger" (click)="deletePlanner(plan.id, type, $event)" aria-label="Delete plan" title="Delete">
+              <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+            </button>
+          } @else {
+            <button type="button" class="icon-btn" (click)="editPlanner(plan, type, $event)" aria-label="Copy and edit" title="Copy and edit">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="card-body">
+        <h3>{{ plan.name }}</h3>
+        @if (plan.description) {
+          <p class="desc">{{ plan.description }}</p>
+        }
+      </div>
+
+      @switch (type) {
+        @case ('weekly') {
+          <ol class="week-nodes" aria-label="Weekly schedule">
+            @for (d of plan.calendar; track $index) {
+              <li class="node" [class.rest]="d.type !== 'workout'">
+                <span class="node-day">{{ d.dayName.substring(0, 1) }}</span>
+                <span class="node-dot">
+                  @if (d.type === 'workout') {
+                    <i class="fa-solid" [ngClass]="getCategoryIcon(d.targetCategory || '')" aria-hidden="true"></i>
+                  }
+                </span>
+                <span class="node-tag">{{ d.type === 'workout' ? d.targetCategory : 'Rest' }}</span>
+              </li>
+            }
+          </ol>
+        }
+        @case ('daily') {
+          @if (plan.targetCategory) {
+            <div class="day-chips"><span>{{ plan.targetCategory }}</span></div>
+          }
+        }
+        @default {
+          @if (plan.days?.length) {
+            <div class="day-chips">
+              @for (d of plan.days; track $index) {
+                <span>{{ d.category || d.dayName }}</span>
+              }
+            </div>
+          }
+        }
+      }
+
+      <div class="card-foot">
+        <span class="stats">
+          @switch (type) {
+            @case ('split') { <strong>{{ plan.daysCount }}</strong> days · <strong>{{ plan.exercisesCount }}</strong> exercises }
+            @case ('daily') { Single session · <strong>{{ plan.exercises?.length || 0 }}</strong> exercises }
+            @default { <strong>{{ plan.activeDaysCount }}</strong> of 7 days }
+          }
+        </span>
+        <button type="button" class="view-btn" (click)="openDetailsModal(plan, type); $event.stopPropagation()">
+          View <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </article>
+  </ng-template>
+
+  @switch (activeTab) {
+    @case ('splits') {
+      @if (splitPlanners.length) {
+        <div class="catalog">
+          @for (plan of splitPlanners; track plan.id) {
+            <ng-container *ngTemplateOutlet="planCard; context: { $implicit: plan, type: 'split' }"></ng-container>
+          }
+        </div>
+      } @else {
+        <ng-container *ngTemplateOutlet="emptyState; context: { title: 'No split plans yet', body: 'Multi-day splits like Push / Pull / Legs rotate through their days.', cta: 'Create a split' }"></ng-container>
+      }
+    }
+    @case ('weekly') {
+      @if (weeklyPlanners.length) {
+        <div class="catalog">
+          @for (plan of weeklyPlanners; track plan.id) {
+            <ng-container *ngTemplateOutlet="planCard; context: { $implicit: plan, type: 'weekly' }"></ng-container>
+          }
+        </div>
+      } @else {
+        <ng-container *ngTemplateOutlet="emptyState; context: { title: 'No weekly plans yet', body: 'Weekly plans pin a workout (or rest) to each day of the week.', cta: 'Create a weekly plan' }"></ng-container>
+      }
+    }
+    @default {
+      @if (dailyPlanners.length) {
+        <div class="catalog">
+          @for (plan of dailyPlanners; track plan.id) {
+            <ng-container *ngTemplateOutlet="planCard; context: { $implicit: plan, type: 'daily' }"></ng-container>
+          }
+        </div>
+      } @else {
+        <ng-container *ngTemplateOutlet="emptyState; context: { title: 'No single-day sessions yet', body: 'Standalone sessions work as templates or one-off overrides.', cta: 'Create a single day' }"></ng-container>
+      }
+    }
+  }
+
+  <ng-template #emptyState let-title="title" let-body="body" let-cta="cta">
+    <section class="empty">
+      <span class="empty-icon"><i class="fa-regular fa-folder-open" aria-hidden="true"></i></span>
+      <h2>{{ title }}</h2>
+      <p>{{ body }}</p>
+      <button type="button" class="btn-primary" (click)="openCreatorModal()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> {{ cta }}
+      </button>
+    </section>
+  </ng-template>
+
   <app-timetable-modal [planner]="selectedPlanner" [type]="selectedPlannerType" (close)="closeDetailsModal()"
     (edit)="onEditFromTimetableModal()" (plannerChanged)="onPlannerChanged()"
     *ngIf="showDetailsModal"></app-timetable-modal>
 
-  <!-- CREATE SPLIT PLANNER MODAL OVERLAY COMPONENT -->
   <app-split-planner-creator [categories]="categories" [exercisesMap]="exercisesMap" [editData]="editingSplitPlan"
     (save)="onSplitCreated($event)" (close)="closeCreateSplitModal()"
     *ngIf="showCreateSplitModal"></app-split-planner-creator>
 
-  <!-- CREATE WEEKLY PLANNER MODAL OVERLAY COMPONENT -->
   <app-weekly-planner-creator [categories]="categories" [exercisesMap]="exercisesMap" [editData]="editingWeeklyPlan"
     (save)="onWeeklyCreated($event)" (close)="closeCreateWeeklyModal()"
     *ngIf="showCreateWeeklyModal"></app-weekly-planner-creator>
 
-  <!-- CREATE STANDALONE DAILY PLANNER MODAL OVERLAY COMPONENT -->
   <app-daily-planner-creator [categories]="categories" [exercisesMap]="exercisesMap" [editData]="editingDailyPlan"
     (save)="onDailyCreated($event)" (close)="closeCreateDailyModal()"
     *ngIf="showCreateDailyModal"></app-daily-planner-creator>
