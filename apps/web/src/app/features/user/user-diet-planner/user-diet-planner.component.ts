@@ -1,24 +1,33 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PTMemberDetailDietChartComponent } from '../../trainer/member-detail/components/member-detail-diet-chart/member-detail-diet-chart.component';
 import { DietLibraryComponent } from '../../../shared/components/diet-library/diet-library.component';
 import { MemberService } from '../../../core/services/member.service';
-import { DietPlanService } from '../../../core/services/diet-plan.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { SegmentedTabsComponent } from '../../../shared/components/segmented-tabs/segmented-tabs.component';
+import { SegmentedTab } from '../../../shared/models/segmented-tab.model';
 
 @Component({
   selector: 'app-user-diet-planner',
   standalone: true,
-  imports: [CommonModule, PTMemberDetailDietChartComponent, DietLibraryComponent],
+  imports: [CommonModule, PTMemberDetailDietChartComponent, DietLibraryComponent, SegmentedTabsComponent],
   templateUrl: './user-diet-planner.component.html',
   styleUrl: './user-diet-planner.component.scss'
 })
 export class UserDietPlannerComponent implements OnInit {
   private memberService = inject(MemberService);
-  private dietPlanService = inject(DietPlanService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  readonly tabs: SegmentedTab[] = [
+    { id: 'today', label: 'Today' },
+    { id: 'active', label: 'My plan' },
+    { id: 'library', label: 'Library' }
+  ];
 
   userId = '';
   memberInfo: any = { firstName: 'User' };
@@ -29,12 +38,27 @@ export class UserDietPlannerComponent implements OnInit {
   showAssignDietModal = false;
 
   ngOnInit() {
+    this.viewMode = this.route.snapshot.queryParamMap.get('view') === 'library' ? 'library' : 'active';
+
     this.authService.userProfile$.subscribe(profile => {
       if (profile) {
         this.userId = profile.id;
         this.memberInfo = { firstName: profile.firstName };
         this.loadActiveDiet();
       }
+    });
+  }
+
+  setView(tab: string): void {
+    if (tab === 'today') {
+      this.router.navigate(['/user/diet-tracker']);
+      return;
+    }
+    this.viewMode = tab === 'library' ? 'library' : 'active';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { view: this.viewMode === 'library' ? 'library' : null },
+      replaceUrl: true
     });
   }
 

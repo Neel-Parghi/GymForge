@@ -1,197 +1,224 @@
-<div class="tracker-dashboard">
-  <div class="header">
-    <button class="icon-btn" (click)="previousDay()">
-      <i class="fa-solid fa-chevron-left"></i>
+<div class="nutrition">
+  <header class="page-head">
+    <h1>Nutrition</h1>
+    <button type="button" class="icon-btn solid" (click)="openAddModal()" aria-label="Add food">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
     </button>
-    <h2>{{ currentDate | date:'fullDate' }}</h2>
-    <button class="icon-btn" (click)="nextDay()">
-      <i class="fa-solid fa-chevron-right"></i>
+  </header>
+
+  <app-segmented-tabs [tabs]="tabs" active="today" label="Nutrition views" (selected)="goToTab($event)" />
+
+  <div class="date-switch">
+    <button type="button" class="icon-btn" (click)="shiftDay(-1)" aria-label="Previous day">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+    <span class="date-label">
+      @if (isToday()) { Today, {{ currentDate() | date: 'EEE d MMM' }} } @else { {{ currentDate() | date: 'EEEE d MMM' }} }
+    </span>
+    <button type="button" class="icon-btn" (click)="shiftDay(1)" aria-label="Next day">
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
     </button>
   </div>
 
-  <div class="loading-state" *ngIf="isLoading">
-    <div class="spinner"></div>
-    <p>Loading your nutrition profile...</p>
-  </div>
-
-  <div class="content" *ngIf="!isLoading && dietLog">
-
-    <!-- Left Column: Assigned Plan -->
-    <div class="col-left" *ngIf="assignedMealsPending.length > 0">
-      <div class="meal-section card assigned-plan-card">
-        <div class="meal-header sticky-header">
-          <h3><i class="fa-solid fa-clipboard-list"></i> Assigned Plan</h3>
-        </div>
-        <div class="meal-entries scrollable-entries">
-          <div class="entry-item assigned-item" [class.is-logged]="isAssignedMealLogged(meal)"
-            *ngFor="let meal of assignedMealsPending">
-            <div class="entry-info">
-              <span class="food-name">
-                {{meal.name}}
-                <small class="tag">Assigned</small>
-              </span>
-              <span class="food-macros">{{meal.calories}} kcal • P: {{meal.protein}}g • C: {{meal.carbs}}g • F:
-                {{meal.fats}}g</span>
-              <span class="food-desc" *ngIf="meal.items">{{meal.items}}</span>
-            </div>
-            <button class="btn-primary-small" (click)="openEditAssignedMeal(meal)" *ngIf="!isAssignedMealLogged(meal)">
-              <i class="fa-solid fa-check"></i> Log It
-            </button>
-            <button class="btn-logged-small" disabled *ngIf="isAssignedMealLogged(meal)">
-              <i class="fa-solid fa-circle-check"></i> Logged
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Macro Dashboard & Consumed Foods -->
-    <div class="col-right" [class.full-width]="assignedMealsPending.length === 0">
-      <!-- Macro Dashboard -->
-      <div class="macro-dashboard card" [class.mobile-collapsed]="!macrosExpanded">
-        <div class="main-calorie-ring">
-          <svg viewBox="0 0 36 36" class="circular-chart blue">
-            <path class="circle-bg" d="M18 2.0845
-                a 15.9155 15.9155 0 0 1 0 31.831
-                a 15.9155 15.9155 0 0 1 0 -31.831" />
-            <path class="circle"
-              [attr.stroke-dasharray]="getPercentage(dietLog.totalCalories, dietLog.targetCalories) + ', 100'" d="M18 2.0845
-                a 15.9155 15.9155 0 0 1 0 31.831
-                a 15.9155 15.9155 0 0 1 0 -31.831" />
+  @if (isLoading()) {
+    <section class="card summary" aria-busy="true">
+      <span class="skeleton ring-skeleton"></span>
+      <span class="skeleton"></span>
+    </section>
+  } @else if (dietLog()) {
+    <div class="layout">
+      <section class="card summary">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 188 188" class="ring" aria-hidden="true">
+            <circle class="ring-track" cx="94" cy="94" r="80"></circle>
+            <circle class="ring-fill" [class.over]="totals().over > 0" cx="94" cy="94" r="80"
+              [attr.stroke-dasharray]="totals().ringDash" transform="rotate(-90 94 94)"></circle>
           </svg>
-          <div class="ring-label">
-            <span class="value">{{dietLog.totalCalories}}</span>
-            <span class="target">/ {{dietLog.targetCalories || 2000}} kcal</span>
+          <div class="ring-center">
+            @if (totals().over > 0) {
+              <span class="ring-value">{{ totals().over }}</span>
+              <span class="ring-label">kcal over</span>
+            } @else {
+              <span class="ring-value">{{ totals().left }}</span>
+              <span class="ring-label">kcal left</span>
+            }
+            <span class="ring-sub">{{ totals().eaten }} of {{ totals().target }} eaten</span>
           </div>
         </div>
 
-        <!-- Compact, tappable summary shown only on mobile — expands/collapses the ring & macro bars -->
-        <button type="button" class="mobile-macro-summary" (click)="macrosExpanded = !macrosExpanded"
-          [attr.aria-expanded]="macrosExpanded">
-          <span class="summary-row">
-            <i class="fa-solid fa-fire"></i>
-            <span class="val">{{dietLog.totalCalories}}</span>
-            <span class="lbl">/ {{dietLog.targetCalories || 2000}} kcal</span>
-            <i class="fa-solid fa-chevron-down toggle-caret" [class.rotated]="macrosExpanded"></i>
-          </span>
-          <span class="mini-chips">
-            <span class="chip protein">{{dietLog.totalProtein}}/{{dietLog.targetProtein || 150}}g P</span>
-            <span class="chip carbs">{{dietLog.totalCarbs}}/{{dietLog.targetCarbs || 250}}g C</span>
-            <span class="chip fats">{{dietLog.totalFats}}/{{dietLog.targetFats || 65}}g F</span>
-          </span>
+        <div class="macros">
+          @for (m of macros(); track m.tone) {
+            <div class="macro">
+              <span class="macro-label">{{ m.label }}</span>
+              <span class="macro-value">{{ m.value }}<small>/{{ m.target }}g</small></span>
+              <div class="track"><span class="fill" [attr.data-macro]="m.tone" [style.width.%]="m.pct"></span></div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="meals">
+        <div class="section-head">
+          <h2>Meals</h2>
+          @if (plannedMeals().length) {
+            <span>{{ loggedPlannedCount() }} of {{ plannedMeals().length }} logged</span>
+          }
+        </div>
+
+        @if (plannedMeals().length) {
+          <ol class="timeline">
+            @for (item of plannedMeals(); track item.meal.id; let last = $last) {
+              <li class="timeline-item" [class.logged]="!!item.entry" [class.next]="item.isNext">
+                <div class="rail" aria-hidden="true">
+                  <span class="node">
+                    @if (item.entry) {
+                      <i class="fa-solid fa-check"></i>
+                    }
+                  </span>
+                  @if (!last) {
+                    <span class="line"></span>
+                  }
+                </div>
+                <article class="meal-card">
+                  <div class="meal-top">
+                    <div class="meal-heading">
+                      @if (item.meal.time) {
+                        <span class="meal-time">{{ item.meal.time }}</span>
+                      }
+                      <h3>{{ item.meal.name }}</h3>
+                    </div>
+                    @if (item.entry) {
+                      <span class="logged-chip">Logged</span>
+                      <button type="button" class="icon-btn quiet" (click)="removeMeal(item.entry.id)"
+                        [attr.aria-label]="'Remove logged ' + item.meal.name">
+                        <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                      </button>
+                    } @else {
+                      <button type="button" class="log-btn" [class.primary]="item.isNext" (click)="openEditAssignedMeal(item.meal)">
+                        Log it
+                      </button>
+                    }
+                  </div>
+                  @if (item.meal.items) {
+                    <p class="meal-items">{{ item.meal.items }}</p>
+                  }
+                  <div class="meal-chips">
+                    <span class="chip kcal">{{ item.meal.calories }} kcal</span>
+                    @if (item.meal.protein) {
+                      <span class="chip protein">{{ item.meal.protein }}g protein</span>
+                    }
+                  </div>
+                </article>
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="card no-plan">
+            <span class="no-plan-icon"><i class="fa-solid fa-apple-whole" aria-hidden="true"></i></span>
+            <div>
+              <strong>No diet plan assigned</strong>
+              <p>Pick one from the library to get a meal schedule, or just log what you eat below.</p>
+            </div>
+            <button type="button" class="btn-outline" (click)="goToTab('library')">Browse library</button>
+          </div>
+        }
+
+        @if (otherEntries().length) {
+          <div class="section-head sub">
+            <h2>Also eaten</h2>
+          </div>
+          <ul class="card other-list">
+            @for (entry of otherEntries(); track entry.id) {
+              <li class="other">
+                <div class="other-text">
+                  <span class="other-name">{{ entry.foodName }}</span>
+                  <span class="other-macros">{{ entry.calories }} kcal · P {{ entry.protein }}g · C {{ entry.carbs }}g · F {{ entry.fats }}g</span>
+                </div>
+                <button type="button" class="icon-btn quiet" (click)="removeMeal(entry.id)"
+                  [attr.aria-label]="'Remove ' + entry.foodName">
+                  <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        <button type="button" class="add-other" (click)="openAddModal()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          {{ plannedMeals().length ? 'Add food not on your plan' : 'Log food' }}
         </button>
-
-        <div class="macro-stats">
-          <div class="macro-item protein">
-            <span class="label">Protein</span>
-            <div class="progress-bar">
-              <div class="fill" [style.width]="getPercentage(dietLog.totalProtein, dietLog.targetProtein) + '%'"></div>
-            </div>
-            <span class="stats">{{dietLog.totalProtein}}g / {{dietLog.targetProtein || 150}}g</span>
-          </div>
-          <div class="macro-item carbs">
-            <span class="label">Carbs</span>
-            <div class="progress-bar">
-              <div class="fill" [style.width]="getPercentage(dietLog.totalCarbs, dietLog.targetCarbs) + '%'"></div>
-            </div>
-            <span class="stats">{{dietLog.totalCarbs}}g / {{dietLog.targetCarbs || 250}}g</span>
-          </div>
-          <div class="macro-item fats">
-            <span class="label">Fats</span>
-            <div class="progress-bar">
-              <div class="fill" [style.width]="getPercentage(dietLog.totalFats, dietLog.targetFats) + '%'"></div>
-            </div>
-            <span class="stats">{{dietLog.totalFats}}g / {{dietLog.targetFats || 65}}g</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Consumed Foods Section -->
-      <div class="meal-section card consumed-foods-card">
-        <div class="meal-header">
-          <h3><i class="fa-solid fa-utensils"></i> Consumed Foods <span class="count-badge"
-              *ngIf="consumedFoods.length > 0">{{consumedFoods.length}}</span></h3>
-          <button class="btn-outline-small" (click)="openAddModal()">+ Add Custom Food</button>
-        </div>
-
-        <div class="meal-entries scrollable-entries">
-          <div class="empty-state" *ngIf="consumedFoods.length === 0">
-            No food logged today.
-          </div>
-          <div class="entry-item" *ngFor="let entry of consumedFoods">
-            <div class="entry-info">
-              <span class="food-name">
-                {{entry.foodName}}
-                <small class="tag" *ngIf="entry.sourceDietPlanMealId">Assigned</small>
-                <small class="tag custom" *ngIf="!entry.sourceDietPlanMealId">Custom</small>
-              </span>
-              <span class="food-macros">{{entry.calories}} kcal • P: {{entry.protein}}g • C: {{entry.carbs}}g • F:
-                {{entry.fats}}g</span>
-            </div>
-            <button class="delete-btn" (click)="removeMeal(entry.id)">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
-
-  </div>
+  } @else {
+    <section class="card no-plan">
+      <p>We couldn't load your nutrition for this day.</p>
+      <button type="button" class="btn-outline" (click)="loadLogForDate(currentDate())">Try again</button>
+    </section>
+  }
 </div>
 
-<!-- Add Food Modal (Hybrid Approach stub for 3rd party integration) -->
-<div class="modal-overlay" *ngIf="showAddModal" (click)="closeModal()">
-  <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>{{ selectedMealType === 'Assigned' ? 'Log Assigned Meal' : 'Add Custom Food' }}</h3>
-      <button class="close-btn" (click)="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+@if (showAddModal()) {
+  <div class="sheet-backdrop" (click)="closeModal()" aria-hidden="true"></div>
+  <section class="sheet" role="dialog" aria-modal="true"
+    [attr.aria-label]="selectedMealType() === 'Assigned' ? 'Log planned meal' : 'Add food'">
+    <span class="sheet-handle" aria-hidden="true"></span>
+    <header class="sheet-head">
+      <h2>{{ selectedMealType() === 'Assigned' ? 'Log planned meal' : 'Add food' }}</h2>
+      <button type="button" class="icon-btn quiet" (click)="closeModal()" aria-label="Close">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
 
-    <div class="modal-body form-content" [formGroup]="mealForm">
-      <div class="search-box">
-        <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search food database (e.g. apple, 100g rice)" [formControl]="searchQueryControl"
+    <div class="search">
+      <label class="search-field">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="visually-hidden">Search food database</span>
+        <input type="search" placeholder="Search e.g. apple, 100g rice" [formControl]="searchQueryControl"
           (keyup.enter)="searchFood()">
-        <button class="btn-search" (click)="searchFood()" [disabled]="isSearching || !searchQueryControl.value?.trim()">
-          <i class="fa-solid fa-spinner fa-spin" *ngIf="isSearching"></i>
-          <span *ngIf="!isSearching">Search</span>
-        </button>
-      </div>
-      <p class="search-error" *ngIf="searchError">{{ searchError }}</p>
-
-      <div class="divider"><span>OR MANUAL ENTRY</span></div>
-
-      <div class="form-group">
-        <label>Food Name</label>
-        <input type="text" formControlName="foodName" class="form-input" placeholder="e.g. Protein bar">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Calories</label>
-          <input type="number" formControlName="calories" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Protein (g)</label>
-          <input type="number" formControlName="protein" class="form-input">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Carbs (g)</label>
-          <input type="number" formControlName="carbs" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Fats (g)</label>
-          <input type="number" formControlName="fats" class="form-input">
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-outline" (click)="closeModal()">Cancel</button>
-      <button class="btn-primary" (click)="saveMeal()" [disabled]="mealForm.invalid">
-        {{ selectedMealType === 'Assigned' ? 'Log Meal' : 'Add Food' }}
+      </label>
+      <button type="button" class="btn-primary" (click)="searchFood()" [disabled]="isSearching() || !searchQueryControl.value.trim()">
+        @if (isSearching()) {
+          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span class="visually-hidden">Searching</span>
+        } @else {
+          Search
+        }
       </button>
     </div>
-  </div>
-</div>
+    @if (searchError()) {
+      <p class="search-error">{{ searchError() }}</p>
+    }
+
+    <div class="divider"><span>or enter manually</span></div>
+
+    <form class="meal-form" [formGroup]="mealForm" (ngSubmit)="saveMeal()">
+      <label class="field">
+        <span>Food name</span>
+        <input type="text" formControlName="foodName" placeholder="e.g. Protein bar">
+      </label>
+      <div class="field-grid">
+        <label class="field">
+          <span>Calories</span>
+          <input type="number" inputmode="numeric" formControlName="calories" min="0">
+        </label>
+        <label class="field">
+          <span>Protein (g)</span>
+          <input type="number" inputmode="decimal" formControlName="protein" min="0">
+        </label>
+        <label class="field">
+          <span>Carbs (g)</span>
+          <input type="number" inputmode="decimal" formControlName="carbs" min="0">
+        </label>
+        <label class="field">
+          <span>Fats (g)</span>
+          <input type="number" inputmode="decimal" formControlName="fats" min="0">
+        </label>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-outline" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="mealForm.invalid">
+          {{ selectedMealType() === 'Assigned' ? 'Log meal' : 'Add food' }}
+        </button>
+      </div>
+    </form>
+  </section>
+}
