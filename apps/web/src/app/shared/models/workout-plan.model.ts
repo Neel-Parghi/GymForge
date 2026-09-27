@@ -218,3 +218,28 @@ export interface LogLoggedSetDto {
   reps: number;
   completed: boolean;
 }
+
+export interface ActivePlanView {
+  name: string;
+  days: ActivePlanDay[];
+}
+
+export interface ActivePlanDay {
+  id?: string;
+  dayName: string;
+  dayIndex?: number;
+  isRestDay?: boolean;
+  category?: string;
+  exercises?: { exerciseName: string; sets?: number | string; reps?: string; notes?: string }[];
+}
+
+export interface SchedulableDay {
+  dayName: string;
+  isRestDay?: boolean;
+  category?: string;
+}
+
+export interface TrainingOverview {
+  plan: ActivePlanView | null;
+  logs: WorkoutSessionLogDto[];
+}

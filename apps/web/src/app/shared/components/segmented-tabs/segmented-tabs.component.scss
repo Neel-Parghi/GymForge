@@ -1,0 +1,34 @@
+@use 'member' as m;
+
+:host {
+  display: block;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(var(--tab-count, 2), minmax(0, 1fr));
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--slate-200);
+  font-family: var(--m-font-body);
+
+  @include m.from-desktop {
+    max-width: 420px;
+  }
+}
+
+.segment {
+  @include m.reset-button;
+  min-height: var(--m-tap);
+  border-radius: 11px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--m-muted);
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &.active {
+    background: var(--m-surface);
+    color: var(--m-ink);
+    box-shadow: 0 1px 3px rgba(10, 31, 68, 0.12);
+  }
+}

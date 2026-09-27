@@ -1,0 +1,450 @@
+// Member portal design tokens (emitted once on :root from styles.scss) and the mixins its screens share.
+
+@mixin tokens {
+  // Colours alias the global palette in styles.scss so every portal shares one system.
+  --m-navy: var(--primary-navy);
+  --m-ink: var(--text-main);
+  --m-muted: var(--text-muted);
+  --m-on-navy-muted: #b8c4de;
+  --m-ground: var(--slate-100);
+  --m-surface: var(--bg-surface);
+  --m-line: var(--border-color);
+  --m-line-soft: var(--slate-100);
+  --m-field: var(--slate-50);
+  --m-field-border: var(--slate-200);
+
+  --m-accent: var(--accent-color);
+  --m-accent-soft: rgba(var(--accent-rgb), 0.1);
+
+  // Energy (streaks, calories, PRs): the orange already used across the owner portal
+  --m-energy: #ea580c;
+  --m-energy-soft: #fff7ed;
+  --m-energy-ink: #9a3412;
+
+  // Status: global hues + softs; the -ink shades are darker steps of the same hue for readable text
+  --m-good: var(--success-color);
+  --m-good-soft: var(--success-bg);
+  --m-good-ink: #047857;
+  --m-warn: var(--warning-color);
+  --m-warn-soft: var(--warning-bg);
+  --m-warn-ink: #92400e;
+  --m-bad: var(--error-color);
+  --m-bad-soft: var(--error-bg);
+  --m-bad-ink: #b91c1c;
+  --m-info-soft: var(--info-bg);
+  --m-info-ink: #1e40af;
+
+  // Buttons stay touch-sized below 1024px, then match the app's desktop density
+  --m-btn-h: 44px;
+
+  --m-radius-md: 16px;
+  --m-radius-lg: 24px;
+  --m-radius-xl: 28px;
+  --m-shadow: 0 1px 2px rgba(10, 31, 68, 0.04), 0 8px 24px rgba(10, 31, 68, 0.06);
+
+  // Same type pairing as the rest of the app (styles.scss): Outfit for text, Plus Jakarta Sans for headings/numbers
+  --m-font-display: var(--font-heading);
+  --m-font-body: var(--font-body);
+  --m-tap: 44px;
+
+  // Responsive scale: phone (base) → tablet → laptop (tighter) → large desktop.
+  --m-gap: 16px;
+  --m-card-pad: 18px;
+  --m-fs-page: 1.75rem; // tab-root page titles
+  --m-fs-subpage: 1.375rem; // pages with a back button
+  --m-fs-lead: 1.5rem; // card-level headlines (day name, exercise, profile name)
+  --m-fs-hero: 2rem;
+  --m-fs-title: 1.125rem; // section / card titles
+  --m-fs-num: 1.375rem; // stat numbers
+  --m-fs-num-lg: 2.125rem; // headline numbers (kcal, ring centre)
+  --m-ring: 132px;
+  --m-ring-lg: 188px;
+
+  @media (min-width: 768px) {
+    --m-gap: 20px;
+    --m-card-pad: 20px;
+  }
+
+  // Laptops (13–15"): same layout, denser type and spacing.
+  @media (min-width: 1024px) and (max-width: 1439px) {
+    --m-gap: 16px;
+    --m-card-pad: 18px;
+    --m-radius-lg: 20px;
+    --m-radius-xl: 24px;
+    --m-fs-page: 1.5rem;
+    --m-fs-subpage: 1.25rem;
+    --m-fs-lead: 1.3125rem;
+    --m-fs-hero: 1.625rem;
+    --m-fs-title: 1rem;
+    --m-fs-num: 1.25rem;
+    --m-fs-num-lg: 1.875rem;
+    --m-ring: 116px;
+    --m-ring-lg: 164px;
+  }
+
+  @media (min-width: 1024px) {
+    --m-btn-h: 40px;
+  }
+
+  @media (min-width: 1440px) {
+    --m-gap: 24px;
+    --m-card-pad: 24px;
+    --m-fs-page: 1.875rem;
+    --m-fs-subpage: 1.5rem;
+    --m-fs-lead: 1.625rem;
+    --m-fs-hero: 2rem;
+    --m-fs-num: 1.5rem;
+    --m-fs-num-lg: 2.5rem;
+    --m-ring: 140px;
+    --m-ring-lg: 200px;
+  }
+}
+
+// Screen shell: ground colour + body font for a member page.
+@mixin page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-gap);
+  font-family: var(--m-font-body);
+  color: var(--m-ink);
+}
+
+@mixin card {
+  background: var(--m-surface);
+  border-radius: var(--m-radius-lg);
+  padding: var(--m-card-pad);
+  box-shadow: var(--m-shadow);
+}
+
+@mixin section-title {
+  margin: 0;
+  font-family: var(--m-font-display);
+  font-size: var(--m-fs-title);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+}
+
+// Page title for tab-root screens ($sub: screens with a back button).
+@mixin page-title($sub: false) {
+  margin: 0;
+  font-family: var(--m-font-display);
+  font-size: var(--m-fs-page);
+  font-weight: 800;
+
+  @if $sub {
+    font-size: var(--m-fs-subpage);
+  }
+
+  letter-spacing: -0.02em;
+  color: var(--m-ink);
+}
+
+@mixin eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@mixin display-number($size: var(--m-fs-num)) {
+  font-family: var(--m-font-display);
+  font-size: $size;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+@mixin reset-button {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+@mixin icon-button {
+  @include reset-button;
+  width: var(--m-tap);
+  height: var(--m-tap);
+  border-radius: 50%;
+  border: 1px solid var(--m-line);
+  background: var(--m-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--m-ink);
+}
+
+// Buttons mirror the global .btn-primary / .btn-outline / .btn-danger in styles.scss
+// (same colours, borders, radius, weight and hover); only the height is touch-friendly.
+@mixin button-base {
+  @include reset-button;
+  min-height: var(--m-btn-h);
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@mixin primary-button {
+  @include button-base;
+  border: 1px solid var(--primary-navy);
+  background: var(--primary-navy);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(10, 31, 68, 0.15);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: var(--primary-navy-hover);
+    border-color: var(--primary-navy-hover);
+    box-shadow: 0 6px 16px rgba(10, 31, 68, 0.25);
+  }
+}
+
+@mixin secondary-button {
+  @include button-base;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--slate-100);
+  color: var(--text-muted);
+
+  &:hover:not(:disabled) {
+    background: var(--slate-200);
+    color: var(--text-main);
+  }
+}
+
+@mixin danger-button {
+  @include button-base;
+  border-radius: 8px;
+  border: 1px solid var(--error-border);
+  background: var(--error-bg);
+  color: var(--error-color);
+
+  &:hover:not(:disabled) {
+    background: var(--error-color);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+  }
+}
+
+@mixin text-link {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--m-accent);
+  text-decoration: none;
+  padding: 12px 0;
+}
+
+@mixin pill($fg, $bg) {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: $fg;
+  background: $bg;
+}
+
+// Tinted icon badges: set data-tone on the element (energy | good | warn | bad | info | accent | neutral)
+@mixin tone-variants {
+  &[data-tone='energy'] {
+    background: var(--m-energy-soft);
+    color: var(--m-energy-ink);
+  }
+
+  &[data-tone='good'] {
+    background: var(--m-good-soft);
+    color: var(--m-good-ink);
+  }
+
+  &[data-tone='warn'] {
+    background: var(--m-warn-soft);
+    color: var(--m-warn-ink);
+  }
+
+  &[data-tone='bad'] {
+    background: var(--m-bad-soft);
+    color: var(--m-bad-ink);
+  }
+
+  &[data-tone='info'] {
+    background: var(--m-info-soft);
+    color: var(--m-info-ink);
+  }
+
+  &[data-tone='accent'] {
+    background: var(--m-accent-soft);
+    color: var(--m-accent);
+  }
+
+  &[data-tone='neutral'] {
+    background: var(--m-ground);
+    color: var(--m-ink);
+  }
+}
+
+// Macro colours: set data-macro on the element (protein | carbs | fats)
+@mixin macro-colors {
+  &[data-macro='protein'] {
+    background: var(--m-accent);
+  }
+
+  &[data-macro='carbs'] {
+    background: var(--m-warn);
+  }
+
+  &[data-macro='fats'] {
+    background: var(--m-good);
+  }
+}
+
+@mixin sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(10, 31, 68, 0.55);
+}
+
+// Bottom sheet on phones, centred dialog from tablet up
+@mixin bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 410;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+  border-radius: var(--m-radius-xl) var(--m-radius-xl) 0 0;
+  background: var(--m-surface);
+  font-family: var(--m-font-body);
+  color: var(--m-ink);
+  animation: m-sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @at-root {
+    @keyframes m-sheet-up {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  @include from-tablet {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    width: min(480px, calc(100vw - 48px));
+    padding: 20px 24px 24px;
+    border-radius: var(--m-radius-lg);
+    transform: translate(-50%, -50%);
+    animation: none;
+  }
+}
+
+@mixin sheet-handle {
+  align-self: center;
+  width: 40px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--m-line);
+
+  @include from-tablet {
+    display: none;
+  }
+}
+
+// Label wrapping a caption + input
+@mixin field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+// 48px text/number input used across member forms
+@mixin field-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--m-field-border);
+  background: var(--m-field);
+  font-family: inherit;
+  font-size: 1rem; // 16px stops iOS zooming on focus
+  font-weight: 600;
+  color: var(--m-ink);
+  outline: none;
+
+  &:focus {
+    border-color: var(--m-accent);
+    background: var(--m-surface);
+  }
+}
+
+@mixin skeleton {
+  display: block;
+  height: 18px;
+  border-radius: 8px;
+  background: var(--m-line-soft);
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Min-width steps matching the max-width mixins in _breakpoints.scss.
+@mixin from-tablet {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
+@mixin from-desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin track($height: 8px) {
+  height: $height;
+  border-radius: 999px;
+  background: var(--m-line-soft);
+  overflow: hidden;
+}

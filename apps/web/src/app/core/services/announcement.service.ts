@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, shareReplay, tap } from 'rxjs';
+import { Observable, map, shareReplay, tap } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { BaseApiService } from './base-api.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -32,6 +32,15 @@ export class AnnouncementService extends BaseApiService {
       );
     }
     return this.myGymAnnouncementsCache$;
+  }
+
+  getMyGymAnnouncementList(): Observable<GymAnnouncementResponse[]> {
+    return this.getMyGymAnnouncements().pipe(
+      map(res => {
+        const list = Array.isArray(res) ? res as GymAnnouncementResponse[] : (res?.data ?? []);
+        return [...list].sort((a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime());
+      })
+    );
   }
 
   clearCache(): void {
