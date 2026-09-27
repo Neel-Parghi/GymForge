@@ -1,3 +1,6 @@
+import { FormControl } from '@angular/forms';
+import { AssignedMealDto } from '../../shared/models/diet-tracking.model';
+
 export interface DailyRoutineItem {
   id: string;
   title: string;
@@ -5,4 +8,101 @@ export interface DailyRoutineItem {
   amount?: string;
   completed: boolean;
   isEditing?: boolean;
+  order?: number;
+}
+
+export interface ActivePlanSummary {
+  planId: string;
+  name: string;
+  type: string;
+}
+
+export interface PersonalRecord {
+  name: string;
+  weight: string;
+  date: string;
+}
+
+export interface MuscleRecovery {
+  name: string;
+  pct: number;
+  status: 'Ready' | 'Recovering' | string;
+}
+
+export interface MuscleHeatmapZone {
+  name: string;
+  level: 'High' | 'Medium' | 'Low' | string;
+  label: string;
+}
+
+/** Response of GET user dashboard summary (UserDashboardSummaryDto). */
+export interface UserDashboardSummary {
+  greeting?: string;
+  userName?: string;
+  goalTitle?: string | null;
+  goalProgressPct: number;
+  targetCalories: number;
+  targetTrainingTime: number;
+  caloriesBurnedToday: number;
+  activeTrainingTimeMinutes: number;
+  workoutStreak: number;
+  streakAtRisk: boolean;
+  monthlySessionCount: number;
+  monthlySessionTarget: number;
+  monthlyCompletionPct: number;
+  currentWeight: number;
+  bodyFat: number;
+  bmi: number;
+  activeWorkoutPlan?: ActivePlanSummary | null;
+  activeDietPlan?: ActivePlanSummary | null;
+  personalRecords: PersonalRecord[];
+  muscleRecovery: MuscleRecovery[];
+  dailyRoutines: DailyRoutineItem[];
+  muscleHeatmap: MuscleHeatmapZone[];
+}
+
+export type WorkoutState = 'none' | 'rest' | 'done' | 'ready';
+
+export interface TodayWorkout {
+  state: WorkoutState;
+  planName: string;
+  title: string;
+  muscles: string;
+  exerciseCount: number;
+  setCount: number;
+}
+
+export type WeekDayState = 'done' | 'rest' | 'today' | 'missed' | 'upcoming';
+
+export interface WeekDay {
+  label: string;
+  state: WeekDayState;
+}
+
+export interface MacroProgress {
+  label: string;
+  tone: 'protein' | 'carbs' | 'fats';
+  value: number;
+  target: number;
+  pct: number;
+}
+
+export interface NutritionToday {
+  eaten: number;
+  target: number;
+  left: number;
+  pct: number;
+  macros: MacroProgress[];
+  nextMeal: AssignedMealDto | null;
+}
+
+export interface ActivityRing {
+  key: 'calories' | 'active' | 'goal';
+  radius: number;
+  dash: string;
+}
+
+export interface RoutineForm {
+  title: FormControl<string>;
+  amount: FormControl<string>;
 }

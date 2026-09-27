@@ -6,6 +6,7 @@ import { DropdownComponent } from '../../../../../shared/components/dropdown/dro
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../../core/constants/constants';
 import { WorkoutMasterService } from '../../../../../core/services/workout-master.service';
+import { isCardioExercise } from '../../../../../shared/utils/workout-session';
 
 @Component({
   selector: 'app-member-detail-track-performance',
@@ -36,28 +37,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
   workoutForm!: FormGroup;
 
   isCardioExercise(name: string, target?: string): boolean {
-    if (!name) return false;
-    const nameLower = name.toLowerCase().trim();
-
-    if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_KEYWORDS.some(keyword => nameLower.includes(keyword))) {
-      return true;
-    }
-
-    if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_NAME_REGEXP.test(nameLower)) {
-      if (nameLower.includes('farmer')) {
-        return false;
-      }
-      return true;
-    }
-
-    if (target) {
-      const targetLower = target.toLowerCase().trim();
-      if (CONSTANTS.MEMBER_DETAIL_MODULE.TRACK_PERFORMANCE.CARDIO_TARGET_REGEXP.test(targetLower)) {
-        return true;
-      }
-    }
-
-    return false;
+    return isCardioExercise(name, target);
   }
 
   onCancel(): void {

@@ -1,0 +1,8 @@
+<div class="segmented" role="tablist" [attr.aria-label]="label()" [style.--tab-count]="tabs().length">
+  @for (tab of tabs(); track tab.id) {
+    <button type="button" role="tab" class="segment" [class.active]="tab.id === active()"
+      [attr.aria-selected]="tab.id === active()" (click)="select(tab.id)">
+      {{ tab.label }}
+    </button>
+  }
+</div>

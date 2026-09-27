@@ -2,12 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { AuthApiService } from './auth-api.service';
 import { BaseApiService } from './base-api.service';
 import { API_CONSTANTS } from '../constants/api-constants';
-import { Observable, shareReplay, tap, catchError, of } from 'rxjs';
-import { GymMember, MemberSubscription, OnboardMemberRequest, RenewSubscriptionRequest } from '../../shared/models/member.model';
-import { MemberDashboardResponse } from '../../shared/models/member.model'; // Need to add this
-import { MemberPlanAssignmentDto, WorkoutSessionLogDto, LogWorkoutSessionRequest } from '../../shared/models/workout-plan.model';
-import { MemberDietAssignmentDto } from '../../shared/models/diet-plan.model';
-import { DietPlanDto } from '../../shared/models/diet-plan.model';
+import { Observable, shareReplay, tap, catchError, of, forkJoin, map } from 'rxjs';
+import { GymMember, MemberDashboardResponse, MemberSubscription, OnboardMemberRequest, RenewSubscriptionRequest } from '../../shared/models/member.model';
+import { ActivePlanView, MemberPlanAssignmentDto, WorkoutSessionLogDto, LogWorkoutSessionRequest, TrainingOverview } from '../../shared/models/workout-plan.model';
+import { DietPlanDto, MemberDietAssignmentDto } from '../../shared/models/diet-plan.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
 import { BranchContextService } from './branch-context.service';
@@ -188,6 +186,21 @@ export class MemberService extends BaseApiService {
       this.planAssignmentsCache.set(memberId, request$);
     }
     return this.planAssignmentsCache.get(memberId)!;
+  }
+
+  /** Active plan + logged sessions; either side falls back to empty rather than failing. */
+  getTrainingOverview(memberId: string): Observable<TrainingOverview> {
+    return forkJoin({
+      // The active-plan endpoint returns the plan itself (name + days), not the assignment wrapper.
+      plan: this.getActivePlan(memberId).pipe(
+        map(res => (res?.data ?? null) as unknown as ActivePlanView | null),
+        catchError(() => of(null))
+      ),
+      logs: this.getWorkoutLogs(memberId).pipe(
+        map(res => res?.data ?? []),
+        catchError(() => of([] as WorkoutSessionLogDto[]))
+      )
+    });
   }
 
   getWorkoutLogs(memberId: string, forceRefresh = false): Observable<ApiResponse<WorkoutSessionLogDto[]>> {
