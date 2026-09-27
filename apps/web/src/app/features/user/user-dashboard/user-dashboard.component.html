@@ -1,325 +1,381 @@
-<div class="user-dashboard-container ov-pane">
+<div class="dashboard">
 
-  <!-- Smooth Wave Clip Path Definition -->
-  <svg width="0" height="0" class="svg-clip-defs">
-    <defs>
-      <clipPath id="smooth-wave" clipPathUnits="objectBoundingBox">
-        <path d="M 0,0.15 
-                 C 0.15,0.0 0.25,0.2 0.4,0.1 
-                 C 0.6,0.0 0.8,0.2 1,0.05 
-                 L 1,1 L 0,1 Z" />
-      </clipPath>
-    </defs>
-  </svg>
-
-  <!-- Hero Greetings & Streak (Full Width Top Section) -->
-  <div class="dashboard-header-row">
-    <div>
-      <h1 class="hero-title">
-        <ng-container *ngIf="isFirstTime">Welcome</ng-container>
-        <ng-container *ngIf="!isFirstTime">Welcome back</ng-container>,
-        <span class="text-accent">{{ userName }}</span>
-      </h1>
-      <p class="hero-subtitle">{{ todayDate | date:'fullDate' }}</p>
+  <header class="greeting">
+    <div class="greeting-main">
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <div class="greeting-text">
+        <span class="greeting-eyebrow">{{ isFirstTime() ? 'Welcome' : greeting }}</span>
+        <h1>{{ userName() }}</h1>
+      </div>
     </div>
-
-    <!-- Streak Badge in Top Right -->
-    <div class="floating-streak" [class.at-risk]="streakAtRisk">
-      <i class="fa-solid fa-bolt"></i>
-      <div class="streak-text">{{ workoutStreak }}<span>DAYS</span></div>
-      <span class="streak-risk-note" *ngIf="streakAtRisk">Log today to keep it!</span>
+    <div class="greeting-actions">
+      <button type="button" class="btn-secondary" (click)="logMeal()">
+        <i class="fa-solid fa-utensils" aria-hidden="true"></i> Log meal
+      </button>
+      <button type="button" class="btn-primary" (click)="startTodaysWorkout()">
+        <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Log workout
+      </button>
     </div>
+  </header>
+
+  @if (announcements().length) {
+    <section class="announcements area-announcements" aria-label="Gym announcements">
+      @for (item of visibleAnnouncements(); track item.id) {
+        <article class="announcement">
+          <span class="announcement-icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
+          <div class="announcement-body">
+            <div class="announcement-meta">
+              <span class="announcement-tag">Gym announcement</span>
+              <time [attr.datetime]="item.createdOn">{{ item.createdOn | date: 'd MMM' }}</time>
+            </div>
+            <h2 class="announcement-title">{{ item.title }}</h2>
+            <p class="announcement-message">{{ item.message }}</p>
+          </div>
+        </article>
+      }
+      @if (announcements().length > 1) {
+        <button type="button" class="announcement-more" (click)="toggleAllAnnouncements()"
+          [attr.aria-expanded]="showAllAnnouncements()">
+          {{ showAllAnnouncements() ? 'Show less' : 'View all ' + announcements().length + ' announcements' }}
+        </button>
+      }
+    </section>
+  }
+
+  <div class="col-main">
+    <section class="hero area-hero" [attr.data-state]="todayWorkout()?.state ?? 'loading'">
+      <i class="fa-solid fa-dumbbell hero-watermark" aria-hidden="true"></i>
+      <div class="hero-top">
+        <span class="hero-date">{{ today | date: 'EEEE, d MMM' }}</span>
+        <span class="streak" [class.at-risk]="summary()?.streakAtRisk">
+          <i class="fa-solid fa-fire" aria-hidden="true"></i>
+          @if (summary()?.workoutStreak) { {{ summary()?.workoutStreak }}-day streak } @else { Start a streak today }
+        </span>
+      </div>
+
+      @if (todayWorkout(); as workout) {
+        <div class="hero-body">
+          <span class="hero-eyebrow">
+            @switch (workout.state) {
+              @case ('done') { Done today }
+              @case ('rest') { Today }
+              @case ('none') { Get started }
+              @default { Today's workout }
+            }
+            @if (workout.planName) { · {{ workout.planName }} }
+          </span>
+          <h2 class="hero-title">{{ workout.title }}</h2>
+          @if (workout.muscles) {
+            <span class="hero-muscles">{{ workout.muscles }}</span>
+          }
+          @if (workout.state === 'rest') {
+            <span class="hero-muscles">Recovery is part of the plan. A walk or mobility work is plenty.</span>
+          }
+          @if (workout.state === 'none') {
+            <span class="hero-muscles">Pick a plan from the library and your daily sessions show up here.</span>
+          }
+        </div>
+
+        @if (workout.exerciseCount > 0) {
+          <div class="hero-chips">
+            <span>{{ workout.exerciseCount }} exercises</span>
+            @if (workout.setCount > 0) {
+              <span>{{ workout.setCount }} sets</span>
+            }
+          </div>
+        }
+      } @else {
+        <div class="hero-body">
+          <span class="hero-eyebrow">Today's workout</span>
+          <span class="hero-skeleton" aria-hidden="true"></span>
+        </div>
+      }
+
+      <div class="hero-side">
+        @if (summary()?.monthlySessionTarget) {
+          <div class="month">
+            <div class="month-head">
+              <span class="month-label">This month</span>
+              <span class="month-value"><strong>{{ summary()?.monthlySessionCount ?? 0 }}</strong> / {{ summary()?.monthlySessionTarget }} sessions</span>
+            </div>
+            <div class="month-track" role="progressbar" aria-label="Sessions this month"
+              [attr.aria-valuenow]="summary()?.monthlySessionCount ?? 0" aria-valuemin="0" [attr.aria-valuemax]="summary()?.monthlySessionTarget">
+              <span class="month-fill" [style.width.%]="summary()?.monthlyCompletionPct ?? 0"></span>
+            </div>
+          </div>
+        }
+        <ol class="week" aria-label="This week">
+          @for (day of week(); track $index) {
+            <li class="week-day" [attr.data-state]="day.state">
+              <span class="week-label">{{ day.label }}</span>
+              <span class="week-dot">
+                @if (day.state === 'done') {
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                }
+              </span>
+              <span class="visually-hidden">{{ day.state }}</span>
+            </li>
+          }
+        </ol>
+        @switch (todayWorkout()?.state) {
+          @case ('ready') {
+            <button type="button" class="hero-cta" (click)="startTodaysWorkout()">
+              <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Log workout
+            </button>
+          }
+          @case ('done') {
+            <a class="hero-cta" routerLink="/user/workout-calendar">View in calendar</a>
+          }
+          @case ('rest') {
+            <button type="button" class="hero-cta ghost" (click)="startTodaysWorkout()">Log a workout anyway</button>
+          }
+          @case ('none') {
+            <a class="hero-cta" routerLink="/user/workout-planner">Choose a workout plan</a>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="card area-nutrition">
+      <div class="card-head">
+        <div>
+          <h2><span class="head-icon" data-tone="good"><i class="fa-solid fa-utensils" aria-hidden="true"></i></span>Nutrition</h2>
+          @if (summary()?.activeDietPlan?.name; as dietName) {
+            <p class="card-sub">{{ dietName }}</p>
+          }
+        </div>
+        <a class="card-link" routerLink="/user/diet-tracker">Open tracker</a>
+      </div>
+
+      @if (nutrition(); as n) {
+        <div class="kcal-row">
+          <span class="kcal">{{ n.eaten }}<small> / {{ n.target }} kcal</small></span>
+          <span class="pill good">{{ n.left }} left</span>
+        </div>
+        <div class="track lg"><span class="fill energy" [style.width.%]="n.pct"></span></div>
+
+        <div class="macros">
+          @for (m of n.macros; track m.tone) {
+            <div class="macro">
+              <span class="macro-label">{{ m.label }}</span>
+              <span class="macro-value">{{ m.value }}<small>/{{ m.target }}g</small></span>
+              <div class="track sm"><span class="fill" [attr.data-macro]="m.tone" [style.width.%]="m.pct"></span></div>
+            </div>
+          }
+        </div>
+
+        @if (n.nextMeal; as meal) {
+          <div class="next-meal">
+            <span class="next-icon"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
+            <div class="next-text">
+              <span class="next-title">Next: {{ meal.name }}@if (meal.time) { · {{ meal.time }}}</span>
+              <span class="next-sub">{{ meal.items || 'Planned meal' }} · {{ meal.calories }} kcal</span>
+            </div>
+            <button type="button" class="btn-primary" (click)="logMeal()">Log</button>
+          </div>
+        } @else {
+          <button type="button" class="btn-soft" (click)="logMeal()">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Log a meal
+          </button>
+        }
+      } @else {
+        <p class="empty">Your nutrition for today will show here once you log a meal.</p>
+        <button type="button" class="btn-soft" (click)="logMeal()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Log a meal
+        </button>
+      }
+    </section>
+
+    <section class="card area-recovery">
+      <div class="card-head">
+        <div>
+          <h2><span class="head-icon" data-tone="bad"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>Muscle recovery</h2>
+          <p class="card-sub">Based on your recent training</p>
+        </div>
+      </div>
+
+      @if (summary()?.muscleRecovery?.length) {
+        <ul class="recovery-list">
+          @for (m of summary()!.muscleRecovery; track m.name) {
+            <li class="recovery" [attr.data-status]="m.status">
+              <div class="recovery-head">
+                <span class="recovery-name">{{ m.name }}</span>
+                <span class="pill">{{ m.status }}</span>
+              </div>
+              <div class="track"><span class="fill" [style.width.%]="m.pct"></span></div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty">Log a workout and we'll track how recovered each muscle group is.</p>
+      }
+
+      @if (summary()?.muscleHeatmap?.length) {
+        <div class="heatmap">
+          <span class="heatmap-label">Trained this week</span>
+          <div class="heatmap-chips">
+            @for (zone of summary()!.muscleHeatmap; track zone.name) {
+              <span class="heat-chip" [attr.data-level]="zone.level">{{ zone.name }} · {{ zone.label }}</span>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="card area-prs trophy">
+      <div class="card-head">
+        <h2><span class="head-icon" data-tone="warn"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>Trophy room</h2>
+        <a class="card-link" routerLink="/user/exercise-progress">All records</a>
+      </div>
+      @if (prTiles().length) {
+        <div class="pr-scroller">
+          @for (pr of prTiles(); track pr.name) {
+            <article class="pr-card" [attr.data-rank]="pr.rank">
+              <i class="fa-solid fa-trophy pr-watermark" aria-hidden="true"></i>
+              <div class="pr-top">
+                <span class="pr-medal"><i class="fa-solid {{ pr.icon }}" aria-hidden="true"></i></span>
+                <span class="pr-rank">#{{ pr.rank }}</span>
+              </div>
+              <span class="pr-weight">{{ pr.value }}@if (pr.unit) {<small>{{ pr.unit }}</small>}</span>
+              <span class="pr-name" [title]="pr.name">{{ pr.name }}</span>
+              <span class="pr-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ pr.date }}</span>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty">No personal records yet. Your heaviest lifts will show up here.</p>
+      }
+    </section>
   </div>
-  <!-- Asymmetric Layout: Main Content (Left) + Sidebar (Right) -->
-  <div class="dashboard-grid-main">
 
-    <!-- ══════════ LEFT COLUMN (Main Content) ══════════ -->
-    <div class="dashboard-col">
-
-      <!-- Row 1: Activity Card (Smooth Wave Cutout Shape) -->
-      <div class="ov-activity-card glass-card wave-cutout">
-        <div>
-          <div class="ov-stats-header">
-            <h3 class="ov-stats-title"><i class="fa-solid fa-fire"></i> Today's Activity</h3>
-            <span class="ov-stats-subtitle">Daily Output Metrics</span>
+  <div class="col-side">
+    <section class="card area-activity">
+      <div class="card-head">
+        <h2><span class="head-icon" data-tone="energy"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>Today's activity</h2>
+      </div>
+      <div class="activity">
+        <svg class="rings" viewBox="0 0 132 132" aria-hidden="true">
+          @for (ring of activity().rings; track ring.key) {
+            <circle class="ring-track" [attr.data-ring]="ring.key" cx="66" cy="66" [attr.r]="ring.radius"></circle>
+            <circle class="ring-fill" [attr.data-ring]="ring.key" cx="66" cy="66" [attr.r]="ring.radius"
+              [attr.stroke-dasharray]="ring.dash" transform="rotate(-90 66 66)"></circle>
+          }
+        </svg>
+        <dl class="legend">
+          <div class="legend-row">
+            <dt><span class="dot" data-ring="calories"></span>Calories</dt>
+            <dd>{{ activity().calories }}<small> / {{ activity().calorieTarget }} kcal</small></dd>
           </div>
-
-          <div class="activity-stats">
-            <div class="act-stat">
-              <span class="act-val text-red">{{ caloriesBurnedToday }}</span>
-              <span class="act-lbl">Calories Burned</span>
-              <span class="act-target">Target: {{ targetCalories }} kcal</span>
-            </div>
-            <div class="act-stat">
-              <span class="act-val text-green">{{ activeTrainingTimeMinutes }}</span>
-              <span class="act-lbl">Active Minutes</span>
-              <span class="act-target">Target: {{ targetTrainingTime }} min</span>
-            </div>
+          <div class="legend-row">
+            <dt><span class="dot" data-ring="active"></span>Active</dt>
+            <dd>{{ activity().active }}<small> / {{ activity().activeTarget }} min</small></dd>
           </div>
+          <div class="legend-row">
+            <dt><span class="dot" data-ring="goal"></span>Goal · {{ goalTitle() }}</dt>
+            <dd>{{ activity().goalPct }}<small>% complete</small></dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="card area-body">
+      <div class="card-head">
+        <h2><span class="head-icon" data-tone="info"><i class="fa-solid fa-weight-scale" aria-hidden="true"></i></span>Body composition</h2>
+        <a class="card-link" routerLink="/user/health-tracker">Update</a>
+      </div>
+      <div class="stat-tiles">
+        <div class="stat-tile">
+          <span class="stat-label"><i class="fa-solid fa-weight-scale" aria-hidden="true"></i> Weight</span>
+          <span class="stat-value">{{ summary()?.currentWeight || '-' }}@if (summary()?.currentWeight) {<small> kg</small>}</span>
         </div>
-
-        <!-- Bottom: Goal Progress -->
-        <div class="goal-progress-wrap">
-          <div class="goal-head">
-            <h4><i class="fa-solid fa-crosshairs icon-accent"></i> Current Goal: {{ goalTitle }}</h4>
-            <span>{{ goalProgressPct }}%</span>
-          </div>
-          <div class="goal-track">
-            <div class="goal-fill" [style.width.%]="goalProgressPct"></div>
-          </div>
-          <p class="goal-subtext">Keep pushing! You are on track to complete this phase.</p>
+        <div class="stat-tile">
+          <span class="stat-label"><i class="fa-solid fa-droplet" aria-hidden="true"></i> Body fat</span>
+          <span class="stat-value">{{ summary()?.bodyFat || '-' }}@if (summary()?.bodyFat) {<small>%</small>}</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-label"><i class="fa-solid fa-gauge-simple" aria-hidden="true"></i> BMI</span>
+          <span class="stat-value">{{ summary()?.bmi || '-' }}</span>
+          @if (bmiCategory(); as cat) {
+            <span class="stat-note" [attr.data-tone]="cat.tone">{{ cat.label }}</span>
+          }
         </div>
       </div>
+    </section>
 
-      <!-- Row 2: Body Composition Rings -->
-      <div class="ov-body-section glass-card mb-0">
-        <div class="ov-section-header collapsible" (click)="toggleBodyComposition()">
-          <div>
-            <h3 class="ov-section-title"><i class="fa-solid fa-child-reaching"></i> Body Composition</h3>
-            <p class="ov-section-subtitle">Based on latest measurement</p>
-          </div>
-          <button type="button" class="btn-section-toggle" [class.open]="isBodyCompositionOpen"
-            [attr.aria-expanded]="isBodyCompositionOpen" title="Toggle Body Composition">
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
+    <section class="card area-routines">
+      <div class="card-head">
+        <div class="title-inline">
+          <h2><span class="head-icon" data-tone="accent"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>Daily routines</h2>
+          @if (routines().length) {
+            <span class="card-count">{{ doneRoutineCount() }} of {{ routines().length }}</span>
+          }
         </div>
-
-        <div class="ov-body-composition-grid" *ngIf="isBodyCompositionOpen">
-          <!-- Weight Ring -->
-          <div class="ov-comp-card">
-            <div class="ov-ring-container">
-              <svg viewBox="0 0 100 100" class="ov-ring-svg-new">
-                <circle cx="50" cy="50" r="44" class="ring-bg"></circle>
-                <circle cx="50" cy="50" r="44" class="ring-fill bf-fill ring-calorie-mock"></circle>
-              </svg>
-              <div class="ring-label-content">
-                <span class="ring-val-big">{{ currentWeight }}</span>
-                <span class="ring-val-sub">KG</span>
-              </div>
-            </div>
-            <div class="ring-meta-text">
-              <span class="status-pill ok">MAINTAINING</span>
-            </div>
-          </div>
-
-          <!-- Body Fat Ring -->
-          <div class="ov-comp-card">
-            <div class="ov-ring-container">
-              <svg viewBox="0 0 100 100" class="ov-ring-svg-new">
-                <circle cx="50" cy="50" r="44" class="ring-bg"></circle>
-                <circle cx="50" cy="50" r="44" class="ring-fill bf-fill ring-active-mock"></circle>
-              </svg>
-              <div class="ring-label-content">
-                <span class="ring-val-big">{{ bodyFat }}%</span>
-                <span class="ring-val-sub">BODY FAT</span>
-              </div>
-            </div>
-            <div class="ring-meta-text">
-              <span class="status-pill normal">HEALTHY</span>
-            </div>
-          </div>
-
-          <!-- BMI Ring -->
-          <div class="ov-comp-card">
-            <div class="ov-ring-container">
-              <svg viewBox="0 0 100 100" class="ov-ring-svg-new">
-                <circle cx="50" cy="50" r="44" class="ring-bg"></circle>
-                <circle cx="50" cy="50" r="44" class="ring-fill bmi-fill-normal ring-streak-mock"></circle>
-              </svg>
-              <div class="ring-label-content">
-                <span class="ring-val-big">{{ bmi }}</span>
-                <span class="ring-val-sub">BMI</span>
-              </div>
-            </div>
-            <div class="ring-meta-text">
-              <span class="status-pill normal">NORMAL</span>
-            </div>
-          </div>
-        </div>
+        <button type="button" class="icon-btn" (click)="toggleAddRoutine()"
+          [attr.aria-label]="isAddingRoutine() ? 'Close add routine' : 'Add routine'" [attr.aria-expanded]="isAddingRoutine()">
+          <i class="fa-solid" [class.fa-plus]="!isAddingRoutine()" [class.fa-xmark]="isAddingRoutine()" aria-hidden="true"></i>
+        </button>
       </div>
 
-      <!-- Row 3: Active Plans Overview -->
-      <div class="dashboard-grid-plans">
-
-        <!-- Workout Plan Summary -->
-        <div class="ov-plan-card glass-card workout-theme">
-          <div>
-            <div class="ov-plan-header">
-              <div class="ov-plan-icon workout"><i class="fa-solid fa-dumbbell"></i></div>
-              <div class="ov-plan-head-text">
-                <p class="ov-plan-type">Active Workout Plan</p>
-                <h4 class="ov-plan-name">{{ activeWorkoutPlan?.name || 'No Plan Assigned' }}</h4>
-              </div>
-            </div>
+      @if (isAddingRoutine()) {
+        <form class="routine-form" [formGroup]="routineForm" (ngSubmit)="addRoutine()">
+          <div class="routine-fields">
+            <label class="field grow">
+              <span class="visually-hidden">Habit</span>
+              <input type="text" formControlName="title" placeholder="Habit, e.g. Drink water"
+                [class.invalid]="routineForm.controls.title.invalid && routineForm.controls.title.touched">
+            </label>
+            <label class="field amount">
+              <span class="visually-hidden">Amount or time</span>
+              <input type="text" formControlName="amount" placeholder="3 L"
+                [class.invalid]="routineForm.controls.amount.invalid && routineForm.controls.amount.touched">
+            </label>
+            <button type="submit" class="btn-primary">Add</button>
           </div>
-          <button class="plan-action-btn" *ngIf="activePlanName !== 'No Plan Assigned'"
-            (click)="startTodaysWorkout()">Start Today's Workout</button>
-        </div>
-
-        <!-- Diet Plan Summary -->
-        <div class="ov-plan-card glass-card diet-theme">
-          <div>
-            <div class="ov-plan-header">
-              <div class="ov-plan-icon diet"><i class="fa-solid fa-apple-whole"></i></div>
-              <div class="ov-plan-head-text">
-                <p class="ov-plan-type">Active Diet Plan</p>
-                <h4 class="ov-plan-name">{{ activeDietPlan?.name || 'No Plan Assigned' }}</h4>
-              </div>
-            </div>
-          </div>
-          <button class="plan-action-btn btn-log-meal" *ngIf="activeDietPlan?.name !== 'No Plan Assigned'"
-            (click)="logMeal()">Log
-            Meal</button>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- ══════════ RIGHT COLUMN (Sidebar) ══════════ -->
-    <div class="dashboard-col">
-      <!-- Daily Routines Tracker (Stops at Row 3) -->
-      <div class="ov-routines-card glass-card sidebar-card flex-1">
-        <div class="routine-header">
-          <h3 class="ov-stats-title"><i class="fa-solid fa-list-check"></i> Daily Routines </h3>
-          <button class="btn-icon-text" (click)="isAddingRoutine = !isAddingRoutine">
-            <i class="fa-solid" [ngClass]="isAddingRoutine ? 'fa-xmark' : 'fa-plus'"></i> {{ isAddingRoutine ? 'Close' :
-            'Add' }}
-          </button>
-        </div>
-
-        <form [formGroup]="routineForm" (ngSubmit)="addRoutine()" class="routine-input-group-container"
-          *ngIf="isAddingRoutine">
-          <div class="routine-input-group">
-            <input type="text" formControlName="title" placeholder="Habit..." class="input-flex"
-              [class.invalid]="routineForm.get('title')?.invalid && routineForm.get('title')?.touched">
-
-            <input type="text" formControlName="amount" placeholder="Time/Amt" class="input-small"
-              [class.invalid]="routineForm.get('amount')?.invalid && routineForm.get('amount')?.touched">
-
-            <button type="submit" class="btn-icon-primary" title="Save Routine">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-          </div>
-          <div class="validation-error"
-            *ngIf="routineForm.get('amount')?.errors?.['maxLengthExceeded'] && routineForm.get('amount')?.touched">
-            Amount cannot exceed 20 characters.
-          </div>
-          <div class="validation-error"
-            *ngIf="routineForm.get('amount')?.errors?.['maxDigitsExceeded'] && routineForm.get('amount')?.touched">
-            Number cannot exceed 5 digits.
-          </div>
+          @if (routineForm.controls.amount.touched && routineForm.controls.amount.errors?.['maxLengthExceeded']) {
+            <span class="field-error">Amount cannot exceed 20 characters.</span>
+          }
+          @if (routineForm.controls.amount.touched && routineForm.controls.amount.errors?.['maxDigitsExceeded']) {
+            <span class="field-error">Number cannot exceed 5 digits.</span>
+          }
         </form>
+      }
 
-        <div class="routine-list" cdkDropList (cdkDropListDropped)="dropRoutine($event)">
-          <div *ngIf="dailyRoutines.length === 0" class="empty-state-text">
-            No protocols set for today.
-          </div>
-
-          <div class="r-item" *ngFor="let quest of dailyRoutines" [class.completed]="quest.completed" cdkDrag
-            (click)="toggleRoutine(quest)">
-            <div class="r-info">
-              <div class="drag-handle" cdkDragHandle (click)="$event.stopPropagation()">
-                <i class="fa-solid fa-grip-vertical"></i>
-              </div>
-              <div class="r-checkbox"><i class="fa-solid fa-check"></i></div>
-              <div class="r-text">
-                <h4>{{ quest.title }}</h4>
-                <span *ngIf="quest.time || quest.amount">{{ quest.time || quest.amount }}</span>
-              </div>
-            </div>
-            <button class="btn-icon-muted" (click)="removeRoutine(quest); $event.stopPropagation()">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div> <!-- End of Asymmetric Layout -->
-
-  <!-- ══════════ FULL WIDTH BOTTOM ROW ══════════ -->
-  <div class="dashboard-grid-bottom">
-
-    <!-- Personal Records -->
-    <div class="ov-pr-card glass-card">
-      <div class="ov-section-header">
-        <div>
-          <h3 class="ov-section-title"><i class="text-warning fa-solid fa-trophy"></i> Trophy Room</h3>
-          <p class="ov-section-subtitle">Top Personal Records</p>
-        </div>
-      </div>
-      <div class="pr-list">
-        <div *ngIf="personalRecords.length === 0" class="empty-dashboard-box empty-state-text">
-          <i class="dashboard-icon-faded fa-solid fa-medal mb-2"></i><br>
-          No personal records set yet.
-        </div>
-        <div class="pr-item" *ngFor="let pr of personalRecords">
-          <div class="pr-info">
-            <i class="fa-solid fa-medal"></i>
-            <span class="pr-name">{{ pr.name }}</span>
-          </div>
-          <div class="pr-val">
-            <span class="weight">{{ pr.weight }}</span>
-            <span class="date">{{ pr.date }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Muscle Recovery Status -->
-    <div class="ov-recovery-card glass-card">
-      <div class="ov-section-header">
-        <div>
-          <h3 class="ov-section-title"><i class="text-danger fa-solid fa-heart-pulse"></i> Muscle Recovery
-          </h3>
-          <p class="ov-section-subtitle">Based on recent activity</p>
-        </div>
-      </div>
-      <div class="recovery-list">
-        <div *ngIf="muscleRecovery.length === 0" class="empty-dashboard-box empty-state-text">
-          <i class="dashboard-icon-faded fa-solid fa-bed mb-2"></i><br>
-          No recent activity to analyze.
-        </div>
-        <div class="rec-item" *ngFor="let m of muscleRecovery" [ngClass]="m.status.toLowerCase()">
-          <div class="rec-head">
-            <span class="rec-name">{{ m.name }}</span>
-            <span class="rec-status">{{ m.status }}</span>
-          </div>
-          <div class="rec-track">
-            <div class="rec-fill" [style.width.%]="m.pct"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Muscle Activation Heatmap -->
-    <div class="ov-heatmap-card glass-card">
-      <div class="mb-20 ov-section-header">
-        <div>
-          <h3 class="ov-section-title"><i class="text-orange fa-solid fa-fire-flame-curved"></i> Activation
-            Heatmap</h3>
-          <p class="ov-section-subtitle">Current Week Intensity</p>
-        </div>
-      </div>
-
-      <div class="heatmap-body">
-        <div *ngIf="muscleHeatmap.length === 0" class="empty-dashboard-box empty-state-text">
-          <i class="dashboard-icon-faded fa-solid fa-fire-flame-curved mb-2"></i><br>
-          No activation data available.
-        </div>
-
-        <div class="zone-item" *ngFor="let zone of muscleHeatmap" [ngClass]="zone.level.toLowerCase()">
-          <div class="zone-glow"></div>
-          <div class="zone-info">
-            <span class="z-name">{{ zone.name }}</span>
-            <span class="z-level">{{ zone.label }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
+      @if (routines().length === 0) {
+        <p class="empty">No routines yet. Add habits like water, steps or sleep to tick off each day.</p>
+      } @else {
+        <ul class="routine-list" cdkDropList (cdkDropListDropped)="dropRoutine($event)">
+          @for (routine of visibleRoutines(); track routine.id) {
+            <li class="routine" cdkDrag [class.done]="routine.completed">
+              <button type="button" class="drag-handle" cdkDragHandle aria-label="Reorder routine">
+                <i class="fa-solid fa-grip-vertical" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="routine-toggle" (click)="toggleRoutine(routine)" [attr.aria-pressed]="routine.completed">
+                <span class="check">
+                  @if (routine.completed) {
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  }
+                </span>
+                <span class="routine-text">
+                  <span class="routine-title">{{ routine.title }}</span>
+                  @if (routine.time || routine.amount) {
+                    <span class="routine-amount">{{ routine.time || routine.amount }}</span>
+                  }
+                </span>
+              </button>
+              <button type="button" class="icon-btn quiet" (click)="removeRoutine(routine)" aria-label="Remove routine">
+                <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (hasMoreRoutines()) {
+          <button type="button" class="show-more" (click)="toggleShowAllRoutines()" [attr.aria-expanded]="showAllRoutines()">
+            {{ showAllRoutines() ? 'Show less' : 'Show all ' + routines().length + ' routines' }}
+            <i class="fa-solid" [class.fa-chevron-down]="!showAllRoutines()" [class.fa-chevron-up]="showAllRoutines()" aria-hidden="true"></i>
+          </button>
+        }
+      }
+    </section>
   </div>
 
 </div>
