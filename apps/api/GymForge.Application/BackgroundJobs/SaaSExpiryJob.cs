@@ -1,6 +1,7 @@
 using GymForge.Contracts.Gym.Management;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 
 namespace GymForge.Application.BackgroundJobs
@@ -32,7 +33,8 @@ namespace GymForge.Application.BackgroundJobs
             _logger.LogInformation("SaaSExpiryJob started.");
 
             List<GymListResponseDto> gyms = await _gymRepository.GetAllGymsAsync();
-            DateTime today = DateTime.UtcNow.Date;
+            // Runs at 01:00 IST (still the previous day in UTC), so compare IST calendar dates.
+            DateTime today = AppTimeZone.Today;
 
             foreach (var gym in gyms)
             {
@@ -44,7 +46,7 @@ namespace GymForge.Application.BackgroundJobs
                     Gym? gymEntity = await _gymRepository.GetGymByIdAsync(gym.Id);
                     if (gymEntity == null || gymEntity.Owner == null || string.IsNullOrEmpty(gymEntity.Owner.Email)) continue;
 
-                    DateTime endDate = subscription.EndDate.Date;
+                    DateTime endDate = AppTimeZone.ToLocalDate(subscription.EndDate);
 
                     if (endDate == today.AddDays(-1) && subscription.IsActive)
                     {

@@ -3,6 +3,7 @@ using GymForge.Domain.Entities;
 using GymForge.Domain.Enums;
 using GymForge.Domain.Interface;
 using GymForge.Shared.Enums;
+using GymForge.Shared.Helpers;
 
 using Microsoft.Extensions.Logging;
 
@@ -70,11 +71,12 @@ namespace GymForge.Application.BackgroundJobs
 
             // 2. Fetch all active or recently expired subscriptions for this gym
             IEnumerable<MemberSubscription> subscriptions = await _memberRepository.GetActiveSubscriptionsByGymIdAsync(gymId);
-            DateTime today = DateTime.UtcNow.Date;
+            // Runs at 00:00 IST (still the previous day in UTC), so compare IST calendar dates.
+            DateTime today = AppTimeZone.Today;
 
-            foreach (MemberSubscription sub in subscriptions)
+            foreach (var sub in subscriptions)
             {
-                DateTime endDate = sub.EndDate.Date;
+                DateTime endDate = AppTimeZone.ToLocalDate(sub.EndDate);
 
                 // EXPIRED TODAY
                 if (expiredTemplate != null && endDate == today.AddDays(-1))
