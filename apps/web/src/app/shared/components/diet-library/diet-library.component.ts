@@ -6,12 +6,12 @@ import { DietTemplateCreatorComponent } from './diet-template-creator/diet-templ
 import { ConfirmationPopupComponent } from '../confirmation-popup/confirmation-popup.component';
 import { DietPlanService } from '../../../core/services/diet-plan.service';
 import { CONSTANTS } from '../../../core/constants/constants';
-import { TruncatePipe } from '../../pipes/truncate.pipe';
+import { macroCalorieSplit } from '../../utils/nutrition';
 
 @Component({
   selector: 'app-diet-library',
   standalone: true,
-  imports: [CommonModule, DietTemplateCreatorComponent, ConfirmationPopupComponent, TruncatePipe],
+  imports: [CommonModule, DietTemplateCreatorComponent, ConfirmationPopupComponent],
   templateUrl: './diet-library.component.html',
   styleUrl: './diet-library.component.scss'
 })
@@ -24,6 +24,7 @@ export class DietLibraryComponent implements OnInit {
   @Input() activeDietId?: string;
   @Input() isCardView: boolean = false;
   @Input() ownerMode: boolean = false;
+  @Input() embedded: boolean = false;
   @Output() onAssign = new EventEmitter<any>();
 
   loggedInUserId: string = '';
@@ -79,7 +80,6 @@ export class DietLibraryComponent implements OnInit {
 
   openEditModal(plan: any): void {
     if (!this.canEdit(plan)) {
-      // Inherit mode: duplicate plan without ID
       this.editingPlan = { ...plan, id: undefined, createdBy: this.currentUserId, isCustom: true };
     } else {
       this.editingPlan = plan;
@@ -158,25 +158,7 @@ export class DietLibraryComponent implements OnInit {
   }
 
   getMacroPercentageForCard(plan: any, macroType: 'protein' | 'carbs' | 'fats'): number {
-    const protein = plan.protein || 0;
-    const carbs = plan.carbs || 0;
-    const fats = plan.fats || 0;
-
-    const pKcal = protein * 4;
-    const cKcal = carbs * 4;
-    const fKcal = fats * 9;
-    const totalKcal = pKcal + cKcal + fKcal;
-
-    if (totalKcal === 0)
-      return 0;
-
-    if (macroType === 'protein')
-      return Math.round((pKcal / totalKcal) * 100);
-
-    if (macroType === 'carbs')
-      return Math.round((cKcal / totalKcal) * 100);
-
-    return Math.round((fKcal / totalKcal) * 100);
+    return macroCalorieSplit(plan.protein, plan.carbs, plan.fats)[macroType];
   }
 
   getMealTime(meal: any): string {

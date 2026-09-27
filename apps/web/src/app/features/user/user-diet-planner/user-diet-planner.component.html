@@ -1,23 +1,20 @@
 <div class="user-page-wrapper">
 
-  <!-- Toggle Template -->
-  <ng-template #toggleTemplate>
-    <div class="mb-0 view-toggle-container">
-      <div class="segmented-control">
-        <button [class.active]="viewMode === 'active'" (click)="viewMode = 'active'">Active Plan</button>
-        <button [class.active]="viewMode === 'library'" (click)="viewMode = 'library'">Diet Library</button>
-      </div>
-    </div>
-  </ng-template>
+  <header class="page-head">
+    <h1>Nutrition</h1>
+    @if (activeDiet?.planName) {
+      <p>Plan: {{ activeDiet.planName }}</p>
+    }
+  </header>
+
+  <app-segmented-tabs class="member-tabs" [tabs]="tabs" [active]="viewMode" label="Nutrition views" (selected)="setView($event)" />
 
   <app-member-detail-diet-chart *ngIf="viewMode === 'active'" [activeDiet]="activeDiet" [memberId]="userId"
-    [memberInfo]="memberInfo" (openAssignModal)="viewMode = 'library'" (customDietSaved)="loadActiveDiet()">
-    <div user-toggle *ngTemplateOutlet="toggleTemplate"></div>
+    [memberInfo]="memberInfo" (openAssignModal)="setView('library')" (customDietSaved)="loadActiveDiet()">
   </app-member-detail-diet-chart>
 
   <app-diet-library *ngIf="viewMode === 'library'" [currentUserId]="userId" [activeDietId]="activeDiet?.planId"
-    [isCardView]="true" (onAssign)="assignDietPlan($event)">
-    <div user-toggle *ngTemplateOutlet="toggleTemplate"></div>
+    [isCardView]="true" [embedded]="true" (onAssign)="assignDietPlan($event)">
   </app-diet-library>
 
 </div>
