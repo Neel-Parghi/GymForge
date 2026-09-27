@@ -1,0 +1,359 @@
+<div class="session">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <button type="button" class="icon-btn close-btn" (click)="leave()"
+        [attr.aria-label]="isBackdating() ? 'Back to calendar' : 'Close workout log'">
+        <i class="fa-solid" [class.fa-xmark]="!isBackdating()" [class.fa-chevron-left]="isBackdating()" aria-hidden="true"></i>
+      </button>
+
+      <div class="topbar-title">
+        <h1>{{ isRestDay() ? 'Rest day' : (dayName() || 'Workout log') }}</h1>
+        <span class="subtitle">
+          @if (isBackdating()) {
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Logging for {{ loggingDate() | date: 'EEEE, d MMM' }}
+          } @else if (exercises().length && !isRestDay()) {
+            {{ loggingDate() | date: 'EEEE, d MMM' }} · {{ completedSetCount() }} sets done
+          } @else {
+            {{ loggingDate() | date: 'EEEE, d MMM' }}
+          }
+        </span>
+      </div>
+
+      <div class="topbar-actions">
+        @if (dayOptions().length && workout()) {
+          <div class="switch-day">
+            <span class="switch-label"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Switch day</span>
+            <app-dropdown [options]="dayOptions()" [formControl]="dayControl" minWidth="220px"></app-dropdown>
+          </div>
+        }
+        @if (exercises().length && !isRestDay()) {
+          <button type="button" class="btn-primary" (click)="finish()">
+            <i class="fa-solid fa-check" aria-hidden="true"></i> Save &amp; log session
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (exercises().length && !isRestDay()) {
+      <div class="segments" aria-hidden="true">
+        @for (seg of progressSegments(); track $index) {
+          <span class="segment" [attr.data-state]="seg"></span>
+        }
+      </div>
+    }
+  </header>
+
+  @if (isBackdating()) {
+    <div class="backdate-note">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <span>You're logging a past workout for <strong>{{ loggingDate() | date: 'EEEE, d MMMM y' }}</strong>.</span>
+    </div>
+  }
+
+  @if (!workout()) {
+    <section class="card state-card">
+      <span class="state-icon"><i class="fa-regular fa-calendar-xmark" aria-hidden="true"></i></span>
+      <h2>No workout to log</h2>
+      <p>You don't have a workout scheduled, or no plan is assigned yet.</p>
+      <div class="state-actions">
+        <a class="btn-primary" routerLink="/user/workout-planner" [queryParams]="{ view: 'library' }">Browse plans</a>
+        <a class="btn-outline" routerLink="/user/workout-calendar">Open calendar</a>
+      </div>
+    </section>
+  } @else if (isRestDay()) {
+    <section class="card state-card">
+      <span class="state-icon rest"><i class="fa-solid fa-bed" aria-hidden="true"></i></span>
+      <h2>Rest &amp; recovery day</h2>
+      <p>No training scheduled. Rest is where muscle is built: stretch, hydrate and eat well.</p>
+      <div class="state-actions">
+        <button type="button" class="btn-primary" (click)="logRestDay()">
+          <i class="fa-solid fa-check" aria-hidden="true"></i> Log rest day
+        </button>
+        <button type="button" class="btn-outline" (click)="trackAnyway()">
+          <i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Log a workout anyway
+        </button>
+      </div>
+    </section>
+  } @else {
+    <div class="workspace">
+
+      <aside class="exercise-rail" aria-label="Exercises">
+        <div class="rail-head">
+          <span class="rail-title">Exercises</span>
+          <button type="button" class="text-btn" (click)="openSheet('add')">
+            <i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add
+          </button>
+        </div>
+        <ng-container *ngTemplateOutlet="exerciseList"></ng-container>
+      </aside>
+
+      <main class="console">
+        @if (current(); as ex) {
+          <div class="ex-head">
+            <div class="ex-title">
+              <h2>{{ ex.name }}</h2>
+              <div class="ex-meta">
+                @if (ex.sets[0]?.target) {
+                  <span><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Target: {{ ex.sets[0].target }}</span>
+                }
+                @if (currentLast(); as last) {
+                  <span><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Last time: {{ last.summary }}</span>
+                }
+              </div>
+            </div>
+            <button type="button" class="icon-btn list-btn" (click)="openSheet('exercises')" aria-label="All exercises">
+              <i class="fa-solid fa-list-ul" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div class="ex-actions">
+            <button type="button" class="btn-outline" (click)="toggleCardio()">
+              <i class="fa-solid" [class.fa-person-running]="!ex.isCardio" [class.fa-dumbbell]="ex.isCardio" aria-hidden="true"></i>
+              <span class="label-long">{{ ex.isCardio ? 'Strength mode' : 'Cardio mode' }}</span>
+              <span class="label-short">{{ ex.isCardio ? 'Strength' : 'Cardio' }}</span>
+            </button>
+            @if (!ex.skipped) {
+              <button type="button" class="btn-outline" (click)="openSheet('swap')">
+                <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                <span class="label-long">Swap exercise</span>
+                <span class="label-short">Swap</span>
+              </button>
+            }
+            <button type="button" class="btn-outline" [class.on]="ex.skipped" (click)="toggleSkip()" [attr.aria-pressed]="ex.skipped">
+              <i class="fa-solid" [class.fa-ban]="!ex.skipped" [class.fa-play]="ex.skipped" aria-hidden="true"></i>
+              <span class="label-long">{{ ex.skipped ? 'Resume exercise' : 'Skip exercise' }}</span>
+              <span class="label-short">{{ ex.skipped ? 'Resume' : 'Skip' }}</span>
+            </button>
+          </div>
+
+          @if (ex.skipped) {
+            <section class="skipped">
+              <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+              <strong>This exercise is skipped</strong>
+              <span>It won't count towards this log. Resume it to record sets.</span>
+              <button type="button" class="btn-primary" (click)="toggleSkip()">Resume exercise</button>
+            </section>
+          } @else {
+            <section class="sets" [formGroup]="exerciseForm(currentIndex())" aria-label="Sets">
+              <div class="sets-toolbar">
+                <span class="sets-count">{{ doneSets(ex) }} of {{ ex.sets.length }} sets done</span>
+                <button type="button" class="text-btn" (click)="toggleAllSets()">
+                  <i class="fa-solid" [class.fa-check-double]="!currentAllDone()" [class.fa-rotate-left]="currentAllDone()" aria-hidden="true"></i>
+                  {{ currentAllDone() ? 'Clear all' : 'Mark all done' }}
+                </button>
+              </div>
+
+              <div class="sets-table" [class.cardio]="ex.isCardio">
+                <div class="sets-head" aria-hidden="true">
+                  <span>Set</span>
+                  <span class="col-target">Target</span>
+                  <span>{{ ex.isCardio ? 'Distance (km)' : 'Weight (kg)' }}</span>
+                  <span>{{ ex.isCardio ? 'Duration (min)' : 'Reps' }}</span>
+                  <span>Status</span>
+                  <span class="col-remove">Remove</span>
+                </div>
+
+                <ul class="set-list" formArrayName="sets">
+                  @for (set of ex.sets; track $index; let si = $index) {
+                    <li class="set-row" [formGroupName]="si" [class.done]="set.completed">
+                      <span class="set-badge"><span class="set-word">Set </span>{{ set.setNo }}</span>
+                      <span class="col-target target">{{ set.target || '-' }}</span>
+
+                      <div class="stepper">
+                        <button type="button" (click)="step(si, 'weight', -1)" [disabled]="set.completed"
+                          [attr.aria-label]="'Decrease ' + (ex.isCardio ? 'distance' : 'weight') + ', set ' + set.setNo">
+                          <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                        </button>
+                        <input type="number" inputmode="decimal" formControlName="weight" placeholder="0" min="0"
+                          [readonly]="set.completed" (blur)="clamp(si, 'weight')"
+                          [attr.aria-label]="(ex.isCardio ? 'Distance in km' : 'Weight in kg') + ', set ' + set.setNo">
+                        <span class="unit">{{ ex.isCardio ? 'km' : 'kg' }}</span>
+                        <button type="button" (click)="step(si, 'weight', 1)" [disabled]="set.completed"
+                          [attr.aria-label]="'Increase ' + (ex.isCardio ? 'distance' : 'weight') + ', set ' + set.setNo">
+                          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        </button>
+                      </div>
+
+                      <div class="stepper">
+                        <button type="button" (click)="step(si, 'reps', -1)" [disabled]="set.completed"
+                          [attr.aria-label]="'Decrease ' + (ex.isCardio ? 'minutes' : 'reps') + ', set ' + set.setNo">
+                          <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                        </button>
+                        <input type="number" inputmode="numeric" formControlName="reps" placeholder="0" min="0"
+                          [readonly]="set.completed" (blur)="clamp(si, 'reps')"
+                          [attr.aria-label]="(ex.isCardio ? 'Minutes' : 'Reps') + ', set ' + set.setNo">
+                        <span class="unit">{{ ex.isCardio ? 'min' : 'reps' }}</span>
+                        <button type="button" (click)="step(si, 'reps', 1)" [disabled]="set.completed"
+                          [attr.aria-label]="'Increase ' + (ex.isCardio ? 'minutes' : 'reps') + ', set ' + set.setNo">
+                          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        </button>
+                      </div>
+
+                      <button type="button" class="status-btn" (click)="toggleSet(si)" [attr.aria-pressed]="set.completed"
+                        [attr.aria-label]="(set.completed ? 'Undo set ' : 'Mark set ') + set.setNo + (set.completed ? '' : ' done')">
+                        <i class="fa-solid" [class.fa-circle-check]="set.completed" [class.fa-circle]="!set.completed" aria-hidden="true"></i>
+                        <span class="status-text">{{ set.completed ? 'Completed' : 'Mark done' }}</span>
+                      </button>
+
+                      <button type="button" class="remove-btn" (click)="removeSet(si)" [disabled]="ex.sets.length <= 1"
+                        [attr.aria-label]="'Remove set ' + set.setNo" title="Remove set">
+                        <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+
+              <button type="button" class="add-set" (click)="addSet()">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Add new set
+              </button>
+            </section>
+          }
+
+          <div class="console-foot">
+            <button type="button" class="btn-outline" (click)="stepExercise(-1)" [disabled]="!hasPrevious()">
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Previous
+            </button>
+            <span class="foot-position">Exercise {{ currentIndex() + 1 }} of {{ exercises().length }}</span>
+            <button type="button" class="btn-outline" (click)="stepExercise(1)" [disabled]="!hasNext()">
+              Next exercise <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        } @else {
+          <section class="state-card inner">
+            <span class="state-icon"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>
+            <h2>No exercises yet</h2>
+            <p>Add the exercises you did, or switch to another day from your plan.</p>
+            <div class="state-actions">
+              <button type="button" class="btn-primary" (click)="openSheet('add')">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Add exercise
+              </button>
+              @if (planDays().length) {
+                <button type="button" class="btn-outline" (click)="openSheet('days')">
+                  <i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Switch plan day
+                </button>
+              }
+            </div>
+          </section>
+        }
+      </main>
+    </div>
+
+    @if (exercises().length) {
+      <div class="action-bar">
+        <button type="button" class="step-btn" (click)="stepExercise(-1)" [disabled]="!hasPrevious()" aria-label="Previous exercise">
+          <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="step-btn" (click)="stepExercise(1)" [disabled]="!hasNext()" aria-label="Next exercise">
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="primary-action" (click)="finish()">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+          Save workout{{ completedSetCount() ? ' (' + completedSetCount() + ' sets)' : '' }}
+        </button>
+      </div>
+    }
+  }
+</div>
+
+<ng-template #exerciseList>
+  <ol class="ex-list">
+    @for (ex of exercises(); track $index; let i = $index) {
+      <li>
+        <button type="button" class="ex-row" [class.current]="i === currentIndex()" [attr.data-state]="progressSegments()[i]"
+          (click)="goTo(i)" [attr.aria-current]="i === currentIndex() ? 'step' : null">
+          <span class="ex-num">{{ i + 1 }}</span>
+          <span class="ex-row-text">
+            <span class="ex-row-name">{{ ex.name }}</span>
+            <span class="ex-row-meta">@if (ex.skipped) { Skipped } @else { {{ doneSets(ex) }}/{{ ex.sets.length }} sets }</span>
+          </span>
+          <span class="ex-status" aria-hidden="true">
+            @switch (progressSegments()[i]) {
+              @case ('done') { <i class="fa-solid fa-circle-check"></i> }
+              @case ('skipped') { <i class="fa-solid fa-ban"></i> }
+              @default { <i class="fa-regular fa-circle"></i> }
+            }
+          </span>
+        </button>
+      </li>
+    }
+  </ol>
+</ng-template>
+
+@if (sheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="sheet" role="dialog" aria-modal="true"
+    [attr.aria-label]="sheet() === 'exercises' ? 'Exercises' : sheet() === 'days' ? 'Switch plan day' : sheet() === 'swap' ? 'Swap exercise' : 'Add exercise'">
+    <span class="sheet-handle" aria-hidden="true"></span>
+
+    @switch (sheet()) {
+      @case ('exercises') {
+        <header class="sheet-head">
+          <h2>Exercises</h2>
+          <button type="button" class="icon-btn quiet" (click)="closeSheet()" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        <ng-container *ngTemplateOutlet="exerciseList"></ng-container>
+        <div class="sheet-row">
+          <button type="button" class="btn-outline" (click)="openSheet('add')"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add exercise</button>
+          @if (planDays().length) {
+            <button type="button" class="btn-outline" (click)="openSheet('days')"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Switch day</button>
+          }
+        </div>
+      }
+
+      @case ('days') {
+        <header class="sheet-head">
+          <h2>Switch plan day</h2>
+          <button type="button" class="icon-btn quiet" (click)="closeSheet()" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        <ul class="day-list">
+          @for (d of planDays(); track d.dayName) {
+            <li>
+              <button type="button" class="day-row" [class.current]="d.dayName === dayControl.value" (click)="closeSheet(); pickDay(d.dayName)">
+                <span class="ex-row-text">
+                  <span class="ex-row-name">{{ d.dayName }}</span>
+                  <span class="ex-row-meta">{{ d.isRestDay ? 'Rest day' : (d.category || ((d.exercises?.length || 0) + ' exercises')) }}</span>
+                </span>
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+
+      @default {
+        <header class="sheet-head">
+          <h2>{{ sheet() === 'swap' ? 'Swap exercise' : 'Add exercise' }}</h2>
+          <button type="button" class="icon-btn quiet" (click)="closeSheet()" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        @if (sheet() === 'swap' && current()) {
+          <p class="sheet-note">Did something else instead of <strong>{{ current()!.name }}</strong>? Its sets reset so you can log fresh numbers.</p>
+        }
+        <div class="name-field">
+          @if (useCustomName()) {
+            <label class="field">
+              <span>Exercise name</span>
+              <input type="text" [formControl]="exerciseNameControl" placeholder="e.g. Incline dumbbell press"
+                (keyup.enter)="confirmExerciseName()">
+            </label>
+          } @else {
+            <span class="field-label">Exercise</span>
+            <app-dropdown [options]="catalogOptions()" [formControl]="exerciseNameControl" [isSearchable]="true"
+              placeholder="Search the exercise library" minWidth="100%" direction="auto"></app-dropdown>
+          }
+          <button type="button" class="text-btn" (click)="toggleCustomName()">
+            <i class="fa-solid" [class.fa-keyboard]="!useCustomName()" [class.fa-list]="useCustomName()" aria-hidden="true"></i>
+            {{ useCustomName() ? 'Pick from the library instead' : 'Type a name instead' }}
+          </button>
+        </div>
+        <div class="sheet-row">
+          <button type="button" class="btn-outline" (click)="closeSheet()">Cancel</button>
+          <button type="button" class="btn-primary" (click)="confirmExerciseName()">
+            <i class="fa-solid fa-check" aria-hidden="true"></i> {{ sheet() === 'swap' ? 'Swap exercise' : 'Add exercise' }}
+          </button>
+        </div>
+      }
+    }
+  </section>
+}

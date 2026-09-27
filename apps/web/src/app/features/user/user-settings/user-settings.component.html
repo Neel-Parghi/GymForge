@@ -1,141 +1,120 @@
-<div class="settings-container">
-  <!-- Fixed Header -->
-  <div class="settings-header">
-    <div class="header-top">
-      <div class="header-content">
-        <h1>Account Settings</h1>
-        <p>Configure your fitness goals and notification preferences.</p>
-      </div>
-      <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving || isLoading"
-        [title]="isSaving ? 'Saving...' : 'Save Changes'">
-        <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
-        <span class="btn-text">{{ isSaving ? 'Saving...' : 'Save Changes' }}</span>
-      </button>
-    </div>
+<div class="settings">
+  <header class="page-head">
+    <a class="icon-btn" routerLink="/user/profile" aria-label="Back to account">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </a>
+    <h1>Settings</h1>
+    <button type="button" class="btn-primary desktop-save" (click)="saveChanges()" [disabled]="!isDirty() || isSaving() || isLoading()">
+      {{ isSaving() ? 'Saving…' : 'Save changes' }}
+    </button>
+  </header>
 
-    <div class="settings-tabs">
-      <button class="tab-btn" [class.active]="activeTab === 'fitness'" (click)="activeTab = 'fitness'">
-        <i class="fa-solid fa-bullseye"></i> Fitness Goals
-      </button>
-      <button class="tab-btn" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
-        <i class="fa-regular fa-bell"></i> Notifications & Preferences
-      </button>
-    </div>
-  </div>
-
-  <div class="scroll-area">
-    <div class="tab-content" *ngIf="!isLoading">
-
-      <!-- Fitness Goals Section -->
-      <div class="settings-pane fade-in" *ngIf="activeTab === 'fitness'">
-        <div class="pane-header">
-          <div class="pane-title-group">
-            <h3>Fitness Goals</h3>
-            <p>Set your target macros, weight, and general fitness objectives.</p>
-          </div>
+  @if (isLoading()) {
+    <section class="card" aria-busy="true">
+      <span class="skeleton wide"></span>
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+    </section>
+  } @else {
+    <div class="panel-grid">
+      <section class="card" [formGroup]="fitnessForm">
+        <div class="card-head">
+          <h2>Fitness goals</h2>
+          <p>These drive your dashboard rings and nutrition targets.</p>
         </div>
 
-        <div class="pane-body">
-          <form [formGroup]="fitnessForm" class="gf-form">
-
-            <div class="form-row two-cols">
-              <div class="form-group">
-                <label>Primary Goal</label>
-                <app-dropdown [options]="primaryGoalOptions" formControlName="primaryGoal"
-                  placeholder="Select a Goal..." [isSearchable]="false" minWidth="100%"></app-dropdown>
-              </div>
-
-              <div class="form-group">
-                <label>Target Weight (kgs)</label>
-                <div class="input-icon-wrapper">
-                  <i class="fa-solid fa-weight-scale"></i>
-                  <input type="number" formControlName="targetWeight" class="gf-input" placeholder="e.g. 70" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row two-cols">
-              <div class="form-group">
-                <label>Daily Calorie Goal (kcal)</label>
-                <div class="input-icon-wrapper">
-                  <i class="fa-solid fa-fire"></i>
-                  <input type="number" formControlName="targetCalories" class="gf-input" placeholder="e.g. 2500" />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Target Training Time (mins/day)</label>
-                <div class="input-icon-wrapper">
-                  <i class="fa-solid fa-clock"></i>
-                  <input type="number" formControlName="targetTrainingTime" class="gf-input" placeholder="e.g. 60" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row three-cols">
-              <div class="form-group">
-                <label>Target Protein (g)</label>
-                <input type="number" formControlName="targetProtein" class="gf-input" placeholder="e.g. 150" />
-              </div>
-
-              <div class="form-group">
-                <label>Target Carbs (g)</label>
-                <input type="number" formControlName="targetCarbs" class="gf-input" placeholder="e.g. 250" />
-              </div>
-
-              <div class="form-group">
-                <label>Target Fats (g)</label>
-                <input type="number" formControlName="targetFats" class="gf-input" placeholder="e.g. 70" />
-              </div>
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-      <!-- Notifications Section -->
-      <div class="settings-pane fade-in" *ngIf="activeTab === 'notifications'">
-        <div class="pane-header">
-          <div class="pane-title-group">
-            <h3>Notifications & Preferences</h3>
-            <p>Control what alerts you receive.</p>
-          </div>
+        <div class="goal-grid" role="radiogroup" aria-label="Primary goal">
+          @for (goal of goals; track goal.value) {
+            <button type="button" role="radio" class="goal" [class.selected]="fitnessForm.controls.primaryGoal.value === goal.value"
+              [attr.aria-checked]="fitnessForm.controls.primaryGoal.value === goal.value" (click)="selectGoal(goal.value)">
+              <i [class]="goal.icon" aria-hidden="true"></i>
+              <span class="goal-label">{{ goal.label }}</span>
+              <span class="goal-hint">{{ goal.hint }}</span>
+            </button>
+          }
         </div>
 
-        <div class="pane-body">
-          <div class="max-w-600 single-setting-container" [formGroup]="notificationsForm">
-            <div class="toggle-list">
-              <div class="toggle-item">
-                <div class="toggle-info">
-                  <h4>Email Notifications</h4>
-                  <p>Master switch for optional emails from GymForge, like workout reminders.</p>
-                </div>
-                <label class="switch-premium">
-                  <input type="checkbox" formControlName="emailNotifications">
-                  <span class="slider round"></span>
-                </label>
-              </div>
-
-              <div class="toggle-item">
-                <div class="toggle-info">
-                  <h4>Workout Reminders</h4>
-                  <p>Get an email in the morning if you have a workout scheduled today and haven't logged it yet.</p>
-                </div>
-                <label class="switch-premium">
-                  <input type="checkbox" formControlName="workoutReminders">
-                  <span class="slider round"></span>
-                </label>
-              </div>
+        <div class="field-grid">
+          <div class="field">
+            <span id="target-weight-label">Target weight</span>
+            <div class="stepper">
+              <button type="button" (click)="stepWeight(-1)" aria-label="Decrease target weight">−</button>
+              <input type="number" inputmode="decimal" formControlName="targetWeight" placeholder="-" min="0"
+                aria-labelledby="target-weight-label">
+              <span class="unit">kg</span>
+              <button type="button" (click)="stepWeight(1)" aria-label="Increase target weight">+</button>
             </div>
           </div>
+          <label class="field">
+            <span>Daily calories</span>
+            <span class="input-unit" [class.invalid]="fitnessForm.controls.targetCalories.invalid">
+              <input type="number" inputmode="numeric" formControlName="targetCalories" placeholder="e.g. 2200" min="0">
+              <span class="unit">kcal</span>
+            </span>
+          </label>
+          <label class="field">
+            <span>Training time</span>
+            <span class="input-unit" [class.invalid]="fitnessForm.controls.targetTrainingTime.invalid">
+              <input type="number" inputmode="numeric" formControlName="targetTrainingTime" placeholder="e.g. 60" min="0">
+              <span class="unit">min/day</span>
+            </span>
+          </label>
         </div>
-      </div>
 
+        <div class="macros">
+          <span class="sub-label">Macro targets</span>
+          <div class="macro-grid">
+            @for (m of macroFields; track m.key) {
+              <label class="field">
+                <span class="macro-name"><span class="dot" [attr.data-macro]="m.tone"></span>{{ m.label }}</span>
+                <span class="input-unit" [class.invalid]="fitnessForm.controls[m.key].invalid">
+                  <input type="number" inputmode="numeric" [formControlName]="m.key" placeholder="-" min="0">
+                  <span class="unit">g</span>
+                </span>
+              </label>
+            }
+          </div>
+
+          @if (macroCheck(); as check) {
+            @if (check.split.length) {
+              <div class="split-bar" aria-hidden="true">
+                @for (part of check.split; track part.tone) {
+                  <span [attr.data-macro]="part.tone" [style.flex-grow]="part.pct"></span>
+                }
+              </div>
+            }
+            <p class="macro-note" [class.warn]="check.target > 0 && !check.matches">
+              Macros add up to <strong>{{ check.kcal }} kcal</strong>{{ check.note }}
+            </p>
+          }
+        </div>
+      </section>
+
+      <section class="card" [formGroup]="notificationsForm">
+        <div class="card-head">
+          <h2>Notifications</h2>
+        </div>
+        <label class="toggle-row">
+          <span class="toggle-text">
+            <span class="toggle-title">Email notifications</span>
+            <span class="toggle-desc">Master switch for optional emails from GymForge, like workout reminders.</span>
+          </span>
+          <input type="checkbox" role="switch" class="switch" formControlName="emailNotifications">
+        </label>
+        <label class="toggle-row">
+          <span class="toggle-text">
+            <span class="toggle-title">Workout reminders</span>
+            <span class="toggle-desc">A morning email if you have a workout scheduled today and haven't logged it yet.</span>
+          </span>
+          <input type="checkbox" role="switch" class="switch" formControlName="workoutReminders">
+        </label>
+      </section>
     </div>
 
-    <div class="loading-state" *ngIf="isLoading">
-      <i class="fa-solid fa-circle-notch fa-spin"></i>
-      <p>Loading settings...</p>
+    <div class="save-bar">
+      <button type="button" class="btn-primary" (click)="saveChanges()" [disabled]="!isDirty() || isSaving()">
+        {{ isSaving() ? 'Saving…' : (isDirty() ? 'Save changes' : 'All changes saved') }}
+      </button>
     </div>
-  </div>
+  }
 </div>

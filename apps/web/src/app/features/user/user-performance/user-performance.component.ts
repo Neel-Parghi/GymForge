@@ -1,16 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PTMemberDetailTrackPerformanceComponent } from '../../trainer/member-detail/components/member-detail-track-performance/member-detail-track-performance.component';
+import { WorkoutSessionComponent } from './components/workout-session/workout-session.component';
+import { SessionWorkoutResult } from '../../../shared/models/workout-session.model';
 import { MemberService } from '../../../core/services/member.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CONSTANTS } from '../../../core/constants/constants';
+import { resolveScheduledDay, toDateKey } from '../../../shared/utils/workout-schedule';
 
 @Component({
   selector: 'app-user-performance',
   standalone: true,
-  imports: [CommonModule, PTMemberDetailTrackPerformanceComponent],
+  imports: [CommonModule, WorkoutSessionComponent],
   templateUrl: './user-performance.component.html',
   styleUrl: './user-performance.component.scss',
 })
@@ -86,21 +88,6 @@ export class UserPerformanceComponent implements OnInit {
     });
   }
 
-  getTodayDateKey(): string {
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
-  getDateKeyFor(date: Date): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
   initializeTodayWorkout(): void {
     if (this.routerState?.sessionToEdit) {
       const session = this.routerState.sessionToEdit;
@@ -172,13 +159,13 @@ export class UserPerformanceComponent implements OnInit {
       return;
     }
 
-    const todayStr = this.getDateKeyFor(this.loggingDate);
+    const todayStr = toDateKey(this.loggingDate);
     let override = this.workoutOverrides[todayStr];
 
     if (!override && this.workoutHistory) {
       const existingSession = this.workoutHistory.find(h => {
         const d = new Date(h.date);
-        return this.getDateKeyFor(d) === todayStr;
+        return toDateKey(d) === todayStr;
       });
       if (existingSession) {
         override = {
@@ -231,27 +218,7 @@ export class UserPerformanceComponent implements OnInit {
       return;
     }
 
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const todayName = daysOfWeek[new Date().getDay()];
-
-    let templateDay = this.activeSplit.days.find((d: any) =>
-      d.dayName && d.dayName.toLowerCase().includes(todayName.toLowerCase())
-    );
-
-    if (!templateDay && this.activeSplit.days.length > 0) {
-      const isAbstractSplit = !this.activeSplit.days.some((d: any) =>
-        daysOfWeek.some(w => d.dayName.toLowerCase().includes(w.toLowerCase()))
-      );
-      if (isAbstractSplit) {
-        if (todayName === 'Monday') {
-          templateDay = this.activeSplit.days[0];
-        } else if (todayName === 'Wednesday' && this.activeSplit.days.length > 1) {
-          templateDay = this.activeSplit.days[1];
-        } else if (todayName === 'Friday' && this.activeSplit.days.length > 2) {
-          templateDay = this.activeSplit.days[2];
-        }
-      }
-    }
+    const templateDay = resolveScheduledDay<any>(this.activeSplit.days, new Date());
 
     if (templateDay) {
       this.todayWorkout = {
@@ -286,7 +253,11 @@ export class UserPerformanceComponent implements OnInit {
     return logD.getTime() > today.getTime();
   }
 
-  saveWorkoutSession(): void {
+  /** Saves the session the member logged (falls back to the loaded workout when none is passed). */
+  saveWorkoutSession(session?: SessionWorkoutResult): void {
+    if (session) {
+      this.todayWorkout = session;
+    }
     if (!this.todayWorkout) return;
 
     if (this.isFutureLoggingDate()) {
@@ -341,5 +312,15 @@ export class UserPerformanceComponent implements OnInit {
 
   goBackToCalendar(): void {
     this.router.navigate(['/user/workout-calendar']);
+  }
+
+  /** Backdated sessions return to the calendar they came from; live ones to Training. */
+  leaveSession(): void {
+    const isToday = toDateKey(this.loggingDate) === toDateKey(new Date());
+    if (isToday) {
+      this.router.navigate(['/user/workout-planner']);
+    } else {
+      this.goBackToCalendar();
+    }
   }
 }

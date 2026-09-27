@@ -1,100 +1,123 @@
 <div class="progress-page">
-  <div class="header">
-    <h2>Exercise Progress</h2>
-  </div>
+  <header class="page-head">
+    <a class="icon-btn" routerLink="/user/workout-planner" aria-label="Back to training">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </a>
+    <h1>Exercise progress</h1>
+  </header>
 
-  <div class="loading-state" *ngIf="isLoadingNames">
-    <div class="spinner"></div>
-    <p>Loading your logged exercises...</p>
-  </div>
-
-  <div class="card empty-card" *ngIf="!isLoadingNames && exerciseNames.length === 0">
-    <span class="empty-icon">
-      <i class="fa-solid fa-chart-line"></i>
-    </span>
-    <h3>No exercises logged yet</h3>
-    <p>Log a workout session with some sets and reps, then come back here to watch your strength trend build up.</p>
-    <button type="button" class="btn-primary" (click)="goToWorkoutLog()">
-      <i class="fa-solid fa-plus"></i> Log a Workout
-    </button>
-  </div>
-
-  <div class="content" *ngIf="!isLoadingNames && exerciseNames.length > 0">
-    <div class="card selector-card">
-      <app-dropdown [options]="exerciseOptions" [isSearchable]="true" [ngModel]="selectedExerciseValue"
-        (selectionChange)="onExerciseValueChange($event)" placeholder="Select exercise...">
-      </app-dropdown>
+  @if (isLoadingNames()) {
+    <section class="card skeleton-card" aria-busy="true">
+      <span class="skeleton wide"></span>
+      <span class="skeleton"></span>
+    </section>
+  } @else if (exerciseNames().length === 0) {
+    <section class="card empty">
+      <span class="empty-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+      <h2>No exercises logged yet</h2>
+      <p>Log a workout with some sets and reps, then come back to watch your strength trend build up.</p>
+      <button type="button" class="btn-primary" (click)="goToWorkoutLog()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Log a workout
+      </button>
+    </section>
+  } @else {
+    <div class="picker">
+      <span class="picker-label">Exercise</span>
+      <app-dropdown [options]="exerciseOptions()" [isSearchable]="true" [formControl]="exerciseControl"
+        placeholder="Search exercises" minWidth="100%"></app-dropdown>
     </div>
 
-    <div class="loading-state" *ngIf="isLoadingProgress">
-      <div class="spinner"></div>
+    <div class="chips" role="group" aria-label="Recent exercises">
+      @for (ex of quickPicks(); track ex.name) {
+        <button type="button" class="chip" [class.active]="ex.name === selectedName()" [attr.aria-pressed]="ex.name === selectedName()"
+          (click)="selectExercise(ex.name)">{{ ex.name }}</button>
+      }
     </div>
 
-    <div class="layout-grid" *ngIf="!isLoadingProgress && progress">
-      <div class="col-left">
-        <div class="card hero-stats">
-          <div class="stat">
-            <span class="stat-icon gold"><i class="fa-solid fa-trophy"></i></span>
-            <span class="stat-val">{{ progress.personalBest }}<span class="unit">kg</span></span>
-            <span class="stat-lbl">Personal Best</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat">
-            <span class="stat-icon blue"><i class="fa-solid fa-calendar-check"></i></span>
-            <span class="stat-val">{{ progress.totalSessions }}</span>
-            <span class="stat-lbl">Sessions</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat">
-            <span class="stat-icon green"><i class="fa-solid fa-clock"></i></span>
-            <span class="stat-val">{{ progress.lastLoggedDate | date:'MMM d' }}</span>
-            <span class="stat-lbl">Last Logged</span>
-          </div>
+    @if (isLoadingProgress()) {
+      <section class="card skeleton-card" aria-busy="true">
+        <span class="skeleton wide"></span>
+        <span class="skeleton tall"></span>
+      </section>
+    } @else if (progress(); as p) {
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Personal best</span>
+          <span class="stat-value">{{ p.personalBest }}<small> kg</small></span>
         </div>
+        <div class="stat">
+          <span class="stat-label">Est. 1RM</span>
+          <span class="stat-value">{{ p.estimatedOneRepMax ?? '-' }}@if (p.estimatedOneRepMax) {<small> kg</small>}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Sessions</span>
+          <span class="stat-value">{{ p.totalSessions }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Last logged</span>
+          <span class="stat-value">{{ p.lastLoggedDate ? (p.lastLoggedDate | date: 'd MMM') : '-' }}</span>
+        </div>
+      </div>
 
-        <div class="card chart-card">
+      <div class="detail">
+        <section class="card chart-card">
           <div class="chart-head">
             <div>
-              <h3>
-                Weight Progression
-                <span class="group-pill" *ngIf="progress.muscleGroup">{{ progress.muscleGroup }}</span>
-              </h3>
-              <span class="est-1rm" *ngIf="progress.estimatedOneRepMax">Est. 1RM ~{{ progress.estimatedOneRepMax }}kg</span>
+              <div class="title-row">
+                <h2>Top set weight</h2>
+                @if (p.muscleGroup) {
+                  <span class="pill info">{{ p.muscleGroup }}</span>
+                }
+              </div>
+              <p class="card-sub">Heaviest set per session, in kg</p>
             </div>
-            <span class="trend-pill" [class.down]="!trend.isUp" *ngIf="trend as trend">
-              <i class="fa-solid" [class.fa-arrow-trend-up]="trend.isUp" [class.fa-arrow-trend-down]="!trend.isUp"></i>
-              {{ trend.isUp ? '+' : '-' }}{{ trend.kg }}kg ({{ trend.pct }}%)
-            </span>
-          </div>
-
-          <div class="chart-wrap" *ngIf="progress.points.length > 1">
-            <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
-          </div>
-          <p class="single-point-note" *ngIf="progress.points.length === 1">
-            Log one more session for {{ progress.exerciseName }} to see your progress trend.
-          </p>
-        </div>
-      </div>
-
-      <div class="card log-card">
-        <h3>Session Log</h3>
-        <div class="log-list scrollable-entries">
-          <div class="log-row" *ngFor="let s of sessionRows">
-            <div class="log-date">
-              <span class="d">{{ s.date | date:'dd' }}</span>
-              <span class="m">{{ s.date | date:'MMM' | uppercase }}</span>
-            </div>
-            <div class="log-mid">
-              <span class="w">
-                {{ s.weight }}kg
-                <span class="pr-chip" *ngIf="s.isPr">PR</span>
+            @if (trend(); as t) {
+              <span class="pill" [class.good]="t.isUp" [class.bad]="!t.isUp">
+                {{ t.isUp ? '↑ +' : '↓ −' }}{{ t.kg }} kg ({{ t.pct }}%)
               </span>
-              <span class="r">{{ s.reps }} reps</span>
-            </div>
-            <span class="delta" [ngClass]="s.deltaClass">{{ s.deltaLabel }}</span>
+            }
           </div>
-        </div>
+
+          <div class="ranges" role="group" aria-label="Time range">
+            @for (r of ranges; track r) {
+              <button type="button" class="range" [class.active]="r === range()" [attr.aria-pressed]="r === range()"
+                (click)="setRange(r)">{{ r }}</button>
+            }
+          </div>
+
+          @if (visiblePoints().length > 1) {
+            <div class="chart-wrap">
+              <canvas baseChart type="line" [data]="chartData()" [options]="chartOptions"
+                [attr.aria-label]="'Top set weight for ' + p.exerciseName"></canvas>
+            </div>
+          } @else if (visiblePoints().length === 1) {
+            <p class="chart-note">Only one session in this range. Log {{ p.exerciseName }} again, or pick a longer range, to see a trend.</p>
+          } @else {
+            <p class="chart-note">No sessions in this range. Try a longer range.</p>
+          }
+        </section>
+
+        <section class="card log-card">
+          <h2>Session log</h2>
+          <ul class="log-list">
+            @for (s of sessionRows(); track s.date + $index) {
+              <li class="log-row">
+                <span class="log-date">
+                  <span class="d">{{ s.date | date: 'dd' }}</span>
+                  <span class="m">{{ s.date | date: 'MMM' }}</span>
+                </span>
+                <span class="log-main">
+                  {{ s.weight }} kg × {{ s.reps }}
+                  @if (s.isPr) {
+                    <span class="pr-chip">PR</span>
+                  }
+                </span>
+                <span class="delta" [attr.data-dir]="s.deltaClass">{{ s.deltaLabel }}</span>
+              </li>
+            }
+          </ul>
+        </section>
       </div>
-    </div>
-  </div>
+    }
+  }
 </div>
