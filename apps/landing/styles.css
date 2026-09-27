@@ -1,6 +1,6 @@
 /* ==========================================================================
    GYM FORGE DESIGN SYSTEM - mirrored from apps/web/src/styles.scss.
-   Light, minimal, high-whitespace direction — closer to the real product
+   Light, minimal, high-whitespace direction - closer to the real product
    (which is a light-theme app) than a generic dark SaaS template.
    ========================================================================== */
 :root {
@@ -76,7 +76,7 @@ section, header.hero {
     position: relative;
 }
 
-/* Soft background glow — subtle depth without dark glassmorphism */
+/* Soft background glow - subtle depth without dark glassmorphism */
 .blob {
     position: absolute;
     filter: blur(100px);
@@ -941,7 +941,7 @@ section, header.hero {
     font-size: 0.88rem;
 }
 
-/* CTA banner — the one bold dark moment on an otherwise light page */
+/* CTA banner - the one bold dark moment on an otherwise light page */
 .cta-banner {
     padding: 5.5rem 5%;
     background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-navy-hover) 100%);

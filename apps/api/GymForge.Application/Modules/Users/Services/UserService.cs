@@ -420,7 +420,7 @@ namespace GymForge.Application.Modules.Users.Services
             }
             catch (Exception ex)
             {
-                // Starter plan generation is a best-effort enhancement — onboarding must succeed regardless.
+                // Starter plan generation is a best-effort enhancement - onboarding must succeed regardless.
                 _logger.LogError(ex, "Failed to generate starter plans for user {UserId} during onboarding.", user.Id);
             }
         }

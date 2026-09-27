@@ -683,7 +683,7 @@
   }
 
   // Lets a trainer switch this one cell between "pick from catalog" (the
-  // dropdown) and "type your own" (plain input) — both write to the same
+  // dropdown) and "type your own" (plain input) - both write to the same
   // exerciseName control, so nothing else about saving changes.
   .exercise-name-cell {
     display: flex;

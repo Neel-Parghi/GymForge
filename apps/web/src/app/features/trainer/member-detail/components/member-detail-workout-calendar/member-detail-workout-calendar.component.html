@@ -241,7 +241,7 @@
       </button>
     </ng-container>
     <ng-template #notLoggedYet>
-      <!-- Logging is only allowed for today or past dates — never a future one. -->
+      <!-- Logging is only allowed for today or past dates - never a future one. -->
       <button type="button" class="btn-primary" *ngIf="!md.isRestDay && (md.isToday || md.isPast)"
         (click)="mobileLogWorkout()">
         <i class="fa-solid" [ngClass]="md.isToday ? 'fa-play' : 'fa-plus'"></i>

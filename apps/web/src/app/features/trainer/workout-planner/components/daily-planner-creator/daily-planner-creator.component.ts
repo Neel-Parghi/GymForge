@@ -165,7 +165,7 @@ export class DailyPlannerCreatorComponent implements OnInit {
       targetSets: [4, [Validators.required, Validators.min(1), Validators.max(200)]],
       targetReps: ['10-12 Reps', [Validators.required, Validators.maxLength(15)]],
       notes: ['', [Validators.maxLength(30)]],
-      // UI-only flag (dropdown vs. free-typed name) — never read in onSubmitDaily's
+      // UI-only flag (dropdown vs. free-typed name) - never read in onSubmitDaily's
       // explicit field mapping, so it never reaches the saved payload.
       isCustomName: [false]
     });

@@ -816,7 +816,7 @@
     }
 
     // Reflow into a single compact row: Set badge, Weight, Reps, a round
-    // Mark Done check button, and a round delete button — no stacked rows.
+    // Mark Done check button, and a round delete button - no stacked rows.
     @include bp.mobile {
       display: grid;
       grid-template-columns: auto 1fr 1fr auto auto;
@@ -985,7 +985,7 @@
   transition: all 0.2s;
   justify-content: space-around;
 
-  // A compact round check button fits the single-row layout — the text
+  // A compact round check button fits the single-row layout - the text
   // label doesn't, so it's dropped in favor of the icon + checked color.
   @include bp.mobile {
     width: 36px;
