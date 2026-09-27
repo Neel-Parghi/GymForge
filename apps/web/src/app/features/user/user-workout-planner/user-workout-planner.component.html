@@ -1,3 +1,117 @@
-<div class="user-page-wrapper">
-  <app-workout-planner></app-workout-planner>
+<div class="training" [class.has-cta]="view() === 'plan' && !!cta()">
+  <header class="page-head">
+    <div class="page-head-text">
+      <h1>Training</h1>
+      @if (plan(); as p) {
+        <p>{{ p.name }}</p>
+      }
+    </div>
+    <button type="button" class="btn-create" (click)="createPlan()">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> Create plan
+    </button>
+  </header>
+
+  <app-segmented-tabs [tabs]="tabs" [active]="view()" label="Training views" (selected)="setView($event)" />
+
+  @if (view() === 'plan') {
+    @if (loading()) {
+      <section class="card skeleton-card" aria-busy="true">
+        <span class="skeleton wide"></span>
+        <span class="skeleton"></span>
+      </section>
+    } @else if (!plan()) {
+      <section class="card empty-plan">
+        <span class="empty-icon"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>
+        <h2>No active plan yet</h2>
+        <p>Pick a plan from the library, or ask your trainer to assign one. Your weekly schedule will show up here.</p>
+        <div class="empty-actions">
+          <button type="button" class="btn-primary" (click)="setView('library')">Browse library</button>
+          <a class="btn-outline" routerLink="/user/workout-calendar">Assign from calendar</a>
+        </div>
+      </section>
+    } @else {
+      <div class="plan-grid">
+      <section class="card week-card" aria-label="This week">
+        <div class="week-strip">
+          @for (d of week(); track $index) {
+            <button type="button" class="week-day" [class.selected]="$index === selectedIndex()" [class.today]="d.isToday"
+              [attr.data-logged]="d.logged" [attr.aria-pressed]="$index === selectedIndex()" (click)="selectDay($index)">
+              <span class="dow">{{ d.date | date: 'EEE' }}</span>
+              <span class="num">{{ d.date | date: 'd' }}</span>
+              <span class="tag">{{ d.tag }}</span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="card day-card">
+        <div class="day-head">
+          <span class="eyebrow">
+            @if (selected().isToday) { Today · }{{ selected().date | date: 'EEE d MMM' }}
+            @if (selected().logged === 'done') { · Completed }
+          </span>
+          <h2>{{ selected().day?.dayName || 'Rest day' }}</h2>
+          @if (selected().day) {
+            <p>{{ selectedExercises().length }} exercises · {{ selectedSetCount() }} sets</p>
+          }
+        </div>
+
+        @if (!selected().day) {
+          <div class="rest">
+            <span class="rest-icon"><i class="fa-solid fa-moon" aria-hidden="true"></i></span>
+            <strong>Rest &amp; recover</strong>
+            <span>Light walk or mobility work. Muscles grow on rest days.</span>
+          </div>
+        } @else {
+          <ol class="exercise-list">
+            @for (ex of selectedExercises(); track $index) {
+              <li class="exercise">
+                <span class="ex-num">{{ $index + 1 }}</span>
+                <div class="ex-text">
+                  <span class="ex-name">{{ ex.name }}</span>
+                  <span class="ex-meta">
+                    <strong>{{ ex.sets }} × {{ ex.reps || '-' }}</strong>
+                    @if (ex.notes) { · {{ ex.notes }} }
+                  </span>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+
+        @if (cta(); as c) {
+          <div class="cta-bar">
+            <button type="button" class="cta" [class.secondary]="c.kind === 'view'" (click)="runCta()">
+              @if (c.kind !== 'view') {
+                <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+              }
+              {{ c.label }}
+            </button>
+          </div>
+        }
+      </section>
+
+      <nav class="link-rows" aria-label="More training">
+        <a class="link-row" routerLink="/user/workout-calendar">
+          <span class="link-icon" data-tone="energy"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span>
+          <span class="link-text">
+            <span class="link-title">Workout calendar</span>
+            <span class="link-hint">History, overrides &amp; past sessions</span>
+          </span>
+          <i class="fa-solid fa-chevron-right caret" aria-hidden="true"></i>
+        </a>
+        <a class="link-row" routerLink="/user/exercise-progress">
+          <span class="link-icon" data-tone="info"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
+          <span class="link-text">
+            <span class="link-title">Exercise progress</span>
+            <span class="link-hint">Strength trends, PRs &amp; session log</span>
+          </span>
+          <i class="fa-solid fa-chevron-right caret" aria-hidden="true"></i>
+        </a>
+      </nav>
+      </div>
+    }
+  } @else {
+    <app-workout-planner [embedded]="true"></app-workout-planner>
+  }
 </div>
