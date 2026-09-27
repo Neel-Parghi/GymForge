@@ -323,7 +323,7 @@ export class WeeklyPlannerCreatorComponent implements OnInit {
 
     this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_PASTE_SUCCESS.replace('{day}', dayGroup.get('dayName')?.value));
 
-    // Clear clipboard so paste button disappears — user must copy again to re-enable
+    // Clear clipboard so paste button disappears - user must copy again to re-enable
     this.copiedWorkout = null;
   }
 

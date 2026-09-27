@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Hero headline/subtext rotation — gym owner message, then individual member message
+    // Hero headline/subtext rotation - gym owner message, then individual member message
     const heroCopy = document.getElementById('heroCopy');
     const heroHeadline = document.getElementById('heroHeadline');
     const heroSubtext = document.getElementById('heroSubtext');
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, DISPLAY_MS);
     }
 
-    // Pricing billing toggle — plans are priced yearly; the monthly view is
+    // Pricing billing toggle - plans are priced yearly; the monthly view is
     // just that same yearly price divided by 12, not a separate rate.
     const billingSwitch = document.getElementById('billingSwitch');
     const billingLabels = document.querySelectorAll('.billing-label');

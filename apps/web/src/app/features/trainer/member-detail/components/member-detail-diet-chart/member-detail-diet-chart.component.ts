@@ -32,7 +32,7 @@ export class PTMemberDetailDietChartComponent implements OnChanges {
   showCreateCustomModal = false;
   customPlanData: any = null;
 
-  // Collapsed by default on mobile — the macro breakdown expands on tap to cut down scroll before the meal schedule.
+  // Collapsed by default on mobile - the macro breakdown expands on tap to cut down scroll before the meal schedule.
   macrosExpanded = false;
 
   // Diet Tracking Data
@@ -48,7 +48,7 @@ export class PTMemberDetailDietChartComponent implements OnChanges {
   }
 
   loadDietLog(): void {
-    if (this.isUserRole) return; // Tracker section is hidden for users — no need to fetch
+    if (this.isUserRole) return; // Tracker section is hidden for users - no need to fetch
 
     const today = new Date().toISOString().split('T')[0];
     this.dietTrackingService.getMemberDietLog(this.memberId, today).subscribe({

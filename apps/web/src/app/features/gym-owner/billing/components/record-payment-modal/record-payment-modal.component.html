@@ -1,7 +1,7 @@
 <div class="modal-overlay-backdrop" (click)="close.emit()">
   <div class="invoice-modal-content-wrapper payment-modal" (click)="$event.stopPropagation()">
     <div class="modal-header-controls">
-      <span class="title">Record Payment — {{ invoice.id }}</span>
+      <span class="title">Record Payment - {{ invoice.id }}</span>
       <button class="close-btn" (click)="close.emit()" title="Close dialog">
         <i class="fa-solid fa-xmark"></i>
       </button>

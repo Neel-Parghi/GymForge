@@ -6,7 +6,7 @@ namespace GymForge.Infrastructure.Persistence
 {
     /// <summary>
     /// Used exclusively by the EF Core CLI tools (migrations, database update).
-    /// Ensures Npgsql is always selected — regardless of what appsettings.json contains.
+    /// Ensures Npgsql is always selected - regardless of what appsettings.json contains.
     /// </summary>
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
@@ -40,4 +40,4 @@ namespace GymForge.Infrastructure.Persistence
             return new AppDbContext(optionsBuilder.Options);
         }
     }
-}
+}

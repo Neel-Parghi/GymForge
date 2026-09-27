@@ -66,6 +66,14 @@ namespace GymForge.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<WorkoutSessionLog>> GetLogsInRangeAsync(Guid memberOrUserId, DateTime startUtc, DateTime endUtc)
+        {
+            return await _dbContext.WorkoutSessionLogs
+                .Where(l => (l.MemberId == memberOrUserId || l.UserId == memberOrUserId || (l.Member != null && l.Member.UserId == memberOrUserId))
+                    && l.Date >= startUtc && l.Date < endUtc)
+                .ToListAsync();
+        }
+
         public async Task AddOrUpdateScheduleDayAsync(MemberWorkoutScheduleDay scheduleDay)
         {
             MemberWorkoutScheduleDay? existing = await _dbContext.MemberWorkoutScheduleDays

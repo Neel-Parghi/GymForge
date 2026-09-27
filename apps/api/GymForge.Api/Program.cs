@@ -140,20 +140,10 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
-// All times below are IST (Asia/Kolkata) wall-clock times, not UTC — Hangfire's
+// All times below are IST (Asia/Kolkata) wall-clock times, not UTC - Hangfire's
 // Cron.Daily() is UTC by default, so an explicit TimeZone is required or "4:30" silently
 // means 4:30 UTC (10:00 IST).
-TimeZoneInfo istTimeZone;
-try
-{
-    istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
-}
-catch (TimeZoneNotFoundException)
-{
-    istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-}
-
-RecurringJobOptions istSchedule = new() { TimeZone = istTimeZone };
+RecurringJobOptions istSchedule = new() { TimeZone = GymForge.Shared.Helpers.AppTimeZone.India };
 
 // Schedule automated notifications to run every day using Hangfire
 RecurringJob.AddOrUpdate<GymForge.Application.BackgroundJobs.AutomatedNotificationJob>(

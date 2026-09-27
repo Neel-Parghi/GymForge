@@ -167,7 +167,7 @@
           background: var(--bg-surface);
           border-top: 1px solid var(--border-color);
 
-          // Keep side-by-side even at small phone widths — stacking wastes vertical space
+          // Keep side-by-side even at small phone widths - stacking wastes vertical space
           // this modal needs for the exercise list. Overrides the global mobile-sm stack rule.
           @include bp.mobile {
             padding: 12px;

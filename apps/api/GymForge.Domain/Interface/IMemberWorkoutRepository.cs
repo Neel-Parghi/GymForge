@@ -16,6 +16,8 @@ namespace GymForge.Domain.Interface
         
         Task<IEnumerable<WorkoutSessionLog>> GetLogsByDateAsync(Guid memberOrUserId, DateTime date);
 
+        Task<IEnumerable<WorkoutSessionLog>> GetLogsInRangeAsync(Guid memberOrUserId, DateTime startUtc, DateTime endUtc);
+
         Task AddOrUpdateScheduleDayAsync(MemberWorkoutScheduleDay scheduleDay);
 
         Task<IEnumerable<MemberPlanAssignment>> GetPlanAssignmentsAsync(Guid memberOrUserId);

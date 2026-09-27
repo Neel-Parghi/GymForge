@@ -1,7 +1,9 @@
+using GymForge.Application.Modules.Workout.Helpers;
 using GymForge.Application.Modules.Workout.Interface;
 using GymForge.Contracts.WorkoutPlan;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 
 namespace GymForge.Application.BackgroundJobs
@@ -10,7 +12,7 @@ namespace GymForge.Application.BackgroundJobs
     /// Daily job: emails members who have a non-rest-day workout scheduled today and haven't
     /// logged it yet, provided they haven't opted out via Email Notifications / Workout Reminders
     /// in Account Settings. Only members with a linked User account (and therefore a UserPreference
-    /// row to check) are considered — a GymMember with no linked account has never had the chance
+    /// row to check) are considered - a GymMember with no linked account has never had the chance
     /// to opt in or out, so they're skipped rather than emailed unconditionally.
     /// </summary>
     public class WorkoutReminderJob
@@ -37,8 +39,9 @@ namespace GymForge.Application.BackgroundJobs
             _logger.LogInformation("WorkoutReminderJob started.");
 
             IEnumerable<MemberPlanAssignment> assignments = await _memberWorkoutRepository.GetAllActiveAssignmentsAsync();
-            DateTime today = DateTime.UtcNow.Date;
-            string todayName = DateTime.UtcNow.DayOfWeek.ToString();
+            // The job runs at 04:30 IST (still the previous day in UTC), so "today" must be the IST date.
+            DateTime today = AppTimeZone.Today;
+            (DateTime dayStartUtc, DateTime dayEndUtc) = AppTimeZone.DayBoundsUtc(today);
             int sentCount = 0;
 
             foreach (MemberPlanAssignment assignment in assignments)
@@ -48,7 +51,7 @@ namespace GymForge.Application.BackgroundJobs
                     User? user = assignment.Member?.User ?? assignment.User;
                     if (user == null || string.IsNullOrWhiteSpace(user.Email))
                     {
-                        continue; // No linked account / no email on file — never had a chance to opt in or out.
+                        continue; // No linked account / no email on file - never had a chance to opt in or out.
                     }
 
                     bool emailEnabled = user.Preference?.EmailNotificationsEnabled ?? true;
@@ -61,18 +64,17 @@ namespace GymForge.Application.BackgroundJobs
                     Guid targetId = assignment.MemberId ?? assignment.UserId!.Value;
 
                     WorkoutPlanDto? plan = await _memberWorkoutService.GetActivePlanForMemberAsync(targetId);
-                    WorkoutPlanDayDto? todayPlan = plan?.Days
-                        .FirstOrDefault(d => string.Equals(d.DayName, todayName, StringComparison.OrdinalIgnoreCase));
+                    WorkoutPlanDayDto? todayPlan = WorkoutScheduleResolver.ResolveScheduledDay(plan?.Days, today);
 
                     if (todayPlan == null || todayPlan.IsRestDay)
                     {
                         continue;
                     }
 
-                    IEnumerable<WorkoutSessionLog> todaysLogs = await _memberWorkoutRepository.GetLogsByDateAsync(targetId, today);
+                    IEnumerable<WorkoutSessionLog> todaysLogs = await _memberWorkoutRepository.GetLogsInRangeAsync(targetId, dayStartUtc, dayEndUtc);
                     if (todaysLogs.Any())
                     {
-                        continue; // Already logged — no need to remind.
+                        continue; // Already logged - no need to remind.
                     }
 
                     string firstName = assignment.Member?.FirstName ?? user.FirstName;

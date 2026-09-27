@@ -428,7 +428,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
     const planId = this.form.get('gymPlanId')?.value;
     const plan = this.plans.find(p => p.id === planId);
     if (!plan) return 'Not Selected';
-    return `${plan.name} — ₹${plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price} / ${plan.durationMonths} mo`;
+    return `${plan.name} - ₹${plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price} / ${plan.durationMonths} mo`;
   }
 
   getDefaultBranchId(): string {

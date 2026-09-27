@@ -17,7 +17,7 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
     private readonly IConfiguration _configuration;
     private readonly ILogger<UsdaFoodDataProvider> _logger;
 
-    // USDA nutrient IDs are stable across all food records — used instead of matching by name.
+    // USDA nutrient IDs are stable across all food records - used instead of matching by name.
     private const int EnergyKcalNutrientId = 1008;
     private const int ProteinNutrientId = 1003;
     private const int CarbohydrateNutrientId = 1005;
@@ -25,12 +25,12 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
 
     private const string GramUnitAlternation = "kilograms|kilogram|kgs|kg|grams|gram|gms|gm|g";
 
-    // "200g rice" / "200gm rice" style — quantity before the food name.
+    // "200g rice" / "200gm rice" style - quantity before the food name.
     private static readonly Regex QuantityFirstPattern = new(
         $@"^(\d+(?:\.\d+)?)\s*({GramUnitAlternation})\b\s+(.+)$",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    // "rice 200g" / "paneer 200gm" style — quantity after the food name.
+    // "rice 200g" / "paneer 200gm" style - quantity after the food name.
     private static readonly Regex QuantityLastPattern = new(
         $@"^(.+?)\s+(\d+(?:\.\d+)?)\s*({GramUnitAlternation})$",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -57,11 +57,11 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
 
             (string foodName, double? gramsMultiplier) = ParseGramQuantity(query);
 
-            // Tier 1: curated reference data — best match quality for generic/common foods
+            // Tier 1: curated reference data - best match quality for generic/common foods
             // (a query for "apple" shouldn't return a specific snack-brand SKU).
             var match = await FindBestMatchAsync(foodName, "&dataType=Foundation&dataType=SR%20Legacy&dataType=Survey%20%28FNDDS%29", apiKey, baseUrl);
 
-            // Tier 2: Branded — many ethnic/regional foods (e.g. paneer, dal, ghee) have no entry
+            // Tier 2: Branded - many ethnic/regional foods (e.g. paneer, dal, ghee) have no entry
             // anywhere in USDA's curated datasets, but do show up here via imported-brand nutrition
             // labels (e.g. Haldiram's, Deep Foods) registered for the US market.
             if (match == null)
@@ -98,7 +98,7 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
     private async Task<(string Name, double Calories, double Protein, double Carbs, double Fats)?> FindBestMatchAsync(
         string foodName, string dataTypeFilter, string apiKey, string baseUrl)
     {
-        // Fetch a handful of candidates rather than trusting USDA's top relevance hit blindly — its
+        // Fetch a handful of candidates rather than trusting USDA's top relevance hit blindly - its
         // ranking often surfaces a composite dish (e.g. "Palak Paneer") ahead of the plain ingredient
         // ("Paneer, cheese") for a bare ingredient query, which understates the true macros.
         var url = $"{baseUrl}/foods/search?query={Uri.EscapeDataString(foodName)}&pageSize=5{dataTypeFilter}&api_key={apiKey}";
@@ -220,7 +220,7 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
         // convention, and the ingredient itself can land in either position (e.g. "Paneer, cheese" vs
         // "Cheese, paneer" are both plain-ingredient entries). A description where the query is one of
         // those exact comma-separated segments is almost certainly the ingredient itself, not a dish
-        // that merely mentions it — checked regardless of which segment position it's in.
+        // that merely mentions it - checked regardless of which segment position it's in.
         foreach (string segment in normalizedDescription.Split(','))
         {
             if (segment.Trim() == normalizedQuery)
@@ -238,10 +238,10 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
     }
 
     /// <summary>
-    /// USDA's search endpoint does no natural-language quantity parsing (unlike CalorieNinjas) — it always
+    /// USDA's search endpoint does no natural-language quantity parsing (unlike CalorieNinjas) - it always
     /// returns nutrients per 100g. A gram/kg quantity is stripped from the query before searching, whether
     /// it comes before ("200g rice") or after ("rice 200g", "paneer 200gm") the food name, and used to scale
-    /// the per-100g result afterward. Count-based quantities ("2 eggs", "1 apple") aren't scaled — the
+    /// the per-100g result afterward. Count-based quantities ("2 eggs", "1 apple") aren't scaled - the
     /// per-100g value is returned as-is.
     /// </summary>
     private static (string FoodName, double? GramsMultiplier) ParseGramQuantity(string query)
