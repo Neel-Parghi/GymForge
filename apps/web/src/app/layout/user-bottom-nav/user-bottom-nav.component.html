@@ -1,31 +1,55 @@
-<nav class="bottom-nav">
-  <a *ngFor="let tab of tabs" [routerLink]="tab.route" routerLinkActive="active" class="bottom-nav-item">
-    <i [class]="tab.icon"></i>
-    <span>{{ tab.label }}</span>
-  </a>
+@if (!hidden()) {
+  <nav class="bottom-nav" aria-label="Primary">
+    @for (tab of tabs; track tab.id; let i = $index) {
+      @if (i === 2) {
+        <div class="nav-center">
+          <button type="button" class="log-button" [class.open]="isLogOpen()" (click)="toggleLog()"
+            [attr.aria-expanded]="isLogOpen()" aria-label="Quick log">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+        </div>
+      }
+      <a class="nav-item" [class.active]="activeTab() === tab.id" [routerLink]="tab.route" (click)="closeLog()"
+        [attr.aria-current]="activeTab() === tab.id ? 'page' : null">
+        <span class="nav-pill"><i [class]="tab.icon" aria-hidden="true"></i></span>
+        <span class="nav-label">{{ tab.label }}</span>
+      </a>
+    }
+  </nav>
 
-  <button type="button" class="bottom-nav-item more-trigger" [class.active]="isMoreOpen" (click)="toggleMore($event)">
-    <i class="fa-solid fa-ellipsis"></i>
-    <span>More</span>
-  </button>
-</nav>
+  @if (isLogOpen()) {
+    <div class="sheet-backdrop" (click)="closeLog()" aria-hidden="true"></div>
+  }
 
-<div class="more-sheet-backdrop" *ngIf="isMoreOpen" (click)="closeMore()"></div>
-
-<div class="more-sheet" [class.open]="isMoreOpen" (click)="$event.stopPropagation()">
-  <div class="more-sheet-handle"></div>
-  <ul class="more-sheet-list">
-    <li *ngFor="let item of moreItems">
-      <button type="button" (click)="navigateFromSheet(item.route)">
-        <i [class]="item.icon"></i>
-        <span>{{ item.label }}</span>
+  <section class="sheet" [class.open]="isLogOpen()" role="dialog" aria-label="Quick log" [attr.aria-hidden]="!isLogOpen()">
+    <span class="sheet-handle" aria-hidden="true"></span>
+    <header class="sheet-header">
+      <div>
+        <h2>Quick log</h2>
+        <p>What did you just do?</p>
+      </div>
+      <button type="button" class="sheet-close" (click)="closeLog()" aria-label="Close">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
-    </li>
-    <li>
-      <button type="button" class="logout-item" (click)="logout()">
-        <i class="fa-solid fa-sign-out-alt"></i>
-        <span>Log Out</span>
-      </button>
-    </li>
-  </ul>
-</div>
+    </header>
+
+    <button type="button" class="start-card" (click)="go('/user/performance')">
+      <span class="start-icon"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i></span>
+      <span class="start-text">
+        <span class="start-title">Log today's workout</span>
+        <span class="start-hint">Record the sets you did</span>
+      </span>
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <div class="tile-grid">
+      @for (action of logActions; track action.label) {
+        <button type="button" class="tile" (click)="go(action.route)">
+          <span class="tile-icon" [attr.data-tone]="action.tone"><i [class]="action.icon" aria-hidden="true"></i></span>
+          <span class="tile-title">{{ action.label }}</span>
+          <span class="tile-hint">{{ action.hint }}</span>
+        </button>
+      }
+    </div>
+  </section>
+}

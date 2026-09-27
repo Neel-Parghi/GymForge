@@ -1,5 +1,9 @@
+@use 'member' as m;
+
 :host {
   display: block;
+  font-family: var(--m-font-body);
+  color: var(--m-ink);
 }
 
 .bottom-nav {
@@ -8,50 +12,98 @@
   right: 0;
   bottom: 0;
   z-index: 300;
-  display: flex;
-  align-items: stretch;
-  height: 60px;
-  padding-bottom: env(safe-area-inset-bottom);
-  background-color: var(--bg-surface);
-  border-top: 1px solid var(--border-color);
-  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.06);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: start;
+  height: calc(68px + env(safe-area-inset-bottom));
+  padding: 6px 8px env(safe-area-inset-bottom);
+  background: var(--m-surface);
+  border-top: 1px solid var(--m-line);
+  box-shadow: 0 -4px 16px rgba(10, 31, 68, 0.05);
 }
 
-.bottom-nav-item {
-  flex: 1;
+.nav-item {
+  @include m.reset-button;
+  min-height: 56px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
+  color: var(--m-muted);
   text-decoration: none;
-  font-family: inherit;
-  font-size: 0.65rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 
-  i {
+  .nav-pill {
+    width: 52px;
+    height: 30px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.1rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .nav-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
   }
 
   &.active {
-    color: var(--accent-color);
+    color: var(--m-accent);
+
+    .nav-pill {
+      background: var(--m-accent-soft);
+    }
+
+    .nav-label {
+      font-weight: 700;
+    }
   }
 }
 
-.more-sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  z-index: 350;
-  animation: fadeInBackdrop 0.2s ease;
+.nav-center {
+  display: flex;
+  justify-content: center;
 }
 
-@keyframes fadeInBackdrop {
+.log-button {
+  @include m.reset-button;
+  width: 56px;
+  height: 56px;
+  margin-top: -22px;
+  border-radius: 18px;
+  border: 4px solid var(--bg-color);
+  background: var(--m-navy);
+  color: #ffffff;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(10, 31, 68, 0.3);
+  transition: transform 0.2s ease;
+
+  i {
+    transition: transform 0.2s ease;
+  }
+
+  &.open i {
+    transform: rotate(45deg);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.sheet-backdrop {
+  @include m.sheet-backdrop;
+  z-index: 350;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
   from {
     opacity: 0;
   }
@@ -61,71 +113,144 @@
   }
 }
 
-.more-sheet {
+.sheet {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 360;
-  max-height: 70vh;
+  max-height: 85vh;
   overflow-y: auto;
-  background: var(--bg-surface);
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.15);
-  padding-bottom: env(safe-area-inset-bottom);
-  transform: translateY(100%);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 10px 16px calc(24px + env(safe-area-inset-bottom));
+  background: var(--m-surface);
+  border-radius: var(--m-radius-xl) var(--m-radius-xl) 0 0;
+  box-shadow: 0 -12px 40px rgba(10, 31, 68, 0.25);
+  transform: translateY(105%);
+  visibility: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.28s;
 
   &.open {
     transform: translateY(0);
+    visibility: visible;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
   }
 }
 
-.more-sheet-handle {
-  width: 40px;
-  height: 4px;
-  border-radius: 4px;
-  background: var(--slate-300);
-  margin: 10px auto 4px;
+.sheet-handle {
+  @include m.sheet-handle;
 }
 
-.more-sheet-list {
-  list-style: none;
-  margin: 0;
-  padding: 8px 0;
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
 
-  button {
-    width: 100%;
+  h2 {
+    @include m.section-title;
+    font-size: 1.375rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--m-muted);
+  }
+}
+
+.sheet-close {
+  @include m.icon-button;
+  border: none;
+  background: var(--m-ground);
+}
+
+.start-card {
+  @include m.reset-button;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--m-navy);
+  color: #ffffff;
+  text-align: left;
+
+  .start-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--m-energy);
+    color: var(--m-navy);
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 20px;
-    background: none;
-    border: none;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-main);
-    text-align: left;
-    cursor: pointer;
-
-    i {
-      width: 20px;
-      text-align: center;
-      color: var(--accent-color);
-      font-size: 1rem;
-    }
-
-    &:active {
-      background: var(--slate-100);
-    }
-
-    &.logout-item {
-      color: var(--error-color);
-
-      i {
-        color: var(--error-color);
-      }
-    }
+    justify-content: center;
+    flex-shrink: 0;
   }
+
+  .start-text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .start-title {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .start-hint {
+    font-size: 0.8125rem;
+    color: #c7d2ea;
+  }
+}
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tile {
+  @include m.reset-button;
+  min-height: 116px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--m-ground);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+
+  .tile-icon {
+    margin-bottom: 6px;
+  }
+}
+
+.tile-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.tile-hint {
+  font-size: 0.75rem;
+  color: var(--m-muted);
+}
+
+.tile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+
+  @include m.tone-variants;
 }

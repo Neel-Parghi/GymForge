@@ -1,11 +1,11 @@
-<div class="layout-wrapper" [class.user-mobile-nav]="isUserRole && (isMobile$ | async)">
+<div class="layout-wrapper" [class.user-mobile-nav]="isUserRole && (isTabletOrBelow$ | async)">
 
   <div class="sidebar-backdrop" *ngIf="isMobileSidebarOpen" (click)="closeMobileSidebar()"></div>
 
   <div class="layout-inner">
     <!-- Sidebar: hidden entirely for User role on mobile in favor of the bottom nav -->
     <aside class="sidebar" [class.collapsed]="isSidebarCollapsed" [class.mobile-open]="isMobileSidebarOpen"
-      *ngIf="!(isUserRole && (isMobile$ | async))">
+      *ngIf="!(isUserRole && (isTabletOrBelow$ | async))">
       <div class="sidebar-header">
         <div class="brand-container" [routerLink]="dashboardRoute">
 
@@ -97,7 +97,7 @@
         </button>
 
         <!-- Mobile brand logo (User role only, since it has no sidebar/hamburger to show it) -->
-        <a class="mobile-user-brand" *ngIf="isUserRole && (isMobile$ | async)" [routerLink]="dashboardRoute">
+        <a class="mobile-user-brand" *ngIf="isUserRole && (isTabletOrBelow$ | async)" [routerLink]="dashboardRoute">
           <img src="/images/logo.svg" alt="GymForge Logo" class="mobile-brand-logo">
         </a>
 
@@ -211,6 +211,6 @@
     </div>
   </div>
 
-  <app-user-bottom-nav *ngIf="isUserRole && (isMobile$ | async)"></app-user-bottom-nav>
+  <app-user-bottom-nav *ngIf="isUserRole && (isTabletOrBelow$ | async)"></app-user-bottom-nav>
 
 </div>
