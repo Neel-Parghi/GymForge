@@ -231,7 +231,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        loadComponent: () => import('./features/super-admin/profile/profile.component').then(m => m.ProfileComponent)
+        loadComponent: () => import('./features/user/user-account/user-account.component').then(m => m.UserAccountComponent)
       }
     ]
   },

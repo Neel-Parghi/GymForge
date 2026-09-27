@@ -1,0 +1,218 @@
+<div class="account">
+  <header class="page-head">
+    <h1>Me</h1>
+    <a class="icon-btn" routerLink="/user/settings" aria-label="Settings">
+      <i class="fa-solid fa-gear" aria-hidden="true"></i>
+    </a>
+  </header>
+
+  <section class="profile-card">
+    <div class="profile-main">
+      <div class="avatar-wrap">
+        @if (avatarUrl(); as url) {
+          <img class="avatar" [src]="url" alt="">
+        } @else {
+          <span class="avatar initials" aria-hidden="true">{{ initials() }}</span>
+        }
+        @if (!isDemo) {
+          <label class="avatar-edit" aria-label="Change profile photo">
+            <i class="fa-solid fa-camera" aria-hidden="true"></i>
+            <input type="file" accept="image/*" (change)="onAvatarSelected($event)">
+          </label>
+        }
+      </div>
+      <div class="profile-text">
+        <h2>{{ profile()?.fullName || 'Your account' }}</h2>
+        @if (profile()?.email) {
+          <span>{{ profile()?.email }}</span>
+        }
+      </div>
+    </div>
+
+    @if (avatarPreview()) {
+      <div class="avatar-confirm">
+        <span>Use this as your new photo?</span>
+        <div>
+          <button type="button" class="ghost" (click)="cancelAvatar()" [disabled]="isUploadingAvatar()">Cancel</button>
+          <button type="button" class="light" (click)="saveAvatar()" [disabled]="isUploadingAvatar()">
+            {{ isUploadingAvatar() ? 'Saving…' : 'Save photo' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (membership(); as m) {
+      <div class="profile-chips">
+        <span class="chip">{{ m.gymName }}</span>
+        @if (m.joiningDate) {
+          <span class="chip">Member since {{ m.joiningDate | date: 'MMM y' }}</span>
+        }
+        <span class="chip status" [attr.data-status]="m.status">{{ m.status }}</span>
+        @if (m.currentSubscription; as sub) {
+          <span class="chip">{{ sub.planNameSnapshot }} · until {{ sub.endDate | date: 'd MMM y' }}</span>
+        }
+      </div>
+    }
+  </section>
+
+  @if (isDemo) {
+    <p class="demo-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> {{ demoMessage }}</p>
+  }
+
+  <app-segmented-tabs [tabs]="tabs" [active]="activeTab()" label="Account sections" (selected)="setTab($event)" />
+
+  @if (activeTab() === 'personal') {
+    <form class="panel-grid" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <section class="card">
+        <div class="card-head">
+          <h2>Personal details</h2>
+          @if (!isEditing()) {
+            <button type="button" class="btn-small" (click)="startEdit()" [disabled]="isDemo">Edit</button>
+          }
+        </div>
+
+        @if (isEditing()) {
+          <div class="field-grid">
+            <label class="field">
+              <span>First name</span>
+              <input type="text" formControlName="firstName" autocomplete="given-name"
+                [class.invalid]="profileForm.controls.firstName.invalid && profileForm.controls.firstName.touched">
+            </label>
+            <label class="field">
+              <span>Last name</span>
+              <input type="text" formControlName="lastName" autocomplete="family-name"
+                [class.invalid]="profileForm.controls.lastName.invalid && profileForm.controls.lastName.touched">
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input type="email" [value]="profile()?.email ?? ''" readonly class="readonly">
+              <small>Your registered email can't be changed.</small>
+            </label>
+            <label class="field">
+              <span>Phone</span>
+              <input type="tel" formControlName="phone" autocomplete="tel"
+                [class.invalid]="profileForm.controls.phone.invalid && profileForm.controls.phone.touched">
+            </label>
+          </div>
+        } @else {
+          <dl class="rows">
+            <div class="row"><dt>First name</dt><dd>{{ profile()?.firstName || '-' }}</dd></div>
+            <div class="row"><dt>Last name</dt><dd>{{ profile()?.lastName || '-' }}</dd></div>
+            <div class="row"><dt>Email</dt><dd>{{ profile()?.email || '-' }}</dd></div>
+            <div class="row"><dt>Phone</dt><dd>{{ profile()?.phone || '-' }}</dd></div>
+          </dl>
+        }
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Address</h2>
+        </div>
+        @if (isEditing()) {
+          <div class="field-grid">
+            <label class="field span-2">
+              <span>Address line 1</span>
+              <input type="text" formControlName="addressLine1" autocomplete="address-line1">
+            </label>
+            <label class="field span-2">
+              <span>Address line 2 <em>(optional)</em></span>
+              <input type="text" formControlName="addressLine2" autocomplete="address-line2">
+            </label>
+            <label class="field">
+              <span>City</span>
+              <input type="text" formControlName="city" autocomplete="address-level2">
+            </label>
+            <label class="field">
+              <span>State</span>
+              <input type="text" formControlName="state" autocomplete="address-level1">
+            </label>
+            <label class="field">
+              <span>Postal code</span>
+              <input type="text" formControlName="zipCode" autocomplete="postal-code">
+            </label>
+          </div>
+        } @else if (addressLines().length) {
+          <p class="address">
+            @for (line of addressLines(); track $index) {
+              <span>{{ line }}</span>
+            }
+          </p>
+        } @else {
+          <p class="empty">No address added yet.</p>
+        }
+      </section>
+
+      @if (isEditing()) {
+        <div class="form-actions">
+          <button type="button" class="btn-outline" (click)="cancelEdit()" [disabled]="isSaving()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving()">{{ isSaving() ? 'Saving…' : 'Save changes' }}</button>
+        </div>
+      }
+    </form>
+  } @else {
+    <div class="panel-grid">
+      <section class="card">
+        <div class="card-head">
+          <h2>Change password</h2>
+        </div>
+        <form class="stack" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+          <label class="field">
+            <span>Current password</span>
+            <input type="password" formControlName="currentPassword" autocomplete="current-password">
+          </label>
+          <label class="field">
+            <span>New password</span>
+            <input type="password" formControlName="newPassword" autocomplete="new-password" placeholder="At least 8 characters"
+              [class.invalid]="passwordForm.controls.newPassword.invalid && passwordForm.controls.newPassword.touched">
+          </label>
+          <label class="field">
+            <span>Confirm new password</span>
+            <input type="password" formControlName="confirmPassword" autocomplete="new-password"
+              [class.invalid]="passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.touched">
+          </label>
+          @if (passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.touched) {
+            <span class="field-error">Passwords don't match.</span>
+          }
+          <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || isChangingPassword() || isDemo">
+            {{ isChangingPassword() ? 'Updating…' : 'Update password' }}
+          </button>
+        </form>
+      </section>
+
+      <div class="stack">
+        <section class="card inline-card">
+          <div>
+            <h2>Forgot your password?</h2>
+            <p>We'll email a reset link to {{ profile()?.email || 'your registered address' }}.</p>
+          </div>
+          <button type="button" class="btn-outline" (click)="sendResetLink()" [disabled]="isDemo">Send link</button>
+        </section>
+
+        <section class="card danger-card">
+          <h2>Delete account</h2>
+          <p>Permanently removes your profile, logs and history after a short grace period.</p>
+          <button type="button" class="btn-danger" (click)="deleteAccount()" [disabled]="isDeleting() || isDemo">
+            {{ isDeleting() ? 'Scheduling…' : 'Delete my account' }}
+          </button>
+        </section>
+      </div>
+    </div>
+  }
+
+  <nav class="links" aria-label="More">
+    @for (link of links; track link.route) {
+      <a class="link-row" [routerLink]="link.route">
+        <span class="link-icon" [attr.data-tone]="link.tone"><i [class]="link.icon" aria-hidden="true"></i></span>
+        <span class="link-text">
+          <span class="link-title">{{ link.label }}</span>
+          <span class="link-hint">{{ link.hint }}</span>
+        </span>
+        <i class="fa-solid fa-chevron-right caret" aria-hidden="true"></i>
+      </a>
+    }
+  </nav>
+
+  <button type="button" class="logout" (click)="logout()">
+    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out
+  </button>
+</div>
