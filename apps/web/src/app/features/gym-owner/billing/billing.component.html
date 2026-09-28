@@ -133,7 +133,7 @@
           <div class="search-box-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" [formControl]="invoiceSearchControl"
-              placeholder="Search by invoice #, member name, type..." class="ledger-search-input">
+              placeholder="Search by invoice #, member name, type..." class="ledger-search-input" [maxlength]="limits.SEARCH">
           </div>
           <div class="filter-pills">
             <button class="filter-pill" [class.active]="statusFilter === 'All'" (click)="setStatusFilter('All')">All

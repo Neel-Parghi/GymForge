@@ -335,7 +335,7 @@
             <label class="field">
               <span>Exercise name</span>
               <input type="text" [formControl]="exerciseNameControl" placeholder="e.g. Incline dumbbell press"
-                (keyup.enter)="confirmExerciseName()">
+                (keyup.enter)="confirmExerciseName()" [maxlength]="limits.SHORT_TEXT">
             </label>
           } @else {
             <span class="field-label">Exercise</span>

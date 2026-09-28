@@ -72,7 +72,7 @@
             <div class="form-group full-width">
               <label for="notes">Progress / Session Notes</label>
               <textarea id="notes" formControlName="notes" class="form-input textarea"
-                placeholder="e.g. Completed a high intensity lower body circuit. Target weight goal progress on track..."></textarea>
+                placeholder="e.g. Completed a high intensity lower body circuit. Target weight goal progress on track..." [maxlength]="limits.NOTES"></textarea>
             </div>
 
             <button type="submit" class="btn-submit" [disabled]="isSubmitting">

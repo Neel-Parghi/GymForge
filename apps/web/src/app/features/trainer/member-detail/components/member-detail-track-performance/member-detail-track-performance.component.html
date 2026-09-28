@@ -335,7 +335,7 @@
           minWidth="100%" direction="auto"></app-dropdown>
         <input *ngIf="addExerciseUseCustomName" type="text" id="new-ex-name" class="modal-input-field"
           [formControl]="newExerciseControl" placeholder="e.g. Incline Dumbbell Bench Press"
-          (keyup.enter)="confirmAddExercise()" autofocus>
+          (keyup.enter)="confirmAddExercise()" autofocus [maxlength]="limits.SHORT_TEXT">
         <span class="input-helper-text">Search the exercise library, or switch to type your own exercise
           name.</span>
       </div>
@@ -370,7 +370,7 @@
           minWidth="100%" direction="auto"></app-dropdown>
         <input *ngIf="swapExerciseUseCustomName" type="text" id="swap-ex-name" class="modal-input-field"
           [formControl]="swapExerciseControl" placeholder="e.g. Leg Press" (keyup.enter)="confirmSwapExercise()"
-          autofocus>
+          autofocus [maxlength]="limits.SHORT_TEXT">
         <span class="input-helper-text">
           Did a different exercise instead of "{{ todayWorkout?.exercises?.[swapExerciseIndex ?? -1]?.name }}"?
           Search the library or type your own - its sets will reset so you can log fresh numbers.

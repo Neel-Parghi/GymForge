@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { NotificationService } from '../../../core/services/notification.service';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
@@ -18,6 +19,8 @@ import { Holiday } from '../../../shared/models/gym.model';
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
   private settingsService = inject(GymSettingsService);
@@ -92,7 +95,7 @@ export class SettingsComponent implements OnInit {
     this.settingsForm = this.fb.group(matrixGroup);
 
     this.holidayForm = this.fb.group({
-      newHolidayName: ['', Validators.required],
+      newHolidayName: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.SHORT_TEXT)]],
       newHolidayDate: ['', Validators.required],
       newHolidayBranch: ['All Locations', Validators.required]
     });

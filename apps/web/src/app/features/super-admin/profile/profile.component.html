@@ -59,11 +59,11 @@
         <div class="form-grid">
           <div class="form-group">
             <label>First Name</label>
-            <input type="text" formControlName="firstName" [readonly]="!isEditMode">
+            <input type="text" formControlName="firstName" [readonly]="!isEditMode" [maxlength]="limits.PERSON_NAME">
           </div>
           <div class="form-group">
             <label>Last Name</label>
-            <input type="text" formControlName="lastName" [readonly]="!isEditMode">
+            <input type="text" formControlName="lastName" [readonly]="!isEditMode" [maxlength]="limits.PERSON_NAME">
           </div>
 
           <div class="form-group">
@@ -74,7 +74,8 @@
 
           <div class="form-group">
             <label>Phone Number</label>
-            <input type="text" formControlName="phone" [readonly]="!isEditMode">
+            <input type="text" formControlName="phone" [readonly]="!isEditMode" [maxlength]="limits.PHONE">
+            <app-validation-message [control]="profileForm.get('phone')" fieldName="Phone number"></app-validation-message>
           </div>
 
           <!-- Address Section -->
@@ -84,27 +85,28 @@
 
           <div class="form-group">
             <label>Address Line 1</label>
-            <input type="text" formControlName="addressLine1" [readonly]="!isEditMode">
+            <input type="text" formControlName="addressLine1" [readonly]="!isEditMode" [maxlength]="limits.ADDRESS_LINE">
           </div>
 
           <div class="form-group">
             <label>Address Line 2 (Optional)</label>
-            <input type="text" formControlName="addressLine2" [readonly]="!isEditMode">
+            <input type="text" formControlName="addressLine2" [readonly]="!isEditMode" [maxlength]="limits.ADDRESS_LINE">
           </div>
 
           <div class="form-group">
             <label>City</label>
-            <input type="text" formControlName="city" [readonly]="!isEditMode">
+            <input type="text" formControlName="city" [readonly]="!isEditMode" [maxlength]="limits.CITY">
           </div>
 
           <div class="form-group">
             <label>State / Province</label>
-            <input type="text" formControlName="state" [readonly]="!isEditMode">
+            <input type="text" formControlName="state" [readonly]="!isEditMode" [maxlength]="limits.STATE">
           </div>
 
           <div class="form-group">
             <label>Zip / Postal Code</label>
-            <input type="text" formControlName="zipCode" [readonly]="!isEditMode">
+            <input type="text" formControlName="zipCode" [readonly]="!isEditMode" [maxlength]="limits.POSTAL_CODE">
+            <app-validation-message [control]="profileForm.get('zipCode')" fieldName="Postal code"></app-validation-message>
           </div>
 
           <!-- Trainer Public Bio Section (Only shown if isTrainer is true) -->
@@ -121,13 +123,13 @@
             <div class="form-group">
               <label>Availability Slots / Shift Timings</label>
               <input type="text" formControlName="shiftTimings" [readonly]="!isEditMode"
-                placeholder="e.g. 06:00 AM - 12:00 PM, 04:00 PM - 08:00 PM">
+                placeholder="e.g. 06:00 AM - 12:00 PM, 04:00 PM - 08:00 PM" [maxlength]="limits.SHORT_TEXT">
             </div>
 
             <div class="form-group full-row">
               <label>Bio / Philosophy</label>
               <textarea formControlName="bio" [readonly]="!isEditMode" rows="4" class="profile-textarea"
-                placeholder="Write a short summary about your training focus, certifications, or methodology..."></textarea>
+                placeholder="Write a short summary about your training focus, certifications, or methodology..." [maxlength]="limits.DESCRIPTION"></textarea>
             </div>
 
             <div class="form-group full-row">
@@ -144,7 +146,7 @@
               <div *ngIf="isEditMode" class="add-spec-input-group">
                 <input type="text" [formControl]="specControl"
                   placeholder="e.g. Hypertrophy, Strength Conditioning, Fat Loss" class="add-spec-input"
-                  (keydown.enter)="$event.preventDefault(); addSpecialization()">
+                  (keydown.enter)="$event.preventDefault(); addSpecialization()" [maxlength]="limits.SHORT_TEXT">
                 <button type="button" (click)="addSpecialization()" class="btn-add-tag">Add Tag</button>
               </div>
             </div>
@@ -156,13 +158,15 @@
             <div class="form-group">
               <label><i class="fa-brands fa-instagram"></i> Instagram Link</label>
               <input type="url" formControlName="instagramUrl" [readonly]="!isEditMode"
-                placeholder="https://instagram.com/handle">
+                placeholder="https://instagram.com/handle" [maxlength]="limits.URL">
+              <app-validation-message [control]="profileForm.get('instagramUrl')" fieldName="Instagram link"></app-validation-message>
             </div>
 
             <div class="form-group">
               <label><i class="fa-solid fa-globe"></i> Portfolio / Website</label>
               <input type="url" formControlName="portfolioUrl" [readonly]="!isEditMode"
-                placeholder="https://mywebsite.com">
+                placeholder="https://mywebsite.com" [maxlength]="limits.URL">
+              <app-validation-message [control]="profileForm.get('portfolioUrl')" fieldName="Portfolio link"></app-validation-message>
             </div>
           </ng-container>
         </div>
@@ -206,17 +210,18 @@
             <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" class="password-form">
               <div class="form-group">
                 <label>Current Password</label>
-                <input type="password" formControlName="currentPassword" placeholder="Enter your current password">
+                <input type="password" formControlName="currentPassword" placeholder="Enter your current password" [maxlength]="limits.PASSWORD_MAX">
               </div>
 
               <div class="form-group">
                 <label>New Password</label>
-                <input type="password" formControlName="newPassword" placeholder="Minimum 8 characters">
+                <input type="password" formControlName="newPassword" placeholder="Minimum 8 characters" [maxlength]="limits.PASSWORD_MAX">
+                <app-validation-message [control]="passwordForm.get('newPassword')" fieldName="New password"></app-validation-message>
               </div>
 
               <div class="form-group">
                 <label>Confirm New Password</label>
-                <input type="password" formControlName="confirmPassword" placeholder="Re-enter new password">
+                <input type="password" formControlName="confirmPassword" placeholder="Re-enter new password" [maxlength]="limits.PASSWORD_MAX">
                 <small class="error-text"
                   *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched">
                   Passwords do not match.

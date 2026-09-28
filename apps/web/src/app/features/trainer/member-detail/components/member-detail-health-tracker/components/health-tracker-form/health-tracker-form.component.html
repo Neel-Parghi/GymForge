@@ -175,7 +175,7 @@
         <div class="form-group">
           <label>Trainer Notes / Directives</label>
           <textarea formControlName="notes" class="form-input textarea"
-            placeholder="Add specific guidance or feedback on client posture/progress..."></textarea>
+            placeholder="Add specific guidance or feedback on client posture/progress..." [maxlength]="limits.NOTES"></textarea>
         </div>
       </div>
 

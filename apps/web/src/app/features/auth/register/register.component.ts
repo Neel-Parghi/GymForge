@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, FormsModule, Validators, FormControl } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -14,6 +15,8 @@ import { CONSTANTS } from '../../../core/constants/constants';
   imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink]
 })
 export class RegisterComponent {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
   private router = inject(Router);
@@ -21,7 +24,7 @@ export class RegisterComponent {
 
   registerForm = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(30)]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
     password: ['', [
       Validators.required,
       Validators.minLength(8),

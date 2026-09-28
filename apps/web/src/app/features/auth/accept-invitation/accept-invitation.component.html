@@ -57,14 +57,14 @@
               <label for="password">New Password</label>
               <div class="input-wrapper">
                 <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-                  placeholder="••••••••" />
+                  placeholder="••••••••" [maxlength]="limits.PASSWORD_MAX" />
                 <button type="button" class="visibility-toggle" (click)="togglePassword()">
                   <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
               <div class="validation-row"
                 *ngIf="acceptForm.get('password')?.touched && acceptForm.get('password')?.invalid">
-                <small class="error-text">Min. 8 characters, with Uppercase, Number, and Special Char.</small>
+                <small class="error-text">8-30 characters, with Uppercase, Lowercase, Number, and Special Char.</small>
               </div>
             </div>
 
@@ -72,7 +72,7 @@
               <label for="confirmPassword">Confirm Password</label>
               <div class="input-wrapper">
                 <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword"
-                  formControlName="confirmPassword" placeholder="••••••••" />
+                  formControlName="confirmPassword" placeholder="••••••••" [maxlength]="limits.PASSWORD_MAX" />
               </div>
               <div class="validation-row"
                 *ngIf="acceptForm.get('confirmPassword')?.touched && acceptForm.errors?.['mismatch']">

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, OnInit, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
 import { GymPlan } from '../../../../shared/models/gym-plan.model';
 import { GymMember, OnboardMemberRequest, RenewSubscriptionRequest } from '../../../../shared/models/member.model';
 import { Gender, PaymentStatus } from '../../../../shared/enums/member-enums';
@@ -20,6 +21,8 @@ import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
   styleUrl: './onboard-member-modal.component.scss'
 })
 export class OnboardMemberModal implements OnChanges, OnInit {
+  readonly limits = FIELD_LIMITS;
+
   @Input() isOpen = false;
   @Input() plans: GymPlan[] = [];
   @Input() branches: any[] = [];
@@ -51,7 +54,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
   form: FormGroup = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
     lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)]],
     dateOfBirth: ['', Validators.required],
     gender: ['', Validators.required],
@@ -65,7 +68,7 @@ export class OnboardMemberModal implements OnChanges, OnInit {
       country: ['', [Validators.maxLength(20)]],
       postalCode: ['', [Validators.maxLength(10)]]
     }),
-    medicalConditions: [''],
+    medicalConditions: ['', [Validators.maxLength(FIELD_LIMITS.NOTES)]],
     fitnessGoals: [[]],
     emergencyContactName: ['', [Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 ]*$/)]],
     emergencyContactPhone: ['', [Validators.pattern(/^\+?[0-9]{7,15}$/)]],

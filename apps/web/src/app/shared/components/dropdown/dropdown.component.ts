@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, forwardRef, ElementRef, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FIELD_LIMITS } from '../../constants/validation.constants';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropdownOption } from '../../models/dropdown.model';
 
@@ -19,6 +20,8 @@ import { DropdownOption } from '../../models/dropdown.model';
   ]
 })
 export class DropdownComponent implements ControlValueAccessor, OnInit {
+  readonly limits = FIELD_LIMITS;
+
   @Input() options: DropdownOption[] = [];
   @Input() placeholder: string = 'Select...';
   @Input() disabled: boolean = false;

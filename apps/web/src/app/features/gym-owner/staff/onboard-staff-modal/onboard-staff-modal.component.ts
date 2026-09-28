@@ -2,6 +2,8 @@ import { Component, EventEmitter, Output, Input, OnInit, inject } from '@angular
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
+import { urlValidator } from '../../../../shared/validators/custom-validators';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../core/constants/constants';
 import { StaffService } from '../../../../core/services/staff.service';
@@ -21,6 +23,8 @@ import { TimePickerComponent } from '../../../../shared/components/time-picker/t
   styleUrl: './onboard-staff-modal.component.scss'
 })
 export class OnboardStaffModalComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   @Output() close = new EventEmitter<void>();
   @Output() staffOnboarded = new EventEmitter<void>();
 
@@ -65,19 +69,19 @@ export class OnboardStaffModalComponent implements OnInit {
     }
 
     this.onboardForm = this.fb.group({
-      firstName: [this.staff?.firstName || '', [Validators.required, Validators.minLength(2)]],
-      lastName: [this.staff?.lastName || '', [Validators.required, Validators.minLength(2)]],
-      email: [this.staff?.email || '', [Validators.required, Validators.email]],
+      firstName: [this.staff?.firstName || '', [Validators.required, Validators.minLength(2), Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      lastName: [this.staff?.lastName || '', [Validators.required, Validators.minLength(2), Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      email: [this.staff?.email || '', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
       phoneNumber: [this.staff?.phoneNumber || '', [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)]],
       role: [this.staff?.role || 1, [Validators.required]],
       branchId: [defaultBranchId],
       experienceYears: [this.staff?.experienceYears || 0, [Validators.min(0), Validators.max(80)]],
       bio: [this.staff?.bio || '', [Validators.maxLength(300)]],
-      specializations: [this.staff?.specializations?.join(', ') || ''],
+      specializations: [this.staff?.specializations?.join(', ') || '', [Validators.maxLength(FIELD_LIMITS.TAGS)]],
       shiftStartTime: [defaultStart],
       shiftEndTime: [defaultEnd],
-      instagramUrl: [this.staff?.instagramUrl || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i)]],
-      portfolioUrl: [this.staff?.portfolioUrl || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i)]]
+      instagramUrl: [this.staff?.instagramUrl || '', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+      portfolioUrl: [this.staff?.portfolioUrl || '', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]]
     });
   }
 

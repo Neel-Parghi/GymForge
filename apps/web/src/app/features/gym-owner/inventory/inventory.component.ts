@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -44,6 +45,8 @@ import { SaleViewDrawerComponent } from './components/sale-view-drawer/sale-view
   styleUrls: ['./inventory.component.scss']
 })
 export class InventoryComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private destroyRef = inject(DestroyRef);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);

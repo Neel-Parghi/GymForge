@@ -322,7 +322,7 @@
             <label class="field grow">
               <span class="visually-hidden">Habit</span>
               <input type="text" formControlName="title" placeholder="Habit, e.g. Drink water"
-                [class.invalid]="routineForm.controls.title.invalid && routineForm.controls.title.touched">
+                [class.invalid]="routineForm.controls.title.invalid && routineForm.controls.title.touched" [maxlength]="limits.SHORT_TEXT">
             </label>
             <label class="field amount">
               <span class="visually-hidden">Amount or time</span>

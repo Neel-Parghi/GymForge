@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../../../../shared/constants/validation.constants';
 
 @Component({
   selector: 'app-health-tracker-form',
@@ -14,6 +15,8 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
   }
 })
 export class HealthTrackerFormComponent {
+  readonly limits = FIELD_LIMITS;
+
   @Input() measurementForm!: FormGroup;
   @Input() activeTrackerMode: 'basic' | 'advanced' = 'basic';
   @Input() isSubmittingProgress = false;

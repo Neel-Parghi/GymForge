@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { phoneValidator } from '../../../shared/validators/custom-validators';
 import { PaymentService } from '../../../core/services/payment.service';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { CONSTANTS } from '../../../core/constants/constants';
@@ -23,6 +25,8 @@ declare var Razorpay: any;
   styleUrl: './payments.component.scss',
 })
 export class PaymentsComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
 
   private paymentService = inject(PaymentService);
   private gymService = inject(GymService);
@@ -109,10 +113,10 @@ export class PaymentsComponent implements OnInit {
       subscriptionTarget: [0],
       isMaintenanceMode: [false],
       currency: ['INR'],
-      razorpayKeyId: [''],
-      razorpayKeySecret: [''],
-      billingEmail: [''],
-      supportPhone: ['']
+      razorpayKeyId: ['', [Validators.maxLength(FIELD_LIMITS.API_KEY)]],
+      razorpayKeySecret: ['', [Validators.maxLength(FIELD_LIMITS.API_KEY)]],
+      billingEmail: ['', [Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+      supportPhone: ['', [Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]]
     });
   }
 

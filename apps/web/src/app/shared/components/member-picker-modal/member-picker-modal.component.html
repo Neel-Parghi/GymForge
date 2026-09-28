@@ -14,7 +14,7 @@
     <div class="picker-search">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" placeholder="Search members by name or email..." [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange($event)" />
+        (ngModelChange)="onSearchChange($event)" [maxlength]="limits.SEARCH" />
     </div>
 
     <div class="picker-list">

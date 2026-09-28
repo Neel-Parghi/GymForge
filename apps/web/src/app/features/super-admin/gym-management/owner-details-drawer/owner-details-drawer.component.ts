@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
+import { phoneValidator } from '../../../../shared/validators/custom-validators';
 import { SlideDrawerComponent } from "../../../../shared/components/slide-drawer/slide-drawer.component";
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message.component';
 import { GymOwnerResponse } from '../../../../shared/models/gym.model';
@@ -14,6 +16,8 @@ import { GymOwnerResponse } from '../../../../shared/models/gym.model';
   styleUrl: './owner-details-drawer.component.scss'
 })
 export class OwnerDetailsDrawerComponent implements OnChanges {
+  readonly limits = FIELD_LIMITS;
+
   @Input() isOpen = false;
   @Input() isEditing = false;
   @Input() ownerContext: GymOwnerResponse | null = null;
@@ -29,10 +33,10 @@ export class OwnerDetailsDrawerComponent implements OnChanges {
 
   constructor() {
     this.editForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required]
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+      phone: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]]
     });
     this.editForm.disable();
   }

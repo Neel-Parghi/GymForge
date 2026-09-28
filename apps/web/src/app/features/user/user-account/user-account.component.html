@@ -112,23 +112,23 @@
           <div class="field-grid">
             <label class="field span-2">
               <span>Address line 1</span>
-              <input type="text" formControlName="addressLine1" autocomplete="address-line1">
+              <input type="text" formControlName="addressLine1" autocomplete="address-line1" [maxlength]="limits.ADDRESS_LINE">
             </label>
             <label class="field span-2">
               <span>Address line 2 <em>(optional)</em></span>
-              <input type="text" formControlName="addressLine2" autocomplete="address-line2">
+              <input type="text" formControlName="addressLine2" autocomplete="address-line2" [maxlength]="limits.ADDRESS_LINE">
             </label>
             <label class="field">
               <span>City</span>
-              <input type="text" formControlName="city" autocomplete="address-level2">
+              <input type="text" formControlName="city" autocomplete="address-level2" [maxlength]="limits.CITY">
             </label>
             <label class="field">
               <span>State</span>
-              <input type="text" formControlName="state" autocomplete="address-level1">
+              <input type="text" formControlName="state" autocomplete="address-level1" [maxlength]="limits.STATE">
             </label>
             <label class="field">
               <span>Postal code</span>
-              <input type="text" formControlName="zipCode" autocomplete="postal-code">
+              <input type="text" formControlName="zipCode" autocomplete="postal-code" [maxlength]="limits.POSTAL_CODE">
             </label>
           </div>
         } @else if (addressLines().length) {
@@ -158,17 +158,20 @@
         <form class="stack" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
           <label class="field">
             <span>Current password</span>
-            <input type="password" formControlName="currentPassword" autocomplete="current-password">
+            <input type="password" formControlName="currentPassword" autocomplete="current-password" [maxlength]="limits.PASSWORD_MAX">
           </label>
           <label class="field">
             <span>New password</span>
             <input type="password" formControlName="newPassword" autocomplete="new-password" placeholder="At least 8 characters"
-              [class.invalid]="passwordForm.controls.newPassword.invalid && passwordForm.controls.newPassword.touched">
+              [class.invalid]="passwordForm.controls.newPassword.invalid && passwordForm.controls.newPassword.touched" [maxlength]="limits.PASSWORD_MAX">
           </label>
+          @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid) {
+            <span class="field-error">8-30 characters, with upper and lower case letters, a number and a special character.</span>
+          }
           <label class="field">
             <span>Confirm new password</span>
             <input type="password" formControlName="confirmPassword" autocomplete="new-password"
-              [class.invalid]="passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.touched">
+              [class.invalid]="passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.touched" [maxlength]="limits.PASSWORD_MAX">
           </label>
           @if (passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.touched) {
             <span class="field-error">Passwords don't match.</span>

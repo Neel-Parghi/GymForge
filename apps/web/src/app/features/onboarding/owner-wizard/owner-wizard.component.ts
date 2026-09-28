@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { phoneValidator, urlValidator, gstValidator, postalCodeValidator, registrationNumberValidator } from '../../../shared/validators/custom-validators';
 import { Router } from '@angular/router';
 import { PricingService } from '../../../core/services/pricing.service';
 import { PricingPlan } from '../../../shared/models/pricing.model';
@@ -25,6 +27,8 @@ declare var Razorpay: any;
   styleUrls: ['./owner-wizard.component.scss']
 })
 export class OwnerWizardComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   currentStep = 1;
   totalSteps = 6;
   collapsedBranches: boolean[] = [];
@@ -93,16 +97,16 @@ export class OwnerWizardComponent implements OnInit {
             this.collapsedBranches = [];
             draft.form.branches.forEach((branch: any) => {
               const branchForm = this.fb.group({
-                name: [branch.name || '', Validators.required],
+                name: [branch.name || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.BRANCH_NAME)]],
                 address: this.fb.group({
-                  line1: [branch.address?.line1 || '', [Validators.required, Validators.maxLength(100)]],
-                  line2: [branch.address?.line2 || '', Validators.maxLength(100)],
-                  city: [branch.address?.city || '', [Validators.required, Validators.maxLength(20)]],
-                  state: [branch.address?.state || '', [Validators.required, Validators.maxLength(20)]],
-                  country: [branch.address?.country || '', [Validators.required, Validators.maxLength(20)]],
-                  postalCode: [branch.address?.postalCode || '', [Validators.required, Validators.maxLength(10)]]
+                  line1: [branch.address?.line1 || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+                  line2: [branch.address?.line2 || '', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+                  city: [branch.address?.city || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+                  state: [branch.address?.state || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+                  country: [branch.address?.country || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+                  postalCode: [branch.address?.postalCode || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
                 }),
-                contactNumber: [branch.contactNumber || '', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
+                contactNumber: [branch.contactNumber || '', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
                 openTime: [branch.openTime || '06:00'],
                 closeTime: [branch.closeTime || '22:00']
               });
@@ -123,24 +127,24 @@ export class OwnerWizardComponent implements OnInit {
   private initForm() {
     this.gymForm = this.fb.group({
       gymInfo: this.fb.group({
-        name: ['', Validators.required],
-        brandName: [''],
-        description: [''],
+        name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.GYM_NAME)]],
+        brandName: ['', [Validators.maxLength(FIELD_LIMITS.BRAND_NAME)]],
+        description: ['', [Validators.maxLength(FIELD_LIMITS.DESCRIPTION)]],
         establishedDate: [''],
-        registrationNumber: ['', Validators.maxLength(30)],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
-        gstNumber: ['', Validators.maxLength(30)],
-        websiteUrl: [''],
+        registrationNumber: ['', [Validators.maxLength(FIELD_LIMITS.REGISTRATION_NUMBER), registrationNumberValidator]],
+        email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+        phone: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
+        gstNumber: ['', [Validators.maxLength(FIELD_LIMITS.GST_NUMBER), gstValidator]],
+        websiteUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
         logoUrl: [''],
         coverImageUrl: [''],
         address: this.fb.group({
-          line1: ['', [Validators.required, Validators.maxLength(100)]],
-          line2: ['', Validators.maxLength(100)],
-          city: ['', [Validators.required, Validators.maxLength(20)]],
-          state: ['', [Validators.required, Validators.maxLength(20)]],
-          country: ['', [Validators.required, Validators.maxLength(20)]],
-          postalCode: ['', [Validators.required, Validators.maxLength(10)]]
+          line1: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+          line2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+          city: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+          state: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+          country: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+          postalCode: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
         })
       }),
       branches: this.fb.array([])
@@ -155,16 +159,16 @@ export class OwnerWizardComponent implements OnInit {
 
   addBranch() {
     const branchForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.BRANCH_NAME)]],
       address: this.fb.group({
-        line1: ['', [Validators.required, Validators.maxLength(100)]],
-        line2: ['', Validators.maxLength(100)],
-        city: ['', [Validators.required, Validators.maxLength(20)]],
-        state: ['', [Validators.required, Validators.maxLength(20)]],
-        country: ['', [Validators.required, Validators.maxLength(20)]],
-        postalCode: ['', [Validators.required, Validators.maxLength(10)]]
+        line1: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        line2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        city: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+        state: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+        country: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+        postalCode: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
       }),
-      contactNumber: ['', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
+      contactNumber: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
       openTime: ['06:00'],
       closeTime: ['22:00']
     });

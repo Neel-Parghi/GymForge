@@ -3,6 +3,8 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { postalCodeValidator, newPasswordValidators, existingPasswordValidators } from '../../../shared/validators/custom-validators';
 import { firstValueFrom, map } from 'rxjs';
 import { ProfileService } from '../../../core/services/profile.service';
 import { UserService } from '../../../core/services/user.service';
@@ -28,6 +30,8 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null =>
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserAccountComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private profileService = inject(ProfileService);
   private userService = inject(UserService);
   private authApi = inject(AuthApiService);
@@ -68,17 +72,17 @@ export class UserAccountComponent implements OnInit {
     firstName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(50)] }),
     lastName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(50)] }),
     phone: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(20)] }),
-    addressLine1: new FormControl('', { nonNullable: true }),
-    addressLine2: new FormControl('', { nonNullable: true }),
-    city: new FormControl('', { nonNullable: true }),
-    state: new FormControl('', { nonNullable: true }),
-    zipCode: new FormControl('', { nonNullable: true })
+    addressLine1: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)] }),
+    addressLine2: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)] }),
+    city: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.CITY)] }),
+    state: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.STATE)] }),
+    zipCode: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator] })
   });
 
   readonly passwordForm = new FormGroup<PasswordForm>({
-    currentPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    newPassword: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(8)] }),
-    confirmPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+    currentPassword: new FormControl('', { nonNullable: true, validators: existingPasswordValidators }),
+    newPassword: new FormControl('', { nonNullable: true, validators: newPasswordValidators }),
+    confirmPassword: new FormControl('', { nonNullable: true, validators: existingPasswordValidators })
   }, { validators: passwordsMatch });
 
   readonly initials = computed(() => {

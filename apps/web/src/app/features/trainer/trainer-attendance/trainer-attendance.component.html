@@ -22,7 +22,7 @@
       <div class="control-section">
         <div class="notes-wrapper" *ngIf="!isCheckedIn">
           <input type="text" id="checkin-notes" [formControl]="notesControl" placeholder="Shift notes (optional)..."
-            class="notes-input" />
+            class="notes-input" [maxlength]="limits.NOTES" />
         </div>
 
         <button class="btn-clock" [ngClass]="isCheckedIn ? 'btn-out' : 'btn-in'" (click)="toggleClock()">

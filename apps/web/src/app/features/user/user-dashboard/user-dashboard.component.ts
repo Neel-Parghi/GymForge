@@ -3,6 +3,7 @@ import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { catchError, filter, forkJoin, map, of, take } from 'rxjs';
 import { AuthApiService } from '../../../core/services/auth-api.service';
@@ -34,6 +35,8 @@ const ROUTINE_PREVIEW = 5;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserDashboardComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private authService = inject(AuthApiService);
   private memberService = inject(MemberService);
   private userService = inject(UserService);
@@ -64,7 +67,7 @@ export class UserDashboardComponent implements OnInit {
   );
 
   readonly routineForm = new FormGroup<RoutineForm>({
-    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(FIELD_LIMITS.SHORT_TEXT)] }),
     amount: new FormControl('', { nonNullable: true, validators: [this.routineAmountValidator()] })
   });
 

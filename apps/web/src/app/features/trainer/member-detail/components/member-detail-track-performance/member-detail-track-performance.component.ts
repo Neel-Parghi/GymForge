@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../../shared/constants/validation.constants';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
@@ -16,6 +17,8 @@ import { isCardioExercise } from '../../../../../shared/utils/workout-session';
   styleUrl: './member-detail-track-performance.component.scss',
 })
 export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChanges {
+  readonly limits = FIELD_LIMITS;
+
   private notification = inject(NotificationService);
   private workoutMasterService = inject(WorkoutMasterService);
 
@@ -32,7 +35,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
   initialDayName: string | null = null;
 
   daySelectControl = new FormControl('');
-  newExerciseControl = new FormControl('');
+  newExerciseControl = new FormControl('', Validators.maxLength(FIELD_LIMITS.SHORT_TEXT));
   dropdownOptions: DropdownOption[] = [];
   workoutForm!: FormGroup;
 
@@ -55,7 +58,7 @@ export class PTMemberDetailTrackPerformanceComponent implements OnInit, OnChange
 
   showAddExerciseModal = false;
   showSwapExerciseModal = false;
-  swapExerciseControl = new FormControl('');
+  swapExerciseControl = new FormControl('', Validators.maxLength(FIELD_LIMITS.SHORT_TEXT));
   swapExerciseIndex: number | null = null;
   addExerciseUseCustomName = false;
   swapExerciseUseCustomName = false;

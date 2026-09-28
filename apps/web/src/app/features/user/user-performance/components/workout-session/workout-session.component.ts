@@ -5,6 +5,7 @@ import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../../shared/constants/validation.constants';
 import { catchError, map, of } from 'rxjs';
 import { WorkoutMasterService } from '../../../../../core/services/workout-master.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
@@ -30,6 +31,8 @@ const CARDIO_TARGET = '20 mins';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkoutSessionComponent {
+  readonly limits = FIELD_LIMITS;
+
   private workoutMasterService = inject(WorkoutMasterService);
   private notification = inject(NotificationService);
   private confirmation = inject(ConfirmationService);
@@ -62,7 +65,7 @@ export class WorkoutSessionComponent {
     }))
   );
 
-  readonly exerciseNameControl = new FormControl('', { nonNullable: true });
+  readonly exerciseNameControl = new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.SHORT_TEXT)] });
   readonly useCustomName = signal(false);
   readonly catalogOptions = toSignal(
     this.workoutMasterService.getExercises().pipe(

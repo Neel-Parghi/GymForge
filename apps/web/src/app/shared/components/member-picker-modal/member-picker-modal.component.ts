@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../constants/validation.constants';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { MemberService } from '../../../core/services/member.service';
 import { GymMember } from '../../models/member.model';
@@ -13,6 +14,8 @@ import { GymMember } from '../../models/member.model';
   styleUrl: './member-picker-modal.component.scss'
 })
 export class MemberPickerModalComponent implements OnChanges {
+  readonly limits = FIELD_LIMITS;
+
   private memberService = inject(MemberService);
 
   @Input() isOpen = false;

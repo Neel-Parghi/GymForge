@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
+import { phoneValidator, urlValidator, gstValidator, postalCodeValidator, registrationNumberValidator } from '../../../../shared/validators/custom-validators';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { GymService } from '../../../../core/services/gym.service';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
@@ -23,6 +25,8 @@ import { CONSTANTS } from '../../../../core/constants/constants';
   styleUrl: './gym-onboarding-modal.component.scss'
 })
 export class GymOnboardingModalComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   @Output() close = new EventEmitter<void>();
 
   currentStep = 1;
@@ -80,24 +84,24 @@ export class GymOnboardingModalComponent implements OnInit {
   private initForm() {
     this.onboardingForm = this.fb.group({
       gymInfo: this.fb.group({
-        name: ['', Validators.required],
-        brandName: [''],
-        description: [''],
+        name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.GYM_NAME)]],
+        brandName: ['', [Validators.maxLength(FIELD_LIMITS.BRAND_NAME)]],
+        description: ['', [Validators.maxLength(FIELD_LIMITS.DESCRIPTION)]],
         establishedDate: [''],
-        registrationNumber: [''],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
-        gstNumber: [''],
-        websiteUrl: [''],
+        registrationNumber: ['', [Validators.maxLength(FIELD_LIMITS.REGISTRATION_NUMBER), registrationNumberValidator]],
+        email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+        phone: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
+        gstNumber: ['', [Validators.maxLength(FIELD_LIMITS.GST_NUMBER), gstValidator]],
+        websiteUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
         logoUrl: [''],
         coverImageUrl: [''],
         address: this.fb.group({
-          line1: ['', Validators.required],
-          line2: [''],
-          city: ['', Validators.required],
-          state: ['', Validators.required],
-          country: ['', Validators.required],
-          postalCode: ['', Validators.required]
+          line1: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+          line2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+          city: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+          state: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+          country: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+          postalCode: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
         })
       }),
       branches: this.fb.array([]),
@@ -137,16 +141,16 @@ export class GymOnboardingModalComponent implements OnInit {
 
   addBranch() {
     const branchForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.BRANCH_NAME)]],
       address: this.fb.group({
-        line1: ['', Validators.required],
-        line2: [''],
-        city: ['', Validators.required],
-        state: ['', Validators.required],
-        country: ['', Validators.required],
-        postalCode: ['', Validators.required]
+        line1: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        line2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        city: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+        state: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+        country: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+        postalCode: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
       }),
-      contactNumber: ['', [Validators.required, Validators.pattern(/^(?:\D*\d){10,}\D*$/)]],
+      contactNumber: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
       openTime: ['06:00'],
       closeTime: ['22:00']
     });

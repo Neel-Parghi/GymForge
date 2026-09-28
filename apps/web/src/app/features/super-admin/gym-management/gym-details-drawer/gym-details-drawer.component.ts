@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
+import { phoneValidator, urlValidator, gstValidator, registrationNumberValidator } from '../../../../shared/validators/custom-validators';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { GymListResponse } from '../../../../shared/models/gym.model';
 import { SlideDrawerComponent } from "../../../../shared/components/slide-drawer/slide-drawer.component";
@@ -16,6 +18,8 @@ import { GymService } from '../../../../core/services/gym.service';
   styleUrl: './gym-details-drawer.component.scss'
 })
 export class GymDetailsDrawerComponent implements OnChanges {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
   private gymService = inject(GymService);
@@ -58,14 +62,14 @@ export class GymDetailsDrawerComponent implements OnChanges {
 
   editForm = this.fb.group({
     id: [''],
-    gymName: ['', [Validators.required]],
-    brandName: [''],
-    email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.required]],
-    websiteUrl: [''],
-    description: [''],
-    gstNumber: [''],
-    registrationNumber: [''],
+    gymName: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.GYM_NAME)]],
+    brandName: ['', [Validators.maxLength(FIELD_LIMITS.BRAND_NAME)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+    phone: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
+    websiteUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+    description: ['', [Validators.maxLength(FIELD_LIMITS.DESCRIPTION)]],
+    gstNumber: ['', [Validators.maxLength(FIELD_LIMITS.GST_NUMBER), gstValidator]],
+    registrationNumber: ['', [Validators.maxLength(FIELD_LIMITS.REGISTRATION_NUMBER), registrationNumberValidator]],
     isActive: [true],
     isVerified: [false]
   });

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
@@ -44,6 +45,8 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
   styleUrl: './billing.component.scss'
 })
 export class BillingComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
 
   // Grid Configurations
   memberInvoicesConfig = AppGridConfig['MemberInvoices'];

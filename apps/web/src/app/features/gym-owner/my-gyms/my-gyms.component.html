@@ -55,29 +55,30 @@
           <div class="form-row">
             <div class="form-group">
               <label>GYM NAME</label>
-              <input type="text" formControlName="gymName" placeholder="Enter gym name" maxlength="25">
+              <input type="text" formControlName="gymName" placeholder="Enter gym name" [maxlength]="limits.GYM_NAME">
             </div>
             <div class="form-group">
               <label>BRAND NAME</label>
-              <input type="text" formControlName="brandName" placeholder="Enter brand name" maxlength="25">
+              <input type="text" formControlName="brandName" placeholder="Enter brand name" [maxlength]="limits.BRAND_NAME">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label>PRIMARY EMAIL</label>
-              <input type="email" formControlName="email" placeholder="email@example.com">
+              <input type="email" formControlName="email" placeholder="email@example.com" [maxlength]="limits.EMAIL">
+              <app-validation-message [control]="profileForm.get('email')" fieldName="Email"></app-validation-message>
             </div>
             <div class="form-group">
               <label>CONTACT PHONE</label>
-              <input type="text" formControlName="phone" placeholder="+1 (555) 012-3456">
+              <input type="text" formControlName="phone" placeholder="+1 (555) 012-3456" [maxlength]="limits.PHONE">
+              <app-validation-message [control]="profileForm.get('phone')" fieldName="Phone"></app-validation-message>
             </div>
           </div>
 
           <div class="form-group full-width">
             <label>GYM DESCRIPTION</label>
-            <textarea formControlName="description" rows="4" placeholder="Briefly describe your facility..."
-              maxlength="300"></textarea>
+            <textarea formControlName="description" rows="4" placeholder="Briefly describe your facility..." [maxlength]="limits.DESCRIPTION"></textarea>
           </div>
         </form>
       </div>
@@ -131,17 +132,20 @@
           <div class="form-group">
             <label>WEBSITE URL</label>
             <div class="input-with-icon">
-              <input type="text" formControlName="websiteUrl" placeholder="www.yourgym.com">
+              <input type="text" formControlName="websiteUrl" placeholder="www.yourgym.com" [maxlength]="limits.URL">
               <i class="fas fa-external-link-alt text-muted"></i>
             </div>
+            <app-validation-message [control]="profileForm.get('websiteUrl')" fieldName="Website URL"></app-validation-message>
           </div>
           <div class="form-group">
             <label>TAX/GST NUMBER</label>
-            <input type="text" formControlName="gstNumber" placeholder="TAX-9900-21-XX">
+            <input type="text" formControlName="gstNumber" placeholder="22AAAAA0000A1Z5" [maxlength]="limits.GST_NUMBER">
+            <app-validation-message [control]="profileForm.get('gstNumber')" fieldName="GST number"></app-validation-message>
           </div>
           <div class="form-group">
             <label>REGISTRATION NUMBER</label>
-            <input type="text" formControlName="registrationNumber" placeholder="REG-2021-GF-104">
+            <input type="text" formControlName="registrationNumber" placeholder="REG-2021-GF-104" [maxlength]="limits.REGISTRATION_NUMBER">
+            <app-validation-message [control]="profileForm.get('registrationNumber')" fieldName="Registration number"></app-validation-message>
           </div>
         </form>
       </div>
@@ -191,7 +195,7 @@
           <form [formGroup]="branchForm" class="flat-form stack-form">
             <div class="form-group">
               <label>Branch Name</label>
-              <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
+              <input type="text" formControlName="name" placeholder="e.g. Downtown Elite" [maxlength]="limits.BRANCH_NAME">
             </div>
 
             <div class="form-group">
@@ -214,7 +218,8 @@
 
             <div class="form-group">
               <label>Contact Number</label>
-              <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900">
+              <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900" [maxlength]="limits.PHONE">
+              <app-validation-message [control]="branchForm.get('contactNumber')" fieldName="Contact number"></app-validation-message>
             </div>
 
             <div formGroupName="address" class="address-group">
@@ -222,32 +227,33 @@
 
               <div class="form-group">
                 <label>Street Line 1</label>
-                <input type="text" formControlName="line1" placeholder="123 Fitness Blvd">
+                <input type="text" formControlName="line1" placeholder="123 Fitness Blvd" [maxlength]="limits.ADDRESS_LINE">
               </div>
               <div class="form-group">
                 <label>Street Line 2 (Optional)</label>
-                <input type="text" formControlName="line2" placeholder="Suite 400">
+                <input type="text" formControlName="line2" placeholder="Suite 400" [maxlength]="limits.ADDRESS_LINE">
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>City</label>
-                  <input type="text" formControlName="city" placeholder="New York">
+                  <input type="text" formControlName="city" placeholder="New York" [maxlength]="limits.CITY">
                 </div>
                 <div class="form-group">
                   <label>State</label>
-                  <input type="text" formControlName="state" placeholder="NY">
+                  <input type="text" formControlName="state" placeholder="NY" [maxlength]="limits.STATE">
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>Country</label>
-                  <input type="text" formControlName="country" placeholder="USA">
+                  <input type="text" formControlName="country" placeholder="USA" [maxlength]="limits.COUNTRY">
                 </div>
                 <div class="form-group">
                   <label>Postal Code</label>
-                  <input type="text" formControlName="postalCode" placeholder="10001">
+                  <input type="text" formControlName="postalCode" placeholder="10001" [maxlength]="limits.POSTAL_CODE">
+                  <app-validation-message [control]="branchForm.get('address.postalCode')" fieldName="Postal code"></app-validation-message>
                 </div>
               </div>
             </div>

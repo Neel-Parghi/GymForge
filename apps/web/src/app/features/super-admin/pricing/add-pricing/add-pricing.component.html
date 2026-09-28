@@ -20,13 +20,13 @@
         <div class="form-grid">
           <div class="form-group lg">
             <label>Plan Name <span class="required">*</span></label>
-            <input type="text" formControlName="name" placeholder="e.g. Pro Tier" />
+            <input type="text" formControlName="name" placeholder="e.g. Pro Tier" [maxlength]="limits.PLAN_NAME" />
             <app-validation-message [control]="pricingForm.get('name')" fieldName="Plan name"></app-validation-message>
           </div>
 
           <div class="form-group lg">
             <label>Description</label>
-            <textarea formControlName="description" placeholder="Short description of benefits..."></textarea>
+            <textarea formControlName="description" placeholder="Short description of benefits..." [maxlength]="limits.DESCRIPTION"></textarea>
           </div>
 
           <div class="form-group">

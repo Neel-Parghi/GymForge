@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { DietTrackingService } from '../../../core/services/diet-tracking.service';
 import { AssignedMealDto, DietLogDto } from '../../../shared/models/diet-tracking.model';
 import { SegmentedTabsComponent } from '../../../shared/components/segmented-tabs/segmented-tabs.component';
@@ -23,6 +24,8 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * 80;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserDietTrackerComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private dietTrackingService = inject(DietTrackingService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -44,7 +47,7 @@ export class UserDietTrackerComponent implements OnInit {
 
   readonly searchQueryControl = new FormControl('', { nonNullable: true });
   readonly mealForm = new FormGroup<MealForm>({
-    foodName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    foodName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(FIELD_LIMITS.SHORT_TEXT)] }),
     calories: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
     protein: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
     carbs: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),

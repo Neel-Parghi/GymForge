@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormControl, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -26,6 +27,8 @@ import { CONSTANTS } from '../../../core/constants/constants';
 })
 
 export class AttendanceComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   memberLogsGridConfig = AppGridConfig['MemberAttendanceLogs'];
   staffLogsGridConfig = AppGridConfig['StaffAttendanceLogs'];
 
@@ -49,7 +52,7 @@ export class AttendanceComponent implements OnInit {
   isSearchingStaff = false;
   selectedStaff: any | null = null;
   staffSearchControl = new FormControl('');
-  staffNotesControl = new FormControl('');
+  staffNotesControl = new FormControl('', Validators.maxLength(FIELD_LIMITS.NOTES));
   currentlyCheckedInStaff: any[] = [];
   isLoadingStaffOccupancy = false;
   isStaffCheckingIn = false;

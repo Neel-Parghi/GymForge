@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
 import { SlideDrawerComponent } from "../../../../shared/components/slide-drawer/slide-drawer.component";
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message.component';
 import { PricingPlan, PricingPlanCreateRequest } from '../../../../shared/models/pricing.model';
@@ -13,6 +14,8 @@ import { PricingPlan, PricingPlanCreateRequest } from '../../../../shared/models
   styleUrl: './plan-details-drawer.component.scss'
 })
 export class PlanDetailsDrawerComponent implements OnChanges {
+  readonly limits = FIELD_LIMITS;
+
   @Input() isOpen = false;
   @Input() isEditing = false;
   @Input() planContext: PricingPlan | null = null;
@@ -26,8 +29,8 @@ export class PlanDetailsDrawerComponent implements OnChanges {
 
   constructor() {
     this.editForm = this.fb.group({
-      name: ['', Validators.required],
-      description: [''],
+      name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PLAN_NAME)]],
+      description: ['', [Validators.maxLength(FIELD_LIMITS.DESCRIPTION)]],
       price: [null, [Validators.required, Validators.min(0)]],
       durationInDays: [null, [Validators.required, Validators.min(1)]],
       maxBranches: [null],

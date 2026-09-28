@@ -174,7 +174,7 @@
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <span class="visually-hidden">Search food database</span>
         <input type="search" placeholder="Search e.g. apple, 100g rice" [formControl]="searchQueryControl"
-          (keyup.enter)="searchFood()">
+          (keyup.enter)="searchFood()" [maxlength]="limits.SEARCH">
       </label>
       <button type="button" class="btn-primary" (click)="searchFood()" [disabled]="isSearching() || !searchQueryControl.value.trim()">
         @if (isSearching()) {
@@ -193,7 +193,7 @@
     <form class="meal-form" [formGroup]="mealForm" (ngSubmit)="saveMeal()">
       <label class="field">
         <span>Food name</span>
-        <input type="text" formControlName="foodName" placeholder="e.g. Protein bar">
+        <input type="text" formControlName="foodName" placeholder="e.g. Protein bar" [maxlength]="limits.SHORT_TEXT">
       </label>
       <div class="field-grid">
         <label class="field">

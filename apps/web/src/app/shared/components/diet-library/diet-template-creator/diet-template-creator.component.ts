@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../constants/validation.constants';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { DropdownComponent } from '../../dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
@@ -15,6 +16,8 @@ import { TimePickerComponent } from '../../time-picker/time-picker.component';
   styleUrl: './diet-template-creator.component.scss'
 })
 export class DietTemplateCreatorComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
 
@@ -71,7 +74,7 @@ export class DietTemplateCreatorComponent implements OnInit {
       protein: [meal?.protein ?? null, [Validators.required, Validators.min(0), Validators.max(300)]],
       carbs: [meal?.carbs ?? null, [Validators.min(0), Validators.max(500)]],
       fats: [meal?.fats ?? null, [Validators.min(0), Validators.max(200)]],
-      items: [meal?.items || '']
+      items: [meal?.items || '', [Validators.maxLength(FIELD_LIMITS.NOTES)]]
     });
 
     mealGroup.valueChanges.subscribe(changes => {

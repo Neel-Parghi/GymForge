@@ -8,7 +8,7 @@
       <form [formGroup]="branchForm" class="flat-form stack-form">
         <div class="form-group">
           <label>Branch Name</label>
-          <input type="text" formControlName="name" placeholder="e.g. Downtown Elite">
+          <input type="text" formControlName="name" placeholder="e.g. Downtown Elite" [maxlength]="limits.BRANCH_NAME">
           <app-validation-message [control]="branchForm.get('name')" fieldName="Branch Name"></app-validation-message>
         </div>
         
@@ -25,7 +25,8 @@
 
         <div class="form-group">
           <label>Contact Number</label>
-          <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900">
+          <input type="text" formControlName="contactNumber" placeholder="+1 234 567 8900" [maxlength]="limits.PHONE">
+          <app-validation-message [control]="branchForm.get('contactNumber')" fieldName="Contact number"></app-validation-message>
         </div>
 
         <div formGroupName="address" class="address-group">
@@ -33,32 +34,33 @@
           
           <div class="form-group">
             <label>Street Line 1</label>
-            <input type="text" formControlName="line1" placeholder="123 Fitness Blvd">
+            <input type="text" formControlName="line1" placeholder="123 Fitness Blvd" [maxlength]="limits.ADDRESS_LINE">
           </div>
           <div class="form-group">
             <label>Street Line 2 (Optional)</label>
-            <input type="text" formControlName="line2" placeholder="Suite 400">
+            <input type="text" formControlName="line2" placeholder="Suite 400" [maxlength]="limits.ADDRESS_LINE">
           </div>
           
           <div class="form-row">
             <div class="form-group">
               <label>City</label>
-              <input type="text" formControlName="city" placeholder="New York">
+              <input type="text" formControlName="city" placeholder="New York" [maxlength]="limits.CITY">
             </div>
             <div class="form-group">
               <label>State</label>
-              <input type="text" formControlName="state" placeholder="NY">
+              <input type="text" formControlName="state" placeholder="NY" [maxlength]="limits.STATE">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label>Country</label>
-              <input type="text" formControlName="country" placeholder="USA">
+              <input type="text" formControlName="country" placeholder="USA" [maxlength]="limits.COUNTRY">
             </div>
             <div class="form-group">
               <label>Postal Code</label>
-              <input type="text" formControlName="postalCode" placeholder="10001">
+              <input type="text" formControlName="postalCode" placeholder="10001" [maxlength]="limits.POSTAL_CODE">
+              <app-validation-message [control]="branchForm.get('address.postalCode')" fieldName="Postal code"></app-validation-message>
             </div>
           </div>
         </div>
