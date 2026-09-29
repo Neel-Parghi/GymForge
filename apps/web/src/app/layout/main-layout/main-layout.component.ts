@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -63,6 +63,9 @@ export class MainLayoutComponent implements OnInit {
   private tourService = inject(TourService);
   unreadAnnouncementsCount = 0;
 
+  @ViewChild('pageContent') private pageContent?: ElementRef<HTMLElement>;
+  private lastPath = '';
+
   constructor() {
     this.menuItems = this.navService.getMenuItems();
   }
@@ -73,7 +76,10 @@ export class MainLayoutComponent implements OnInit {
 
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
-    ).subscribe(() => this.closeMobileSidebar());
+    ).subscribe(event => {
+      this.closeMobileSidebar();
+      this.resetScrollOnPageChange(event.urlAfterRedirects);
+    });
 
 
     const currentRole = this.authApiService.getUserRole();
@@ -105,6 +111,14 @@ export class MainLayoutComponent implements OnInit {
     }
 
     this.loadAnnouncements();
+  }
+
+  private resetScrollOnPageChange(url: string): void {
+    const path = url.split(/[?#]/)[0];
+    if (path !== this.lastPath) {
+      this.pageContent?.nativeElement.scrollTo({ top: 0, left: 0 });
+    }
+    this.lastPath = path;
   }
 
   private setRoleName(): void {
