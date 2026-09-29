@@ -6,14 +6,14 @@
     <form [formGroup]="editForm" class="form-grid">
       <div class="form-group lg">
         <label>Plan Name</label>
-        <input type="text" formControlName="name" placeholder="e.g. Pro Tier" />
+        <input type="text" formControlName="name" placeholder="e.g. Pro Tier" [maxlength]="limits.PLAN_NAME" />
         <app-validation-message *ngIf="isEditing" [control]="editForm.get('name')"
           fieldName="Plan name"></app-validation-message>
       </div>
 
       <div class="form-group lg">
         <label>Description</label>
-        <textarea formControlName="description" placeholder="Short description of benefits..." rows="3"></textarea>
+        <textarea formControlName="description" placeholder="Short description of benefits..." rows="3" [maxlength]="limits.DESCRIPTION"></textarea>
       </div>
 
       <div class="form-group">

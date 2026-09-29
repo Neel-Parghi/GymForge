@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { RouterModule } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -13,6 +14,8 @@ import { NotificationService } from '../../../core/services/notification.service
   styleUrls: ['./forgot-password.component.scss']
 })
 export class ForgotPasswordComponent {
+  readonly limits = FIELD_LIMITS;
+
   emailForm: FormGroup;
   isLoading = false;
   isSent = false;
@@ -24,7 +27,7 @@ export class ForgotPasswordComponent {
     private notification: NotificationService
   ) {
     this.emailForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]]
     });
   }
 

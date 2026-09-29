@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../constants/validation.constants';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { FilterConfig, } from '../../models/filter.model';
 import { DropdownComponent } from '../dropdown/dropdown.component';
@@ -13,6 +14,8 @@ import { DropdownComponent } from '../dropdown/dropdown.component';
   styleUrl: './filter-bar.component.scss'
 })
 export class FilterBarComponent implements OnInit, OnDestroy {
+  readonly limits = FIELD_LIMITS;
+
   @Input() placeholder: string = 'Search...';
   @Input() filterConfigs: FilterConfig[] = [];
   @Input() debounce: number = 300;

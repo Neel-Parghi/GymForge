@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { ValidationMessage } from '../../../shared/components/validation-message/validation-message.component';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { phoneValidator, urlValidator, postalCodeValidator, newPasswordValidators, existingPasswordValidators } from '../../../shared/validators/custom-validators';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../../core/services/profile.service';
 import { StaffService } from '../../../core/services/staff.service';
@@ -15,11 +18,13 @@ import { ConfirmationService } from '../../../core/services/confirmation.service
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ValidationMessage],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   profile?: UserProfile;
   profileForm: FormGroup;
   passwordForm: FormGroup;
@@ -40,7 +45,7 @@ export class ProfileComponent implements OnInit {
   isDeletingAccount = false;
 
   isTrainer = false;
-  specControl = new FormControl('');
+  specControl = new FormControl('', Validators.maxLength(FIELD_LIMITS.SHORT_TEXT));
 
   constructor(
     private fb: FormBuilder,
@@ -52,27 +57,27 @@ export class ProfileComponent implements OnInit {
     private confirmationService: ConfirmationService
   ) {
     this.profileForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      phone: ['', Validators.required],
+      firstName: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      lastName: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      phone: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
       profilePictureUrl: [''],
-      addressLine1: [''],
-      addressLine2: [''],
-      city: [''],
-      state: [''],
-      zipCode: [''],
-      bio: [''],
+      addressLine1: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+      addressLine2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+      city: ['', [Validators.maxLength(FIELD_LIMITS.CITY)]],
+      state: ['', [Validators.maxLength(FIELD_LIMITS.STATE)]],
+      zipCode: ['', [Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]],
+      bio: ['', [Validators.maxLength(FIELD_LIMITS.DESCRIPTION)]],
       experienceYears: [0],
-      instagramUrl: [''],
-      portfolioUrl: [''],
-      shiftTimings: [''],
+      instagramUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+      portfolioUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+      shiftTimings: ['', [Validators.maxLength(FIELD_LIMITS.SHORT_TEXT)]],
       specializations: [[]]
     });
 
     this.passwordForm = this.fb.group({
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required]
+      currentPassword: ['', existingPasswordValidators],
+      newPassword: ['', newPasswordValidators],
+      confirmPassword: ['', existingPasswordValidators]
     }, { validators: this.passwordMatchValidator });
   }
 

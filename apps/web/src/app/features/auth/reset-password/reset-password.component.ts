@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { newPasswordValidators, existingPasswordValidators } from '../../../shared/validators/custom-validators';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -13,6 +15,8 @@ import { NotificationService } from '../../../core/services/notification.service
   styleUrls: ['./reset-password.component.scss']
 })
 export class ResetPasswordComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   resetForm: FormGroup;
   isLoading = false;
   showNewPassword = false;
@@ -29,8 +33,8 @@ export class ResetPasswordComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.resetForm = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required]
+      newPassword: ['', newPasswordValidators],
+      confirmPassword: ['', existingPasswordValidators]
     }, { validators: this.passwordMatchValidator });
   }
 

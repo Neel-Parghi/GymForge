@@ -19,7 +19,7 @@
 
     <div class="dropdown-search" *ngIf="isSearchable" (click)="onSearch($event)">
       <i class="fa-solid fa-magnifying-glass search-icon"></i>
-      <input type="text" [formControl]="searchControl" placeholder="Search..." (click)="$event.stopPropagation()">
+      <input type="text" [formControl]="searchControl" placeholder="Search..." (click)="$event.stopPropagation()" [maxlength]="limits.SEARCH">
     </div>
 
     <div *ngFor="let option of filteredOptions" class="option" [class.selected]="option.value === value"

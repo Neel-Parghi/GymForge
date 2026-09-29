@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
 import { Router } from '@angular/router';
 import { StaffResponse } from '../../../../core/models/staff.model';
 import { StaffService } from '../../../../core/services/staff.service';
@@ -20,6 +21,8 @@ import { ConfirmationService } from '../../../../core/services/confirmation.serv
   styleUrl: './staff-detail-drawer.component.scss'
 })
 export class StaffDetailDrawerComponent {
+  readonly limits = FIELD_LIMITS;
+
   private staffService = inject(StaffService);
   private memberService = inject(MemberService);
   private notification = inject(NotificationService);
@@ -88,7 +91,7 @@ export class StaffDetailDrawerComponent {
   isLoadingMembersList = false;
   isAssignFormOpen = false;
   memberSelectControl = new FormControl('', Validators.required);
-  preferredSlotControl = new FormControl('');
+  preferredSlotControl = new FormControl('', Validators.maxLength(FIELD_LIMITS.SHORT_TEXT));
   durationControl = new FormControl('0', Validators.required);
   isSubmittingAssignment = false;
   isSubmittingShift = false;

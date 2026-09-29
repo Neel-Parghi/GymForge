@@ -32,6 +32,29 @@ export interface VerifyPaymentRequest {
   signature: string;
 }
 
+/** Inputs for a Razorpay SaaS plan checkout. */
+export interface PlanCheckoutRequest {
+  gymId: string;
+  planId: string;
+  description: string;
+  prefill?: { name?: string; email?: string };
+}
+
+/** paid: verified and activated; dismissed: popup closed; failed: gateway or verification error. */
+export type PlanCheckoutStatus = 'paid' | 'dismissed' | 'failed';
+
+export interface PlanCheckoutOutcome {
+  status: PlanCheckoutStatus;
+  message?: string;
+}
+
+/** Fields returned by Razorpay Checkout's success handler. */
+export interface RazorpaySuccessResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
 export interface SaaSConfiguration {
   id: string;
   platformName: string;

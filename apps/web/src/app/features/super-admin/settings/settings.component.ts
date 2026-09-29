@@ -1,6 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ValidationMessage } from '../../../shared/components/validation-message/validation-message.component';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { phoneValidator, urlValidator, gstValidator } from '../../../shared/validators/custom-validators';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -10,11 +13,13 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ValidationMessage],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private configService = inject(ConfigurationService);
   private notification = inject(NotificationService);
@@ -29,23 +34,23 @@ export class SettingsComponent implements OnInit {
 
   constructor() {
     this.settingsForm = this.fb.group({
-      platformName: ['', Validators.required],
-      billingEmail: ['', [Validators.required, Validators.email]],
+      platformName: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PLATFORM_NAME)]],
+      billingEmail: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
       taxPercentage: [18, [Validators.required, Validators.min(0), Validators.max(100)]],
       gracePeriodDays: [7, [Validators.required, Validators.min(0)]],
       yearlyRevenueTarget: [0, [Validators.required, Validators.min(0)]],
       subscriptionTarget: [0, [Validators.required, Validators.min(0)]],
       uptimeThreshold: [99.9, [Validators.required, Validators.min(0), Validators.max(100)]],
       currency: [CONSTANTS.DASHBOARD.CURRENCY],
-      supportPhone: [''],
-      supportEmail: ['', [Validators.email]],
+      supportPhone: ['', [Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
+      supportEmail: ['', [Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
       isMaintenanceMode: [false],
       maintenanceStartTime: [null],
       maintenanceEndTime: [null],
-      termsUrl: [''],
-      privacyUrl: [''],
-      billingAddress: [''],
-      gstNo: ['']
+      termsUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+      privacyUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+      billingAddress: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_BLOCK)]],
+      gstNo: ['', [Validators.maxLength(FIELD_LIMITS.GST_NUMBER), gstValidator]]
     });
   }
 

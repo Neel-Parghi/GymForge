@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PricingService } from '../../../core/services/pricing.service';
-import { PaymentService } from '../../../core/services/payment.service';
+import { PlanCheckoutService } from '../../../core/services/plan-checkout.service';
 import { GymService } from '../../../core/services/gym.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -19,18 +19,29 @@ import { GymListResponse } from '../../../shared/models/gym.model';
 })
 export class SubscriptionExpiredComponent implements OnInit {
   private pricingService = inject(PricingService);
-  private paymentService = inject(PaymentService);
+  private planCheckout = inject(PlanCheckoutService);
   private gymService = inject(GymService);
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
 
+  /** Only the owner can renew; trainers and staff are told to contact them. */
+  readonly isOwner = this.authService.getUserRole() === 'GymOwner';
+
   plans: PricingPlan[] = [];
   gym: GymListResponse | null = null;
   loading = true;
-  submittingPlanId: string | null = null;
+
+  /** Plan picked for the confirm step; payment only starts from there. */
+  selectedPlan: PricingPlan | null = null;
+  isPaying = false;
+  checkoutMessage: { tone: 'error' | 'info'; text: string } | null = null;
 
   ngOnInit(): void {
+    if (!this.isOwner) {
+      this.loading = false;
+      return;
+    }
     this.loadGymAndPlans();
   }
 
@@ -55,18 +66,45 @@ export class SubscriptionExpiredComponent implements OnInit {
     });
   }
 
-  selectPlan(plan: PricingPlan) {
-    this.submittingPlanId = plan.id;
-    this.paymentService.renewSubscription(this.submittingPlanId).subscribe({
-      next: () => {
+  choosePlan(plan: PricingPlan): void {
+    this.selectedPlan = plan;
+    this.checkoutMessage = null;
+  }
+
+  cancelChoice(): void {
+    if (this.isPaying) return;
+    this.selectedPlan = null;
+    this.checkoutMessage = null;
+  }
+
+  /** The plan is expired, so a renewal runs from today. */
+  activeUntil(plan: PricingPlan): Date {
+    const until = new Date();
+    until.setDate(until.getDate() + (plan.durationInDays > 0 ? plan.durationInDays : 30));
+    return until;
+  }
+
+  pay(): void {
+    const plan = this.selectedPlan;
+    if (!plan || !this.gym?.id || this.isPaying) return;
+
+    this.isPaying = true;
+    this.checkoutMessage = null;
+    this.planCheckout.checkout({
+      gymId: this.gym.id,
+      planId: plan.id,
+      description: `${plan.name} plan renewal`,
+      prefill: { name: this.gym.ownerName, email: this.gym.email }
+    }).subscribe(outcome => {
+      this.isPaying = false;
+      if (outcome.status === 'paid') {
         this.notification.success(CONSTANTS.SUBSCRIPTION_EXPIRED.ACCESS_RESTORED.replace('{name}', plan.name));
         this.gymService.clearMyGymCache();
-        this.submittingPlanId = null;
         this.router.navigate(['/gym-owner/dashboard']);
-      },
-      error: (err) => {
-        this.notification.error(err?.error?.message || 'Payment initiation failed. Please try again.');
-        this.submittingPlanId = null;
+      } else if (outcome.status === 'dismissed') {
+        this.checkoutMessage = { tone: 'info', text: 'Payment was cancelled. Your plan has not been renewed.' };
+      } else {
+        this.checkoutMessage = { tone: 'error', text: outcome.message ?? 'Payment failed. Please try again.' };
       }
     });
   }

@@ -27,6 +27,24 @@ export class ValidationMessage {
     if (this.control.errors['maxlength']) {
       return `${this.fieldName} must be at most ${this.control.errors['maxlength'].requiredLength} characters long`;
     }
+    if (this.control.errors['phone']) {
+      return `${this.fieldName} must contain 10 to 15 digits`;
+    }
+    if (this.control.errors['url']) {
+      return `${this.fieldName} must be a valid URL`;
+    }
+    if (this.control.errors['gst']) {
+      return `${this.fieldName} must be a valid 15-character GSTIN`;
+    }
+    if (this.control.errors['postalCode']) {
+      return `${this.fieldName} must be 3 to 10 letters or digits`;
+    }
+    if (this.control.errors['registrationNumber']) {
+      return `${this.fieldName} can only contain letters, digits, - and /`;
+    }
+    if (this.control.errors['passwordStrength']) {
+      return `${this.fieldName} must include upper and lower case letters, a number and a special character`;
+    }
     if (this.control.errors['pattern']) {
       if (this.fieldName.toLowerCase().includes('phone')) {
         return `${this.fieldName} must be at least 10 digits`;

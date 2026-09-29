@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { phoneValidator, urlValidator, gstValidator, postalCodeValidator, registrationNumberValidator } from '../../../shared/validators/custom-validators';
 import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { GymListResponse } from '../../../shared/models/gym.model';
@@ -9,22 +11,25 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
 import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
 import { FileUploadService } from '../../../core/services/file-upload.service';
 import { PricingService } from '../../../core/services/pricing.service';
-import { PaymentService } from '../../../core/services/payment.service';
+import { PlanCheckoutService } from '../../../core/services/plan-checkout.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { PricingPlan } from '../../../shared/models/pricing.model';
 import { StaffService } from '../../../core/services/staff.service';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
+import { ValidationMessage } from '../../../shared/components/validation-message/validation-message.component';
 import { TimePickerComponent } from '../../../shared/components/time-picker/time-picker.component';
 
 @Component({
   selector: 'app-my-gyms',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, DropdownComponent, TimePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, SlideDrawerComponent, DropdownComponent, TimePickerComponent, ValidationMessage],
   templateUrl: './my-gyms.component.html',
   styleUrl: './my-gyms.component.scss',
 })
 export class MyGymsComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private gymService = inject(GymService);
   private toastService = inject(NotificationService);
@@ -33,7 +38,7 @@ export class MyGymsComponent implements OnInit {
   private branchContextService = inject(BranchContextService);
   private fileUploadService = inject(FileUploadService);
   private pricingService = inject(PricingService);
-  private paymentService = inject(PaymentService);
+  private planCheckout = inject(PlanCheckoutService);
   private staffService = inject(StaffService);
 
   pricingPlans: PricingPlan[] = [];
@@ -101,31 +106,31 @@ export class MyGymsComponent implements OnInit {
 
   private initForm(): void {
     this.profileForm = this.fb.group({
-      gymName: ['', [Validators.required, Validators.maxLength(25)]],
-      brandName: ['', [Validators.maxLength(25)]],
-      email: ['', [Validators.email]],
-      phone: ['', [Validators.pattern('^\\+?[0-9]{10,15}$')]],
-      websiteUrl: ['', [Validators.pattern('^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$')]],
-      description: ['', [Validators.maxLength(300)]],
-      gstNumber: ['', [Validators.pattern('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$')]],
-      registrationNumber: ['', [Validators.pattern('^[a-zA-Z0-9-]+$')]],
+      gymName: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.GYM_NAME)]],
+      brandName: ['', [Validators.maxLength(FIELD_LIMITS.BRAND_NAME)]],
+      email: ['', [Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+      phone: ['', [Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
+      websiteUrl: ['', [Validators.maxLength(FIELD_LIMITS.URL), urlValidator]],
+      description: ['', [Validators.maxLength(FIELD_LIMITS.DESCRIPTION)]],
+      gstNumber: ['', [Validators.maxLength(FIELD_LIMITS.GST_NUMBER), gstValidator]],
+      registrationNumber: ['', [Validators.maxLength(FIELD_LIMITS.REGISTRATION_NUMBER), registrationNumberValidator]],
       logoUrl: ['']
     });
     this.profileForm.disable();
 
     this.branchForm = this.fb.group({
-      name: ['', Validators.required],
-      contactNumber: [''],
+      name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.BRANCH_NAME)]],
+      contactNumber: ['', [Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
       openTime: [''],
       closeTime: [''],
       managerId: [''],
       address: this.fb.group({
-        line1: ['', Validators.required],
-        line2: [''],
-        city: ['', Validators.required],
-        state: ['', Validators.required],
-        country: ['India'],
-        postalCode: ['', Validators.required]
+        line1: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        line2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        city: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+        state: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+        country: ['India', [Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+        postalCode: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
       })
     });
   }
@@ -405,61 +410,19 @@ export class MyGymsComponent implements OnInit {
 
     this.isProcessingPayment = true;
     this.selectedUpgradePlanId = plan.id;
-    const request = {
+    this.planCheckout.checkout({
       gymId: this.gymData.id,
-      planId: plan.id
-    };
-
-    this.paymentService.initiatePayment(request).subscribe({
-      next: (res: any) => {
-        const options = {
-          key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
-          amount: res.data.transactionResponse.amount,
-          currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
-          order_id: res.data.transactionResponse.razorpayOrderId,
-          name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
-          description: `Upgrading to ${plan.name} Plan`,
-          handler: (response: any) => {
-            this.verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
-          },
-          prefill: {
-            name: this.gymData?.ownerName || 'Gym Owner',
-            email: this.gymData?.email || 'owner@example.com'
-          },
-          theme: { color: CONSTANTS.PAYMENT.RAZORPAY.THEME_COLOR },
-          modal: {
-            ondismiss: () => {
-              this.isProcessingPayment = false;
-            }
-          }
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      },
-      error: () => {
-        this.toastService.error(CONSTANTS.GYM_MODULE.INIT_SUBSCRIPTION_ERROR);
-        this.isProcessingPayment = false;
-      }
-    });
-  }
-
-  verifyPayment(orderId: string, paymentId: string, signature: string): void {
-    this.paymentService.verifyPayment({
-      orderId,
-      paymentId,
-      signature
-    }).subscribe({
-      next: () => {
+      planId: plan.id,
+      description: `Upgrading to ${plan.name} Plan`,
+      prefill: { name: this.gymData.ownerName, email: this.gymData.email }
+    }).subscribe(outcome => {
+      this.isProcessingPayment = false;
+      if (outcome.status === 'paid') {
         this.toastService.success(CONSTANTS.GYM_MODULE.PAYMENT_UPGRADE_SUCCESS);
         this.isUpgradeModalOpen = false;
-        this.isProcessingPayment = false;
         this.loadGymData();
-      },
-      error: (err: any) => {
-        const msg = err.error?.message || 'Payment verification failed.';
-        this.toastService.error(msg);
-        this.isProcessingPayment = false;
+      } else if (outcome.status === 'failed') {
+        this.toastService.error(outcome.message ?? CONSTANTS.GYM_MODULE.INIT_SUBSCRIPTION_ERROR);
       }
     });
   }

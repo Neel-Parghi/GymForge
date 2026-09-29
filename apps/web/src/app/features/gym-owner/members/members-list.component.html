@@ -180,7 +180,7 @@
     <div class="advanced-filters" [formGroup]="filterForm">
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" formControlName="search" placeholder="Search members...">
+        <input type="text" formControlName="search" placeholder="Search members..." [maxlength]="limits.SEARCH">
       </div>
 
       <div class="dropdown-filters">

@@ -2,16 +2,19 @@ import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../shared/models/dropdown.model';
-import { MemberInvoice, PlatformInvoice, StaffPayout, GymSubscriptionStatus } from '../../../shared/models/payment.model';
+import { MemberInvoice, PlatformInvoice, StaffPayout, GymSubscriptionStatus, PlanCheckoutOutcome } from '../../../shared/models/payment.model';
+import { of, switchMap } from 'rxjs';
 import { BillingService } from '../../../core/services/billing.service';
 import { MemberService } from '../../../core/services/member.service';
 import { StaffService } from '../../../core/services/staff.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { PlanCheckoutService } from '../../../core/services/plan-checkout.service';
 import { GymService } from '../../../core/services/gym.service';
 import { PricingService } from '../../../core/services/pricing.service';
 import { PricingPlan } from '../../../shared/models/pricing.model';
@@ -44,6 +47,8 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
   styleUrl: './billing.component.scss'
 })
 export class BillingComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
 
   // Grid Configurations
   memberInvoicesConfig = AppGridConfig['MemberInvoices'];
@@ -57,6 +62,7 @@ export class BillingComponent implements OnInit {
   private billingService = inject(BillingService);
   private memberService = inject(MemberService);
   private paymentService = inject(PaymentService);
+  private planCheckout = inject(PlanCheckoutService);
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
   private configService = inject(ConfigurationService);
@@ -71,6 +77,7 @@ export class BillingComponent implements OnInit {
 
   isSaaSLocked: boolean = false;
   availableSaaSPlans: PricingPlan[] = [];
+  renewingPlanId: string | null = null;
   subscriptionStatus: GymSubscriptionStatus | null = null;
   gymMembers: any[] = [];
   gymDetails: any = null;
@@ -255,16 +262,38 @@ export class BillingComponent implements OnInit {
     });
   }
 
-  renewSaaSPlan(planId: string) {
-    this.paymentService.renewSubscription(planId).subscribe({
-      next: () => {
-        this.notification.success('Subscription renewed successfully!');
-        this.isSaaSLocked = false;
-        this.activeTab = 'member';
-        this.router.navigate(['/owner/billing']);
+  renewSaaSPlan(plan: PricingPlan) {
+    if (this.renewingPlanId) return;
+    this.renewingPlanId = plan.id;
+
+    this.gymService.getMyGym().pipe(
+      switchMap(res => {
+        const gym = res.data;
+        if (!gym?.id) {
+          return of<PlanCheckoutOutcome>({ status: 'failed', message: CONSTANTS.GYM_MODULE.DETAILS_NOT_LOADED });
+        }
+        return this.planCheckout.checkout({
+          gymId: gym.id,
+          planId: plan.id,
+          description: `${plan.name} plan renewal`,
+          prefill: { name: gym.ownerName, email: gym.email }
+        });
+      })
+    ).subscribe({
+      next: outcome => {
+        this.renewingPlanId = null;
+        if (outcome.status === 'paid') {
+          this.notification.success(CONSTANTS.SUBSCRIPTION_EXPIRED.ACCESS_RESTORED.replace('{name}', plan.name));
+          this.gymService.clearMyGymCache();
+          this.isSaaSLocked = false;
+          this.router.navigate([], { relativeTo: this.route, queryParams: { expired: null }, queryParamsHandling: 'merge' });
+        } else if (outcome.status === 'failed') {
+          this.notification.error(outcome.message ?? 'Payment failed. Please try again.');
+        }
       },
       error: () => {
-        this.notification.error('Failed to renew subscription.');
+        this.renewingPlanId = null;
+        this.notification.error(CONSTANTS.GYM_MODULE.DETAILS_NOT_LOADED);
       }
     });
   }

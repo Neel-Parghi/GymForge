@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, inject, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../../shared/constants/validation.constants';
 import { HealthTrackerHistoryComponent } from './components/health-tracker-history/health-tracker-history.component';
 import { HealthTrackerFormComponent } from './components/health-tracker-form/health-tracker-form.component';
 import { HealthTrackerReportComponent } from './components/health-tracker-report/health-tracker-report.component';
@@ -118,7 +119,7 @@ export class PTMemberDetailHealthTrackerComponent implements OnInit, OnChanges, 
       rightThigh: [null, [Validators.min(1), Validators.max(150)]],
       leftCalf: [null, [Validators.min(1), Validators.max(100)]],
       rightCalf: [null, [Validators.min(1), Validators.max(100)]],
-      notes: ['']
+      notes: ['', [Validators.maxLength(FIELD_LIMITS.NOTES)]]
     });
   }
 

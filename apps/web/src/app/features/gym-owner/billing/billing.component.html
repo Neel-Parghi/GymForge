@@ -11,7 +11,9 @@
           <h3 class="plan-name">{{ plan.name }}</h3>
           <h2 class="plan-price">₹{{ plan.price }}<span class="plan-duration">/{{ plan.durationInDays }} days</span></h2>
           <p class="plan-members">{{ plan.maxMembers ? 'Up to ' + plan.maxMembers + ' members' : 'Unlimited members' }}</p>
-          <button class="primary-btn select-plan-btn" (click)="renewSaaSPlan(plan.id)">Select Plan</button>
+          <button class="primary-btn select-plan-btn" (click)="renewSaaSPlan(plan)" [disabled]="renewingPlanId !== null">
+            {{ renewingPlanId === plan.id ? 'Opening payment…' : 'Pay ₹' + plan.price }}
+          </button>
         </div>
       </div>
     </div>
@@ -133,7 +135,7 @@
           <div class="search-box-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" [formControl]="invoiceSearchControl"
-              placeholder="Search by invoice #, member name, type..." class="ledger-search-input">
+              placeholder="Search by invoice #, member name, type..." class="ledger-search-input" [maxlength]="limits.SEARCH">
           </div>
           <div class="filter-pills">
             <button class="filter-pill" [class.active]="statusFilter === 'All'" (click)="setStatusFilter('All')">All

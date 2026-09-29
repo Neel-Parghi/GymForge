@@ -154,11 +154,11 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Razorpay Key ID</label>
-                                <input type="text" formControlName="razorpayKeyId" placeholder="rzp_live_...">
+                                <input type="text" formControlName="razorpayKeyId" placeholder="rzp_live_..." [maxlength]="limits.API_KEY">
                             </div>
                             <div class="form-group">
                                 <label>Razorpay Secret</label>
-                                <input type="password" formControlName="razorpayKeySecret" placeholder="••••••••••••">
+                                <input type="password" formControlName="razorpayKeySecret" placeholder="••••••••••••" [maxlength]="limits.API_KEY">
                             </div>
                         </div>
                     </div>

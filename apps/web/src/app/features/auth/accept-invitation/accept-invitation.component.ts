@@ -1,6 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
+import { newPasswordValidators, existingPasswordValidators } from '../../../shared/validators/custom-validators';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { CONSTANTS } from '../../../core/constants/constants';
@@ -13,6 +15,8 @@ import { CONSTANTS } from '../../../core/constants/constants';
   styleUrls: ['./accept-invitation.component.scss']
 })
 export class AcceptInvitationComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -28,12 +32,8 @@ export class AcceptInvitationComponent implements OnInit {
 
   constructor() {
     this.acceptForm = this.fb.group({
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-      ]],
-      confirmPassword: ['', [Validators.required]]
+      password: ['', newPasswordValidators],
+      confirmPassword: ['', existingPasswordValidators]
     }, { validators: this.passwordMatchValidator });
   }
 

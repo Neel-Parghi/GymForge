@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { finalize } from 'rxjs';
 import { DestroyRef } from '@angular/core';
@@ -34,6 +35,8 @@ import { CONSTANTS } from '../../../core/constants/constants';
   styleUrl: './members-list.component.scss'
 })
 export class MembersListComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private memberService = inject(MemberService);
   private gymPlanService = inject(GymPlanService);
   private authService = inject(AuthApiService);

@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
+import { phoneValidator, postalCodeValidator } from '../../../../shared/validators/custom-validators';
 import { GymService } from '../../../../core/services/gym.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ValidationMessage } from '../../../../shared/components/validation-message/validation-message.component';
@@ -15,6 +17,8 @@ import { CONSTANTS } from '../../../../core/constants/constants';
   styleUrl: './add-branch-modal.component.scss'
 })
 export class AddBranchModalComponent {
+  readonly limits = FIELD_LIMITS;
+
   @Input() gymId!: string;
   @Output() close = new EventEmitter<void>();
   @Output() branchAdded = new EventEmitter<void>();
@@ -28,16 +32,16 @@ export class AddBranchModalComponent {
 
   constructor() {
     this.branchForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.BRANCH_NAME)]],
       address: this.fb.group({
-        line1: ['', Validators.required],
-        line2: [''],
-        city: ['', Validators.required],
-        state: ['', Validators.required],
-        country: ['', Validators.required],
-        postalCode: ['', Validators.required]
+        line1: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        line2: ['', [Validators.maxLength(FIELD_LIMITS.ADDRESS_LINE)]],
+        city: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.CITY)]],
+        state: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.STATE)]],
+        country: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.COUNTRY)]],
+        postalCode: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.POSTAL_CODE), postalCodeValidator]]
       }),
-      contactNumber: ['', Validators.required],
+      contactNumber: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]],
       openTime: ['06:00'],
       closeTime: ['22:00']
     });

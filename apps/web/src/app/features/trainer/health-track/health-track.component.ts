@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { StaffService } from '../../../core/services/staff.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -15,6 +16,8 @@ import { CONSTANTS } from '../../../core/constants/constants';
   styleUrl: './health-track.component.scss'
 })
 export class HealthTrackerComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private staffService = inject(StaffService);
@@ -60,7 +63,7 @@ export class HealthTrackerComponent implements OnInit {
       height: [null, [Validators.required, Validators.min(50), Validators.max(250)]],
       bodyFatPercentage: [null, [Validators.min(1), Validators.max(80)]],
       bmi: [{ value: null, disabled: true }],
-      notes: ['']
+      notes: ['', [Validators.maxLength(FIELD_LIMITS.NOTES)]]
     });
   }
 

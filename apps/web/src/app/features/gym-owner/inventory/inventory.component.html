@@ -31,7 +31,7 @@
         <div class="list-header-actions">
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" [formControl]="searchControl" [placeholder]="getSearchPlaceholder()">
+            <input type="text" [formControl]="searchControl" [placeholder]="getSearchPlaceholder()" [maxlength]="limits.SEARCH">
             <i class="fa-solid fa-xmark clear-icon" *ngIf="searchControl.value" (click)="clearSearch()"></i>
           </div>
           <div class="active-filter-pill" *ngIf="activeStockFilter" (click)="clearStockFilter()">

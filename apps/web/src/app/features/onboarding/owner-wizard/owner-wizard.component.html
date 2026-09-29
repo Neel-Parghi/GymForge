@@ -131,35 +131,37 @@
                 <div class="form-grid">
                   <div class="form-group">
                     <label>Gym Name *</label>
-                    <input type="text" formControlName="name" placeholder="Enter gym name">
+                    <input type="text" formControlName="name" placeholder="Enter gym name" [maxlength]="limits.GYM_NAME">
                     <app-validation-message [control]="gymForm.get('gymInfo.name')"
                       fieldName="Gym name"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Brand Name</label>
-                    <input type="text" formControlName="brandName" placeholder="Enter brand name">
+                    <input type="text" formControlName="brandName" placeholder="Enter brand name" [maxlength]="limits.BRAND_NAME">
                   </div>
                   <div class="form-group lg">
                     <label>Description</label>
-                    <textarea formControlName="description" placeholder="A short description of the gym"></textarea>
+                    <textarea formControlName="description" placeholder="A short description of the gym" [maxlength]="limits.DESCRIPTION"></textarea>
                   </div>
                   <div class="form-group">
                     <label>Registration Number</label>
-                    <input type="text" formControlName="registrationNumber" placeholder="Reg #">
+                    <input type="text" formControlName="registrationNumber" placeholder="Reg #" [maxlength]="limits.REGISTRATION_NUMBER">
+                    <app-validation-message [control]="gymForm.get('gymInfo.registrationNumber')" fieldName="Registration number"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>GST/Tax Number</label>
-                    <input type="text" formControlName="gstNumber" placeholder="Optional">
+                    <input type="text" formControlName="gstNumber" placeholder="Optional" [maxlength]="limits.GST_NUMBER">
+                    <app-validation-message [control]="gymForm.get('gymInfo.gstNumber')" fieldName="GST number"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Email Address *</label>
-                    <input type="email" formControlName="email" placeholder="contact@gym.com">
+                    <input type="email" formControlName="email" placeholder="contact@gym.com" [maxlength]="limits.EMAIL">
                     <app-validation-message [control]="gymForm.get('gymInfo.email')"
                       fieldName="Email"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Phone Number *</label>
-                    <input type="text" formControlName="phone" placeholder="+1 234 567 8900">
+                    <input type="text" formControlName="phone" placeholder="+1 234 567 8900" [maxlength]="limits.PHONE">
                     <app-validation-message [control]="gymForm.get('gymInfo.phone')"
                       fieldName="Phone number"></app-validation-message>
                   </div>
@@ -170,7 +172,8 @@
                   </div>
                   <div class="form-group">
                     <label>Website</label>
-                    <input type="text" formControlName="websiteUrl" placeholder="https://www.gym.com">
+                    <input type="text" formControlName="websiteUrl" placeholder="https://www.gym.com" [maxlength]="limits.URL">
+                    <app-validation-message [control]="gymForm.get('gymInfo.websiteUrl')" fieldName="Website"></app-validation-message>
                   </div>
 
                   <div class="form-section-title lg">Registered Address</div>
@@ -179,35 +182,35 @@
                 <div class="form-grid lg" formGroupName="address">
                   <div class="form-group lg">
                     <label>Address Line 1 *</label>
-                    <input type="text" formControlName="line1" placeholder="Street address">
+                    <input type="text" formControlName="line1" placeholder="Street address" [maxlength]="limits.ADDRESS_LINE">
                     <app-validation-message [control]="gymForm.get('gymInfo.address.line1')"
                       fieldName="Address"></app-validation-message>
                   </div>
                   <div class="form-group lg">
                     <label>Address Line 2 (Optional)</label>
-                    <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+                    <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc." [maxlength]="limits.ADDRESS_LINE">
                   </div>
                   <div class="form-group">
                     <label>City *</label>
-                    <input type="text" formControlName="city">
+                    <input type="text" formControlName="city" [maxlength]="limits.CITY">
                     <app-validation-message [control]="gymForm.get('gymInfo.address.city')"
                       fieldName="City"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>State *</label>
-                    <input type="text" formControlName="state">
+                    <input type="text" formControlName="state" [maxlength]="limits.STATE">
                     <app-validation-message [control]="gymForm.get('gymInfo.address.state')"
                       fieldName="State"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Country *</label>
-                    <input type="text" formControlName="country">
+                    <input type="text" formControlName="country" [maxlength]="limits.COUNTRY">
                     <app-validation-message [control]="gymForm.get('gymInfo.address.country')"
                       fieldName="Country"></app-validation-message>
                   </div>
                   <div class="form-group">
                     <label>Postal Code *</label>
-                    <input type="text" formControlName="postalCode">
+                    <input type="text" formControlName="postalCode" [maxlength]="limits.POSTAL_CODE">
                     <app-validation-message [control]="gymForm.get('gymInfo.address.postalCode')"
                       fieldName="Postal code"></app-validation-message>
                   </div>
@@ -249,7 +252,7 @@
                       <div class="form-grid">
                         <div class="form-group lg">
                           <label>Branch Name/Alias *</label>
-                          <input type="text" formControlName="name" placeholder="e.g. Downtown Hub">
+                          <input type="text" formControlName="name" placeholder="e.g. Downtown Hub" [maxlength]="limits.BRANCH_NAME">
                           <app-validation-message [control]="branch.get('name')"
                             fieldName="Branch name"></app-validation-message>
                         </div>
@@ -264,42 +267,42 @@
                         <div class="form-grid lg" formGroupName="address">
                           <div class="form-group lg">
                             <label>Address Line 1 *</label>
-                            <input type="text" formControlName="line1" placeholder="Street address">
+                            <input type="text" formControlName="line1" placeholder="Street address" [maxlength]="limits.ADDRESS_LINE">
                             <app-validation-message [control]="branch.get('address.line1')"
                               fieldName="Address"></app-validation-message>
                           </div>
                           <div class="form-group lg">
                             <label>Address Line 2 (Optional)</label>
-                            <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc.">
+                            <input type="text" formControlName="line2" placeholder="Apartment, suite, unit, etc." [maxlength]="limits.ADDRESS_LINE">
                           </div>
                           <div class="form-group">
                             <label>City *</label>
-                            <input type="text" formControlName="city">
+                            <input type="text" formControlName="city" [maxlength]="limits.CITY">
                             <app-validation-message [control]="branch.get('address.city')"
                               fieldName="City"></app-validation-message>
                           </div>
                           <div class="form-group">
                             <label>State *</label>
-                            <input type="text" formControlName="state">
+                            <input type="text" formControlName="state" [maxlength]="limits.STATE">
                             <app-validation-message [control]="branch.get('address.state')"
                               fieldName="State"></app-validation-message>
                           </div>
                           <div class="form-group">
                             <label>Country *</label>
-                            <input type="text" formControlName="country">
+                            <input type="text" formControlName="country" [maxlength]="limits.COUNTRY">
                             <app-validation-message [control]="branch.get('address.country')"
                               fieldName="Country"></app-validation-message>
                           </div>
                           <div class="form-group">
                             <label>Postal Code *</label>
-                            <input type="text" formControlName="postalCode">
+                            <input type="text" formControlName="postalCode" [maxlength]="limits.POSTAL_CODE">
                             <app-validation-message [control]="branch.get('address.postalCode')"
                               fieldName="Postal code"></app-validation-message>
                           </div>
                         </div>
                         <div class="form-group lg">
                           <label>Phone Number *</label>
-                          <input type="text" formControlName="contactNumber">
+                          <input type="text" formControlName="contactNumber" [maxlength]="limits.PHONE">
                           <app-validation-message [control]="branch.get('contactNumber')"
                             fieldName="Phone number"></app-validation-message>
                         </div>

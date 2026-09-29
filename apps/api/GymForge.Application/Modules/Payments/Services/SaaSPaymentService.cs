@@ -4,9 +4,13 @@ using GymForge.Contracts.SaaSPayments;
 using GymForge.Contracts.SuperAdmin.Configuration;
 using GymForge.Domain.Entities;
 using GymForge.Domain.Interface;
+using GymForge.Shared.Constants;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Razorpay.Api;
-using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace GymForge.Application.Modules.Payments.Services
 {
@@ -19,9 +23,11 @@ namespace GymForge.Application.Modules.Payments.Services
         private readonly IUnitOfWork _uow;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
+        private readonly ILogger<SaaSPaymentService> _logger;
 
-        public SaaSPaymentService(IUnitOfWork uow, ISaaSPaymentRepository saaSPaymentRepository, IGymManagementRepository gymManagementRepository, ISaaSPlanRepository saaSPlanRepository, IConfiguration config, ISaaSConfigurationRepository configRepository, IMapper mapper)
+        public SaaSPaymentService(IUnitOfWork uow, ISaaSPaymentRepository saaSPaymentRepository, IGymManagementRepository gymManagementRepository, ISaaSPlanRepository saaSPlanRepository, IConfiguration config, ISaaSConfigurationRepository configRepository, IMapper mapper, ILogger<SaaSPaymentService> logger)
         {
+            _logger = logger;
             _uow = uow;
             _paymentRepository = saaSPaymentRepository;
             _gymManagementRepository = gymManagementRepository;
@@ -67,48 +73,40 @@ namespace GymForge.Application.Modules.Payments.Services
             Order order = client.Order.Create(options);
             string razorpayOrderId = order["id"].ToString();
 
-            Guid transactionId = Guid.NewGuid();
-
             SaaSPaymentTransaction transaction = new()
             {
-                Id = transactionId,
+                Id = Guid.NewGuid(),
                 GymId = paymentDto.GymId,
                 Gym = gym,
+                PlanId = plan.Id,
                 Amount = plan.Price,
                 Currency = "INR",
-                Status = "Pending",
+                Status = SaaSPaymentStatus.Pending,
                 GatewayTransactionId = razorpayOrderId
             };
 
+            // The subscription is only changed once the payment is confirmed (verify / webhook).
+            // A gym without any subscription yet gets an inactive record to attach the payment to.
             SubscriptionRecord? existingSubscription = await _paymentRepository.GetLatestSubscriptionByGymIdAsync(paymentDto.GymId);
-            
-            // If there's an existing unpaid subscription (like from onboarding), update it. Otherwise create new.
-            if (existingSubscription != null && (existingSubscription.Notes == "Initial Onboarding Subscription" || !existingSubscription.IsActive))
+            if (existingSubscription != null)
             {
-                existingSubscription.PlanId = paymentDto.PlanId;
-                existingSubscription.EndDate = DateTime.UtcNow.AddMonths(1);
-                existingSubscription.PriceAtPurchase = plan.Price;
-                existingSubscription.IsTrial = plan.IsTrial;
-                existingSubscription.Notes = null;
                 transaction.SubscriptionId = existingSubscription.Id;
-                transaction.Subscription = existingSubscription;
             }
             else
             {
-                Guid subscriptionId = Guid.NewGuid();
-                SubscriptionRecord gymSubscription = new()
+                SubscriptionRecord pendingSubscription = new()
                 {
-                    Id = subscriptionId,
+                    Id = Guid.NewGuid(),
                     GymId = paymentDto.GymId,
-                    PlanId = paymentDto.PlanId,
+                    PlanId = plan.Id,
                     StartDate = DateTime.UtcNow,
-                    EndDate = DateTime.UtcNow.AddMonths(1),
+                    EndDate = DateTime.UtcNow,
                     IsActive = false,
                     IsTrial = plan.IsTrial,
                     PriceAtPurchase = plan.Price
                 };
-                transaction.SubscriptionId = subscriptionId;
-                transaction.Subscription = gymSubscription;
+                transaction.SubscriptionId = pendingSubscription.Id;
+                transaction.Subscription = pendingSubscription;
             }
 
             await _paymentRepository.AddAsync(transaction);
@@ -123,41 +121,142 @@ namespace GymForge.Application.Modules.Payments.Services
             };
         }
 
+        public async Task<bool> CanManageGymAsync(Guid gymId, Guid userId)
+        {
+            Domain.Entities.Gym? gym = await _gymManagementRepository.GetGymByIdAsync(gymId);
+            return gym != null && gym.OwnerUserId == userId;
+        }
+
         public async Task<bool> ProcessSuccessfulPaymentAsync(string orderId, string paymentId, string signature)
         {
-            string keyId = _config["RazorPay:ApiKeyId"]!;
-            string secret = _config["RazorPay:ApiKeySecret"]!;
+            // Initialises the SDK credentials used by the signature check.
+            _ = new RazorpayClient(_config["RazorPay:ApiKeyId"]!, _config["RazorPay:ApiKeySecret"]!);
 
-            RazorpayClient client = new RazorpayClient(keyId, secret);
-
-            try 
+            try
             {
-                Dictionary<string, string> attributes = [];
-                attributes.Add("razorpay_order_id", orderId);
-                attributes.Add("razorpay_payment_id", paymentId);
-                attributes.Add("razorpay_signature", signature);
-
+                Dictionary<string, string> attributes = new()
+                {
+                    ["razorpay_order_id"] = orderId,
+                    ["razorpay_payment_id"] = paymentId,
+                    ["razorpay_signature"] = signature
+                };
                 Utils.verifyPaymentSignature(attributes);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"SIGNATURE VERIFICATION FAILED: {ex.Message}");
+                _logger.LogWarning(ex, "Razorpay payment signature verification failed for order {OrderId}.", orderId);
                 return false;
             }
 
+            return await ActivatePaidOrderAsync(orderId, paymentId);
+        }
+
+        public async Task<bool> HandleWebhookAsync(string payload, string signature)
+        {
+            string? secret = _config["RazorPay:WebhookSecret"];
+            if (string.IsNullOrWhiteSpace(secret) || !IsValidWebhookSignature(payload, signature, secret))
+            {
+                _logger.LogWarning("Rejected Razorpay webhook: missing secret or invalid signature.");
+                return false;
+            }
+
+            using JsonDocument document = JsonDocument.Parse(payload);
+            JsonElement root = document.RootElement;
+            string? eventName = root.TryGetProperty("event", out JsonElement evt) ? evt.GetString() : null;
+
+            if (!root.TryGetProperty("payload", out JsonElement body)
+                || !body.TryGetProperty("payment", out JsonElement payment)
+                || !payment.TryGetProperty("entity", out JsonElement entity))
+            {
+                return true;
+            }
+
+            string? orderId = entity.TryGetProperty("order_id", out JsonElement o) ? o.GetString() : null;
+            string? paymentId = entity.TryGetProperty("id", out JsonElement p) ? p.GetString() : null;
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return true;
+            }
+
+            switch (eventName)
+            {
+                case "payment.captured":
+                case "order.paid":
+                    await ActivatePaidOrderAsync(orderId, paymentId);
+                    break;
+                case "payment.failed":
+                    string? reason = entity.TryGetProperty("error_description", out JsonElement e) ? e.GetString() : null;
+                    await MarkOrderFailedAsync(orderId, paymentId, reason);
+                    break;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Marks the order's transaction Paid and extends its subscription by the plan duration.
+        /// Idempotent: verify and the webhook can both arrive for the same order.
+        /// </summary>
+        private async Task<bool> ActivatePaidOrderAsync(string orderId, string? paymentId)
+        {
             SaaSPaymentTransaction? transaction = await _paymentRepository.GetByGatewayIdAsync(orderId);
             if (transaction == null) return false;
+            if (transaction.Status == SaaSPaymentStatus.Paid) return true;
 
-            transaction.Status = "Paid";
-            transaction.GatewayResponse = paymentId;
+            SubscriptionRecord subscription = transaction.Subscription;
+            Domain.Entities.Plan? plan = await _saaSPlanRepository.GetPlanByIdAsync(transaction.PlanId ?? subscription.PlanId);
+            if (plan == null) return false;
 
-            if (transaction.Subscription != null)
+            int durationDays = plan.DurationInDays > 0 ? plan.DurationInDays : 30;
+            DateTime now = DateTime.UtcNow;
+
+            // Early renewal of a running paid plan stacks on top; trials, placeholders and lapsed plans restart today.
+            bool extendCurrent = subscription.IsActive && !subscription.IsTrial && subscription.EndDate > now;
+            if (!extendCurrent)
             {
-                transaction.Subscription.IsActive = true;
+                subscription.StartDate = now;
             }
+            subscription.EndDate = (extendCurrent ? subscription.EndDate : now).AddDays(durationDays);
+            subscription.PlanId = plan.Id;
+            subscription.PriceAtPurchase = plan.Price;
+            subscription.IsTrial = plan.IsTrial;
+            subscription.IsActive = true;
+            subscription.Notes = null;
+
+            transaction.Status = SaaSPaymentStatus.Paid;
+            transaction.GatewayResponse = paymentId;
+            transaction.FailureReason = null;
 
             await _uow.SaveChangesAsync();
             return true;
+        }
+
+        private async Task MarkOrderFailedAsync(string orderId, string? paymentId, string? reason)
+        {
+            SaaSPaymentTransaction? transaction = await _paymentRepository.GetByGatewayIdAsync(orderId);
+            if (transaction == null || transaction.Status == SaaSPaymentStatus.Paid) return;
+
+            transaction.Status = SaaSPaymentStatus.Failed;
+            transaction.GatewayResponse = paymentId;
+            transaction.FailureReason = reason;
+            await _uow.SaveChangesAsync();
+        }
+
+        private static bool IsValidWebhookSignature(string payload, string signature, string secret)
+        {
+            if (string.IsNullOrWhiteSpace(signature)) return false;
+
+            byte[] expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(payload));
+            byte[] received;
+            try
+            {
+                received = Convert.FromHexString(signature);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+            return CryptographicOperations.FixedTimeEquals(expected, received);
         }
 
         public async Task<List<PaymentTransactionDto>> GetAllTransactionsAsync()
@@ -272,6 +371,7 @@ namespace GymForge.Application.Modules.Payments.Services
             };
         }
 
+        /// <summary>SuperAdmin-only manual renewal (no gateway payment); recorded as a Manual transaction.</summary>
         public async Task<GymSubscriptionStatusDto> RenewGymSubscriptionAsync(Guid gymId, Guid planId)
         {
             SubscriptionRecord? sub = await _paymentRepository.GetLatestSubscriptionByGymIdAsync(gymId);
@@ -290,7 +390,7 @@ namespace GymForge.Application.Modules.Payments.Services
                 sub.IsActive = true;
                 sub.PriceAtPurchase = plan.Price;
                 sub.PlanId = plan.Id;
-                sub.Notes = $"UPI Renewed plan: {plan.Name} via platform checkout portal";
+                sub.Notes = $"Manual renewal: {plan.Name}";
             }
             else
             {
@@ -304,7 +404,7 @@ namespace GymForge.Application.Modules.Payments.Services
                     IsActive = true,
                     IsTrial = false,
                     PriceAtPurchase = plan.Price,
-                    Notes = $"UPI Renewed plan: {plan.Name} via platform checkout portal"
+                    Notes = $"Manual renewal: {plan.Name}"
                 };
                 await _gymManagementRepository.AddGymSubscriptionAsync(sub);
             }
@@ -316,8 +416,9 @@ namespace GymForge.Application.Modules.Payments.Services
                 SubscriptionId = sub.Id,
                 Amount = plan.Price,
                 Currency = "INR",
-                Status = "Paid",
-                GatewayTransactionId = "pay_upi_" + Guid.NewGuid().ToString("N").Substring(0, 12),
+                PlanId = plan.Id,
+                Status = SaaSPaymentStatus.Manual,
+                GatewayTransactionId = "manual_" + Guid.NewGuid().ToString("N")[..12],
                 CreatedOn = DateTime.UtcNow
             };
             await _paymentRepository.AddAsync(tx);

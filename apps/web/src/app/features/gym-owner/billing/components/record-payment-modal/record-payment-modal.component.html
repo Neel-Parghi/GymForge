@@ -52,7 +52,7 @@
         <div class="form-group-premium">
           <label for="paymentNotes">Notes <span class="label-hint">(optional)</span></label>
           <textarea id="paymentNotes" formControlName="notes" class="form-input-premium" rows="2"
-            placeholder="e.g. Installment 2 of 3, paid via bank transfer"></textarea>
+            placeholder="e.g. Installment 2 of 3, paid via bank transfer" [maxlength]="limits.NOTES"></textarea>
         </div>
 
         <!-- Payment History -->

@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../shared/constants/validation.constants';
+import { phoneValidator } from '../../../../shared/validators/custom-validators';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UserService } from '../../../../core/services/user.service';
 import { ConfirmationPopupComponent } from "../../../../shared/components/confirmation-popup/confirmation-popup.component";
@@ -15,6 +17,8 @@ import { CONSTANTS } from '../../../../core/constants/constants';
   styleUrl: './add-owner-modal.component.scss'
 })
 export class AddOwnerModalComponent implements OnInit {
+  readonly limits = FIELD_LIMITS;
+
   @Output() close = new EventEmitter<void>();
   @Output() ownerInvited = new EventEmitter<void>();
 
@@ -28,10 +32,10 @@ export class AddOwnerModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.inviteForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required]]
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(FIELD_LIMITS.PERSON_NAME)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
+      phone: ['', [Validators.required, Validators.maxLength(FIELD_LIMITS.PHONE), phoneValidator]]
     });
   }
 

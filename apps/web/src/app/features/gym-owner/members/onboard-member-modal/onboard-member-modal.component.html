@@ -71,14 +71,14 @@
             <div class="form-group">
               <label>Email Address *</label>
               <input type="email" formControlName="email" placeholder="member@email.com"
-                [class.error]="isInvalid('email')">
+                [class.error]="isInvalid('email')" [maxlength]="limits.EMAIL">
               <span class="error-msg" *ngIf="isInvalid('email')">Valid email is required</span>
             </div>
 
             <div class="form-group">
               <label>Phone Number *</label>
               <input type="tel" formControlName="phoneNumber" placeholder="+91 9898989898"
-                [class.error]="isInvalid('phoneNumber')">
+                [class.error]="isInvalid('phoneNumber')" [maxlength]="limits.PHONE">
               <span class="error-msg" *ngIf="isInvalid('phoneNumber')">Valid phone number is required</span>
             </div>
 
@@ -95,7 +95,7 @@
             <div class="form-group">
               <label>Emergency Contact Phone</label>
               <input type="tel" formControlName="emergencyContactPhone" placeholder="Emergency Contact Phone"
-                [class.error]="isInvalid('emergencyContactPhone')">
+                [class.error]="isInvalid('emergencyContactPhone')" [maxlength]="limits.PHONE">
               <span class="error-msg" *ngIf="isInvalid('emergencyContactPhone')">Valid phone number is required</span>
             </div>
 
@@ -164,7 +164,7 @@
             <div class="form-group lg">
               <label>Medical Conditions / Notes <span class="optional">(Optional)</span></label>
               <textarea formControlName="medicalConditions" rows="3"
-                placeholder="Pre-existing conditions or injuries?"></textarea>
+                placeholder="Pre-existing conditions or injuries?" [maxlength]="limits.NOTES"></textarea>
             </div>
           </div>
         </div>

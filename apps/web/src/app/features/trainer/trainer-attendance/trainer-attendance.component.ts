@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { StaffService } from '../../../core/services/staff.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -17,6 +18,8 @@ import { GridConfigDef } from '../../../shared/models/grid-config.model';
   styleUrl: './trainer-attendance.component.scss'
 })
 export class TrainerAttendanceComponent implements OnInit, OnDestroy {
+  readonly limits = FIELD_LIMITS;
+
   private authService = inject(AuthApiService);
   private staffService = inject(StaffService);
   private notification = inject(NotificationService);
@@ -24,7 +27,7 @@ export class TrainerAttendanceComponent implements OnInit, OnDestroy {
   userId = '';
   staffDetails: StaffResponse | null = null;
   isCheckedIn = false;
-  notesControl = new FormControl('');
+  notesControl = new FormControl('', Validators.maxLength(FIELD_LIMITS.NOTES));
   loading = false;
   timerString = '00:00:00';
   private timerSubscription: Subscription | null = null;

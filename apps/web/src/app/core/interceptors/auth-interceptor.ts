@@ -30,11 +30,9 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
         return handle401Error(authService, authReq, next);
       }
       
-      if (error instanceof HttpErrorResponse && error.status === 402) {
-        // SaaS Plan Expired
-        if (!router.url.includes('/owner/billing')) {
-          router.navigate(['/owner/billing'], { queryParams: { expired: true } });
-        }
+      // Gym's SaaS plan expired (owners and staff; members are exempt server-side)
+      if (error instanceof HttpErrorResponse && error.status === 402 && !router.url.includes('/subscription-expired')) {
+        router.navigate(['/subscription-expired']);
       }
 
       return throwError(() => error);

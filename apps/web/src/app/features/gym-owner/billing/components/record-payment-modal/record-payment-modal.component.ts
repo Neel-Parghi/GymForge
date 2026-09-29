@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../../shared/constants/validation.constants';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
 import { BillingService } from '../../../../../core/services/billing.service';
@@ -17,6 +18,8 @@ import { PaymentRecordDto } from '../../../../../shared/models/member-invoice.mo
   styleUrl: './record-payment-modal.component.scss'
 })
 export class RecordPaymentModalComponent implements OnInit, OnChanges {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
   private billingService = inject(BillingService);
@@ -57,7 +60,7 @@ export class RecordPaymentModalComponent implements OnInit, OnChanges {
     this.recordPaymentForm = this.fb.group({
       amount: [this.balance, [Validators.required, Validators.min(0.01), Validators.max(this.balance)]],
       paymentMethod: ['UPI', Validators.required],
-      notes: ['']
+      notes: ['', [Validators.maxLength(FIELD_LIMITS.NOTES)]]
     });
   }
 

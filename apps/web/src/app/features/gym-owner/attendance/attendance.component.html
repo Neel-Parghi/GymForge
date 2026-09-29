@@ -42,7 +42,7 @@
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass" *ngIf="!isSearching"></i>
             <i class="fa-solid fa-circle-notch fa-spin searching-spinner" *ngIf="isSearching"></i>
-            <input type="text" [formControl]="searchControl" placeholder="Search members by name or membership ID...">
+            <input type="text" [formControl]="searchControl" placeholder="Search members by name or membership ID..." [maxlength]="limits.SEARCH">
             <button class="clear-btn" *ngIf="searchControl.value" (click)="resetTerminal()">
               <i class="fa-solid fa-circle-xmark"></i>
             </button>
@@ -365,7 +365,7 @@
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" [formControl]="logSearchControl"
-            [placeholder]="logTypeFilter === 'member' ? 'Search logs by name...' : 'Search shifts by name or role...'">
+            [placeholder]="logTypeFilter === 'member' ? 'Search logs by name...' : 'Search shifts by name or role...'" [maxlength]="limits.SEARCH">
         </div>
       </div>
     </div>
@@ -471,7 +471,7 @@
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass" *ngIf="!isSearchingStaff"></i>
             <i class="fa-solid fa-circle-notch fa-spin searching-spinner" *ngIf="isSearchingStaff"></i>
-            <input type="text" [formControl]="staffSearchControl" placeholder="Search staff by name or role...">
+            <input type="text" [formControl]="staffSearchControl" placeholder="Search staff by name or role..." [maxlength]="limits.SEARCH">
             <button class="clear-btn" *ngIf="staffSearchControl.value" (click)="resetStaffTerminal()">
               <i class="fa-solid fa-circle-xmark"></i>
             </button>
@@ -575,7 +575,7 @@
           <!-- Shift Notes for Onboarding -->
           <div class="shift-notes-input-box" *ngIf="!selectedStaff.isCheckedIn">
             <label>Optional Shift Notes</label>
-            <input type="text" [formControl]="staffNotesControl" placeholder="e.g. Opening shift, floor duty...">
+            <input type="text" [formControl]="staffNotesControl" placeholder="e.g. Opening shift, floor duty..." [maxlength]="limits.NOTES">
           </div>
 
           <div class="action-buttons horizontal">

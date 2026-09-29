@@ -6,6 +6,9 @@ namespace GymForge.Domain.Entities
 
         public Guid SubscriptionId { get; set; }
 
+        /// <summary>Plan being purchased; applied to the subscription once the payment is confirmed.</summary>
+        public Guid? PlanId { get; set; }
+
         public decimal Amount { get; set; }
 
         public string Currency { get; set; } = "INR";

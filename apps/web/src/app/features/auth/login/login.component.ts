@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -14,6 +15,8 @@ import { CONSTANTS } from '../../../core/constants/constants';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  readonly limits = FIELD_LIMITS;
+
   private fb = inject(FormBuilder);
   private authApiService = inject(AuthApiService);
   private route = inject(ActivatedRoute);
@@ -26,7 +29,7 @@ export class LoginComponent {
   }
 
   loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(FIELD_LIMITS.EMAIL)]],
     password: ['', [
       Validators.required,
       Validators.minLength(8),

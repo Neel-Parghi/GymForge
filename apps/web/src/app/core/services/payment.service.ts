@@ -87,14 +87,6 @@ export class PaymentService extends BaseApiService {
     return this.subscriptionStatusCache$;
   }
 
-  renewSubscription(planId: string): Observable<ApiResponse<GymSubscriptionStatus>> {
-    return this.post<ApiResponse<GymSubscriptionStatus>>(`payments/renew`, { planId }).pipe(
-      tap(() => {
-        this.clearSubscriptionCache();
-      })
-    );
-  }
-
   getSubscriptionHistory(forceRefresh = false): Observable<ApiResponse<PaymentTransaction[]>> {
     if (!this.subscriptionHistoryCache$ || forceRefresh) {
       this.subscriptionHistoryCache$ = this.get<ApiResponse<PaymentTransaction[]>>(API_CONSTANTS.PAYMENTS.HISTORY).pipe(
