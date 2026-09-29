@@ -11,7 +11,7 @@ import { BranchContextService } from '../../../core/services/branch-context.serv
 import { SlideDrawerComponent } from '../../../shared/components/slide-drawer/slide-drawer.component';
 import { FileUploadService } from '../../../core/services/file-upload.service';
 import { PricingService } from '../../../core/services/pricing.service';
-import { PaymentService } from '../../../core/services/payment.service';
+import { PlanCheckoutService } from '../../../core/services/plan-checkout.service';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { PricingPlan } from '../../../shared/models/pricing.model';
 import { StaffService } from '../../../core/services/staff.service';
@@ -38,7 +38,7 @@ export class MyGymsComponent implements OnInit {
   private branchContextService = inject(BranchContextService);
   private fileUploadService = inject(FileUploadService);
   private pricingService = inject(PricingService);
-  private paymentService = inject(PaymentService);
+  private planCheckout = inject(PlanCheckoutService);
   private staffService = inject(StaffService);
 
   pricingPlans: PricingPlan[] = [];
@@ -410,61 +410,19 @@ export class MyGymsComponent implements OnInit {
 
     this.isProcessingPayment = true;
     this.selectedUpgradePlanId = plan.id;
-    const request = {
+    this.planCheckout.checkout({
       gymId: this.gymData.id,
-      planId: plan.id
-    };
-
-    this.paymentService.initiatePayment(request).subscribe({
-      next: (res: any) => {
-        const options = {
-          key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
-          amount: res.data.transactionResponse.amount,
-          currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
-          order_id: res.data.transactionResponse.razorpayOrderId,
-          name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
-          description: `Upgrading to ${plan.name} Plan`,
-          handler: (response: any) => {
-            this.verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
-          },
-          prefill: {
-            name: this.gymData?.ownerName || 'Gym Owner',
-            email: this.gymData?.email || 'owner@example.com'
-          },
-          theme: { color: CONSTANTS.PAYMENT.RAZORPAY.THEME_COLOR },
-          modal: {
-            ondismiss: () => {
-              this.isProcessingPayment = false;
-            }
-          }
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      },
-      error: () => {
-        this.toastService.error(CONSTANTS.GYM_MODULE.INIT_SUBSCRIPTION_ERROR);
-        this.isProcessingPayment = false;
-      }
-    });
-  }
-
-  verifyPayment(orderId: string, paymentId: string, signature: string): void {
-    this.paymentService.verifyPayment({
-      orderId,
-      paymentId,
-      signature
-    }).subscribe({
-      next: () => {
+      planId: plan.id,
+      description: `Upgrading to ${plan.name} Plan`,
+      prefill: { name: this.gymData.ownerName, email: this.gymData.email }
+    }).subscribe(outcome => {
+      this.isProcessingPayment = false;
+      if (outcome.status === 'paid') {
         this.toastService.success(CONSTANTS.GYM_MODULE.PAYMENT_UPGRADE_SUCCESS);
         this.isUpgradeModalOpen = false;
-        this.isProcessingPayment = false;
         this.loadGymData();
-      },
-      error: (err: any) => {
-        const msg = err.error?.message || 'Payment verification failed.';
-        this.toastService.error(msg);
-        this.isProcessingPayment = false;
+      } else if (outcome.status === 'failed') {
+        this.toastService.error(outcome.message ?? CONSTANTS.GYM_MODULE.INIT_SUBSCRIPTION_ERROR);
       }
     });
   }

@@ -11,14 +11,20 @@
         <i class="fa-solid fa-lock shadow-icon"></i>
       </div>
       <h2>Access Suspended</h2>
-      <p class="subtitle" *ngIf="gym?.isTrialPlan">
-        Your 14-day free trial for <strong>{{ gym?.gymName }}</strong> has expired.
-      </p>
-      <p class="subtitle" *ngIf="!gym?.isTrialPlan">
-        Your subscription for <strong>{{ gym?.gymName }}</strong> has expired or is inactive.
-      </p>
-      <p class="instruction">Choose one of our premium tiers below to activate your account and restore immediate
-        access.</p>
+      <ng-container *ngIf="isOwner; else staffNotice">
+        <p class="subtitle" *ngIf="gym?.isTrialPlan">
+          Your 14-day free trial for <strong>{{ gym?.gymName }}</strong> has expired.
+        </p>
+        <p class="subtitle" *ngIf="!gym?.isTrialPlan">
+          Your subscription for <strong>{{ gym?.gymName }}</strong> has expired or is inactive.
+        </p>
+        <p class="instruction">Choose one of our premium tiers below to activate your account and restore immediate
+          access.</p>
+      </ng-container>
+      <ng-template #staffNotice>
+        <p class="subtitle">Your gym's GymForge subscription has expired or is inactive.</p>
+        <p class="instruction">Please ask your gym owner to renew the plan. You'll regain access as soon as it's active again.</p>
+      </ng-template>
     </div>
 
     <!-- Loading State -->
@@ -28,7 +34,7 @@
     </div>
 
     <!-- Plans Matrix Grid -->
-    <div class="plans-grid" *ngIf="!loading && plans.length > 0">
+    <div class="plans-grid" *ngIf="isOwner && !loading && plans.length > 0">
       <div class="plan-card" *ngFor="let plan of plans" [class.popular]="plan.price > 40">
         <div class="popular-badge" *ngIf="plan.price > 40">Popular Choice</div>
 
@@ -61,18 +67,40 @@
         </div>
 
         <div class="plan-action">
-          <button class="upgrade-btn" (click)="selectPlan(plan)" [disabled]="submittingPlanId !== null">
-            <span *ngIf="submittingPlanId !== plan.id">Activate Subscription</span>
-            <span *ngIf="submittingPlanId === plan.id" class="btn-spinner-box">
-              <span class="btn-spinner"></span> Processing...
-            </span>
+          <button class="upgrade-btn" (click)="choosePlan(plan)" [disabled]="isPaying">Choose plan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm & pay -->
+    <div class="checkout-backdrop" *ngIf="selectedPlan as plan" (click)="cancelChoice()">
+      <div class="checkout-card" role="dialog" aria-modal="true" aria-labelledby="checkout-title" (click)="$event.stopPropagation()">
+        <h3 id="checkout-title">Confirm your plan</h3>
+        <dl class="checkout-summary">
+          <div><dt>Plan</dt><dd>{{ plan.name }}</dd></div>
+          <div><dt>Duration</dt><dd>{{ plan.durationInDays > 0 ? plan.durationInDays : 30 }} days</dd></div>
+          <div><dt>Active until</dt><dd>{{ activeUntil(plan) | date: 'd MMM y' }}</dd></div>
+          <div class="total"><dt>Total</dt><dd>₹{{ plan.price }}</dd></div>
+        </dl>
+        <p class="checkout-note">
+          <i class="fa-solid fa-lock"></i>
+          Secure payment via Razorpay. Your plan activates as soon as the payment is confirmed.
+        </p>
+        <p class="checkout-message" *ngIf="checkoutMessage" [class.error]="checkoutMessage.tone === 'error'" role="status">
+          {{ checkoutMessage.text }}
+        </p>
+        <div class="checkout-actions">
+          <button type="button" class="ghost-btn" (click)="cancelChoice()" [disabled]="isPaying">Back</button>
+          <button type="button" class="pay-btn" (click)="pay()" [disabled]="isPaying">
+            <span *ngIf="!isPaying">Pay ₹{{ plan.price }}</span>
+            <span *ngIf="isPaying" class="btn-spinner-box"><span class="btn-spinner"></span> Opening payment…</span>
           </button>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div class="empty-state" *ngIf="!loading && plans.length === 0">
+    <div class="empty-state" *ngIf="isOwner && !loading && plans.length === 0">
       <i class="fa-solid fa-circle-exclamation warning-icon"></i>
       <p>No active pricing plans found. Please contact platform support.</p>
     </div>

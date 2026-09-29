@@ -6,6 +6,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { phoneValidator } from '../../../shared/validators/custom-validators';
 import { PaymentService } from '../../../core/services/payment.service';
+import { PlanCheckoutService } from '../../../core/services/plan-checkout.service';
 import { DataGrid } from '../../../shared/components/data-grid/data-grid.component';
 import { CONSTANTS } from '../../../core/constants/constants';
 import { GymService } from '../../../core/services/gym.service';
@@ -29,6 +30,7 @@ export class PaymentsComponent implements OnInit {
 
 
   private paymentService = inject(PaymentService);
+  private planCheckout = inject(PlanCheckoutService);
   private gymService = inject(GymService);
   private pricingService = inject(PricingService);
   private toastr = inject(ToastrService);
@@ -61,7 +63,7 @@ export class PaymentsComponent implements OnInit {
 
   get planOptions(): DropdownOption[] {
     return this.plans.map(plan => ({
-      label: `${plan.name} ($${plan.price})`,
+      label: `${plan.name} (${plan.currency}${plan.price})`,
       value: plan.id,
       icon: 'fa-solid fa-gem'
     }));
@@ -193,54 +195,18 @@ export class PaymentsComponent implements OnInit {
     }
 
     const { selectedGymId, selectedPlanId } = this.testPaymentForm.value;
-    const request = {
+    this.planCheckout.checkout({
       gymId: selectedGymId,
-      planId: selectedPlanId
-    };
-
-    this.paymentService.initiatePayment(request).subscribe({
-      next: (res: any) => {
-        const options = {
-          key: CONSTANTS.PAYMENT.RAZORPAY.KEY_ID,
-          amount: res.data.transactionResponse.amount,
-          currency: CONSTANTS.PAYMENT.RAZORPAY.CURRENCY,
-          order_id: res.data.transactionResponse.razorpayOrderId,
-          name: CONSTANTS.PAYMENT.RAZORPAY.COMPANY_NAME,
-          description: CONSTANTS.PAYMENT.RAZORPAY.FLOW_DESCRIPTION,
-          handler: (response: any) => {
-            this.verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
-          },
-          prefill: {
-            name: 'Neel Parghi',
-            email: 'test@example.com'
-          },
-          theme: { color: CONSTANTS.PAYMENT.RAZORPAY.THEME_COLOR }
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      }
-    });
-
-  }
-
-  verifyPayment(orderId: string, paymentId: string, signature: string) {
-    this.paymentService.verifyPayment({
-      orderId: orderId,
-      paymentId: paymentId,
-      signature: signature
-    }).subscribe({
-      next: () => {
+      planId: selectedPlanId,
+      description: CONSTANTS.PAYMENT.RAZORPAY.FLOW_DESCRIPTION
+    }).subscribe(outcome => {
+      if (outcome.status === 'paid') {
         this.toastr.success(CONSTANTS.PAYMENT.MESSAGES.VERIFICATION_SUCCESS, CONSTANTS.COMMON_SUCCESS_TITLE + '!');
-        this.loadStats();
-        this.loadTransactions();
-      },
-      error: (err: any) => {
-        const errorMsg = err.error?.message || CONSTANTS.PAYMENT.MESSAGES.VERIFICATION_ERROR;
-        this.toastr.error(errorMsg, CONSTANTS.COMMON_ERROR_TITLE);
-        this.loadStats();
-        this.loadTransactions();
+      } else if (outcome.status === 'failed') {
+        this.toastr.error(outcome.message ?? CONSTANTS.PAYMENT.MESSAGES.VERIFICATION_ERROR, CONSTANTS.COMMON_ERROR_TITLE);
       }
+      this.loadStats();
+      this.loadTransactions();
     });
   }
 

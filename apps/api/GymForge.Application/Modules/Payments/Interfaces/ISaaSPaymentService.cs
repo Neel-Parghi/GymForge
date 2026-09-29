@@ -7,7 +7,11 @@ namespace GymForge.Application.Modules.Payments.Interfaces
     {
         Task<InitiatePaymentResponseDto> InitiateSaaSPaymentAsync(CreatePaymentDto paymentDto);
         
+        Task<bool> CanManageGymAsync(Guid gymId, Guid userId);
+
         Task<bool> ProcessSuccessfulPaymentAsync(string orderId, string paymentId, string signature);
+
+        Task<bool> HandleWebhookAsync(string payload, string signature);
         
         Task<List<PaymentTransactionDto>> GetAllTransactionsAsync();
 

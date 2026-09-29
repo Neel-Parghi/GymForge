@@ -29,15 +29,20 @@ namespace GymForge.Api.Controllers.Payment
         }
 
         [HttpPost("initiate")]
-        [Authorize(Roles = "GymOwner")]
+        [Authorize(Roles = "GymOwner,SuperAdmin")]
         public async Task<IActionResult> InitiatePayment([FromBody] CreatePaymentDto request)
         {
+            if (!User.IsInRole("SuperAdmin") && !await _paymentService.CanManageGymAsync(request.GymId, UserId))
+            {
+                return Forbid();
+            }
+
             InitiatePaymentResponseDto response = await _paymentService.InitiateSaaSPaymentAsync(request);
             return Ok(response);
         }
 
         [HttpPost("verify")]
-        [Authorize(Roles = "GymOwner")]
+        [Authorize(Roles = "GymOwner,SuperAdmin")]
         public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentRequestDto request)
         {
             bool verified = await _paymentService.ProcessSuccessfulPaymentAsync(request.OrderId, request.PaymentId, request.Signature);
@@ -49,14 +54,31 @@ namespace GymForge.Api.Controllers.Payment
             return Ok(new { message = "Payment verified successfully." });
         }
 
+        /// <summary>Manual renewal without a gateway payment - SuperAdmin only (comps, corrections).</summary>
         [HttpPost("renew")]
-        [Authorize(Roles = "GymOwner")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> RenewSubscription([FromBody] RenewSaaSRequestDto request)
         {
-            if (GymId == null) return Unauthorized();
+            if (request.GymId == Guid.Empty) return BadRequest(new { message = "GymId is required." });
 
-            GymSubscriptionStatusDto status = await _paymentService.RenewGymSubscriptionAsync(GymId.Value, request.PlanId);
+            GymSubscriptionStatusDto status = await _paymentService.RenewGymSubscriptionAsync(request.GymId, request.PlanId);
             return Ok(status);
+        }
+
+        /// <summary>
+        /// Razorpay webhook (payment.captured / order.paid / payment.failed). Activates the plan even when the
+        /// browser closes before /verify runs. Authenticated by the X-Razorpay-Signature HMAC, not a user token.
+        /// </summary>
+        [HttpPost("webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Webhook()
+        {
+            using StreamReader reader = new(Request.Body);
+            string payload = await reader.ReadToEndAsync();
+            string signature = Request.Headers["X-Razorpay-Signature"].ToString();
+
+            bool accepted = await _paymentService.HandleWebhookAsync(payload, signature);
+            return accepted ? Ok() : BadRequest();
         }
 
         [HttpGet("stats")]
