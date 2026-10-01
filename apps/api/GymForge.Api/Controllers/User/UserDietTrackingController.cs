@@ -38,6 +38,13 @@ namespace GymForge.Api.Controllers.User
             return Ok(log);
         }
 
+        [HttpPut("meals/{mealEntryId}")]
+        public async Task<IActionResult> UpdateMealEntry(Guid mealEntryId, [FromBody] UpdateMealEntryRequestDto request)
+        {
+            DietLogDto log = await _dietTrackingService.UpdateMealEntryAsync(GetMemberId(), mealEntryId, request);
+            return Ok(log);
+        }
+
         [HttpDelete("meals/{mealEntryId}")]
         public async Task<IActionResult> RemoveMealEntry(Guid mealEntryId)
         {

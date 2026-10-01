@@ -50,6 +50,14 @@ export interface AddMealEntryRequestDto {
   sourceDietPlanMealId?: string;
 }
 
+export interface UpdateMealEntryRequestDto {
+  foodName: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+}
+
 export interface DietLogSummaryDto {
   logDate: string;
   targetCalories: number;

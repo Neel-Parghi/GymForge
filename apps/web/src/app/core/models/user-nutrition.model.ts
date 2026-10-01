@@ -12,10 +12,13 @@ export interface MealForm {
   sourceDietPlanMealId: FormControl<string | null>;
 }
 
+export type MealSheetMode = 'add' | 'plan' | 'edit';
+
 export interface PlannedMeal {
   meal: AssignedMealDto;
   entry: MealLogEntryDto | null;
   isNext: boolean;
+  isAdjusted: boolean;
 }
 
 export interface FoodSearchResult {
