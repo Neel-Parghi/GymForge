@@ -325,7 +325,6 @@
   background: rgba(10, 31, 68, 0.55);
 }
 
-// Bottom sheet on phones, centred dialog from tablet up
 @mixin bottom-sheet {
   position: fixed;
   left: 0;
@@ -333,6 +332,7 @@
   bottom: 0;
   z-index: 410;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -357,16 +357,42 @@
   }
 
   @include from-tablet {
+    --sheet-top: max(24px, 8vh);
     left: 50%;
     right: auto;
     bottom: auto;
-    top: 50%;
+    top: var(--sheet-top);
     width: min(480px, calc(100vw - 48px));
+    max-height: calc(100vh - 2 * var(--sheet-top));
+    max-height: calc(100dvh - 2 * var(--sheet-top));
     padding: 20px 24px 24px;
     border-radius: var(--m-radius-lg);
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     animation: none;
   }
+}
+
+@mixin sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 2px 16px;
+
+  @include from-tablet {
+    margin: 0 -24px;
+    padding: 2px 24px;
+  }
+}
+
+@mixin sheet-footer {
+  flex-shrink: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--m-line-soft);
 }
 
 @mixin sheet-handle {

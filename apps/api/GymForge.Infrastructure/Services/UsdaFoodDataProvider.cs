@@ -4,14 +4,13 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using GymForge.Application.Modules.Diet.Interfaces;
 using GymForge.Contracts.DietTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace GymForge.Infrastructure.Services;
 
-public class UsdaFoodDataProvider : IFoodSearchProvider
+public class UsdaFoodDataProvider
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
@@ -95,12 +94,28 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
         }
     }
 
-    private async Task<(string Name, double Calories, double Protein, double Carbs, double Fats)?> FindBestMatchAsync(
-        string foodName, string dataTypeFilter, string apiKey, string baseUrl)
+    public async Task<(string Name, double Calories, double Protein, double Carbs, double Fats)?> FindPer100gAsync(string foodName)
     {
-        // Fetch a handful of candidates rather than trusting USDA's top relevance hit blindly - its
-        // ranking often surfaces a composite dish (e.g. "Palak Paneer") ahead of the plain ingredient
-        // ("Paneer, cheese") for a bare ingredient query, which understates the true macros.
+        try
+        {
+            var apiKey = _configuration["UsdaFoodData:ApiKey"];
+            var baseUrl = _configuration["UsdaFoodData:BaseUrl"] ?? "https://api.nal.usda.gov/fdc/v1";
+            if (string.IsNullOrWhiteSpace(apiKey) || apiKey == "YOUR_USDA_API_KEY")
+                return null;
+
+            return await FindBestMatchAsync(foodName, "&dataType=Foundation&dataType=SR%20Legacy&dataType=Survey%20%28FNDDS%29", apiKey, baseUrl, requireNameMatch: true)
+                ?? await FindBestMatchAsync(foodName, "&dataType=Branded", apiKey, baseUrl, requireNameMatch: true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching USDA per-100g data for: {FoodName}", foodName);
+            return null;
+        }
+    }
+
+    private async Task<(string Name, double Calories, double Protein, double Carbs, double Fats)?> FindBestMatchAsync(
+        string foodName, string dataTypeFilter, string apiKey, string baseUrl, bool requireNameMatch = false)
+    {
         var url = $"{baseUrl}/foods/search?query={Uri.EscapeDataString(foodName)}&pageSize=5{dataTypeFilter}&api_key={apiKey}";
         var response = await GetWithRetryAsync(url);
 
@@ -120,6 +135,11 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
 
         var food = SelectBestMatch(foods, foodName);
         var name = food.TryGetProperty("description", out var descEl) ? descEl.GetString() ?? foodName : foodName;
+
+        if (requireNameMatch && ScoreDescriptionMatch(name.ToLowerInvariant(), foodName.Trim().ToLowerInvariant()) == 0)
+        {
+            return null;
+        }
 
         double calories = 0, protein = 0, carbs = 0, fats = 0;
 
@@ -145,11 +165,6 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
         return (name, calories, protein, carbs, fats);
     }
 
-    /// <summary>
-    /// USDA's edge occasionally 400s a well-formed request (observed live: ~20-50% of identical requests
-    /// failing transiently, seemingly load-balancer/backend related rather than anything about the request
-    /// itself). Retries a few times before giving up rather than treating one flaky response as "no match".
-    /// </summary>
     private async Task<HttpResponseMessage?> GetWithRetryAsync(string url, int maxAttempts = 3)
     {
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
@@ -179,12 +194,6 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
         return null;
     }
 
-    /// <summary>
-    /// Picks the most literal ingredient match out of a handful of candidates instead of just taking
-    /// USDA's top relevance hit. Scored in tiers so a decisive category (exact match, "Query, ..." prefix)
-    /// always wins over a weaker one (query merely appearing somewhere in a longer dish name), with USDA's
-    /// own ranking only used to break ties within the same tier.
-    /// </summary>
     private static JsonElement SelectBestMatch(JsonElement foods, string query)
     {
         string normalizedQuery = query.Trim().ToLowerInvariant();
@@ -216,14 +225,10 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
             return 1000;
         }
 
-        // USDA descriptions commonly follow a comma-separated "Ingredient, descriptor, descriptor"
-        // convention, and the ingredient itself can land in either position (e.g. "Paneer, cheese" vs
-        // "Cheese, paneer" are both plain-ingredient entries). A description where the query is one of
-        // those exact comma-separated segments is almost certainly the ingredient itself, not a dish
-        // that merely mentions it - checked regardless of which segment position it's in.
         foreach (string segment in normalizedDescription.Split(','))
         {
-            if (segment.Trim() == normalizedQuery)
+            string trimmed = segment.Trim();
+            if (trimmed == normalizedQuery || trimmed == normalizedQuery + "s" || trimmed == normalizedQuery + "es")
             {
                 return 600;
             }
@@ -237,13 +242,6 @@ public class UsdaFoodDataProvider : IFoodSearchProvider
         return 0;
     }
 
-    /// <summary>
-    /// USDA's search endpoint does no natural-language quantity parsing (unlike CalorieNinjas) - it always
-    /// returns nutrients per 100g. A gram/kg quantity is stripped from the query before searching, whether
-    /// it comes before ("200g rice") or after ("rice 200g", "paneer 200gm") the food name, and used to scale
-    /// the per-100g result afterward. Count-based quantities ("2 eggs", "1 apple") aren't scaled - the
-    /// per-100g value is returned as-is.
-    /// </summary>
     private static (string FoodName, double? GramsMultiplier) ParseGramQuantity(string query)
     {
         string trimmed = query.Trim();

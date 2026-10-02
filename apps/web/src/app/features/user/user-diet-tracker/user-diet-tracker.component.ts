@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, map, tap } from 'rxjs';
@@ -14,9 +15,12 @@ import { SegmentedTab } from '../../../shared/models/segmented-tab.model';
 import { mealTimeToMinutes } from '../../../shared/utils/meal-time';
 import { NUTRITION_TARGET_FALLBACK, percentOf } from '../../../shared/utils/nutrition';
 import { toDateKey } from '../../../shared/utils/workout-schedule';
-import { FoodSearchResult, MealForm, MealSheetMode, PlannedMeal } from '../../../core/models/user-nutrition.model';
+import { FoodSearchItem, FoodSearchResult, MealForm, SelectedFoodItem, MealSheetMode, PlannedMeal } from '../../../core/models/user-nutrition.model';
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 80;
+const PORTION_STEP = 0.5;
+const MAX_PORTION = 10;
+const SOURCE_LABELS: Record<string, string> = { indb: 'Indian food DB', usda: 'USDA', web: 'Web estimate', ai: 'AI estimate' };
 
 type MealFormValue = ReturnType<FormGroup<MealForm>['getRawValue']>;
 
@@ -57,6 +61,15 @@ export class UserDietTrackerComponent implements OnInit {
 
   readonly isSearching = signal(false);
   readonly searchError = signal('');
+  readonly searchResult = signal<FoodSearchResult | null>(null);
+  readonly searchItems = signal<SelectedFoodItem[]>([]);
+  readonly searchRows = computed(() => this.searchItems().map(({ item, portion }) => ({
+    ...this.scaleItem(item, portion),
+    portion,
+    sourceLabel: SOURCE_LABELS[item.source ?? ''] ?? '',
+    isEstimate: item.source === 'ai' || item.source === 'web'
+  })));
+  private sheetInitialValues: MealFormValue | null = null;
 
   readonly searchQueryControl = new FormControl('', { nonNullable: true });
   readonly mealForm = new FormGroup<MealForm>({
@@ -192,33 +205,48 @@ export class UserDietTrackerComponent implements OnInit {
   closeSheet(): void {
     if (this.isSaving()) return;
     this.showSheet.set(false);
-    this.searchQueryControl.reset('');
-    this.searchError.set('');
+    this.resetSearch();
     this.saveError.set('');
   }
 
   searchFood(): void {
     const query = this.searchQueryControl.value.trim();
-    if (!query) return;
+    if (!query || this.isSearching()) return;
     this.isSearching.set(true);
     this.searchError.set('');
+    this.searchResult.set(null);
+    this.searchItems.set([]);
     this.dietTrackingService.searchFood(query).subscribe({
       next: result => {
         const food = ((result as { data?: FoodSearchResult })?.data ?? result) as FoodSearchResult;
-        this.mealForm.patchValue({
-          foodName: food.name,
-          calories: Math.round(food.calories),
-          protein: Math.round(food.protein * 10) / 10,
-          carbs: Math.round(food.carbs * 10) / 10,
-          fats: Math.round(food.fats * 10) / 10
-        });
+        this.searchResult.set(food);
+        const items = food.items?.length ? food.items : [{ ...food, quantity: '' }];
+        this.applySearchItems(items.map(item => ({ item, portion: 1 })));
         this.isSearching.set(false);
       },
-      error: () => {
-        this.searchError.set('Food not found. Please enter the details manually.');
+      error: (err: HttpErrorResponse) => {
+        this.searchError.set(err.status === 429
+          ? 'Too many searches. Please wait a minute and try again.'
+          : "Couldn't find that. Try describing it differently, or enter the details manually.");
         this.isSearching.set(false);
       }
     });
+  }
+
+  removeSearchItem(index: number): void {
+    this.applySearchItems(this.searchItems().filter((_, i) => i !== index));
+  }
+
+  changePortion(index: number, direction: 1 | -1): void {
+    this.applySearchItems(this.searchItems().map((entry, i) => i !== index ? entry : {
+      ...entry,
+      portion: Math.min(Math.max(entry.portion + direction * PORTION_STEP, PORTION_STEP), MAX_PORTION)
+    }));
+  }
+
+  clearSearch(): void {
+    this.resetSearch();
+    if (this.sheetInitialValues) this.mealForm.reset(this.sheetInitialValues);
   }
 
   quickLog(meal: AssignedMealDto): void {
@@ -297,8 +325,45 @@ export class UserDietTrackerComponent implements OnInit {
     this.sheetPlannedMeal.set(meal);
     this.editingEntry.set(entry);
     this.saveError.set('');
+    this.resetSearch();
+    this.sheetInitialValues = values;
     this.mealForm.reset(values);
     this.showSheet.set(true);
+  }
+
+  private scaleItem(item: FoodSearchItem, portion: number): FoodSearchItem {
+    const round1 = (n: number) => Math.round(n * portion * 10) / 10;
+    return {
+      ...item,
+      calories: Math.round(item.calories * portion),
+      protein: round1(item.protein),
+      carbs: round1(item.carbs),
+      fats: round1(item.fats)
+    };
+  }
+
+  private resetSearch(): void {
+    this.searchQueryControl.reset('');
+    this.searchError.set('');
+    this.searchResult.set(null);
+    this.searchItems.set([]);
+  }
+
+  private applySearchItems(entries: SelectedFoodItem[]): void {
+    this.searchItems.set(entries);
+    if (!entries.length) {
+      this.searchResult.set(null);
+      return;
+    }
+    const items = entries.map(({ item, portion }) => this.scaleItem(item, portion));
+    const sum = (pick: (i: FoodSearchItem) => number) => items.reduce((total, i) => total + pick(i), 0);
+    this.mealForm.patchValue({
+      foodName: items.map(i => i.name).join(', ').slice(0, FIELD_LIMITS.SHORT_TEXT),
+      calories: Math.round(sum(i => i.calories)),
+      protein: Math.round(sum(i => i.protein) * 10) / 10,
+      carbs: Math.round(sum(i => i.carbs) * 10) / 10,
+      fats: Math.round(sum(i => i.fats) * 10) / 10
+    });
   }
 
   private planValues(meal: AssignedMealDto): MealFormValue {

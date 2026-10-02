@@ -21,10 +21,24 @@ export interface PlannedMeal {
   isAdjusted: boolean;
 }
 
-export interface FoodSearchResult {
+export interface FoodSearchItem {
   name: string;
+  quantity: string;
   calories: number;
   protein: number;
   carbs: number;
   fats: number;
+  source?: string;
+  reference?: string;
+}
+
+export interface SelectedFoodItem {
+  item: FoodSearchItem;
+  portion: number;
+}
+
+export interface FoodSearchResult extends Omit<FoodSearchItem, 'quantity'> {
+  items?: FoodSearchItem[];
+  source?: string;
+  isEstimate?: boolean;
 }

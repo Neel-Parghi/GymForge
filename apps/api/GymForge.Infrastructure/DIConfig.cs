@@ -108,8 +108,10 @@ namespace GymForge.Infrastructure
             services.AddScoped<IGymAnnouncementRepository, GymAnnouncementRepository>();
             services.AddScoped<IAnnouncementTemplateRepository, AnnouncementTemplateRepository>();
             services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+            services.AddMemoryCache();
+            services.AddSingleton<IndianFoodDatabase>();
+            services.AddHttpClient<GeminiFoodSearchProvider>(client => client.Timeout = TimeSpan.FromSeconds(25));
             services.AddHttpClient<UsdaFoodDataProvider>();
-            services.AddHttpClient<CalorieNinjasFoodSearchProvider>();
             services.AddScoped<INutritionApiService, NutritionApiService>();
 
             string? cloudName = configuration["Cloudinary:CloudName"];
