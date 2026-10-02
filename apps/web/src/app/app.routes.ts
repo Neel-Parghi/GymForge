@@ -222,6 +222,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/user/user-diet-tracker/user-diet-tracker.component').then(m => m.UserDietTrackerComponent)
       },
       {
+        path: 'winter-arc',
+        loadChildren: () => import('./features/user/winter-arc/winter-arc.routes').then(m => m.WINTER_ARC_ROUTES)
+      },
+      {
         path: 'billing',
         loadComponent: () => import('./features/user/user-billing/user-billing.component').then(m => m.UserBillingComponent)
       },

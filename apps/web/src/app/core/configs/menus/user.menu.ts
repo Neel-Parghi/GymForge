@@ -14,6 +14,12 @@ export const UserMenu: NavItem[] = [
         roles: ['User']
     },
     {
+        label: 'Winter Arc (beta)',
+        icon: 'fa-solid fa-snowflake',
+        route: '/user/winter-arc',
+        roles: ['User']
+    },
+    {
         label: 'Fitness',
         isHeading: true,
         roles: ['User'],

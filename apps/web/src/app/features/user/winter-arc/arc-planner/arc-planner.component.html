@@ -1,0 +1,85 @@
+<div class="arc">
+  <header class="planner-head">
+    <div class="planner-title">
+      <a routerLink="/user/winter-arc" class="back-link"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Winter Arc</a>
+      <h1>Planner</h1>
+      <span class="muted">{{ seasonStart | date: 'MMM d' }} – {{ seasonEnd | date: 'MMM d' }} · tick today and the {{ editableDays - 1 }} days before; older days lock.</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>Day</span><strong>{{ store.dayOfSeason }} / {{ store.totalDays }}</strong></div>
+      <div class="stat"><span>Arc score</span><strong>{{ stats().score }}</strong></div>
+      <div class="stat"><span>Streak</span><strong>{{ stats().streak }} {{ stats().streak === 1 ? 'day' : 'days' }}</strong></div>
+      <div class="stat"><span>Kept</span><strong>{{ stats().keptDays }} / {{ stats().countedDays }}</strong></div>
+      <div class="stat"><span>Freezes left</span><strong>{{ stats().freezesLeft }}</strong></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="tabs" role="group" aria-label="Month">
+      @for (m of months; track m.month) {
+        <button type="button" class="tab" [class.on]="month() === m.month" [attr.aria-pressed]="month() === m.month"
+          (click)="month.set(m.month)">{{ m.label }}</button>
+      }
+    </div>
+    <div class="legend">
+      <span><i class="swatch done"></i>Done</span>
+      <span><i class="swatch rest"></i>Rest day</span>
+      <span><i class="swatch missed"></i>Missed</span>
+      <span><i class="swatch frozen"></i>Frozen</span>
+      <span><i class="swatch open"></i>Can tick</span>
+    </div>
+  </div>
+
+  <section class="grid-card" aria-label="Winter Arc planner grid">
+    <div class="grid" [style.--cols]="days().length">
+      <div class="label head-label">{{ months[month() - 9].label }}</div>
+      @for (day of days(); track day.key) {
+        <div class="head" [class.today]="day.status === 'today'">
+          <span>{{ day.dow }}</span>
+          <b>{{ day.dayOfMonth }}</b>
+        </div>
+      }
+
+      <div class="section">Tracked automatically</div>
+      @for (row of autoRows(); track row.name) {
+        <div class="label">{{ row.name }}</div>
+        @for (cell of row.cells; track cell.day.key) {
+          <div class="cell {{ cell.tone }}" [class.today]="cell.isToday">{{ cell.label }}</div>
+        }
+      }
+
+      <div class="section">My habits</div>
+      @for (row of habitRows(); track row.habit.id) {
+        <div class="label">{{ row.habit.name }}</div>
+        @for (cell of row.cells; track cell.day.key) {
+          @if (cell.day.editable) {
+            <button type="button" class="cell {{ cell.tone }}" [class.today]="cell.isToday" (click)="toggle(cell, row.habit)"
+              [attr.aria-pressed]="cell.tone === 'done'"
+              [attr.aria-label]="row.habit.name + ', ' + (cell.day.date | date: 'd MMM')">{{ cell.label }}</button>
+          } @else {
+            <div class="cell {{ cell.tone }}" [class.today]="cell.isToday">{{ cell.label }}</div>
+          }
+        }
+      }
+
+      <div class="label points-label">Points</div>
+      @for (day of days(); track day.key) {
+        @if (day.canFreeze) {
+          <button type="button" class="points missed-points freezable" [class.today]="day.status === 'today'" (click)="freeze(day)"
+            [attr.aria-label]="'Freeze ' + (day.date | date: 'd MMM') + ', ' + day.points + ' points'" title="Missed. Click to use a freeze">
+            {{ day.points }}
+          </button>
+        } @else {
+          <div class="points" [class.kept-points]="day.kept" [class.missed-points]="day.points !== null && !day.kept"
+            [class.frozen]="day.status === 'frozen'" [class.today]="day.status === 'today'">
+            {{ day.points ?? '' }}
+          </div>
+        }
+      }
+    </div>
+  </section>
+
+  <p class="muted footnote">
+    A day is kept at {{ keptThreshold }}+ points. Click a missed day's points to freeze it: {{ freezesLeftThisMonth() }} {{ freezesLeftThisMonth() === 1 ? 'freeze' : 'freezes' }} left in {{ months[month() - 9].label }}.
+  </p>
+</div>

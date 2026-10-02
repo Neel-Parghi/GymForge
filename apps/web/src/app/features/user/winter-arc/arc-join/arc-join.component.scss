@@ -1,0 +1,261 @@
+@use 'member' as m;
+@use '../arc-theme' as arc;
+
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.arc {
+  @include arc.shell;
+}
+
+.join {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.eyebrow {
+  @include arc.eyebrow;
+
+  &.ice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--arc-ice);
+  }
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--arc-muted);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 20px;
+  border-radius: var(--m-radius-xl);
+  border: 1px solid var(--arc-line);
+  background: linear-gradient(165deg, #1b3a6b, var(--arc-surface) 75%);
+
+  h1 {
+    @include arc.title(2rem);
+    line-height: 1.1;
+  }
+
+  p:not(.note) {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: #bfd0e8;
+  }
+}
+
+.dates {
+  display: flex;
+  gap: 10px;
+  padding-top: 6px;
+
+  div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--arc-ground);
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: var(--arc-muted);
+  }
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  h2 {
+    @include arc.title(1.125rem);
+    font-weight: 700;
+  }
+}
+
+.block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.count {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--arc-ice);
+
+  &.full {
+    color: var(--arc-miss-ink);
+  }
+}
+
+.rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--arc-raised);
+    font-weight: 600;
+  }
+
+  strong {
+    margin-left: auto;
+    font-family: var(--m-font-display);
+    font-weight: 800;
+    color: var(--arc-ice);
+  }
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--arc-line);
+  background: var(--arc-raised);
+}
+
+.switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1;
+}
+
+.switch-title {
+  font-weight: 700;
+}
+
+.switch {
+  @include m.reset-button;
+  width: 52px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--arc-line-strong);
+  display: flex;
+  justify-content: flex-start;
+  transition: background-color 0.2s ease;
+
+  &.on {
+    background: var(--arc-ice);
+    justify-content: flex-end;
+  }
+}
+
+.knob {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.chip {
+  @include m.reset-button;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--arc-line-strong);
+  background: var(--arc-raised);
+  color: var(--arc-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  &.on {
+    background: var(--arc-ice);
+    border-color: var(--arc-ice);
+    color: var(--arc-on-ice);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.custom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.custom-row {
+  display: flex;
+  gap: 8px;
+
+  input {
+    flex-grow: 1;
+    min-width: 0;
+    height: 46px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid var(--arc-line-strong);
+    background: var(--arc-surface);
+    color: var(--arc-ink);
+    font: inherit;
+    font-size: 1rem;
+
+    &::placeholder {
+      color: #6b7f9f;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--arc-ice);
+    }
+  }
+}
+
+.ghost-btn {
+  @include arc.ghost-button;
+  min-height: 46px;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.start-btn {
+  @include arc.ice-button;
+  min-height: 54px;
+  font-size: 1.0625rem;
+}

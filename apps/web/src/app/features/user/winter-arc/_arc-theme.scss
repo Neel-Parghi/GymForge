@@ -1,0 +1,103 @@
+@use 'member' as m;
+
+// Winter Arc palette, applied only inside the arc screens. Kept vs missed vs frozen differ in
+// lightness as well as hue: bright ice fill, orange outline, frosted stripes.
+@mixin tokens {
+  --arc-ground: #0b1426;
+  --arc-surface: #101c34;
+  --arc-raised: #15233f;
+  --arc-line: #22345a;
+  --arc-line-strong: #3b5788;
+  --arc-ink: #e6eef8;
+  --arc-muted: #94a7c6;
+  --arc-ice: #7dd3fc;
+  --arc-ice-soft: #bae6fd;
+  --arc-on-ice: #0b1426;
+  --arc-miss: #f59e0b;
+  --arc-miss-ink: #fbbf24;
+  --arc-frost: repeating-linear-gradient(135deg, #1e3a5f 0 4px, #2b4f7e 4px 8px);
+}
+
+// Page shell: the dark panel every arc screen sits in.
+@mixin shell {
+  @include tokens;
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-gap);
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 20px 16px 28px;
+  border-radius: var(--m-radius-xl);
+  background: var(--arc-ground);
+  color: var(--arc-ink);
+  font-family: var(--m-font-body);
+
+  @include m.from-desktop {
+    padding: 28px 32px 36px;
+  }
+}
+
+@mixin eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--arc-muted);
+}
+
+@mixin title($size: 1.625rem) {
+  margin: 0;
+  font-family: var(--m-font-display);
+  font-size: $size;
+  font-weight: 800;
+  color: var(--arc-ink);
+}
+
+@mixin panel {
+  border-radius: var(--m-radius-lg);
+  background: var(--arc-surface);
+  border: 1px solid var(--arc-line);
+  padding: var(--m-card-pad);
+}
+
+@mixin ghost-button {
+  @include m.reset-button;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--arc-line);
+  background: var(--arc-raised);
+  color: var(--arc-ink);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--arc-line-strong);
+  }
+}
+
+@mixin ice-button {
+  @include m.reset-button;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: 16px;
+  background: var(--arc-ice);
+  color: var(--arc-on-ice);
+  font-family: var(--m-font-display);
+  font-size: 1rem;
+  font-weight: 800;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}

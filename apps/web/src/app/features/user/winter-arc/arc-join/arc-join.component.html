@@ -1,0 +1,83 @@
+<div class="arc">
+  <div class="join">
+    <section class="hero">
+      <span class="eyebrow ice"><i class="fa-solid fa-snowflake" aria-hidden="true"></i> Season {{ seasonStart | date: 'y' }}</span>
+      <h1>Your Winter Arc starts now.</h1>
+      <p>{{ seasonDays }} days to train, eat to plan and keep the habits you pick. Show up most days and your arc score climbs.</p>
+      <div class="dates">
+        <div><span>Starts</span><strong>{{ seasonStart | date: 'EEE d MMM' }}</strong></div>
+        <div><span>Ends</span><strong>{{ seasonEnd | date: 'EEE d MMM' }}</strong></div>
+      </div>
+      <p class="note">Joining late? Your score counts from the day you join.</p>
+    </section>
+
+    <section class="block" aria-labelledby="scoring-title">
+      <h2 id="scoring-title">How a day is scored</h2>
+      <ul class="rules">
+        <li><span>Trained, checked in or logged a rest day</span><strong>{{ points.trained }}</strong></li>
+        <li><span>Protein target hit</span><strong>{{ points.protein }}</strong></li>
+        <li><span>Calories within 10% of target</span><strong>{{ points.calories }}</strong></li>
+        <li><span>Your habits ticked</span><strong>{{ points.habits }}</strong></li>
+      </ul>
+      <p class="note">{{ keptThreshold }}+ points keeps the day. Missed one? Use a freeze: {{ freezesPerMonth }} per month, and that day won't break your streak.</p>
+    </section>
+
+    <section class="switch-row">
+      <span class="switch-text">
+        <span id="nutrition-label" class="switch-title">Track nutrition</span>
+        <span class="note">Uses your diet plan targets. Turn off if you don't log meals.</span>
+      </span>
+      <button type="button" class="switch" [class.on]="trackNutrition()" role="switch" [attr.aria-checked]="trackNutrition()"
+        aria-labelledby="nutrition-label" (click)="trackNutrition.set(!trackNutrition())">
+        <span class="knob"></span>
+      </button>
+    </section>
+
+    <section class="block" aria-labelledby="habits-title">
+      <div class="block-head">
+        <h2 id="habits-title">Pick your habits</h2>
+        <span class="count" [class.full]="isFull()">{{ selected().length }} of {{ maxHabits }}</span>
+      </div>
+
+      <span class="eyebrow">Popular</span>
+      <div class="chips">
+        @for (name of suggestions(); track name) {
+          <button type="button" class="chip" [class.on]="isSelected(name)" [attr.aria-pressed]="isSelected(name)"
+            [disabled]="isFull() && !isSelected(name)" (click)="toggle(name)">
+            @if (isSelected(name)) {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+            }
+            {{ name }}
+          </button>
+        }
+      </div>
+
+      <span class="eyebrow">From your daily routines</span>
+      <div class="chips">
+        @for (name of routines; track name) {
+          <button type="button" class="chip" [class.on]="isSelected(name)" [attr.aria-pressed]="isSelected(name)"
+            [disabled]="isFull() && !isSelected(name)" (click)="toggle(name)">
+            @if (isSelected(name)) {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+            }
+            {{ name }}
+          </button>
+        }
+      </div>
+
+      <label class="custom">
+        <span class="eyebrow">Add your own</span>
+        <span class="custom-row">
+          <input type="text" placeholder="e.g. Cold shower" [formControl]="customControl" [maxlength]="limits.SHORT_TEXT"
+            (keyup.enter)="addCustom()">
+          <button type="button" class="ghost-btn" (click)="addCustom()" [disabled]="isFull() || !customControl.value.trim()">Add</button>
+        </span>
+      </label>
+    </section>
+
+    <button type="button" class="start-btn" (click)="start()" [disabled]="!selected().length">
+      Start my Winter Arc
+      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+<div class="arc">
+  <header class="arc-head">
+    <div class="arc-head-text">
+      <span class="eyebrow">{{ seasonStart | date: 'MMM d' }} – {{ seasonEnd | date: 'MMM d' }}</span>
+      <h1>Winter Arc</h1>
+    </div>
+    <a routerLink="planner" class="ghost-btn">
+      <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+      Planner
+    </a>
+  </header>
+
+  <div class="arc-layout">
+    <div class="arc-col">
+      <section class="hero" aria-label="Season progress">
+        <div class="hero-top">
+          <p class="hero-day"><strong>Day {{ store.dayOfSeason }}</strong> <span>of {{ store.totalDays }}</span></p>
+          <span class="muted">{{ store.daysLeft }} days to go</span>
+        </div>
+        <div class="bar" role="progressbar" [attr.aria-valuenow]="store.dayOfSeason" aria-valuemin="1" [attr.aria-valuemax]="store.totalDays">
+          <span [style.width.%]="seasonProgress"></span>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <span>Arc score</span>
+            <strong>{{ stats().score }}</strong>
+          </div>
+          <div class="stat">
+            <span>Streak</span>
+            <strong><i class="fa-solid fa-fire streak-icon" aria-hidden="true"></i>{{ stats().streak }}</strong>
+          </div>
+          <div class="stat">
+            <span>Freezes</span>
+            <strong><i class="fa-solid fa-snowflake freeze-icon" aria-hidden="true"></i>{{ stats().freezesLeft }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel week" aria-labelledby="week-title">
+        <div class="section-head">
+          <h2 id="week-title">This week</h2>
+          <a routerLink="planner" class="text-link">Full planner</a>
+        </div>
+        <ol class="week-strip">
+          @for (day of week(); track $index) {
+            <li class="week-day">
+              <span class="week-dow">{{ day?.dow ?? '' }}</span>
+              <span class="week-cell {{ weekCellClass(day) }}"
+                [attr.aria-label]="day ? (day.date | date: 'EEE d MMM') + ': ' + (day.points ?? 'upcoming') : 'Outside the season'">
+                {{ day?.points ?? day?.dayOfMonth ?? '' }}
+              </span>
+            </li>
+          }
+        </ol>
+        <div class="legend">
+          <span><i class="swatch kept"></i>Kept ({{ keptThreshold }}+)</span>
+          <span><i class="swatch missed"></i>Missed</span>
+          <span><i class="swatch frozen"></i>Frozen</span>
+        </div>
+        @if (freezeCandidate(); as missed) {
+          <button type="button" class="freeze-btn" (click)="freeze(missed)">
+            <i class="fa-solid fa-snowflake" aria-hidden="true"></i>
+            Freeze {{ missed.date | date: 'EEEE' }} (missed) · {{ stats().freezesLeft }} left
+          </button>
+        }
+      </section>
+    </div>
+
+    <section class="arc-col today" aria-labelledby="today-title">
+      <div class="section-head">
+        <h2 id="today-title">Today · {{ store.today | date: 'EEE d MMM' }}</h2>
+        <span class="points-pill" [class.kept]="today().kept">{{ today().points }} / 100 · {{ today().kept ? 'kept' : 'not yet' }}</span>
+      </div>
+
+      <span class="eyebrow">Tracked automatically</span>
+      <div class="row">
+        <span class="tick on"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+        <span class="row-text">
+          <span class="row-title">Trained</span>
+          <span class="row-sub">{{ store.todayDetail.workout }}</span>
+        </span>
+        <span class="row-points">+{{ store.weights().trained | number: '1.0-0' }}</span>
+      </div>
+      @if (store.trackNutrition()) {
+        <div class="row">
+          <span class="tick" [class.on]="today().protein" [class.miss]="!today().protein">
+            <i class="fa-solid" [class.fa-check]="today().protein" [class.fa-minus]="!today().protein" aria-hidden="true"></i>
+          </span>
+          <span class="row-text">
+            <span class="row-title">Protein</span>
+            <span class="row-progress">
+              <span class="mini-bar"><span [class.miss]="!today().protein" [style.width.%]="proteinPct"></span></span>
+              {{ store.todayDetail.protein.eaten }} / {{ store.todayDetail.protein.target }} g
+            </span>
+          </span>
+          <span class="row-points" [class.zero]="!today().protein">+{{ today().protein ? (store.weights().protein | number: '1.0-0') : 0 }}</span>
+        </div>
+        <div class="row">
+          <span class="tick" [class.on]="today().calories" [class.miss]="!today().calories">
+            <i class="fa-solid" [class.fa-check]="today().calories" [class.fa-minus]="!today().calories" aria-hidden="true"></i>
+          </span>
+          <span class="row-text">
+            <span class="row-title">Calories</span>
+            <span class="row-progress">
+              <span class="mini-bar"><span [class.miss]="!today().calories" [style.width.%]="caloriesPct"></span></span>
+              {{ store.todayDetail.calories.eaten | number }} / {{ store.todayDetail.calories.target | number }} kcal
+            </span>
+          </span>
+          <span class="row-points" [class.zero]="!today().calories">+{{ today().calories ? (store.weights().calories | number: '1.0-0') : 0 }}</span>
+        </div>
+      }
+
+      <div class="habits-head">
+        <span class="eyebrow">My habits · tap to tick</span>
+        <span class="habits-count">{{ today().habitsDone }} / {{ habitRows().length }} · +{{ habitPoints() }}</span>
+      </div>
+      @for (row of habitRows(); track row.habit.id) {
+        <button type="button" class="row habit" [attr.aria-pressed]="row.done" (click)="toggleHabit(row.habit.id)">
+          <span class="tick" [class.on]="row.done">
+            @if (row.done) {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+            }
+          </span>
+          <span class="row-title grow">{{ row.habit.name }}</span>
+          <span class="row-sub">{{ row.weekCount }}/7 this week</span>
+        </button>
+      }
+    </section>
+  </div>
+</div>
