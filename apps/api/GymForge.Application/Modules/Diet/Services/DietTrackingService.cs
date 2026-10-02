@@ -64,6 +64,32 @@ namespace GymForge.Application.Modules.Diet.Services
             return MapToDto(log, activeAssignment);
         }
 
+        public async Task<DietLogDto> UpdateMealEntryAsync(Guid memberId, Guid mealEntryId, UpdateMealEntryRequestDto request)
+        {
+            MealLogEntry? entry = await _repository.GetMealEntryWithLogAsync(mealEntryId);
+
+            if (entry == null || entry.DietLog?.MemberId != memberId)
+            {
+                throw new Exception("Meal entry not found or unauthorized.");
+            }
+
+            entry.FoodName = request.FoodName;
+            entry.Calories = request.Calories;
+            entry.Protein = request.Protein;
+            entry.Carbs = request.Carbs;
+            entry.Fats = request.Fats;
+
+            DietLog log = entry.DietLog!;
+
+            await _repository.LoadMealEntriesAsync(log);
+
+            UpdateLogTotals(log);
+            await _repository.SaveChangesAsync();
+
+            MemberDietAssignment? activeAssignment = await _memberDietRepository.GetActiveDietAssignmentAsync(memberId);
+            return MapToDto(log, activeAssignment);
+        }
+
         public async Task<DietLogDto> RemoveMealEntryAsync(Guid memberId, Guid mealEntryId)
         {
             MealLogEntry? entry = await _repository.GetMealEntryWithLogAsync(mealEntryId);

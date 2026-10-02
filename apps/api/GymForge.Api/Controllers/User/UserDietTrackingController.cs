@@ -2,6 +2,7 @@ using GymForge.Application.Modules.Diet.Interfaces;
 using GymForge.Contracts.DietTracking;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace GymForge.Api.Controllers.User
 {
@@ -10,6 +11,8 @@ namespace GymForge.Api.Controllers.User
     [Authorize(Roles = "User")]
     public class UserDietTrackingController : BaseApiController
     {
+        private const int MaxFoodSearchLength = 200;
+
         private readonly IDietTrackingService _dietTrackingService;
         private readonly INutritionApiService _nutritionApiService;
 
@@ -38,6 +41,13 @@ namespace GymForge.Api.Controllers.User
             return Ok(log);
         }
 
+        [HttpPut("meals/{mealEntryId}")]
+        public async Task<IActionResult> UpdateMealEntry(Guid mealEntryId, [FromBody] UpdateMealEntryRequestDto request)
+        {
+            DietLogDto log = await _dietTrackingService.UpdateMealEntryAsync(GetMemberId(), mealEntryId, request);
+            return Ok(log);
+        }
+
         [HttpDelete("meals/{mealEntryId}")]
         public async Task<IActionResult> RemoveMealEntry(Guid mealEntryId)
         {
@@ -53,10 +63,14 @@ namespace GymForge.Api.Controllers.User
         }
 
         [HttpGet("search-food")]
+        [EnableRateLimiting("FoodSearchPolicy")]
         public async Task<IActionResult> SearchFood([FromQuery] string query)
         {
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Query cannot be empty.");
+
+            if (query.Length > MaxFoodSearchLength)
+                return BadRequest($"Please keep the description under {MaxFoodSearchLength} characters.");
 
             FoodNutritionDto? result = await _nutritionApiService.GetNutritionForFoodAsync(query);
             if (result == null)

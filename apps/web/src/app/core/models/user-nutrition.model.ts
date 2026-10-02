@@ -12,16 +12,33 @@ export interface MealForm {
   sourceDietPlanMealId: FormControl<string | null>;
 }
 
+export type MealSheetMode = 'add' | 'plan' | 'edit';
+
 export interface PlannedMeal {
   meal: AssignedMealDto;
   entry: MealLogEntryDto | null;
   isNext: boolean;
+  isAdjusted: boolean;
 }
 
-export interface FoodSearchResult {
+export interface FoodSearchItem {
   name: string;
+  quantity: string;
   calories: number;
   protein: number;
   carbs: number;
   fats: number;
+  source?: string;
+  reference?: string;
+}
+
+export interface SelectedFoodItem {
+  item: FoodSearchItem;
+  portion: number;
+}
+
+export interface FoodSearchResult extends Omit<FoodSearchItem, 'quantity'> {
+  items?: FoodSearchItem[];
+  source?: string;
+  isEstimate?: boolean;
 }

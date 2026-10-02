@@ -1,23 +1,25 @@
 <div class="nutrition">
   <header class="page-head">
     <h1>Nutrition</h1>
-    <button type="button" class="icon-btn solid" (click)="openAddModal()" aria-label="Add food">
+    <button type="button" class="icon-btn solid" (click)="openAddSheet()" aria-label="Add food">
       <i class="fa-solid fa-plus" aria-hidden="true"></i>
     </button>
   </header>
 
-  <app-segmented-tabs [tabs]="tabs" active="today" label="Nutrition views" (selected)="goToTab($event)" />
+  <div class="toolbar">
+    <app-segmented-tabs class="toolbar-tabs" [tabs]="tabs" active="today" label="Nutrition views" (selected)="goToTab($event)" />
 
-  <div class="date-switch">
-    <button type="button" class="icon-btn" (click)="shiftDay(-1)" aria-label="Previous day">
-      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-    </button>
-    <span class="date-label">
-      @if (isToday()) { Today, {{ currentDate() | date: 'EEE d MMM' }} } @else { {{ currentDate() | date: 'EEEE d MMM' }} }
-    </span>
-    <button type="button" class="icon-btn" (click)="shiftDay(1)" aria-label="Next day">
-      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-    </button>
+    <div class="date-switch">
+      <button type="button" class="icon-btn" (click)="shiftDay(-1)" aria-label="Previous day">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <span class="date-label">
+        @if (isToday()) { Today, {{ currentDate() | date: 'EEE d MMM' }} } @else { {{ currentDate() | date: 'EEEE d MMM' }} }
+      </span>
+      <button type="button" class="icon-btn" (click)="shiftDay(1)" [disabled]="isToday()" aria-label="Next day">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -82,32 +84,61 @@
                 <article class="meal-card">
                   <div class="meal-top">
                     <div class="meal-heading">
-                      @if (item.meal.time) {
-                        <span class="meal-time">{{ item.meal.time }}</span>
-                      }
+                      <span class="meal-time">
+                        @if (item.meal.time) {
+                          <span>{{ item.meal.time }}</span>
+                        }
+                        @if (item.entry) {
+                          <span class="status" [class.adjusted]="item.isAdjusted">
+                            {{ item.isAdjusted ? 'Logged · changed' : 'Logged' }}
+                          </span>
+                        }
+                      </span>
                       <h3>{{ item.meal.name }}</h3>
                     </div>
                     @if (item.entry) {
-                      <span class="logged-chip">Logged</span>
-                      <button type="button" class="icon-btn quiet" (click)="removeMeal(item.entry.id)"
-                        [attr.aria-label]="'Remove logged ' + item.meal.name">
-                        <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                      <button type="button" class="log-btn" (click)="openEditSheet(item.entry, item.meal)"
+                        [attr.aria-label]="'Edit logged ' + item.meal.name">
+                        <i class="fa-solid fa-pen" aria-hidden="true"></i> Edit
                       </button>
                     } @else {
-                      <button type="button" class="log-btn" [class.primary]="item.isNext" (click)="openEditAssignedMeal(item.meal)">
-                        Log it
+                      <button type="button" class="icon-btn quiet" (click)="openPlannedSheet(item.meal)"
+                        [attr.aria-label]="'Adjust and log ' + item.meal.name" title="Adjust before logging">
+                        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                      </button>
+                      <button type="button" class="log-btn" [class.primary]="item.isNext" (click)="quickLog(item.meal)"
+                        [disabled]="!!quickLoggingId()" [attr.aria-label]="'Log ' + item.meal.name + ' as planned'">
+                        @if (quickLoggingId() === item.meal.id) {
+                          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                        } @else {
+                          <i class="fa-solid fa-check" aria-hidden="true"></i>
+                        }
+                        Log
                       </button>
                     }
                   </div>
-                  @if (item.meal.items) {
-                    <p class="meal-items">{{ item.meal.items }}</p>
-                  }
-                  <div class="meal-chips">
-                    <span class="chip kcal">{{ item.meal.calories }} kcal</span>
-                    @if (item.meal.protein) {
-                      <span class="chip protein">{{ item.meal.protein }}g protein</span>
+
+                  @if (item.entry; as entry) {
+                    <p class="meal-items">{{ entry.foodName }}</p>
+                    <div class="meal-chips">
+                      <span class="chip kcal">{{ entry.calories }} kcal</span>
+                      <span class="macro-line">P {{ entry.protein }}g · C {{ entry.carbs }}g · F {{ entry.fats }}g</span>
+                    </div>
+                    @if (item.isAdjusted) {
+                      <p class="plan-note">
+                        <i class="fa-regular fa-clipboard" aria-hidden="true"></i>
+                        Plan: {{ item.meal.calories }} kcal · P {{ item.meal.protein }}g · C {{ item.meal.carbs }}g · F {{ item.meal.fats }}g
+                      </p>
                     }
-                  </div>
+                  } @else {
+                    @if (item.meal.items) {
+                      <p class="meal-items">{{ item.meal.items }}</p>
+                    }
+                    <div class="meal-chips">
+                      <span class="chip kcal">{{ item.meal.calories }} kcal</span>
+                      <span class="macro-line">P {{ item.meal.protein }}g · C {{ item.meal.carbs }}g · F {{ item.meal.fats }}g</span>
+                    </div>
+                  }
                 </article>
               </li>
             }
@@ -125,25 +156,25 @@
 
         @if (otherEntries().length) {
           <div class="section-head sub">
-            <h2>Also eaten</h2>
+            <h2>{{ plannedMeals().length ? 'Also eaten' : 'Logged food' }}</h2>
           </div>
           <ul class="card other-list">
             @for (entry of otherEntries(); track entry.id) {
-              <li class="other">
-                <div class="other-text">
-                  <span class="other-name">{{ entry.foodName }}</span>
-                  <span class="other-macros">{{ entry.calories }} kcal · P {{ entry.protein }}g · C {{ entry.carbs }}g · F {{ entry.fats }}g</span>
-                </div>
-                <button type="button" class="icon-btn quiet" (click)="removeMeal(entry.id)"
-                  [attr.aria-label]="'Remove ' + entry.foodName">
-                  <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+              <li>
+                <button type="button" class="other" (click)="openEditSheet(entry)" [attr.aria-label]="'Edit ' + entry.foodName">
+                  <span class="other-text">
+                    <span class="other-name">{{ entry.foodName }}</span>
+                    <span class="other-macros">P {{ entry.protein }}g · C {{ entry.carbs }}g · F {{ entry.fats }}g</span>
+                  </span>
+                  <span class="chip kcal">{{ entry.calories }} kcal</span>
+                  <i class="fa-solid fa-chevron-right other-chevron" aria-hidden="true"></i>
                 </button>
               </li>
             }
           </ul>
         }
 
-        <button type="button" class="add-other" (click)="openAddModal()">
+        <button type="button" class="add-other" (click)="openAddSheet()">
           <i class="fa-solid fa-plus" aria-hidden="true"></i>
           {{ plannedMeals().length ? 'Add food not on your plan' : 'Log food' }}
         </button>
@@ -157,68 +188,172 @@
   }
 </div>
 
-@if (showAddModal()) {
-  <div class="sheet-backdrop" (click)="closeModal()" aria-hidden="true"></div>
-  <section class="sheet" role="dialog" aria-modal="true"
-    [attr.aria-label]="selectedMealType() === 'Assigned' ? 'Log planned meal' : 'Add food'">
+@if (showSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="sheet" role="dialog" aria-modal="true" [attr.aria-label]="sheetTitle()">
     <span class="sheet-handle" aria-hidden="true"></span>
     <header class="sheet-head">
-      <h2>{{ selectedMealType() === 'Assigned' ? 'Log planned meal' : 'Add food' }}</h2>
-      <button type="button" class="icon-btn quiet" (click)="closeModal()" aria-label="Close">
+      <h2>{{ sheetTitle() }}</h2>
+      <button type="button" class="icon-btn quiet" (click)="closeSheet()" aria-label="Close">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
     </header>
 
-    <div class="search">
-      <label class="search-field">
-        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <span class="visually-hidden">Search food database</span>
-        <input type="search" placeholder="Search e.g. apple, 100g rice" [formControl]="searchQueryControl"
-          (keyup.enter)="searchFood()" [maxlength]="limits.SEARCH">
-      </label>
-      <button type="button" class="btn-primary" (click)="searchFood()" [disabled]="isSearching() || !searchQueryControl.value.trim()">
-        @if (isSearching()) {
-          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span class="visually-hidden">Searching</span>
-        } @else {
-          Search
+    <div class="sheet-body">
+      @if (sheetPlannedMeal(); as planned) {
+        <div class="plan-ref">
+          <div class="plan-ref-text">
+            <span class="plan-ref-label">Your plan{{ planned.time ? ' · ' + planned.time : '' }}</span>
+            <span class="plan-ref-values">{{ planned.calories }} kcal · P {{ planned.protein }}g · C {{ planned.carbs }}g · F {{ planned.fats }}g</span>
+          </div>
+          <button type="button" class="text-btn" (click)="resetToPlan()">Reset to plan</button>
+        </div>
+      }
+
+      <div class="search">
+        <label class="search-field">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <span class="visually-hidden">Describe what you ate</span>
+          <input type="search" placeholder="e.g. 2 rotis, dal and a bowl of rice" [formControl]="searchQueryControl"
+            (keyup.enter)="searchFood()" [maxlength]="limits.FOOD_SEARCH" enterkeyhint="search">
+        </label>
+        <button type="button" class="btn-primary" (click)="searchFood()" [disabled]="isSearching() || !searchQueryControl.value.trim()">
+          @if (isSearching()) {
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span class="visually-hidden">Searching</span>
+          } @else {
+            Find
+          }
+        </button>
+      </div>
+
+      @if (isSearching()) {
+        <div class="search-results loading" aria-live="polite">
+          <span class="searching-text"><i class="fa-solid fa-globe" aria-hidden="true"></i> Looking up nutrition on the web…</span>
+          <span class="skeleton"></span>
+          <span class="skeleton short"></span>
+        </div>
+      } @else if (searchError()) {
+        <p class="form-error" role="alert">{{ searchError() }}</p>
+      } @else if (searchResult(); as result) {
+        <div class="search-results" aria-live="polite">
+          <div class="results-head">
+            <span class="results-count">{{ searchItems().length }} {{ searchItems().length === 1 ? 'item' : 'items' }} found</span>
+            @switch (result.source) {
+              @case ('database') {
+                <span class="source-badge"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verified data</span>
+              }
+              @case ('mixed') {
+                <span class="source-badge estimate"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> Partly estimated</span>
+              }
+              @case ('web') {
+                <span class="source-badge estimate"><i class="fa-solid fa-globe" aria-hidden="true"></i> Web estimate</span>
+              }
+              @case ('ai') {
+                <span class="source-badge estimate"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> AI estimate</span>
+              }
+              @default {
+                <span class="source-badge"><i class="fa-solid fa-database" aria-hidden="true"></i> Food database</span>
+              }
+            }
+            <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="Clear search results and values" title="Clear">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+            </button>
+          </div>
+          <ul class="result-items">
+            @for (row of searchRows(); track $index) {
+              <li class="result-item">
+                <div class="result-main">
+                  <span class="result-text">
+                    <span class="result-name">{{ row.name }}</span>
+                    <span class="result-meta">
+                      @if (row.quantity) { {{ row.quantity }}{{ row.portion !== 1 ? ' × ' + row.portion : '' }} · }P {{ row.protein }}g · C {{ row.carbs }}g · F {{ row.fats }}g
+                    </span>
+                    @if (row.sourceLabel) {
+                      <span class="item-source" [class.estimate]="row.isEstimate"
+                        [attr.title]="row.reference ? 'Matched: ' + row.reference : null">
+                        {{ row.sourceLabel }}{{ row.reference && row.reference.toLowerCase() !== row.name.toLowerCase() ? ' · ' + row.reference : '' }}
+                      </span>
+                    }
+                  </span>
+                  <span class="chip kcal">{{ row.calories }} kcal</span>
+                  @if (searchItems().length > 1) {
+                    <button type="button" class="icon-btn quiet small" (click)="removeSearchItem($index)" [attr.aria-label]="'Remove ' + row.name">
+                      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                  }
+                </div>
+                <div class="portion" role="group" [attr.aria-label]="'Portion of ' + row.name">
+                  <span class="portion-label">Portion</span>
+                  <button type="button" class="portion-btn" (click)="changePortion($index, -1)" [disabled]="row.portion <= 0.5"
+                    [attr.aria-label]="'Less ' + row.name">
+                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                  </button>
+                  <span class="portion-value" aria-live="polite">×{{ row.portion }}</span>
+                  <button type="button" class="portion-btn" (click)="changePortion($index, 1)" [disabled]="row.portion >= 10"
+                    [attr.aria-label]="'More ' + row.name">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+          <p class="results-hint">
+            {{ result.isEstimate ? 'Items marked as estimates are approximate. ' : '' }}Use − / + if your portion was smaller or bigger; totals below update automatically.
+          </p>
+        </div>
+      }
+
+      <div class="divider"><span>{{ searchResult() ? 'review totals' : sheetMode() === 'add' ? 'or enter manually' : 'or edit what you ate' }}</span></div>
+
+      <form id="meal-form" class="meal-form" [formGroup]="mealForm" (ngSubmit)="saveMeal()">
+        <label class="field">
+          <span>Food name</span>
+          <input type="text" formControlName="foodName" placeholder="e.g. Protein bar" [maxlength]="limits.SHORT_TEXT">
+        </label>
+        <div class="field-grid">
+          <label class="field">
+            <span>Calories</span>
+            <input type="number" inputmode="numeric" formControlName="calories" min="0">
+          </label>
+          <label class="field">
+            <span>Protein (g)</span>
+            <input type="number" inputmode="decimal" formControlName="protein" min="0">
+          </label>
+          <label class="field">
+            <span>Carbs (g)</span>
+            <input type="number" inputmode="decimal" formControlName="carbs" min="0">
+          </label>
+          <label class="field">
+            <span>Fats (g)</span>
+            <input type="number" inputmode="decimal" formControlName="fats" min="0">
+          </label>
+        </div>
+
+        @if (saveError()) {
+          <p class="form-error" role="alert">{{ saveError() }}</p>
+        }
+      </form>
+    </div>
+
+    <!-- Outside the scrolling body so it stays visible; the form attribute keeps it submitting the form. -->
+    <div class="sheet-actions">
+      @if (sheetMode() === 'edit') {
+        <button type="button" class="btn-danger" (click)="removeEditingEntry()" [disabled]="isSaving()">
+          <i class="fa-regular fa-trash-can" aria-hidden="true"></i> Remove
+        </button>
+      } @else {
+        <button type="button" class="btn-outline" (click)="closeSheet()" [disabled]="isSaving()">Cancel</button>
+      }
+      <button type="submit" form="meal-form" class="btn-primary" [disabled]="mealForm.invalid || isSaving()">
+        @if (isSaving()) {
+          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+        }
+        @switch (sheetMode()) {
+          @case ('edit') { Save changes }
+          @case ('plan') { Log meal }
+          @default { Add food }
         }
       </button>
     </div>
-    @if (searchError()) {
-      <p class="search-error">{{ searchError() }}</p>
-    }
-
-    <div class="divider"><span>or enter manually</span></div>
-
-    <form class="meal-form" [formGroup]="mealForm" (ngSubmit)="saveMeal()">
-      <label class="field">
-        <span>Food name</span>
-        <input type="text" formControlName="foodName" placeholder="e.g. Protein bar" [maxlength]="limits.SHORT_TEXT">
-      </label>
-      <div class="field-grid">
-        <label class="field">
-          <span>Calories</span>
-          <input type="number" inputmode="numeric" formControlName="calories" min="0">
-        </label>
-        <label class="field">
-          <span>Protein (g)</span>
-          <input type="number" inputmode="decimal" formControlName="protein" min="0">
-        </label>
-        <label class="field">
-          <span>Carbs (g)</span>
-          <input type="number" inputmode="decimal" formControlName="carbs" min="0">
-        </label>
-        <label class="field">
-          <span>Fats (g)</span>
-          <input type="number" inputmode="decimal" formControlName="fats" min="0">
-        </label>
-      </div>
-      <div class="sheet-actions">
-        <button type="button" class="btn-outline" (click)="closeModal()">Cancel</button>
-        <button type="submit" class="btn-primary" [disabled]="mealForm.invalid">
-          {{ selectedMealType() === 'Assigned' ? 'Log meal' : 'Add food' }}
-        </button>
-      </div>
-    </form>
   </section>
 }

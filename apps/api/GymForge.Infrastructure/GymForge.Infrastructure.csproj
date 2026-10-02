@@ -89,4 +89,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Data\indb-foods.json" LogicalName="GymForge.Data.indb-foods.json" />
+  </ItemGroup>
+
 </Project>

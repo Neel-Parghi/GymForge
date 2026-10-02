@@ -1,19 +1,28 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Observable, map, tap } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { FIELD_LIMITS } from '../../../shared/constants/validation.constants';
 import { DietTrackingService } from '../../../core/services/diet-tracking.service';
-import { AssignedMealDto, DietLogDto } from '../../../shared/models/diet-tracking.model';
+import { ConfirmationService } from '../../../core/services/confirmation.service';
+import { AssignedMealDto, DietLogDto, MealLogEntryDto } from '../../../shared/models/diet-tracking.model';
 import { SegmentedTabsComponent } from '../../../shared/components/segmented-tabs/segmented-tabs.component';
 import { SegmentedTab } from '../../../shared/models/segmented-tab.model';
 import { mealTimeToMinutes } from '../../../shared/utils/meal-time';
 import { NUTRITION_TARGET_FALLBACK, percentOf } from '../../../shared/utils/nutrition';
 import { toDateKey } from '../../../shared/utils/workout-schedule';
-import { FoodSearchResult, MealForm, MealType, PlannedMeal } from '../../../core/models/user-nutrition.model';
+import { FoodSearchItem, FoodSearchResult, MealForm, SelectedFoodItem, MealSheetMode, PlannedMeal } from '../../../core/models/user-nutrition.model';
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 80;
+const PORTION_STEP = 0.5;
+const MAX_PORTION = 10;
+const SOURCE_LABELS: Record<string, string> = { indb: 'Indian food DB', usda: 'USDA', web: 'Web estimate', ai: 'AI estimate' };
+
+type MealFormValue = ReturnType<FormGroup<MealForm>['getRawValue']>;
 
 @Component({
   selector: 'app-user-diet-tracker',
@@ -27,6 +36,8 @@ export class UserDietTrackerComponent implements OnInit {
   readonly limits = FIELD_LIMITS;
 
   private dietTrackingService = inject(DietTrackingService);
+  private confirmation = inject(ConfirmationService);
+  private toastr = inject(ToastrService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
@@ -40,10 +51,25 @@ export class UserDietTrackerComponent implements OnInit {
   readonly dietLog = signal<DietLogDto | null>(null);
   readonly isLoading = signal(true);
 
-  readonly showAddModal = signal(false);
-  readonly selectedMealType = signal<MealType>('Custom');
+  readonly showSheet = signal(false);
+  readonly sheetMode = signal<MealSheetMode>('add');
+  readonly sheetPlannedMeal = signal<AssignedMealDto | null>(null);
+  readonly editingEntry = signal<MealLogEntryDto | null>(null);
+  readonly isSaving = signal(false);
+  readonly saveError = signal('');
+  readonly quickLoggingId = signal<string | null>(null);
+
   readonly isSearching = signal(false);
   readonly searchError = signal('');
+  readonly searchResult = signal<FoodSearchResult | null>(null);
+  readonly searchItems = signal<SelectedFoodItem[]>([]);
+  readonly searchRows = computed(() => this.searchItems().map(({ item, portion }) => ({
+    ...this.scaleItem(item, portion),
+    portion,
+    sourceLabel: SOURCE_LABELS[item.source ?? ''] ?? '',
+    isEstimate: item.source === 'ai' || item.source === 'web'
+  })));
+  private sheetInitialValues: MealFormValue | null = null;
 
   readonly searchQueryControl = new FormControl('', { nonNullable: true });
   readonly mealForm = new FormGroup<MealForm>({
@@ -56,6 +82,15 @@ export class UserDietTrackerComponent implements OnInit {
   });
 
   readonly isToday = computed(() => toDateKey(this.currentDate()) === toDateKey(new Date()));
+
+  readonly sheetTitle = computed(() => {
+    const planned = this.sheetPlannedMeal();
+    switch (this.sheetMode()) {
+      case 'plan': return `Log ${planned?.name ?? 'meal'}`;
+      case 'edit': return planned ? `Edit ${planned.name}` : 'Edit food';
+      default: return 'Add food';
+    }
+  });
 
   readonly totals = computed(() => {
     const log = this.dietLog();
@@ -74,7 +109,7 @@ export class UserDietTrackerComponent implements OnInit {
     const log = this.dietLog();
     const macro = (label: string, tone: string, value: number | undefined, target: number | undefined, fallback: number) => {
       const t = target || fallback;
-      const v = value ?? 0;
+      const v = Math.round((value ?? 0) * 10) / 10;
       return { label, tone, value: v, target: t, pct: percentOf(v, t) };
     };
     return [
@@ -90,7 +125,14 @@ export class UserDietTrackerComponent implements OnInit {
     const sorted = [...(log?.assignedMeals ?? [])].sort((a, b) => mealTimeToMinutes(a.time) - mealTimeToMinutes(b.time));
     const withEntries = sorted.map(meal => ({ meal, entry: entries.find(e => e.sourceDietPlanMealId === meal.id) ?? null }));
     const nextId = withEntries.find(m => !m.entry)?.meal.id;
-    return withEntries.map(m => ({ ...m, isNext: m.meal.id === nextId }));
+    return withEntries.map(m => ({
+      ...m,
+      isNext: m.meal.id === nextId,
+      isAdjusted: !!m.entry && (
+        m.entry.calories !== m.meal.calories || m.entry.protein !== m.meal.protein ||
+        m.entry.carbs !== m.meal.carbs || m.entry.fats !== m.meal.fats
+      )
+    }));
   });
 
   readonly loggedPlannedCount = computed(() => this.plannedMeals().filter(m => m.entry).length);
@@ -128,90 +170,227 @@ export class UserDietTrackerComponent implements OnInit {
   }
 
   shiftDay(offset: number): void {
+    if (offset > 0 && this.isToday()) return;
     const d = new Date(this.currentDate());
     d.setDate(d.getDate() + offset);
     this.currentDate.set(d);
     this.loadLogForDate(d);
   }
 
-  openAddModal(): void {
-    this.selectedMealType.set('Custom');
-    this.mealForm.reset({ foodName: '', calories: 0, protein: 0, carbs: 0, fats: 0, sourceDietPlanMealId: null });
-    this.showAddModal.set(true);
+
+  openAddSheet(): void {
+    this.openSheet('add', null, null, { foodName: '', calories: 0, protein: 0, carbs: 0, fats: 0, sourceDietPlanMealId: null });
   }
 
-  openEditAssignedMeal(meal: AssignedMealDto): void {
-    this.selectedMealType.set('Assigned');
-    this.mealForm.reset({
-      foodName: meal.items ? meal.items : meal.name,
-      calories: meal.calories,
-      protein: meal.protein,
-      carbs: meal.carbs,
-      fats: meal.fats,
-      sourceDietPlanMealId: meal.id
+  openPlannedSheet(meal: AssignedMealDto): void {
+    this.openSheet('plan', meal, null, this.planValues(meal));
+  }
+
+  openEditSheet(entry: MealLogEntryDto, meal: AssignedMealDto | null = null): void {
+    this.openSheet('edit', meal, entry, {
+      foodName: entry.foodName,
+      calories: entry.calories,
+      protein: entry.protein,
+      carbs: entry.carbs,
+      fats: entry.fats,
+      sourceDietPlanMealId: entry.sourceDietPlanMealId ?? null
     });
-    this.showAddModal.set(true);
   }
 
-  closeModal(): void {
-    this.showAddModal.set(false);
-    this.searchQueryControl.reset('');
-    this.searchError.set('');
+  resetToPlan(): void {
+    const meal = this.sheetPlannedMeal();
+    if (meal) this.mealForm.patchValue(this.planValues(meal));
+  }
+
+  closeSheet(): void {
+    if (this.isSaving()) return;
+    this.showSheet.set(false);
+    this.resetSearch();
+    this.saveError.set('');
   }
 
   searchFood(): void {
     const query = this.searchQueryControl.value.trim();
-    if (!query) return;
+    if (!query || this.isSearching()) return;
     this.isSearching.set(true);
     this.searchError.set('');
+    this.searchResult.set(null);
+    this.searchItems.set([]);
     this.dietTrackingService.searchFood(query).subscribe({
       next: result => {
         const food = ((result as { data?: FoodSearchResult })?.data ?? result) as FoodSearchResult;
-        this.mealForm.patchValue({
-          foodName: food.name,
-          calories: Math.round(food.calories),
-          protein: Math.round(food.protein * 10) / 10,
-          carbs: Math.round(food.carbs * 10) / 10,
-          fats: Math.round(food.fats * 10) / 10
-        });
+        this.searchResult.set(food);
+        const items = food.items?.length ? food.items : [{ ...food, quantity: '' }];
+        this.applySearchItems(items.map(item => ({ item, portion: 1 })));
         this.isSearching.set(false);
       },
-      error: () => {
-        this.searchError.set('Food not found. Please enter the details manually.');
+      error: (err: HttpErrorResponse) => {
+        this.searchError.set(err.status === 429
+          ? 'Too many searches. Please wait a minute and try again.'
+          : "Couldn't find that. Try describing it differently, or enter the details manually.");
         this.isSearching.set(false);
       }
     });
   }
 
+  removeSearchItem(index: number): void {
+    this.applySearchItems(this.searchItems().filter((_, i) => i !== index));
+  }
+
+  changePortion(index: number, direction: 1 | -1): void {
+    this.applySearchItems(this.searchItems().map((entry, i) => i !== index ? entry : {
+      ...entry,
+      portion: Math.min(Math.max(entry.portion + direction * PORTION_STEP, PORTION_STEP), MAX_PORTION)
+    }));
+  }
+
+  clearSearch(): void {
+    this.resetSearch();
+    if (this.sheetInitialValues) this.mealForm.reset(this.sheetInitialValues);
+  }
+
+  quickLog(meal: AssignedMealDto): void {
+    if (this.quickLoggingId()) return;
+    this.quickLoggingId.set(meal.id);
+    this.persist(this.dietTrackingService.addMealEntry({
+      logDate: toDateKey(this.currentDate()),
+      mealType: 'Assigned',
+      ...this.planValues(meal),
+      sourceDietPlanMealId: meal.id
+    })).subscribe({
+      next: () => this.quickLoggingId.set(null),
+      error: () => {
+        this.quickLoggingId.set(null);
+        this.toastr.error(`Couldn't log ${meal.name}. Please try again.`);
+      }
+    });
+  }
+
   saveMeal(): void {
-    if (this.mealForm.invalid) return;
+    if (this.mealForm.invalid || this.isSaving()) return;
 
-    const dateKey = toDateKey(this.currentDate());
     const { sourceDietPlanMealId, ...values } = this.mealForm.getRawValue();
-    const entry = {
-      logDate: dateKey,
-      mealType: this.selectedMealType(),
-      ...values,
-      ...(sourceDietPlanMealId ? { sourceDietPlanMealId } : {})
+    const editing = this.editingEntry();
+    const request$ = editing
+      ? this.dietTrackingService.updateMealEntry(editing.id, values)
+      : this.dietTrackingService.addMealEntry({
+          logDate: toDateKey(this.currentDate()),
+          mealType: sourceDietPlanMealId ? 'Assigned' : 'Custom',
+          ...values,
+          ...(sourceDietPlanMealId ? { sourceDietPlanMealId } : {})
+        });
+
+    this.isSaving.set(true);
+    this.saveError.set('');
+    this.persist(request$).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.closeSheet();
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.saveError.set("Couldn't save. Check your connection and try again.");
+      }
+    });
+  }
+
+  async removeEditingEntry(): Promise<void> {
+    const entry = this.editingEntry();
+    if (!entry || this.isSaving()) return;
+
+    const confirmed = await this.confirmation.confirm({
+      title: 'Remove from log?',
+      message: `${entry.foodName} (${entry.calories} kcal) will be removed from this day.`,
+      confirmText: 'Remove',
+      type: 'danger'
+    });
+    if (!confirmed) return;
+
+    this.isSaving.set(true);
+    this.saveError.set('');
+    this.persist(this.dietTrackingService.removeMealEntry(entry.id)).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.closeSheet();
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.saveError.set("Couldn't remove. Please try again.");
+      }
+    });
+  }
+
+  private openSheet(mode: MealSheetMode, meal: AssignedMealDto | null, entry: MealLogEntryDto | null, values: MealFormValue): void {
+    this.sheetMode.set(mode);
+    this.sheetPlannedMeal.set(meal);
+    this.editingEntry.set(entry);
+    this.saveError.set('');
+    this.resetSearch();
+    this.sheetInitialValues = values;
+    this.mealForm.reset(values);
+    this.showSheet.set(true);
+  }
+
+  private scaleItem(item: FoodSearchItem, portion: number): FoodSearchItem {
+    const round1 = (n: number) => Math.round(n * portion * 10) / 10;
+    return {
+      ...item,
+      calories: Math.round(item.calories * portion),
+      protein: round1(item.protein),
+      carbs: round1(item.carbs),
+      fats: round1(item.fats)
     };
+  }
 
-    this.closeModal();
-    this.dietTrackingService.invalidateDietLogCache(dateKey);
-    this.dietTrackingService.addMealEntry(entry).subscribe({
-      next: updatedLog => this.applyUpdatedLog(updatedLog),
-      error: err => console.error(err)
+  private resetSearch(): void {
+    this.searchQueryControl.reset('');
+    this.searchError.set('');
+    this.searchResult.set(null);
+    this.searchItems.set([]);
+  }
+
+  private applySearchItems(entries: SelectedFoodItem[]): void {
+    this.searchItems.set(entries);
+    if (!entries.length) {
+      this.searchResult.set(null);
+      return;
+    }
+    const items = entries.map(({ item, portion }) => this.scaleItem(item, portion));
+    const sum = (pick: (i: FoodSearchItem) => number) => items.reduce((total, i) => total + pick(i), 0);
+    this.mealForm.patchValue({
+      foodName: items.map(i => i.name).join(', ').slice(0, FIELD_LIMITS.SHORT_TEXT),
+      calories: Math.round(sum(i => i.calories)),
+      protein: Math.round(sum(i => i.protein) * 10) / 10,
+      carbs: Math.round(sum(i => i.carbs) * 10) / 10,
+      fats: Math.round(sum(i => i.fats) * 10) / 10
     });
   }
 
-  removeMeal(mealEntryId: string): void {
-    this.dietTrackingService.invalidateDietLogCache(toDateKey(this.currentDate()));
-    this.dietTrackingService.removeMealEntry(mealEntryId).subscribe({
-      next: updatedLog => this.applyUpdatedLog(updatedLog),
-      error: err => console.error(err)
-    });
+  private planValues(meal: AssignedMealDto): MealFormValue {
+    return {
+      foodName: meal.items || meal.name,
+      calories: meal.calories,
+      protein: meal.protein,
+      carbs: meal.carbs,
+      fats: meal.fats,
+      sourceDietPlanMealId: meal.id
+    };
   }
 
-  /** Add/remove respond with the updated day log (typed as ApiResponse<null> in the service), with or without an envelope. */
+  private persist(request$: Observable<unknown>): Observable<void> {
+    const dateKey = toDateKey(this.currentDate());
+    return request$.pipe(
+      tap({
+        next: updatedLog => {
+          this.dietTrackingService.invalidateDietLogCache(dateKey);
+          this.applyUpdatedLog(updatedLog);
+        },
+        error: err => console.error(err)
+      }),
+      map(() => undefined)
+    );
+  }
+
   private applyUpdatedLog(response: unknown): void {
     const body = response as (DietLogDto & { data?: DietLogDto }) | null;
     this.dietLog.set(body?.data ?? body);

@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
 import { BaseApiService } from './base-api.service';
+import { withoutGlobalLoading } from '../interceptors/loading.interceptor';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { DietLogDto, AddMealEntryRequestDto, DietLogSummaryDto } from '../../shared/models/diet-tracking.model';
+import { DietLogDto, AddMealEntryRequestDto, DietLogSummaryDto, UpdateMealEntryRequestDto } from '../../shared/models/diet-tracking.model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,11 +28,15 @@ export class DietTrackingService extends BaseApiService {
   }
 
   addMealEntry(entry: AddMealEntryRequestDto): Observable<ApiResponse<null>> {
-    return this.post<ApiResponse<null>>(`${API_CONSTANTS.DIET_TRACKING.USER_ADD_MEAL}`, entry);
+    return this.post<ApiResponse<null>>(`${API_CONSTANTS.DIET_TRACKING.USER_ADD_MEAL}`, entry, withoutGlobalLoading());
+  }
+
+  updateMealEntry(mealEntryId: string, entry: UpdateMealEntryRequestDto): Observable<ApiResponse<null>> {
+    return this.put<ApiResponse<null>>(`${API_CONSTANTS.DIET_TRACKING.USER_UPDATE_MEAL(mealEntryId)}`, entry, withoutGlobalLoading());
   }
 
   removeMealEntry(mealEntryId: string): Observable<ApiResponse<null>> {
-    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.DIET_TRACKING.USER_REMOVE_MEAL(mealEntryId)}`);
+    return this.delete<ApiResponse<null>>(`${API_CONSTANTS.DIET_TRACKING.USER_REMOVE_MEAL(mealEntryId)}`, withoutGlobalLoading());
   }
 
   getUserWeeklySummary(endDate: string): Observable<ApiResponse<DietLogSummaryDto[]>> {
@@ -39,7 +44,7 @@ export class DietTrackingService extends BaseApiService {
   }
 
   searchFood(query: string): Observable<ApiResponse<unknown>> {
-    return this.get<ApiResponse<unknown>>(`${API_CONSTANTS.DIET_TRACKING.USER_SEARCH_FOOD(query)}`);
+    return this.get<ApiResponse<unknown>>(`${API_CONSTANTS.DIET_TRACKING.USER_SEARCH_FOOD(query)}`, undefined, withoutGlobalLoading());
   }
 
   getMemberDietLog(memberId: string, date: string): Observable<ApiResponse<DietLogDto>> {

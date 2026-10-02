@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONSTANTS } from '../constants/api-constants';
@@ -10,9 +10,9 @@ export abstract class BaseApiService {
   protected http = inject(HttpClient);
   protected baseUrl = API_CONSTANTS.BASE_URL;
 
-  protected get<T>(url: string, params?: Record<string, string | number | boolean | null | undefined>): Observable<T> {
+  protected get<T>(url: string, params?: Record<string, string | number | boolean | null | undefined>, context?: HttpContext): Observable<T> {
     const httpParams = this.createHttpParams(params);
-    return this.http.get<T>(`${this.baseUrl}${url}`, { params: httpParams });
+    return this.http.get<T>(`${this.baseUrl}${url}`, { params: httpParams, context });
   }
 
   protected getBlob(url: string, params?: Record<string, string | number | boolean | null | undefined>): Observable<Blob> {
@@ -23,20 +23,20 @@ export abstract class BaseApiService {
     });
   }
 
-  protected post<T>(url: string, body: unknown): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${url}`, body);
+  protected post<T>(url: string, body: unknown, context?: HttpContext): Observable<T> {
+    return this.http.post<T>(`${this.baseUrl}${url}`, body, { context });
   }
 
-  protected put<T>(url: string, body: unknown): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}${url}`, body);
+  protected put<T>(url: string, body: unknown, context?: HttpContext): Observable<T> {
+    return this.http.put<T>(`${this.baseUrl}${url}`, body, { context });
   }
 
   protected patch<T>(url: string, body: unknown): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${url}`, body);
   }
 
-  protected delete<T>(url: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}${url}`);
+  protected delete<T>(url: string, context?: HttpContext): Observable<T> {
+    return this.http.delete<T>(`${this.baseUrl}${url}`, { context });
   }
 
   private createHttpParams(params?: Record<string, string | number | boolean | null | undefined>): HttpParams {
