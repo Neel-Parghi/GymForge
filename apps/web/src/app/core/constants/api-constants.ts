@@ -1,7 +1,7 @@
-export const API_CONSTANTS = {
-  // BASE_URL: 'https://localhost:7184/api/',
-  BASE_URL: 'https://gymforge-lx4w.onrender.com/api/',
+import { environment } from '../../../environments/environment';
 
+export const API_CONSTANTS = {
+  BASE_URL: environment.apiUrl,
 
   AUTH: {
     LOGIN: 'auth/login',
@@ -155,6 +155,7 @@ export const API_CONSTANTS = {
   },
   WORKOUT_PROGRESS: {
     EXERCISES: 'user/workout-progress/exercises',
+    MUSCLE_GROUPS: 'user/workout-progress/muscle-groups',
     PROGRESS: 'user/workout-progress'
   },
   COMMON: {

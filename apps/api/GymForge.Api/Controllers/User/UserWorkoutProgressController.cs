@@ -24,6 +24,13 @@ namespace GymForge.Api.Controllers.User
             return Ok(names);
         }
 
+        [HttpGet("muscle-groups")]
+        public async Task<IActionResult> GetMuscleGroupProgress()
+        {
+            IEnumerable<MuscleGroupProgressDto> groups = await _workoutProgressService.GetMuscleGroupProgressAsync(UserId);
+            return Ok(groups);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetExerciseProgress([FromQuery] string exerciseName)
         {

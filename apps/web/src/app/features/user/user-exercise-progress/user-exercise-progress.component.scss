@@ -25,6 +25,38 @@
   text-decoration: none;
 }
 
+// Entry points to the set-by-set breakdown views.
+.head-link {
+  @include m.secondary-button;
+  margin-left: auto;
+  padding: 0 12px;
+  text-decoration: none;
+}
+
+.log-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+
+  h2 {
+    margin-bottom: 0;
+  }
+}
+
+.text-link {
+  @include m.text-link;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+
+  i {
+    font-size: 0.6875rem;
+  }
+}
+
 .card {
   @include m.card;
   display: flex;

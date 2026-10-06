@@ -26,6 +26,10 @@ namespace GymForge.Application.Modules.Diet.Services
             {
                 log = await CreateEmptyLogAsync(memberId, date, activeAssignment);
             }
+            else if (UpdateLogTotals(log))
+            {
+                await _repository.SaveChangesAsync();
+            }
 
             return MapToDto(log, activeAssignment);
         }
@@ -100,11 +104,10 @@ namespace GymForge.Application.Modules.Diet.Services
             }
 
             DietLog log = entry.DietLog!;
-            _repository.RemoveMealEntry(entry);
-            
-            // Force load all other entries to update totals accurately
             await _repository.LoadMealEntriesAsync(log);
-            
+            log.MealEntries.Remove(entry);
+            _repository.RemoveMealEntry(entry);
+
             UpdateLogTotals(log);
             await _repository.SaveChangesAsync();
 
@@ -182,12 +185,22 @@ namespace GymForge.Application.Modules.Diet.Services
             return log;
         }
 
-        private void UpdateLogTotals(DietLog log)
+        /// <summary>Recalculates the log totals from its entries. Returns true when any total changed.</summary>
+        private bool UpdateLogTotals(DietLog log)
         {
-            log.TotalCalories = log.MealEntries.Sum(e => e.Calories);
-            log.TotalProtein = log.MealEntries.Sum(e => e.Protein);
-            log.TotalCarbs = log.MealEntries.Sum(e => e.Carbs);
-            log.TotalFats = log.MealEntries.Sum(e => e.Fats);
+            int calories = log.MealEntries.Sum(e => e.Calories);
+            decimal protein = log.MealEntries.Sum(e => e.Protein);
+            decimal carbs = log.MealEntries.Sum(e => e.Carbs);
+            decimal fats = log.MealEntries.Sum(e => e.Fats);
+
+            bool changed = log.TotalCalories != calories || log.TotalProtein != protein
+                || log.TotalCarbs != carbs || log.TotalFats != fats;
+
+            log.TotalCalories = calories;
+            log.TotalProtein = protein;
+            log.TotalCarbs = carbs;
+            log.TotalFats = fats;
+            return changed;
         }
 
         private DietLogDto MapToDto(DietLog log, MemberDietAssignment? activeAssignment)

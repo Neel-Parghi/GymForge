@@ -4,6 +4,11 @@
       <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
     </a>
     <h1>Exercise progress</h1>
+    @if (exerciseNames().length > 0) {
+      <a class="head-link" routerLink="/user/exercise-progress/breakdown">
+        <i class="fa-solid fa-layer-group" aria-hidden="true"></i> By muscle group
+      </a>
+    }
   </header>
 
   @if (isLoadingNames()) {
@@ -98,7 +103,12 @@
         </section>
 
         <section class="card log-card">
-          <h2>Session log</h2>
+          <div class="log-head">
+            <h2>Session log</h2>
+            <a class="text-link" [routerLink]="['/user/exercise-progress/breakdown', p.exerciseName]">
+              Every set <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </a>
+          </div>
           <ul class="log-list">
             @for (s of sessionRows(); track s.date + $index) {
               <li class="log-row">

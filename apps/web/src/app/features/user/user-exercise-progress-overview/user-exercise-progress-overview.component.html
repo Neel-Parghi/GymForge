@@ -1,0 +1,118 @@
+<div class="progress-page">
+  <header class="page-head">
+    <a class="icon-btn" routerLink="/user/exercise-progress" aria-label="Back to exercise progress">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </a>
+    <h1>Progress by muscle group</h1>
+  </header>
+
+  @if (isLoading()) {
+    <section class="card" aria-busy="true">
+      <span class="skeleton wide"></span>
+      <span class="skeleton"></span>
+    </section>
+    <span class="skeleton card-skeleton"></span>
+  } @else if (loadFailed()) {
+    <section class="card empty">
+      <h2>Couldn't load your progress</h2>
+      <p>Check your connection and try again.</p>
+      <button type="button" class="btn-outline" (click)="load()">Try again</button>
+    </section>
+  } @else if (!activeGroup()) {
+    <section class="card empty">
+      <span class="empty-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+      <h2>No exercises logged yet</h2>
+      <p>Log a workout with some sets and reps, then come back to watch your strength trend build up.</p>
+      <button type="button" class="btn-primary" (click)="goToWorkoutLog()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Log a workout
+      </button>
+    </section>
+  } @else if (activeGroup(); as group) {
+    <div class="toolbar">
+      <div class="chips" role="group" aria-label="Muscle groups">
+        @for (g of groups(); track g.muscleGroup) {
+          <button type="button" class="chip" [class.active]="g.muscleGroup === group.muscleGroup"
+            [attr.aria-pressed]="g.muscleGroup === group.muscleGroup" (click)="selectGroup(g.muscleGroup)">
+            {{ g.muscleGroup }}
+          </button>
+        }
+      </div>
+      <div class="search">
+        <app-dropdown [options]="exerciseOptions()" [isSearchable]="true" [formControl]="searchControl"
+          placeholder="Find an exercise" minWidth="100%"></app-dropdown>
+      </div>
+    </div>
+
+    <div class="layout">
+      @if (weekly(); as w) {
+        <section class="week-card" [attr.aria-label]="group.muscleGroup + ' in the last 7 days'">
+          <div class="week-head">
+            <h2>{{ group.muscleGroup }} · last 7 days</h2>
+            @if (w.volumeChange; as c) {
+              <span class="week-change" [class.down]="!c.isUp">{{ c.label }}</span>
+            }
+          </div>
+          <dl class="week-stats">
+            <div>
+              <dt>Sessions</dt>
+              <dd>{{ w.sessions }}</dd>
+            </div>
+            <div>
+              <dt>Sets</dt>
+              <dd>{{ w.sets }}</dd>
+            </div>
+            <div>
+              <dt>Volume</dt>
+              <dd>{{ w.volume }}<small> kg</small></dd>
+            </div>
+          </dl>
+          @if (groupSummary(); as summary) {
+            <p class="week-summary">{{ summary }}</p>
+          }
+        </section>
+      }
+
+      <section class="exercises" [attr.aria-label]="group.muscleGroup + ' exercises'">
+        <div class="section-head">
+          <h2>{{ group.muscleGroup }} exercises</h2>
+          <span>Tap one for full detail</span>
+        </div>
+
+        <ul class="exercise-list">
+          @for (card of cards(); track card.name) {
+            <li>
+              <a class="exercise-card" [routerLink]="['/user/exercise-progress/breakdown', card.name]">
+                <span class="card-top">
+                  <span class="card-title">
+                    <span class="name">{{ card.name }}</span>
+                    <span class="meta">Last: {{ card.date | date: 'd MMM' }} · {{ card.summary }}</span>
+                  </span>
+                  @if (card.spark) {
+                    <svg class="spark" [attr.data-dir]="card.sparkDir" [attr.width]="sparkWidth" [attr.height]="sparkHeight"
+                      [attr.viewBox]="'0 0 ' + sparkWidth + ' ' + sparkHeight" aria-hidden="true">
+                      <polyline [attr.points]="card.spark"></polyline>
+                    </svg>
+                  }
+                  <i class="fa-solid fa-chevron-right chevron" aria-hidden="true"></i>
+                </span>
+
+                <span class="set-chips">
+                  @for (s of card.sets; track s.setNo) {
+                    <span class="set-chip" [class.pr]="s.isPr"><span class="set-no">S{{ s.setNo }}</span> {{ s.label }}</span>
+                  }
+                </span>
+
+                <span class="card-foot">
+                  <span>{{ card.comparedTo ? 'vs ' + (card.comparedTo | date: 'd MMM') : 'First session logged' }}</span>
+                  @if (card.change; as c) {
+                    <span class="change" [attr.data-dir]="c.dir">{{ c.label }}{{ card.isNewPersonalBest ? ' · New PR' : '' }}</span>
+                  }
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    </div>
+  }
+</div>

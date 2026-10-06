@@ -1,0 +1,190 @@
+@use 'member' as m;
+
+// Page shell, header, cards and states shared by the progress overview and exercise detail pages.
+@mixin base {
+  :host {
+    display: block;
+  }
+
+  .progress-page {
+    @include m.page;
+    padding-top: 4px;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+
+    h1 {
+      @include m.page-title(true);
+    }
+  }
+
+  .head-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    p {
+      margin: 0;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--m-muted);
+    }
+  }
+
+  .icon-btn {
+    @include m.icon-button;
+    text-decoration: none;
+  }
+
+  .card {
+    @include m.card;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-primary {
+    @include m.primary-button;
+  }
+
+  .btn-outline {
+    @include m.secondary-button;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 4px;
+
+    h2 {
+      @include m.section-title;
+    }
+
+    span {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--m-muted);
+    }
+  }
+
+  .skeleton {
+    @include m.skeleton;
+    width: 50%;
+
+    &.wide {
+      width: 80%;
+      height: 26px;
+    }
+
+    &.tall {
+      width: 100%;
+      height: 180px;
+    }
+  }
+
+  .empty {
+    align-items: center;
+    text-align: center;
+    padding: 32px 20px;
+
+    h2 {
+      @include m.section-title;
+    }
+
+    p {
+      margin: 0;
+      max-width: 340px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--m-muted);
+    }
+  }
+
+  .empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: var(--m-info-soft);
+    color: var(--m-info-ink);
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chips {
+    display: flex;
+    gap: 8px;
+    margin: 0 -12px;
+    padding: 0 12px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    @include m.from-tablet {
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .chip {
+    @include m.reset-button;
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--m-line);
+    background: var(--m-surface);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+
+    &.active {
+      border-color: var(--m-navy);
+      background: var(--m-navy);
+      color: #ffffff;
+    }
+  }
+
+  // A logged set, e.g. "65 × 8"; personal bests get an orange outline.
+  .set-chip {
+    padding: 5px 10px;
+    border-radius: 9px;
+    background: var(--m-ground);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+
+    &.pr {
+      background: var(--m-energy-soft);
+      color: var(--m-energy-ink);
+      box-shadow: inset 0 0 0 1.5px var(--m-energy);
+    }
+  }
+
+  // Change badge: data-dir = up | down | same
+  .change {
+    @include m.pill(var(--m-muted), var(--m-ground));
+    white-space: nowrap;
+
+    &[data-dir='up'] {
+      color: var(--m-good-ink);
+      background: var(--m-good-soft);
+    }
+
+    &[data-dir='down'] {
+      color: var(--m-bad-ink);
+      background: var(--m-bad-soft);
+    }
+  }
+}

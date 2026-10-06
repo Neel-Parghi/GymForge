@@ -23,7 +23,10 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(d => d.MemberId == memberId && d.LogDate >= start && d.LogDate < end)
                 .ToListAsync();
 
-            return logs.OrderByDescending(d => d.MealEntries.Count).FirstOrDefault();
+            return logs
+                .OrderByDescending(d => d.MealEntries.Count)
+                .ThenBy(d => d.CreatedOn)
+                .FirstOrDefault();
         }
 
         public async Task<MealLogEntry?> GetMealEntryWithLogAsync(Guid mealEntryId)

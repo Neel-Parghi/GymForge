@@ -1,0 +1,247 @@
+<div class="progress-page">
+  <header class="page-head">
+    <a class="icon-btn" routerLink="/user/exercise-progress/breakdown" aria-label="Back to muscle groups">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </a>
+    <div class="head-text">
+      <h1>{{ progress()?.exerciseName ?? exerciseName() }}</h1>
+      @if (progress(); as p) {
+        <p>{{ p.muscleGroup ? p.muscleGroup + ' · ' : '' }}{{ p.totalSessions }} {{ p.totalSessions === 1 ? 'session' : 'sessions' }}</p>
+      }
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <section class="card" aria-busy="true">
+      <span class="skeleton wide"></span>
+      <span class="skeleton tall"></span>
+    </section>
+  } @else if (loadFailed() || !progress()) {
+    <section class="card empty">
+      <span class="empty-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+      <h2>{{ loadFailed() ? "Couldn't load this exercise" : 'No sessions logged yet' }}</h2>
+      <p>{{ loadFailed() ? 'Check your connection and try again.' : 'Log ' + exerciseName() + ' in a workout to start tracking it here.' }}</p>
+      @if (loadFailed()) {
+        <button type="button" class="btn-outline" (click)="load()">Try again</button>
+      } @else {
+        <a class="btn-outline" routerLink="/user/exercise-progress/breakdown">Back to all exercises</a>
+      }
+    </section>
+  } @else if (progress(); as p) {
+    <div class="layout">
+      <div class="col-main">
+        @if (stats(); as s) {
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-label">{{ s.bestLabel }}</span>
+              <span class="stat-value">{{ s.bestValue }}<small> {{ s.bestUnit }}</small></span>
+              <span class="stat-sub pr">
+                {{ isBodyweight() ? '' : '× ' + s.bestSession.topWeightReps + ' · ' }}{{ s.bestSession.date | date: 'd MMM' }}
+              </span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Est. 1RM</span>
+              <span class="stat-value">{{ s.oneRepMax ?? '–' }}@if (s.oneRepMax) {<small> kg</small>}</span>
+              <span class="stat-sub">From your last top set</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Volume</span>
+              <span class="stat-value">{{ s.volume }}<small> kg</small></span>
+              @if (s.volumeChange; as c) {
+                <span class="stat-sub" [attr.data-dir]="c.dir">{{ c.label }}</span>
+              } @else {
+                <span class="stat-sub">Last session</span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (lastSession(); as ls) {
+          <section class="card last-card" aria-labelledby="last-session-title">
+            <div class="last-head">
+              <div>
+                <span class="eyebrow">Last session</span>
+                <h2 id="last-session-title">{{ ls.date | date: 'EEE d MMM' }}{{ ls.dayName ? ' · ' + ls.dayName : '' }}</h2>
+              </div>
+              @if (isNewPersonalBest()) {
+                <span class="pr-badge">New PR</span>
+              }
+            </div>
+
+            <p class="last-summary">
+              {{ ls.totalSets }} {{ ls.totalSets === 1 ? 'set' : 'sets' }} · {{ ls.totalReps }} reps · <strong>{{ ls.volume }} kg</strong>
+              @if (ls.volumeChange; as c) {
+                · <strong [attr.data-dir]="c.dir">{{ c.label }} vs {{ ls.comparedTo | date: 'd MMM' }}</strong>
+              }
+            </p>
+
+            <table class="set-table">
+              <thead>
+                <tr>
+                  <th scope="col">Set</th>
+                  <th scope="col">Weight</th>
+                  <th scope="col">Reps</th>
+                  <th scope="col" class="num">{{ ls.comparedTo ? 'vs ' + (ls.comparedTo | date: 'd MMM') : 'Change' }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of ls.rows; track row.setNo) {
+                  <tr>
+                    <td><span class="set-no">{{ row.setNo }}</span></td>
+                    <td class="big">{{ row.weight }}@if (row.weight !== 'BW') {<small> kg</small>}</td>
+                    <td class="big">{{ row.reps }}</td>
+                    <td class="num">
+                      @if (ls.comparedTo) {
+                        <span class="change" [attr.data-dir]="row.change.dir">{{ row.change.label }}</span>
+                      } @else {
+                        <span class="muted">First log</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </section>
+        }
+      </div>
+
+      <div class="col-side">
+        <app-segmented-tabs [tabs]="viewTabs" [active]="view()" label="Progress views" (selected)="setView($event)" />
+
+        @switch (view()) {
+          @case ('compare') {
+            <section class="card compare-card" aria-labelledby="compare-title">
+              <div class="section-head">
+                <h2 id="compare-title">Session by session</h2>
+                @if (compareColumns().length > 4) {
+                  <span>Swipe for older →</span>
+                }
+              </div>
+
+              @if (compareColumns().length < 2) {
+                <p class="note">Log {{ p.exerciseName }} again to compare sessions side by side.</p>
+              } @else {
+                <div class="compare">
+                  <div class="compare-labels" aria-hidden="true">
+                    <span class="head"></span>
+                    @for (label of compareRowLabels(); track label) {
+                      <span class="cell-label">{{ label }}</span>
+                    }
+                    <span class="rule"></span>
+                    <span class="total-label">Reps</span>
+                    <span class="total-label">Vol. kg</span>
+                    <span class="total-label">Top</span>
+                  </div>
+
+                  <div class="compare-scroll" role="region" tabindex="0" [attr.aria-label]="p.exerciseName + ' sessions compared, newest first'">
+                    @for (col of compareColumns(); track col.date) {
+                      <div class="compare-col">
+                        <span class="head" [class.latest]="col.isLatest">
+                          {{ col.date | date: 'd' }}<small>{{ col.date | date: 'MMM' }}</small>
+                        </span>
+                        @for (cell of col.cells; track $index) {
+                          <span class="cell" [class.pr]="cell.isPr" [class.empty]="cell.isEmpty" [class.latest]="col.isLatest">
+                            <strong>{{ cell.weight }}</strong>
+                            <small>{{ cell.reps }}</small>
+                          </span>
+                        }
+                        <span class="rule"></span>
+                        @for (t of col.totals; track $index) {
+                          <span class="total" [attr.data-dir]="t.dir">
+                            {{ t.text }}{{ t.dir === 'up' ? ' ↑' : t.dir === 'down' ? ' ↓' : '' }}
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="legend">
+                  <span><span class="swatch" aria-hidden="true"></span>Personal best</span>
+                  <span>↑ ↓ compared with the session to the right</span>
+                </div>
+              }
+            </section>
+
+            @if (insights().length) {
+              <section class="card insights-card" aria-labelledby="insights-title">
+                <h2 id="insights-title">What's changing</h2>
+                <ul class="insights">
+                  @for (note of insights(); track note.title) {
+                    <li>
+                      <span class="insight-icon" [attr.data-dir]="note.dir" aria-hidden="true">{{ note.icon }}</span>
+                      <span><strong>{{ note.title }}</strong> {{ note.text }}</span>
+                    </li>
+                  }
+                </ul>
+              </section>
+            }
+          }
+
+          @case ('history') {
+            <section class="card history-card" aria-labelledby="history-title">
+              <div class="section-head">
+                <h2 id="history-title">History</h2>
+                <span>{{ historyRows().length }} {{ historyRows().length === 1 ? 'session' : 'sessions' }}</span>
+              </div>
+              <ul class="history">
+                @for (row of historyRows(); track row.date + $index) {
+                  <li>
+                    <div class="history-head">
+                      <span class="history-date">{{ row.date | date: 'EEE d MMM' }}</span>
+                      <span class="history-meta">
+                        {{ row.volume }}
+                        @if (row.change; as c) {
+                          <span class="change" [attr.data-dir]="c.dir">{{ c.label }}</span>
+                        }
+                      </span>
+                    </div>
+                    <div class="set-chips">
+                      @for (s of row.sets; track $index) {
+                        <span class="set-chip" [class.pr]="s.isPr">{{ s.label }}</span>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+
+          @case ('trend') {
+            <section class="card chart-card" aria-labelledby="trend-title">
+              <div class="chart-head">
+                <div>
+                  <h2 id="trend-title">Top set weight</h2>
+                  <p class="card-sub">Heaviest set per session, in kg</p>
+                </div>
+                @if (trend(); as t) {
+                  <span class="change" [attr.data-dir]="t.isUp ? 'up' : 'down'">
+                    {{ t.isUp ? '↑ +' : '↓ −' }}{{ t.kg }} kg ({{ t.pct }}%)
+                  </span>
+                }
+              </div>
+
+              <div class="ranges" role="group" aria-label="Time range">
+                @for (r of ranges; track r) {
+                  <button type="button" class="range" [class.active]="r === range()" [attr.aria-pressed]="r === range()"
+                    (click)="setRange(r)">{{ r }}</button>
+                }
+              </div>
+
+              @if (visiblePoints().length > 1) {
+                <div class="chart-wrap">
+                  <canvas baseChart type="line" [data]="chartData()" [options]="chartOptions"
+                    [attr.aria-label]="'Top set weight for ' + p.exerciseName"></canvas>
+                </div>
+              } @else if (visiblePoints().length === 1) {
+                <p class="note">Only one session in this range. Log {{ p.exerciseName }} again, or pick a longer range, to see a trend.</p>
+              } @else {
+                <p class="note">No sessions in this range. Try a longer range.</p>
+              }
+            </section>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
