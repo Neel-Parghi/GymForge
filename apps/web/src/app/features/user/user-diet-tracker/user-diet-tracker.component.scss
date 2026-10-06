@@ -426,8 +426,10 @@
 }
 
 .log-btn {
-  @include m.secondary-button;
   flex-shrink: 0;
+  &:not(.primary) {
+    @include m.secondary-button;
+  }
 
   &.primary {
     @include m.primary-button;

@@ -1,0 +1,262 @@
+@use 'member' as m;
+@use '../user-exercise-progress-detail/progress-shared' as progress;
+
+@include progress.base;
+
+// Desktop: the page fills the viewport and only the exercise list scrolls (same pattern as the diet tracker).
+:host {
+  @include m.from-desktop {
+    height: 100%;
+  }
+}
+
+.progress-page {
+  @include m.from-desktop {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+.card-skeleton {
+  width: 100%;
+  height: 180px;
+  border-radius: var(--m-radius-lg);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @include m.from-desktop {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.search {
+  @include m.from-desktop {
+    flex: 0 0 320px;
+  }
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-gap);
+
+  @include m.from-desktop {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: start;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.week-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--m-card-pad);
+  border-radius: var(--m-radius-lg);
+  background: var(--m-navy);
+  color: #ffffff;
+}
+
+.week-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+
+  h2 {
+    @include m.section-title;
+    color: #ffffff;
+  }
+}
+
+.week-change {
+  @include m.pill(#6ee7b7, rgba(110, 231, 183, 0.18));
+  flex-shrink: 0;
+
+  &.down {
+    color: #fca5a5;
+    background: rgba(252, 165, 165, 0.16);
+  }
+}
+
+.week-stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+
+  > div {
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  dt {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--m-on-navy-muted);
+  }
+
+  dd {
+    @include m.display-number;
+    margin: 2px 0 0;
+
+    small {
+      font-family: var(--m-font-body);
+      font-size: 0.75rem;
+      color: var(--m-on-navy-muted);
+    }
+  }
+}
+
+.week-summary {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #dbe3f3;
+}
+
+.exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @include m.from-desktop {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+.exercise-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @include m.from-desktop {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: -4px -8px 0;
+    padding: 4px 8px 24px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--gray-200);
+      border-radius: 10px;
+    }
+  }
+}
+
+.exercise-card {
+  @include m.card;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--m-ink);
+  text-decoration: none;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 0 0 1.5px var(--m-line), var(--m-shadow);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--m-accent);
+    outline-offset: 2px;
+  }
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-title {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .name {
+    font-family: var(--m-font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  .meta {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--m-muted);
+  }
+}
+
+.spark {
+  flex-shrink: 0;
+
+  polyline {
+    fill: none;
+    stroke: var(--slate-400);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &[data-dir='up'] polyline {
+    stroke: var(--m-accent);
+  }
+
+  &[data-dir='down'] polyline {
+    stroke: var(--m-bad);
+  }
+}
+
+.chevron {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--m-muted);
+}
+
+.set-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.set-no {
+  font-weight: 600;
+  color: var(--m-muted);
+}
+
+.set-chip.pr .set-no {
+  color: inherit;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--m-line-soft);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--m-muted);
+}

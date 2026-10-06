@@ -69,16 +69,46 @@ namespace GymForge.Infrastructure.Repositories
 
         public async Task<Dictionary<string, string>> GetCategoriesForNamesAsync(IEnumerable<string> names)
         {
-            List<string> lowerNames = [.. names.Select(n => n.ToLower())];
+            List<string> lowerNames = [.. names.Select(n => n.Trim().ToLower()).Distinct()];
+            Dictionary<string, string> result = [];
 
-            List<Exercise> matches = await _dbContext.Exercises
+            void AddMatches(IEnumerable<(string Name, string Category)> matches)
+            {
+                foreach ((string name, string category) in matches)
+                {
+                    string key = name.Trim().ToLower();
+                    if (!string.IsNullOrWhiteSpace(category) && !result.ContainsKey(key))
+                        result[key] = category;
+                }
+            }
+
+            AddMatches((await _dbContext.Exercises
                 .AsNoTracking()
                 .Where(e => lowerNames.Contains(e.Name.ToLower()))
-                .ToListAsync();
+                .Select(e => new { e.Name, e.Category })
+                .ToListAsync()).Select(e => (e.Name, e.Category)));
 
-            return matches
-                .GroupBy(e => e.Name.ToLower())
-                .ToDictionary(g => g.Key, g => g.First().Category);
+            List<string> remaining = [.. lowerNames.Where(n => !result.ContainsKey(n))];
+            if (remaining.Count > 0)
+            {
+                AddMatches((await _dbContext.WorkoutPlanExercises
+                    .AsNoTracking()
+                    .Where(p => p.Exercise != null && remaining.Contains(p.ExerciseName.ToLower()))
+                    .Select(p => new { p.ExerciseName, p.Exercise!.Category })
+                    .ToListAsync()).Select(p => (p.ExerciseName, p.Category)));
+            }
+
+            remaining = [.. lowerNames.Where(n => !result.ContainsKey(n))];
+            if (remaining.Count > 0)
+            {
+                AddMatches((await _dbContext.MasterExercises
+                    .AsNoTracking()
+                    .Where(m => remaining.Contains(m.Name.ToLower()))
+                    .Select(m => new { m.Name, m.Category })
+                    .ToListAsync()).Select(m => (m.Name, m.Category)));
+            }
+
+            return result;
         }
     }
 }

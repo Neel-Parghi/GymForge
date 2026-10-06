@@ -7,5 +7,7 @@ namespace GymForge.Application.Modules.Workout.Interface
         Task<IEnumerable<LoggedExerciseNameDto>> GetLoggedExerciseNamesAsync(Guid userId);
 
         Task<ExerciseProgressDto?> GetExerciseProgressAsync(Guid userId, string exerciseName);
+
+        Task<IEnumerable<MuscleGroupProgressDto>> GetMuscleGroupProgressAsync(Guid userId);
     }
 }

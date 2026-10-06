@@ -65,6 +65,17 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
+            },
+            "remote": {
+              "optimization": false,
+              "extractLicenses": false,
               "sourceMap": true
             }
           },
@@ -78,6 +89,9 @@
             },
             "development": {
               "buildTarget": "web:build:development"
+            },
+            "remote": {
+              "buildTarget": "web:build:remote"
             }
           },
           "defaultConfiguration": "development"

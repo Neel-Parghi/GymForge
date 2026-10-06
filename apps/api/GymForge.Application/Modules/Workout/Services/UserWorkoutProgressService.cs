@@ -7,6 +7,10 @@ namespace GymForge.Application.Modules.Workout.Services
 {
     public class UserWorkoutProgressService : IUserWorkoutProgressService
     {
+        private const int WeeklyWindowDays = 7;
+        private const int TrendLength = 6;
+        private const string UncategorizedGroup = "Other";
+
         private readonly IMemberWorkoutRepository _memberWorkoutRepository;
         private readonly IWorkoutRepository _workoutRepository;
 
@@ -34,12 +38,11 @@ namespace GymForge.Application.Modules.Workout.Services
                 .Select(g =>
                 {
                     (DateTime Date, LoggedExercise Exercise) latest = g.OrderByDescending(x => x.Date).First();
-                    categoryMap.TryGetValue(g.Key, out string? category);
 
                     return new LoggedExerciseNameDto
                     {
                         Name = latest.Exercise.Name.Trim(),
-                        MuscleGroup = category,
+                        MuscleGroup = ResolveMuscleGroup(latest.Exercise.Name, categoryMap),
                         LastLoggedDate = latest.Date
                     };
                 })
@@ -54,26 +57,11 @@ namespace GymForge.Application.Modules.Workout.Services
                 return null;
 
             IEnumerable<WorkoutSessionLog> logs = await _memberWorkoutRepository.GetWorkoutLogsAsync(userId);
-            string target = exerciseName.Trim().ToLower();
+            string target = NormalizeName(exerciseName);
 
-            List<ExerciseProgressPointDto> points = [.. logs
-                .SelectMany(l => l.LoggedExercises
-                    .Where(e => !e.Skipped && e.Name.Trim().ToLower() == target && e.LoggedSets.Any(s => s.Completed))
-                    .Select(e => new { l.Id, l.Date, Exercise = e }))
-                .Select(x =>
-                {
-                    List<LoggedSet> completedSets = [.. x.Exercise.LoggedSets.Where(s => s.Completed)];
-                    LoggedSet topSet = completedSets.OrderByDescending(s => s.Weight).ThenByDescending(s => s.Reps).First();
-
-                    return new ExerciseProgressPointDto
-                    {
-                        SessionLogId = x.Id,
-                        Date = x.Date,
-                        TopWeight = topSet.Weight,
-                        TopWeightReps = topSet.Reps,
-                        TotalSets = completedSets.Count
-                    };
-                })
+            List<ExerciseProgressPointDto> points = [.. GetTrackedSessions(logs)
+                .Where(x => NormalizeName(x.Exercise.Name) == target)
+                .Select(x => ToPoint(x.Log, x.Exercise))
                 .OrderBy(p => p.Date)];
 
             if (points.Count == 0)
@@ -85,7 +73,7 @@ namespace GymForge.Application.Modules.Workout.Services
                 : null;
 
             Dictionary<string, string> categoryMap = await _workoutRepository.GetCategoriesForNamesAsync([target]);
-            categoryMap.TryGetValue(target, out string? category);
+            string? category = ResolveMuscleGroup(target, categoryMap);
 
             return new ExerciseProgressDto
             {
@@ -93,10 +81,101 @@ namespace GymForge.Application.Modules.Workout.Services
                 MuscleGroup = category,
                 PersonalBest = points.Max(p => p.TopWeight),
                 TotalSessions = points.Count,
-                LastLoggedDate = points[^1].Date,
+                LastLoggedDate = mostRecent.Date,
                 EstimatedOneRepMax = oneRepMax,
                 Points = points
             };
         }
+
+        public async Task<IEnumerable<MuscleGroupProgressDto>> GetMuscleGroupProgressAsync(Guid userId)
+        {
+            IEnumerable<WorkoutSessionLog> logs = await _memberWorkoutRepository.GetWorkoutLogsAsync(userId);
+            List<(WorkoutSessionLog Log, LoggedExercise Exercise)> tracked = GetTrackedSessions(logs);
+
+            Dictionary<string, string> categoryMap = await _workoutRepository.GetCategoriesForNamesAsync(
+                tracked.Select(x => NormalizeName(x.Exercise.Name)).Distinct());
+
+            DateTime weekStart = DateTime.UtcNow.Date.AddDays(-(WeeklyWindowDays - 1));
+            DateTime previousWeekStart = weekStart.AddDays(-WeeklyWindowDays);
+
+            return [.. tracked
+                .GroupBy(x => ResolveMuscleGroup(x.Exercise.Name, categoryMap) ?? UncategorizedGroup)
+                .Select(group =>
+                {
+                    List<(WorkoutSessionLog Log, LoggedExercise Exercise)> thisWeek = [.. group.Where(x => x.Log.Date.Date >= weekStart)];
+                    List<(WorkoutSessionLog Log, LoggedExercise Exercise)> lastWeek = [.. group.Where(x => x.Log.Date.Date >= previousWeekStart && x.Log.Date.Date < weekStart)];
+
+                    return new MuscleGroupProgressDto
+                    {
+                        MuscleGroup = group.Key,
+                        WeeklySessions = thisWeek.Select(x => x.Log.Id).Distinct().Count(),
+                        WeeklySets = thisWeek.Sum(x => x.Exercise.LoggedSets.Count(s => s.Completed)),
+                        WeeklyVolume = thisWeek.Sum(x => Volume(x.Exercise)),
+                        PreviousWeeklyVolume = lastWeek.Sum(x => Volume(x.Exercise)),
+                        Exercises = [.. group
+                            .GroupBy(x => NormalizeName(x.Exercise.Name))
+                            .Select(ToGroupExercise)
+                            .OrderByDescending(e => e.Last.Date)]
+                    };
+                })
+                .OrderByDescending(g => g.Exercises.Max(e => e.Last.Date))];
+        }
+
+        private static MuscleGroupExerciseDto ToGroupExercise(IEnumerable<(WorkoutSessionLog Log, LoggedExercise Exercise)> sessions)
+        {
+            List<ExerciseProgressPointDto> points = [.. sessions
+                .Select(x => ToPoint(x.Log, x.Exercise))
+                .OrderBy(p => p.Date)];
+
+            ExerciseProgressPointDto last = points[^1];
+            ExerciseProgressPointDto? previous = points.Count > 1 ? points[^2] : null;
+            bool isBodyweight = points.All(p => p.TopWeight <= 0);
+
+            return new MuscleGroupExerciseDto
+            {
+                Name = sessions.OrderByDescending(x => x.Log.Date).First().Exercise.Name.Trim(),
+                TotalSessions = points.Count,
+                Last = last,
+                Previous = previous,
+                IsNewPersonalBest = previous != null && !isBodyweight && last.TopWeight > points.Take(points.Count - 1).Max(p => p.TopWeight),
+                Trend = [.. points.TakeLast(TrendLength).Select(p => isBodyweight ? p.TotalReps : p.TopWeight)]
+            };
+        }
+
+        private static List<(WorkoutSessionLog Log, LoggedExercise Exercise)> GetTrackedSessions(IEnumerable<WorkoutSessionLog> logs)
+        {
+            return [.. logs
+                .SelectMany(l => l.LoggedExercises.Select(e => (Log: l, Exercise: e)))
+                .Where(x => !x.Exercise.Skipped && !x.Exercise.IsCardio && x.Exercise.LoggedSets.Any(s => s.Completed))];
+        }
+
+        private static ExerciseProgressPointDto ToPoint(WorkoutSessionLog log, LoggedExercise exercise)
+        {
+            List<LoggedSet> completedSets = [.. exercise.LoggedSets.Where(s => s.Completed).OrderBy(s => s.SetNo)];
+            LoggedSet topSet = completedSets.OrderByDescending(s => s.Weight).ThenByDescending(s => s.Reps).First();
+
+            return new ExerciseProgressPointDto
+            {
+                SessionLogId = log.Id,
+                Date = log.Date,
+                DayName = log.DayName,
+                TopWeight = topSet.Weight,
+                TopWeightReps = topSet.Reps,
+                TotalSets = completedSets.Count,
+                TotalReps = completedSets.Sum(s => s.Reps),
+                Volume = Math.Round(completedSets.Sum(s => s.Weight * s.Reps), 1),
+                Sets = [.. completedSets.Select((s, i) => new ProgressSetDto { SetNo = i + 1, Weight = s.Weight, Reps = s.Reps })]
+            };
+        }
+
+        private static double Volume(LoggedExercise exercise) =>
+            exercise.LoggedSets.Where(s => s.Completed).Sum(s => s.Weight * s.Reps);
+
+        private static string NormalizeName(string name) => name.Trim().ToLower();
+
+        private static string? ResolveMuscleGroup(string exerciseName, Dictionary<string, string> categoryMap) =>
+            categoryMap.TryGetValue(NormalizeName(exerciseName), out string? category) && !string.IsNullOrWhiteSpace(category)
+                ? category.Trim()
+                : ExerciseMuscleGroupClassifier.Classify(exerciseName);
     }
 }

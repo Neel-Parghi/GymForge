@@ -206,6 +206,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/user/user-exercise-progress/user-exercise-progress.component').then(m => m.UserExerciseProgressComponent)
       },
       {
+        path: 'exercise-progress/breakdown',
+        loadComponent: () => import('./features/user/user-exercise-progress-overview/user-exercise-progress-overview.component').then(m => m.UserExerciseProgressOverviewComponent)
+      },
+      {
+        path: 'exercise-progress/breakdown/:exerciseName',
+        loadComponent: () => import('./features/user/user-exercise-progress-detail/user-exercise-progress-detail.component').then(m => m.UserExerciseProgressDetailComponent)
+      },
+      {
         path: 'workout-planner',
         loadComponent: () => import('./features/user/user-workout-planner/user-workout-planner.component').then(m => m.UserWorkoutPlannerComponent)
       },
