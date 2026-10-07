@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { WorkoutProgressService } from '../../../core/services/workout-progress.service';
@@ -24,6 +24,7 @@ const SPARK_HEIGHT = 28;
 export class UserExerciseProgressOverviewComponent implements OnInit {
   private workoutProgressService = inject(WorkoutProgressService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   readonly sparkWidth = SPARK_WIDTH;
@@ -93,6 +94,8 @@ export class UserExerciseProgressOverviewComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.activeGroupName.set(this.route.snapshot.queryParamMap.get('group'));
+
     this.searchControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(name => {
@@ -121,6 +124,7 @@ export class UserExerciseProgressOverviewComponent implements OnInit {
 
   selectGroup(name: string): void {
     this.activeGroupName.set(name);
+    this.router.navigate([], { relativeTo: this.route, queryParams: { group: name }, replaceUrl: true });
   }
 
   goToWorkoutLog(): void {

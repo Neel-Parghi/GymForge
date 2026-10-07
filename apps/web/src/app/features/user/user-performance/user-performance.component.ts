@@ -90,28 +90,7 @@ export class UserPerformanceComponent implements OnInit {
 
   initializeTodayWorkout(): void {
     if (this.routerState?.sessionToEdit) {
-      const session = this.routerState.sessionToEdit;
-      const rawExercises = session.loggedExercises || session.exercises || [];
-      const sortedExercises = [...rawExercises].sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-      this.todayWorkout = {
-        dayName: session.dayName,
-        isRestDay: session.dayName?.toLowerCase().includes('rest') || false,
-        exercises: sortedExercises.map((ex: any) => {
-          const sets = [...(ex.loggedSets || ex.sets || [])].sort((a: any, b: any) => (a.setNo || 0) - (b.setNo || 0));
-          return {
-            name: ex.name,
-            skipped: ex.skipped || false,
-            isCardio: ex.isCardio || false,
-            sets: sets.map((s: any) => ({
-              setNo: s.setNo,
-              target: s.target || `${s.reps || 10} reps`,
-              weight: s.weight || 0,
-              reps: s.reps || 0,
-              completed: s.completed ?? true
-            }))
-          };
-        })
-      };
+      this.todayWorkout = this.fromLoggedSession(this.routerState.sessionToEdit);
       return;
     }
 
@@ -160,60 +139,29 @@ export class UserPerformanceComponent implements OnInit {
     }
 
     const todayStr = toDateKey(this.loggingDate);
-    let override = this.workoutOverrides[todayStr];
+    const override = this.workoutOverrides[todayStr];
+    const existingSession = override ? null : this.workoutHistory?.find(h => toDateKey(new Date(h.date)) === todayStr);
 
-    if (!override && this.workoutHistory) {
-      const existingSession = this.workoutHistory.find(h => {
-        const d = new Date(h.date);
-        return toDateKey(d) === todayStr;
-      });
-      if (existingSession) {
-        override = {
-          dayName: existingSession.dayName,
-          exercises: (existingSession.loggedExercises || existingSession.exercises || []).map((ex: any) => ({
-            name: ex.name,
-            sets: ex.loggedSets || ex.sets || [],
-            reps: (ex.loggedSets || ex.sets || [])[0]?.reps?.toString() || '8-12 reps',
-            isLoggedSession: true
-          }))
-        };
-      }
+    if (existingSession) {
+      this.todayWorkout = this.fromLoggedSession(existingSession);
+      return;
     }
 
     if (override) {
       this.todayWorkout = {
         dayName: override.dayName,
         isRestDay: override.dayName.toLowerCase().includes('rest'),
-        exercises: (override.exercises || []).map((ex: any) => {
-          const isLogged = !!ex.isLoggedSession;
-          const rawSets = isLogged ? ex.sets : [];
-          const setsCount = isLogged ? rawSets.length : (typeof ex.sets === 'number' ? ex.sets : 3);
-
-          return {
-            name: ex.name,
-            skipped: false,
-            sets: Array.from({ length: setsCount }, (_, i) => {
-              if (isLogged) {
-                const s = rawSets[i];
-                return {
-                  setNo: s.setNo || (i + 1),
-                  target: s.target || `${s.reps || 10} reps`,
-                  weight: s.weight || 0,
-                  reps: s.reps || 0,
-                  completed: s.completed ?? true
-                };
-              } else {
-                return {
-                  setNo: i + 1,
-                  target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
-                  weight: '',
-                  reps: 10,
-                  completed: false
-                };
-              }
-            })
-          };
-        })
+        exercises: (override.exercises || []).map((ex: any) => ({
+          name: ex.name,
+          skipped: false,
+          sets: Array.from({ length: typeof ex.sets === 'number' ? ex.sets : 3 }, (_, i) => ({
+            setNo: i + 1,
+            target: typeof ex.reps === 'string' ? ex.reps : '8-12 reps',
+            weight: '',
+            reps: 10,
+            completed: false
+          }))
+        }))
       };
       return;
     }
@@ -245,6 +193,48 @@ export class UserPerformanceComponent implements OnInit {
     }
   }
 
+  private fromLoggedSession(session: any): any {
+    const rawExercises = session.loggedExercises || session.exercises || [];
+    const sortedExercises = [...rawExercises].sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    return {
+      dayName: session.dayName,
+      isRestDay: session.status === 'RestDay' || session.dayName?.toLowerCase().includes('rest') || false,
+      exercises: sortedExercises.map((ex: any) => {
+        const sets = [...(ex.loggedSets || ex.sets || [])].sort((a: any, b: any) => (a.setNo || 0) - (b.setNo || 0));
+        return {
+          name: ex.name,
+          skipped: ex.skipped || false,
+          isCardio: ex.isCardio || false,
+          sets: sets.length
+            ? sets.map((s: any) => ({
+                setNo: s.setNo,
+                target: s.target || `${s.reps || 10} reps`,
+                weight: s.weight || 0,
+                reps: s.reps || 0,
+                completed: s.completed ?? true
+              }))
+            : this.blankSets(ex.name, ex.isCardio)
+        };
+      })
+    };
+  }
+
+  /** Blank sets for an exercise, sized from the active plan when it lists the exercise. */
+  private blankSets(name: string, isCardio: boolean): any[] {
+    const planned = this.activeSplit?.days
+      ?.flatMap((d: any) => d.exercises || [])
+      .find((e: any) => e.name?.toLowerCase().trim() === name?.toLowerCase().trim());
+    const count = typeof planned?.sets === 'number' && planned.sets > 0 ? planned.sets : 3;
+    const target = typeof planned?.reps === 'string' && planned.reps ? planned.reps : (isCardio ? '20 mins' : '8-12 reps');
+    return Array.from({ length: count }, (_, i) => ({
+      setNo: i + 1,
+      target,
+      weight: '',
+      reps: isCardio ? 20 : 10,
+      completed: false
+    }));
+  }
+
   private isFutureLoggingDate(): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -253,7 +243,6 @@ export class UserPerformanceComponent implements OnInit {
     return logD.getTime() > today.getTime();
   }
 
-  /** Saves the session the member logged (falls back to the loaded workout when none is passed). */
   saveWorkoutSession(session?: SessionWorkoutResult): void {
     if (session) {
       this.todayWorkout = session;
@@ -301,8 +290,8 @@ export class UserPerformanceComponent implements OnInit {
     this.memberService.logWorkoutSession(this.userId, payload).subscribe({
       next: () => {
         this.notification.success(CONSTANTS.MEMBER_DETAIL_MODULE.LOG_WORKOUT_SUCCESS);
+        this.routerState = null;
         this.loadActivePlanAndWorkoutLogs();
-        this.loggingDate = new Date();
       },
       error: () => {
         this.notification.error(CONSTANTS.MEMBER_DETAIL_MODULE.LOG_WORKOUT_ERROR);

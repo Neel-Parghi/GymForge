@@ -8,6 +8,8 @@ namespace GymForge.Application.Modules.Auth.Service
 {
     public class AuthService : IAuthService
     {
+        private const int MaxActiveSessions = 5;
+
         private readonly IPasswordService _passwordService;
         private readonly IJwtService _jwtService;
         private readonly IAuthRepository _authRepository;
@@ -174,7 +176,7 @@ namespace GymForge.Application.Modules.Auth.Service
             RefreshToken? refreshToken = user?.RefreshTokens.FirstOrDefault(x => x.Token == dto.RefreshToken);
 
             if (user == null || refreshToken == null || !refreshToken.IsActive)
-                throw new Exception("Invalid or expired refresh token");
+                throw new UnauthorizedAccessException("Invalid or expired refresh token");
 
             if (refreshToken.Revoked != null && !string.IsNullOrEmpty(refreshToken.ReplacedByToken))
             {
@@ -279,7 +281,7 @@ namespace GymForge.Application.Modules.Auth.Service
             RefreshToken refreshToken = new()
             {
                 Token = tokenResponse.RefreshToken,
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = _jwtService.GetRefreshTokenExpiry(),
                 UserId = user.Id,
                 CreatedOn = DateTime.UtcNow,
                 CreatedBy = user.Id
@@ -294,16 +296,13 @@ namespace GymForge.Application.Modules.Auth.Service
                 user.RefreshTokens.Remove(stale);
             }
 
-            List<RefreshToken> activeTokens = [.. user.RefreshTokens
-                .Where(t => t.IsActive)
+            List<RefreshToken> liveTokens = [.. user.RefreshTokens
+                .Where(t => t.IsActive && t.Revoked == null)
                 .OrderByDescending(t => t.CreatedOn)];
-                
-            if (activeTokens.Count > 4)
+
+            foreach (RefreshToken oldToken in liveTokens.Skip(MaxActiveSessions))
             {
-                foreach (var oldToken in activeTokens.Skip(4))
-                {
-                    user.RefreshTokens.Remove(oldToken);
-                }
+                user.RefreshTokens.Remove(oldToken);
             }
 
             await _unitOfWork.SaveChangesAsync();

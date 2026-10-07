@@ -1101,7 +1101,6 @@
   gap: 14px;
 }
 
-// Phones: swipeable row bleeding to the card edges. Tablet+: a tile grid.
 .pr-scroller {
   display: flex;
   gap: 12px;
@@ -1109,6 +1108,7 @@
   padding: 4px var(--m-card-pad) 6px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--m-card-pad);
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
@@ -1120,6 +1120,7 @@
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     margin: 0;
     padding: 4px 0 0;
+    scroll-padding-inline: 0;
     overflow: visible;
   }
 }

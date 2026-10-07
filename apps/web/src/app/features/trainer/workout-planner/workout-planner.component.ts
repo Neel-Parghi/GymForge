@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -39,6 +39,7 @@ export class WorkoutPlannerComponent implements OnInit {
   private workoutPlanService = inject(WorkoutPlanService);
   private confirmationService = inject(ConfirmationService);
   private authService = inject(AuthApiService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentUserId = '';
   activeTab: 'splits' | 'weekly' | 'daily' = 'splits';
@@ -80,7 +81,10 @@ export class WorkoutPlannerComponent implements OnInit {
     });
 
     // Fetch exercise reference lists from Master API
-    this.workoutMasterService.getCategories().subscribe(cats => this.categories = cats);
+    this.workoutMasterService.getCategories().subscribe(cats => {
+      this.categories = cats;
+      this.cdr.markForCheck();
+    });
     this.workoutMasterService.getExercises().subscribe(exercises => {
       const grouped: { [category: string]: Exercise[] } = {};
       exercises.forEach(ex => {
@@ -90,6 +94,7 @@ export class WorkoutPlannerComponent implements OnInit {
         grouped[ex.category].push(ex);
       });
       this.exercisesMap = grouped;
+      this.cdr.markForCheck();
     });
   }
 
@@ -101,6 +106,7 @@ export class WorkoutPlannerComponent implements OnInit {
         this.splitPlanners = templates.filter(p => p.type === 'Split');
         this.weeklyPlanners = templates.filter(p => p.type === 'Weekly');
         this.dailyPlanners = templates.filter(p => p.type === 'Daily');
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.LOAD_ERROR);
@@ -252,6 +258,7 @@ export class WorkoutPlannerComponent implements OnInit {
             this.splitPlanners = [...this.splitPlanners];
           }
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_UPDATE_SUCCESS);
+          this.cdr.markForCheck();
           this.closeCreateSplitModal();
         },
         error: (err) => {
@@ -265,6 +272,7 @@ export class WorkoutPlannerComponent implements OnInit {
           this.splitPlanners.unshift(createdPlan as SplitPlanner);
           this.splitPlanners = [...this.splitPlanners];
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.SPLIT_CREATE_SUCCESS);
+          this.cdr.markForCheck();
           this.closeCreateSplitModal();
         },
         error: (err) => {
@@ -285,6 +293,7 @@ export class WorkoutPlannerComponent implements OnInit {
             this.weeklyPlanners = [...this.weeklyPlanners];
           }
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_UPDATE_SUCCESS);
+          this.cdr.markForCheck();
           this.closeCreateWeeklyModal();
         },
         error: (err) => {
@@ -298,6 +307,7 @@ export class WorkoutPlannerComponent implements OnInit {
           this.weeklyPlanners.unshift(createdPlan as WeeklyPlanner);
           this.weeklyPlanners = [...this.weeklyPlanners];
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.WEEKLY_CREATE_SUCCESS);
+          this.cdr.markForCheck();
           this.closeCreateWeeklyModal();
         },
         error: (err) => {
@@ -318,6 +328,7 @@ export class WorkoutPlannerComponent implements OnInit {
             this.dailyPlanners = [...this.dailyPlanners];
           }
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_UPDATE_SUCCESS);
+          this.cdr.markForCheck();
           this.closeCreateDailyModal();
         },
         error: (err) => {
@@ -331,6 +342,7 @@ export class WorkoutPlannerComponent implements OnInit {
           this.dailyPlanners.unshift(createdPlan as DailyPlanner);
           this.dailyPlanners = [...this.dailyPlanners];
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.DAILY_CREATE_SUCCESS);
+          this.cdr.markForCheck();
           this.closeCreateDailyModal();
         },
         error: (err) => {
@@ -364,6 +376,7 @@ export class WorkoutPlannerComponent implements OnInit {
             this.dailyPlanners = this.dailyPlanners.filter(p => p.id !== id);
           }
           this.notification.success(CONSTANTS.WORKOUT_PLANNER_MODULE.DELETE_SUCCESS);
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.DELETE_ERROR);
@@ -407,6 +420,7 @@ export class WorkoutPlannerComponent implements OnInit {
           this.splitPlanners = [...this.splitPlanners];
           this.weeklyPlanners = [...this.weeklyPlanners];
           this.dailyPlanners = [...this.dailyPlanners];
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.notification.error(CONSTANTS.WORKOUT_PLANNER_MODULE.PLAN_SAVE_ERROR);

@@ -87,9 +87,9 @@ namespace GymForge.Api.Controllers
                 TokenResponseDto response = await _authService.RefreshTokenAsync(dto);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return Unauthorized(new { message = ex.Message });
             }
         }
 

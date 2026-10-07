@@ -24,7 +24,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   return next(authReq).pipe(
     catchError((error) => {
-      const isAuthRequest = req.url.includes('/auth/login') || req.url.includes('/auth/refresh');
+      const isAuthRequest = req.url.includes('/auth/login') || req.url.includes('/auth/refresh') || req.url.includes('/auth/logout');
       
       if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest) {
         return handle401Error(authService, authReq, next);
@@ -39,6 +39,11 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     })
   );
 };
+
+function isSessionRejected(err: unknown, authService: AuthApiService): boolean {
+  if (!authService.getRefreshToken()) return true;
+  return err instanceof HttpErrorResponse && err.status === 401;
+}
 
 function handle401Error(authService: AuthApiService, request: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> {
   if (!isRefreshing) {
@@ -60,7 +65,9 @@ function handle401Error(authService: AuthApiService, request: HttpRequest<any>, 
       catchError((err) => {
         isRefreshing = false;
         refreshFailedSubject.next(err);
-        authService.logout();
+        if (isSessionRejected(err, authService)) {
+          authService.logout();
+        }
         return throwError(() => err);
       })
     );

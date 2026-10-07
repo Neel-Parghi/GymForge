@@ -162,7 +162,7 @@ export class AuthApiService extends BaseApiService {
     sessionStorage.removeItem('userProfile');
     sessionStorage.removeItem(this.persistenceKey);
     this.userProfileSubject.next(null);
-    this.router.navigate(['/login']);
+    window.location.replace('/login');
   }
 
   private clearRefreshTimer() {

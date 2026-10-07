@@ -7,5 +7,6 @@ namespace GymForge.Application.Modules.Auth.Interface
     {
         TokenResponseDto GenerateToken(User user, Guid? branchId = null);
         string GenerateRefreshToken();
+        DateTime GetRefreshTokenExpiry();
     }
 }
