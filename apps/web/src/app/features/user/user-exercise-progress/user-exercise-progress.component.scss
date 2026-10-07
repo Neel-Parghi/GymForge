@@ -12,11 +12,19 @@
 .page-head {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-height: 56px;
 
   h1 {
     @include m.page-title(true);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @include m.from-tablet {
+    gap: 12px;
   }
 }
 
@@ -28,9 +36,27 @@
 // Entry points to the set-by-set breakdown views.
 .head-link {
   @include m.secondary-button;
+  flex-shrink: 0;
   margin-left: auto;
-  padding: 0 12px;
+  padding: 0 10px;
+  white-space: nowrap;
   text-decoration: none;
+
+  .label-long {
+    display: none;
+  }
+
+  @include m.from-tablet {
+    padding: 0 12px;
+
+    .label-long {
+      display: inline;
+    }
+
+    .label-short {
+      display: none;
+    }
+  }
 }
 
 .log-head {

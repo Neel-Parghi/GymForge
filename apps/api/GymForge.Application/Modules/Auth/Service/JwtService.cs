@@ -12,6 +12,9 @@ namespace GymForge.Application.Modules.Auth.Service
 {
     public class JwtService : IJwtService
     {
+        private const int DefaultAccessTokenMinutes = 15;
+        private const int DefaultRefreshTokenDays = 30;
+
         private readonly IConfiguration _config;
 
         public JwtService(IConfiguration config)
@@ -43,7 +46,7 @@ namespace GymForge.Application.Modules.Auth.Service
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(15),
+                expires: DateTime.UtcNow.AddMinutes(ReadPositiveInt("Jwt:AccessTokenExpiryMinutes", DefaultAccessTokenMinutes)),
                 signingCredentials: creds
             );
 
@@ -60,6 +63,16 @@ namespace GymForge.Application.Modules.Auth.Service
             using RandomNumberGenerator rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
+        }
+
+        public DateTime GetRefreshTokenExpiry()
+        {
+            return DateTime.UtcNow.AddDays(ReadPositiveInt("Jwt:RefreshTokenExpiryDays", DefaultRefreshTokenDays));
+        }
+
+        private int ReadPositiveInt(string key, int fallback)
+        {
+            return int.TryParse(_config[key], out int value) && value > 0 ? value : fallback;
         }
     }
 }

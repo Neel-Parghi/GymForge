@@ -11,11 +11,12 @@ namespace GymForge.Infrastructure.Repositories
     {
         private readonly AppDbContext _dbContext;
 
-        private const double StrengthMinutesPerSet = 3.0;
-        private const double CardioMinutesPerSet = 8.0;
-        private const double StrengthCaloriesPerMinute = 6.0;
-        private const double CardioCaloriesPerMinute = 10.0;
-        private const double VolumeCalorieFactor = 0.01; // kcal per (kg lifted * rep) of logged volume
+        private const double StrengthMinutesPerSet = 3.0;     
+        private const double CardioFallbackMinutes = 10.0;
+        private const double CardioMaxMinutesPerSet = 180.0;  
+        private const double StrengthMet = 5.0;               
+        private const double CardioMet = 7.0;                 
+        private const double DefaultBodyWeightKg = 70.0;
 
         // Muscle recovery window constants
         private const double DefaultRecoveryHours = 48;
@@ -208,18 +209,19 @@ namespace GymForge.Infrastructure.Repositories
                 .Where(e => !e.Skipped)
                 .SelectMany(e => e.LoggedSets
                     .Where(s => s.Completed)
-                    .Select(s => new { e.IsCardio, s.Weight, s.Reps }))
+                    .Select(s => new { e.IsCardio, s.Reps }))
                 .ToListAsync();
 
-            double cardioMinutes = todaySets.Count(s => s.IsCardio) * CardioMinutesPerSet;
+            // Cardio sets log their duration in minutes in the Reps field.
+            double cardioMinutes = todaySets
+                .Where(s => s.IsCardio)
+                .Sum(s => s.Reps > 0 ? Math.Min(s.Reps, CardioMaxMinutesPerSet) : CardioFallbackMinutes);
             double strengthMinutes = todaySets.Count(s => !s.IsCardio) * StrengthMinutesPerSet;
-            double volumeBonusCalories = todaySets.Sum(s => s.Weight * s.Reps) * VolumeCalorieFactor;
+            double bodyWeightKg = latestMeasurement?.Weight is double w && w > 0 ? w : DefaultBodyWeightKg;
 
             summary.ActiveTrainingTimeMinutes = (int)Math.Round(cardioMinutes + strengthMinutes);
             summary.CaloriesBurnedToday = (int)Math.Round(
-                (cardioMinutes * CardioCaloriesPerMinute) +
-                (strengthMinutes * StrengthCaloriesPerMinute) +
-                volumeBonusCalories);
+                bodyWeightKg * ((CardioMet * cardioMinutes) + (StrengthMet * strengthMinutes)) / 60.0);
 
             (int streak, bool streakAtRisk) = await CalculateWorkoutStreakAsync(userId, today);
             summary.WorkoutStreak = streak;

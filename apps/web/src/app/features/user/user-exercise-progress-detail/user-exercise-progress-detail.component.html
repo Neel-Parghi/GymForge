@@ -1,6 +1,7 @@
 <div class="progress-page">
   <header class="page-head">
-    <a class="icon-btn" routerLink="/user/exercise-progress/breakdown" aria-label="Back to muscle groups">
+    <a class="icon-btn" routerLink="/user/exercise-progress/breakdown" [queryParams]="{ group: progress()?.muscleGroup || null }"
+      aria-label="Back to muscle groups">
       <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
     </a>
     <div class="head-text">
@@ -140,7 +141,7 @@
                           {{ col.date | date: 'd' }}<small>{{ col.date | date: 'MMM' }}</small>
                         </span>
                         @for (cell of col.cells; track $index) {
-                          <span class="cell" [class.pr]="cell.isPr" [class.empty]="cell.isEmpty" [class.latest]="col.isLatest">
+                          <span class="cell" [class.pr]="cell.isPr" [class.no-set]="cell.isEmpty" [class.latest]="col.isLatest">
                             <strong>{{ cell.weight }}</strong>
                             <small>{{ cell.reps }}</small>
                           </span>

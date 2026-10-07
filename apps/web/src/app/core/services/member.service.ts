@@ -9,6 +9,7 @@ import { DietPlanDto, MemberDietAssignmentDto } from '../../shared/models/diet-p
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { PagedResponse } from '../../shared/models/paged-response.model';
 import { BranchContextService } from './branch-context.service';
+import { WorkoutProgressService } from './workout-progress.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class MemberService extends BaseApiService {
 
   private authService = inject(AuthApiService);
   private branchContextService = inject(BranchContextService);
+  private workoutProgressService = inject(WorkoutProgressService);
   private membersListCache = new Map<string, Observable<ApiResponse<PagedResponse<GymMember>>>>();
   private memberCache = new Map<string, Observable<ApiResponse<GymMember>>>();
   private historyCache = new Map<string, Observable<ApiResponse<MemberSubscription[]>>>();
@@ -217,6 +219,7 @@ export class MemberService extends BaseApiService {
     return this.post<ApiResponse<WorkoutSessionLogDto>>(API_CONSTANTS.MEMBERS.WORKOUT_LOGS.replace('{memberId}', memberId), payload).pipe(
       tap(() => {
         this.workoutLogsCache.delete(memberId);
+        this.workoutProgressService.clearCache();
       })
     );
   }
