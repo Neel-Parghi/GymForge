@@ -318,6 +318,31 @@
   }
 }
 
+@mixin thin-scrollbar($size: 6px) {
+  &::-webkit-scrollbar {
+    width: $size;
+    height: $size;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--m-line);
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--m-muted);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--m-line) transparent;
+  }
+}
+
 @mixin sheet-backdrop {
   position: fixed;
   inset: 0;
@@ -358,16 +383,16 @@
 
   @include from-tablet {
     --sheet-top: max(24px, 8vh);
-    left: 50%;
-    right: auto;
+    left: 0;
+    right: 0;
     bottom: auto;
     top: var(--sheet-top);
+    margin-inline: auto;
     width: min(480px, calc(100vw - 48px));
     max-height: calc(100vh - 2 * var(--sheet-top));
     max-height: calc(100dvh - 2 * var(--sheet-top));
     padding: 20px 24px 24px;
     border-radius: var(--m-radius-lg);
-    transform: translateX(-50%);
     animation: none;
   }
 }

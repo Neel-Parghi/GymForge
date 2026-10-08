@@ -1,0 +1,276 @@
+@use 'member' as m;
+
+:host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.buddy {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mascot {
+  all: unset;
+  display: block;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 100%;
+  animation: buddy-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both, buddy-bob 3s ease-in-out 0.8s infinite;
+
+  &:focus-visible {
+    outline: 2px solid var(--m-energy);
+    outline-offset: 2px;
+  }
+
+  &.hop {
+    animation: buddy-hop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    .arm {
+      animation: buddy-wave 0.3s ease-in-out 2;
+    }
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  // The 3D buddy animates itself, so it is a bit bigger and sits a little proud of the row.
+  &.is-3d {
+    width: 108px;
+    height: 108px;
+    margin: -20px -8px -26px 0;
+    border-radius: 24px;
+    animation: none;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.handle,
+.arm path {
+  fill: none;
+  stroke: var(--m-navy);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.arm path {
+  stroke-width: 4;
+}
+
+.arm {
+  transform-box: fill-box;
+}
+
+.arm-left {
+  transform-origin: 100% 100%;
+}
+
+.arm-right {
+  transform-origin: 0% 100%;
+}
+
+.body {
+  fill: var(--m-energy);
+}
+
+.shine {
+  fill: #ffffff;
+  opacity: 0.35;
+}
+
+.eyes ellipse {
+  fill: var(--m-navy);
+}
+
+.eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: buddy-blink 4.5s infinite;
+}
+
+.blush {
+  fill: #ffffff;
+  opacity: 0.4;
+}
+
+.mouth {
+  fill: none;
+  stroke: var(--m-navy);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.band {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  display: none;
+}
+
+// Little mood touches per day state.
+.mascot[data-state='done'] .band {
+  display: block;
+}
+
+.mascot[data-state='rest'] .eyes {
+  animation: none;
+  transform: scaleY(0.25);
+}
+
+.visually-hidden {
+  @include m.visually-hidden;
+}
+
+// Compact speech bubble with a tail pointing at the buddy.
+.bubble {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  max-width: 200px;
+  padding: 7px 11px;
+  border: 1px solid var(--m-line);
+  border-radius: 14px;
+  background: var(--m-surface);
+  color: var(--m-ink);
+  font-family: var(--m-font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(10, 31, 68, 0.12);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(8px, -50%) scale(0.85);
+  transform-origin: 100% 50%;
+  transition: opacity 0.18s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    background: var(--m-surface);
+    border-top: 1px solid var(--m-line);
+    border-right: 1px solid var(--m-line);
+    border-radius: 0 2px 0 0;
+    transform: rotate(45deg);
+  }
+
+  &.open {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translate(0, -50%) scale(1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--m-energy);
+    outline-offset: 2px;
+  }
+
+  // The 3D canvas has transparent room around the character, so tuck the bubble into it.
+  .buddy.is-3d & {
+    right: calc(100% - 16px);
+  }
+}
+
+.bubble-icon {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--m-energy);
+}
+
+@keyframes buddy-pop {
+  from {
+    opacity: 0;
+    transform: translateY(40%) scale(0.4);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes buddy-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-3px) rotate(-3deg);
+  }
+}
+
+@keyframes buddy-hop {
+  0% {
+    transform: none;
+  }
+
+  30% {
+    transform: translateY(-14px) scale(0.95, 1.08);
+  }
+
+  60% {
+    transform: translateY(0) scale(1.1, 0.88);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes buddy-wave {
+  50% {
+    transform: rotate(-25deg);
+  }
+}
+
+@keyframes buddy-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot,
+  .mascot.hop,
+  .mascot.hop .arm,
+  .eyes {
+    animation: none;
+  }
+
+  .bubble {
+    transition: opacity 0.2s ease;
+  }
+
+}

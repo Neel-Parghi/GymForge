@@ -63,6 +63,21 @@ export interface UserDashboardSummary {
 
 export type WorkoutState = 'none' | 'rest' | 'done' | 'ready';
 
+export interface BuddyFacts {
+  firstName: string;
+  isFirstTime: boolean;
+  state: WorkoutState | null;
+  workoutTitle: string;
+  streak: number;
+  streakAtRisk: boolean;
+  monthlyCount: number;
+  monthlyTarget: number;
+  topRecord: { name: string; weight: string } | null;
+  caloriesLeft: number | null;
+  readyMuscle: string | null;
+  goalTitle: string;
+}
+
 export interface TodayWorkout {
   state: WorkoutState;
   planName: string;
