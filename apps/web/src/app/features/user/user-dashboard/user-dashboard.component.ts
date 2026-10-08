@@ -17,8 +17,9 @@ import { ActivePlanView, WorkoutSessionLogDto } from '../../../shared/models/wor
 import { exerciseSetCount, resolveScheduledDay, startOfWeek, toDateKey } from '../../../shared/utils/workout-schedule';
 import { mealTimeToMinutes } from '../../../shared/utils/meal-time';
 import { NUTRITION_TARGET_FALLBACK, percentOf } from '../../../shared/utils/nutrition';
+import { GymBuddyComponent } from './components/gym-buddy/gym-buddy.component';
 import {
-  ActivityRing, DailyRoutineItem, MacroProgress, NutritionToday, RoutineForm, TodayWorkout,
+  ActivityRing, BuddyFacts, DailyRoutineItem, MacroProgress, NutritionToday, RoutineForm, TodayWorkout,
   UserDashboardSummary, WeekDay, WeekDayState
 } from '../../../core/models/user-dashboard.model';
 
@@ -29,7 +30,7 @@ const ROUTINE_PREVIEW = 5;
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, DragDropModule],
+  imports: [DatePipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -119,6 +120,27 @@ export class UserDashboardComponent implements OnInit {
       };
     })
   );
+
+  /** Everything the gym buddy can bring up in its speech bubble. */
+  readonly buddyFacts = computed<BuddyFacts>(() => {
+    const s = this.summary();
+    const workout = this.todayWorkout();
+    const top = this.prTiles()[0];
+    return {
+      firstName: this.userName().split(' ')[0],
+      isFirstTime: this.isFirstTime(),
+      state: workout?.state ?? null,
+      workoutTitle: workout?.title ?? '',
+      streak: s?.workoutStreak ?? 0,
+      streakAtRisk: !!s?.streakAtRisk,
+      monthlyCount: s?.monthlySessionCount ?? 0,
+      monthlyTarget: s?.monthlySessionTarget ?? 0,
+      topRecord: top ? { name: top.name, weight: top.weight } : null,
+      caloriesLeft: this.nutrition()?.left ?? null,
+      readyMuscle: s?.muscleRecovery?.find(m => m.status === 'Ready')?.name ?? null,
+      goalTitle: this.goalTitle()
+    };
+  });
 
   readonly doneRoutineCount = computed(() => this.routines().filter(r => r.completed).length);
 

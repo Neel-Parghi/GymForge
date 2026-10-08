@@ -1,0 +1,36 @@
+<div class="buddy" [class.is-3d]="use3d()">
+  <button type="button" class="bubble" [class.open]="bubbleOpen()" [attr.tabindex]="bubbleOpen() ? 0 : -1"
+    [attr.aria-hidden]="!bubbleOpen()" (click)="poke()" aria-label="Next pep talk">
+    <i class="fa-solid bubble-icon" [class]="line().icon" aria-hidden="true"></i>
+    <span class="bubble-text" aria-hidden="true">{{ line().text }}</span>
+  </button>
+  <span class="visually-hidden" role="status" aria-live="polite">{{ bubbleOpen() ? line().text : '' }}</span>
+
+  <button type="button" class="mascot" [class.is-3d]="use3d()" [class.hop]="hopping() && !use3d()"
+    [attr.data-state]="state() ?? 'loading'" (click)="poke()" aria-label="Forgie, your gym buddy. Tap for a pep talk">
+    @if (use3d()) {
+      <canvas #canvas aria-hidden="true"></canvas>
+    } @else {
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <!-- handle -->
+        <path class="handle" d="M20 26 V18 a12 12 0 0 1 24 0 V26" />
+        <!-- arms -->
+        <g class="arm arm-left"><path d="M12 40 q-6 -2 -7 -9" /></g>
+        <g class="arm arm-right"><path d="M52 40 q6 -2 7 -9" /></g>
+        <!-- body -->
+        <ellipse class="body" cx="32" cy="41" rx="21" ry="19" />
+        <ellipse class="shine" cx="23" cy="32" rx="5" ry="3" transform="rotate(-25 23 32)" />
+        <!-- face -->
+        <g class="eyes">
+          <ellipse cx="25" cy="40" rx="2.6" ry="3.2" />
+          <ellipse cx="39" cy="40" rx="2.6" ry="3.2" />
+        </g>
+        <ellipse class="blush" cx="19.5" cy="46" rx="3" ry="1.8" />
+        <ellipse class="blush" cx="44.5" cy="46" rx="3" ry="1.8" />
+        <path class="mouth" d="M28 46 q4 4 8 0" />
+      <!-- sweatband, shown once the day's workout is done -->
+      <path class="band" d="M14 33 q18 -9 36 0" />
+    </svg>
+    }
+  </button>
+</div>
