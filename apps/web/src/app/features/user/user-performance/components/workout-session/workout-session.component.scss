@@ -6,6 +6,10 @@
 
 :host {
   display: block;
+
+  @include m.from-desktop {
+    height: 100%;
+  }
 }
 
 .session {
@@ -16,6 +20,23 @@
 
   @include bp.tablet {
     padding-bottom: 100px;
+  }
+
+  // Fixed-height screen: header stays put, the set list scrolls inside the console.
+  // The min-height keeps very short windows usable by falling back to page scroll.
+  @include m.from-desktop {
+    height: 100%;
+    min-height: 560px;
+
+    > .topbar,
+    > .backdate-note {
+      flex: none;
+    }
+
+    > .workspace {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
   }
 }
 
@@ -244,6 +265,7 @@
   @include m.from-desktop {
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     align-items: stretch;
     border: 1px solid var(--m-line);
     border-radius: var(--m-radius-lg);
@@ -263,6 +285,9 @@
     padding: 16px 12px;
     border-right: 1px solid var(--m-line);
     background: var(--slate-50);
+    min-height: 0;
+    overflow-y: auto;
+    @include m.thin-scrollbar;
   }
 }
 
@@ -385,7 +410,8 @@
   @include m.from-desktop {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    align-content: start;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    min-height: 0;
     column-gap: 16px;
     row-gap: 18px;
     padding: 22px 24px;
@@ -532,6 +558,27 @@ $cols-tablet: 64px minmax(60px, 1fr) minmax(150px, 180px) minmax(150px, 180px) 1
     padding: 0;
     box-shadow: none;
     background: transparent;
+    align-self: start;
+    max-height: 100%;
+    min-height: 0;
+
+    > .sets-toolbar,
+    > .add-set {
+      flex: none;
+    }
+
+    > .sets-table {
+      flex: 0 1 auto;
+      min-height: 0;
+    }
+
+    .set-list {
+      flex: 0 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      @include m.thin-scrollbar;
+    }
   }
 }
 
@@ -984,6 +1031,20 @@ $cols-tablet: 64px minmax(60px, 1fr) minmax(150px, 180px) minmax(150px, 180px) 1
     border-color: var(--m-navy);
     box-shadow: inset 0 0 0 1px var(--m-navy);
   }
+}
+
+.day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 6px;
+  border-top: 1px solid var(--m-line);
+}
+
+.day-group-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 800;
 }
 
 .name-field {

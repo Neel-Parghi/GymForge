@@ -8,12 +8,13 @@ import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } fr
 import { FIELD_LIMITS } from '../../../../../shared/constants/validation.constants';
 import { catchError, map, of } from 'rxjs';
 import { WorkoutMasterService } from '../../../../../core/services/workout-master.service';
+import { WorkoutPlanService } from '../../../../../core/services/workout-plan.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { ConfirmationService } from '../../../../../core/services/confirmation.service';
 import { CONSTANTS } from '../../../../../core/constants/constants';
 import { DropdownComponent } from '../../../../../shared/components/dropdown/dropdown.component';
 import { DropdownOption } from '../../../../../shared/models/dropdown.model';
-import { WorkoutSessionLogDto } from '../../../../../shared/models/workout-plan.model';
+import { DailyPlanner, WorkoutSessionLogDto } from '../../../../../shared/models/workout-plan.model';
 import { SET_LIMITS, clampSetValue, isCardioExercise } from '../../../../../shared/utils/workout-session';
 import { exerciseSetCount, toDateKey } from '../../../../../shared/utils/workout-schedule';
 import { LastPerformance, PlanDayOption, SessionExerciseForm, SessionExerciseValue, SessionSetForm, SessionSetValue, SessionSheet, SessionWorkoutInput, SessionWorkoutResult, SetField } from '../../../../../shared/models/workout-session.model';
@@ -34,6 +35,7 @@ export class WorkoutSessionComponent {
   readonly limits = FIELD_LIMITS;
 
   private workoutMasterService = inject(WorkoutMasterService);
+  private workoutPlanService = inject(WorkoutPlanService);
   private notification = inject(NotificationService);
   private confirmation = inject(ConfirmationService);
 
@@ -56,14 +58,36 @@ export class WorkoutSessionComponent {
     { initialValue: [] as SessionExerciseValue[] }
   );
 
+  readonly dailyPlans = toSignal(
+    this.workoutPlanService.getPlans('Daily').pipe(
+      map(plans => (plans as DailyPlanner[]).map(p => ({
+        dayName: p.name,
+        category: p.targetCategory,
+        exercises: p.exercises
+      }) as PlanDayOption)),
+      catchError(() => of([] as PlanDayOption[]))
+    ),
+    { initialValue: [] as PlanDayOption[] }
+  );
+
+  readonly extraDays = computed(() => {
+    const taken = new Set(this.planDays().map(d => d.dayName));
+    return this.dailyPlans().filter(d => !taken.has(d.dayName));
+  });
+
   readonly dayControl = new FormControl<string | null>(null);
-  readonly dayOptions = computed<DropdownOption[]>(() =>
-    this.planDays().map(d => ({
+  readonly dayOptions = computed<DropdownOption[]>(() => [
+    ...this.planDays().map(d => ({
       label: d.category && !d.isRestDay ? `${d.dayName} · ${d.category}` : d.dayName,
       value: d.dayName,
       icon: 'fa-solid fa-calendar-day'
+    })),
+    ...this.extraDays().map(d => ({
+      label: `${d.dayName} · Daily plan`,
+      value: d.dayName,
+      icon: 'fa-solid fa-bolt'
     }))
-  );
+  ]);
 
   readonly exerciseNameControl = new FormControl('', { nonNullable: true, validators: [Validators.maxLength(FIELD_LIMITS.SHORT_TEXT)] });
   readonly useCustomName = signal(false);
@@ -339,7 +363,7 @@ export class WorkoutSessionComponent {
 
   /** Switches plan day, asking first when sets have already been ticked. */
   async pickDay(name: string | null): Promise<void> {
-    const day = this.planDays().find(d => d.dayName === name);
+    const day = this.planDays().find(d => d.dayName === name) ?? this.extraDays().find(d => d.dayName === name);
     if (!day || day.dayName === this.plainDayName(this.dayName())) return;
 
     if (this.completedSetCount() > 0) {

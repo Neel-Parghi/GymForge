@@ -154,9 +154,9 @@
                   <span class="col-remove">Remove</span>
                 </div>
 
-                <ul class="set-list" formArrayName="sets">
+                <ul class="set-list">
                   @for (set of ex.sets; track $index; let si = $index) {
-                    <li class="set-row" [formGroupName]="si" [class.done]="set.completed">
+                    <li class="set-row" [formGroup]="setForm(currentIndex(), si)" [class.done]="set.completed">
                       <span class="set-badge"><span class="set-word">Set </span>{{ set.setNo }}</span>
                       <span class="col-target target">{{ set.target || '-' }}</span>
 
@@ -296,7 +296,7 @@
         <ng-container *ngTemplateOutlet="exerciseList"></ng-container>
         <div class="sheet-row">
           <button type="button" class="btn-outline" (click)="openSheet('add')"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add exercise</button>
-          @if (planDays().length) {
+          @if (dayOptions().length) {
             <button type="button" class="btn-outline" (click)="openSheet('days')"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Switch day</button>
           }
         </div>
@@ -320,6 +320,25 @@
             </li>
           }
         </ul>
+        @if (extraDays().length) {
+          <div class="day-group">
+            <h3 class="day-group-title">Daily plans</h3>
+            <p class="sheet-note">Train one of these today only. Your assigned plan stays as it is.</p>
+          </div>
+          <ul class="day-list">
+            @for (d of extraDays(); track d.dayName) {
+              <li>
+                <button type="button" class="day-row" [class.current]="d.dayName === dayControl.value" (click)="closeSheet(); pickDay(d.dayName)">
+                  <span class="ex-row-text">
+                    <span class="ex-row-name">{{ d.dayName }}</span>
+                    <span class="ex-row-meta">{{ d.category ? d.category + ' · ' : '' }}{{ d.exercises?.length || 0 }} exercises</span>
+                  </span>
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
       }
 
       @default {
