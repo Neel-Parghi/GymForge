@@ -97,7 +97,7 @@
           <i class="fa-solid fa-wallet"></i>
         </div>
         <span class="stat-badge-trend" [ngClass]="(stats?.revenueTrendPercentage || 0) >= 0 ? 'positive' : 'negative'">
-          {{ (stats?.revenueTrendPercentage || 0) >= 0 ? '+' : '' }}{{ stats?.revenueTrendPercentage }}%
+          {{ (stats?.revenueTrendPercentage || 0) >= 0 ? '+' : '' }}{{ stats?.revenueTrendPercentage | number:'1.0-2' }}%
         </span>
       </div>
       <div class="stat-card-mid">
@@ -127,7 +127,7 @@
           +{{ stats?.memberGrowthPercentage || 0 }}% growth
         </span>
         <span class="stat-badge-trend negative" *ngIf="(stats?.memberGrowthPercentage || 0) < 0">
-          {{ stats?.memberGrowthPercentage }}% growth
+          {{ stats?.memberGrowthPercentage | number:'1.0-2' }}% growth
         </span>
       </div>
       <div class="stat-card-mid">
@@ -315,7 +315,7 @@
                 [style.box-shadow]="'0 0 8px ' + item.color + '40'"></span>
               <span class="label">{{ item.tierName }}</span>
             </div>
-            <span class="value">{{ item.percentage }}%</span>
+            <span class="value">{{ item.percentage | number:'1.0-2' }}%</span>
           </div>
         </div>
       </div>

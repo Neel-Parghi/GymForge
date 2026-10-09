@@ -419,7 +419,7 @@
         <ng-template gridCell="hoursWorkedLabel" let-row>
           <span class="duration-badge" [class.active]="row.checkOutTime === null"
             [class.staff-completed]="row.checkOutTime !== null">
-            <i class="fa-solid fa-stopwatch"></i> {{ row.checkOutTime ? (row.hoursWorked + ' hrs') : 'On Floor' }}
+            <i class="fa-solid fa-stopwatch"></i> {{ row.checkOutTime ? ((row.hoursWorked | number:'1.0-2') + ' hrs') : 'On Floor' }}
           </span>
         </ng-template>
 

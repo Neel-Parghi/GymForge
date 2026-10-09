@@ -61,7 +61,7 @@
               <td>
                 <span class="desc">{{ payment.planNameSnapshot || 'Plan Subscription' }}</span>
               </td>
-              <td class="amount-cell">₹{{ payment.pricePaid }}</td>
+              <td class="amount-cell">₹{{ payment.pricePaid | number:'1.0-2' }}</td>
               <td>
                 {{ payment.durationMonths }} Months
                 @if (payment.extendedMonths > 0) {
@@ -116,7 +116,7 @@
         <p class="plan-description">{{ plan.description }}</p>
         <div class="plan-price-wrapper">
           <span class="currency">₹</span>
-          <span class="amount">{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price }}</span>
+          <span class="amount">{{ (plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price) | number:'1.0-2' }}</span>
           <span class="duration">/ {{ plan.durationMonths }} mo</span>
         </div>
 

@@ -1,6 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, distinctUntilChanged, filter, forkJoin, map, of } from 'rxjs';
 import { WorkoutSessionComponent } from './components/workout-session/workout-session.component';
 import { SessionWorkoutResult } from '../../../shared/models/workout-session.model';
 import { MemberService } from '../../../core/services/member.service';
@@ -21,6 +23,7 @@ export class UserPerformanceComponent implements OnInit {
   private authService = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   todayWorkout: any = null;
   activeSplit: any = null;
@@ -40,51 +43,53 @@ export class UserPerformanceComponent implements OnInit {
       this.loggingDate = new Date(this.routerState.sessionToEdit.date);
     }
 
-    this.authService.userProfile$.subscribe(profile => {
-      if (profile) {
-        this.userId = profile.id;
-        this.loadActivePlanAndWorkoutLogs();
-      }
+    // Only reload when the user actually changes; a profile refresh must not reset an open session.
+    this.authService.userProfile$.pipe(
+      map(profile => profile?.id),
+      filter((id): id is string => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(id => {
+      this.userId = id;
+      this.loadActivePlanAndWorkoutLogs();
     });
   }
 
+  /**
+   * Loads the plan and logs together and builds the session once. Building it per response
+   * handed the session a fresh workout mid-workout, wiping swaps/added exercises back to the plan.
+   */
   loadActivePlanAndWorkoutLogs(): void {
-    this.memberService.getActivePlan(this.userId).subscribe({
-      next: (res: any) => {
-        const plan = res?.data;
-        if (plan) {
-          this.activeSplit = {
-            planName: plan.name,
-            days: (plan.days || []).map((d: any) => ({
-              id: d.id,
-              dayName: d.isRestDay ? `${d.dayName || ('Day ' + d.dayIndex)} - Rest Day` : (d.dayName || ('Day ' + d.dayIndex)),
-              isRestDay: d.isRestDay,
-              category: d.category || '',
-              exercises: (d.exercises || []).map((ex: any) => ({
-                name: ex.exerciseName,
-                sets: ex.sets,
-                reps: ex.reps,
-                notes: ex.notes || ''
-              }))
-            }))
-          };
-          this.initializeTodayWorkout();
-        } else {
-          this.activeSplit = null;
-          this.todayWorkout = null;
-        }
-      },
-      error: () => {
-        this.activeSplit = null;
-        this.todayWorkout = null;
+    forkJoin({
+      plan: this.memberService.getActivePlan(this.userId).pipe(catchError(() => of(null))),
+      logs: this.memberService.getWorkoutLogs(this.userId).pipe(catchError(() => of(null)))
+    }).subscribe(({ plan: planRes, logs }: { plan: any; logs: any }) => {
+      if (logs) {
+        this.workoutHistory = logs.data || [];
       }
-    });
 
-    this.memberService.getWorkoutLogs(this.userId).subscribe({
-      next: (res: any) => {
-        this.workoutHistory = res?.data || [];
-        this.initializeTodayWorkout();
+      const plan = planRes?.data;
+      if (plan) {
+        this.activeSplit = {
+          planName: plan.name,
+          days: (plan.days || []).map((d: any) => ({
+            id: d.id,
+            dayName: d.isRestDay ? `${d.dayName || ('Day ' + d.dayIndex)} - Rest Day` : (d.dayName || ('Day ' + d.dayIndex)),
+            isRestDay: d.isRestDay,
+            category: d.category || '',
+            exercises: (d.exercises || []).map((ex: any) => ({
+              name: ex.exerciseName,
+              sets: ex.sets,
+              reps: ex.reps,
+              notes: ex.notes || ''
+            }))
+          }))
+        };
+      } else {
+        this.activeSplit = null;
       }
+
+      this.initializeTodayWorkout();
     });
   }
 

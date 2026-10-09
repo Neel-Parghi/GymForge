@@ -44,7 +44,7 @@
                   stroke-dasharray="377" [attr.stroke-dashoffset]="getProteinOffset()" stroke-linecap="round"></circle>
               </svg>
               <div class="donut-content">
-                <span class="val">{{ activeDiet.calories }}</span>
+                <span class="val">{{ activeDiet.calories | number:'1.0-2' }}</span>
                 <span class="lbl">TOTAL KCAL</span>
               </div>
             </div>
@@ -54,7 +54,7 @@
               [attr.aria-expanded]="macrosExpanded">
               <span class="summary-row">
                 <i class="fa-solid fa-fire"></i>
-                <span class="val">{{ activeDiet.calories }}</span>
+                <span class="val">{{ activeDiet.calories | number:'1.0-2' }}</span>
                 <span class="lbl">total kcal</span>
                 <i class="fa-solid fa-chevron-down toggle-caret" [class.rotated]="macrosExpanded"></i>
               </span>
@@ -118,8 +118,8 @@
                   <h4>{{ getMealTitle(m) }}</h4>
                 </div>
                 <div class="meal-badge-row">
-                  <span class="meal-cal-badge kcal">{{ m.calories }} kcal</span>
-                  <span class="meal-cal-badge protein" *ngIf="m.protein">{{ m.protein }}g protein</span>
+                  <span class="meal-cal-badge kcal">{{ m.calories | number:'1.0-2' }} kcal</span>
+                  <span class="meal-cal-badge protein" *ngIf="m.protein">{{ m.protein | number:'1.0-2' }}g protein</span>
                 </div>
               </div>
               <p class="meal-items-text" *ngIf="m.items">{{ m.items }}</p>
@@ -140,7 +140,7 @@
         <div class="meal-plan-card" *ngFor="let entry of dietLog.mealEntries">
           <div class="meal-card-top">
             <h4><i class="fa-solid fa-check-circle icon-success-mr"></i>{{ entry.mealType }}: {{ entry.foodName }}</h4>
-            <span class="meal-cal-badge">{{ entry.calories }} kcal | {{ entry.protein }}g P</span>
+            <span class="meal-cal-badge">{{ entry.calories | number:'1.0-2' }} kcal | {{ entry.protein | number:'1.0-2' }}g P</span>
           </div>
         </div>
       </div>

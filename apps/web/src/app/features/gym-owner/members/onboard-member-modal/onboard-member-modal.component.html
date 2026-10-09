@@ -228,7 +228,7 @@
               <input type="number" formControlName="amountPaid" min="0.01" [max]="selectedPlanPrice" step="0.01"
                 placeholder="e.g. 1500" [class.error]="isInvalid('amountPaid')">
               <span class="error-msg" *ngIf="isInvalid('amountPaid')">
-                Enter an amount between ₹0.01 and ₹{{ selectedPlanPrice }} (the full plan price).
+                Enter an amount between ₹0.01 and ₹{{ selectedPlanPrice | number:'1.0-2' }} (the full plan price).
               </span>
               <span class="hint-msg" *ngIf="!isInvalid('amountPaid') && selectedPlanPrice > 0">
                 Balance of ₹{{ selectedPlanPrice - (form.get('amountPaid')?.value || 0) | number:'1.2-2' }} will

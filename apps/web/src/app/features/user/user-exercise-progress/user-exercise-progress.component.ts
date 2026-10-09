@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -25,7 +25,7 @@ const CHART = {
 @Component({
   selector: 'app-user-exercise-progress',
   standalone: true,
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, BaseChartDirective, DropdownComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, ReactiveFormsModule, BaseChartDirective, DropdownComponent],
   templateUrl: './user-exercise-progress.component.html',
   styleUrl: './user-exercise-progress.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

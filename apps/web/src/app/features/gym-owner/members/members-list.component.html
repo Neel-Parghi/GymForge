@@ -98,7 +98,7 @@
           <h3>Renewal Funnel</h3>
           <p class="subtitle">Monthly subscription conversion</p>
         </div>
-        <span class="badge-rate success">{{ funnelData.conversionRate }}% Rate</span>
+        <span class="badge-rate success">{{ funnelData.conversionRate | number:'1.0-2' }}% Rate</span>
       </div>
       <div class="widget-content funnel-container">
         <ng-container *ngIf="funnelData.expired > 0; else emptyFunnel">

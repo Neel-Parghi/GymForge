@@ -298,7 +298,7 @@
                     <p class="plan-description">{{ plan.description || 'Access to premium core features' }}</p>
                     <div class="plan-price">
                       <span class="currency">₹</span>
-                      <span class="amount">{{ plan.price }}</span>
+                      <span class="amount">{{ plan.price | number:'1.0-2' }}</span>
                       <span class="duration">/ {{ plan.durationInDays }} days</span>
                     </div>
                   </div>

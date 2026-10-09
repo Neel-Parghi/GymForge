@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -30,7 +30,7 @@ const ROUTINE_PREVIEW = 5;
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

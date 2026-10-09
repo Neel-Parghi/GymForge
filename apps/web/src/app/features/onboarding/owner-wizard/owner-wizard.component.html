@@ -343,7 +343,7 @@
                     }
                     <div class="plan-header">
                       <h3>{{ plan.name }}</h3>
-                      <div class="price">₹{{ plan.price }}<span>/month</span></div>
+                      <div class="price">₹{{ plan.price | number:'1.0-2' }}<span>/month</span></div>
                     </div>
                     <ul class="plan-features">
                       <li>Up to {{ plan.maxBranches || 'Unlimited' }} Branches</li>
@@ -385,7 +385,7 @@
                   <h4>3. Subscription Plan</h4>
                   <div class="summary-grid">
                     <div><span>Plan:</span> {{ getSelectedPlanName() }}</div>
-                    <div><span>Price:</span> ₹{{ getSelectedPlanPrice() }}/month</div>
+                    <div><span>Price:</span> ₹{{ getSelectedPlanPrice() | number:'1.0-2' }}/month</div>
                   </div>
                 </div>
               </div>
@@ -396,8 +396,7 @@
               <div class="step-pane payment-pane">
                 <h2>Complete Your Subscription</h2>
                 <p class="subtitle">You have selected the <strong>{{ getSelectedPlanName() }}</strong> plan for
-                  <strong>₹{{
-                    getSelectedPlanPrice() }}/mo</strong>.
+                  <strong>₹{{ getSelectedPlanPrice() | number:'1.0-2' }}/mo</strong>.
                 </p>
 
                 <div class="payment-box">
@@ -409,7 +408,7 @@
                   </div>
                   } @else {
                   <button class="btn btn-primary btn-lg pay-btn" (click)="processPayment()">
-                    Pay ₹{{ getSelectedPlanPrice() }} Now
+                    Pay ₹{{ getSelectedPlanPrice() | number:'1.0-2' }} Now
                   </button>
                   }
                 </div>

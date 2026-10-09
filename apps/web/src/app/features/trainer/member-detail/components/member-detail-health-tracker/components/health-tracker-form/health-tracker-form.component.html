@@ -51,7 +51,7 @@
             <label>Calculated BMI</label>
             <div class="bmi-display-card" [ngClass]="getBmiCategoryClass()">
               <span class="bmi-value" *ngIf="measurementForm.get('bmi')?.value; else noBmi">
-                {{ measurementForm.get('bmi')?.value }}
+                {{ measurementForm.get('bmi')?.value | number:'1.0-2' }}
                 <span class="bmi-category-label">({{ getBmiCategoryText() }})</span>
               </span>
               <ng-template #noBmi>

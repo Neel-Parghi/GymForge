@@ -81,7 +81,7 @@
       </div>
       <div class="kpi-footer-row">
         <span>Strategic Benchmark</span>
-        <span>Goal: {{ stats.totalRevenue.progress }}%</span>
+        <span>Goal: {{ stats.totalRevenue.progress | number:'1.0-2' }}%</span>
       </div>
     </div>
 
@@ -148,7 +148,7 @@
       </div>
       <div class="kpi-footer-row">
         <span>Capacity Target</span>
-        <span>Goal: {{ stats.subscriptions.progress }}%</span>
+        <span>Goal: {{ stats.subscriptions.progress | number:'1.0-2' }}%</span>
       </div>
     </div>
 
@@ -246,7 +246,7 @@
             <div class="dist-bar-fill" [style.width.%]="plan.percentage" [style.background-color]="plan.color"></div>
           </div>
           <div class="dist-meta-row">
-            <span>{{ plan.percentage }}% of SaaS registers</span>
+            <span>{{ plan.percentage | number:'1.0-2' }}% of SaaS registers</span>
           </div>
         </div>
         <div class="dist-empty-state" *ngIf="planDistribution.length === 0">
