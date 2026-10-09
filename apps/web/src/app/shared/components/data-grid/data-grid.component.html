@@ -42,8 +42,8 @@
               <!-- Complex Column (Two lines of text) -->
               @case ('complex') {
               <div class="complex-cell">
-                <span class="primary-text">{{ getNestedValue(row, col.key) }}</span>
-                <span class="secondary-text" *ngIf="col.subKey">{{ getNestedValue(row, col.subKey) }}</span>
+                <span class="primary-text">{{ displayValue(row, col.key) }}</span>
+                <span class="secondary-text" *ngIf="col.subKey">{{ displayValue(row, col.subKey) }}</span>
               </div>
               }
 
@@ -84,7 +84,7 @@
                     [ngClass]="getNestedValue(row, col.key) > 70 ? 'bg-success' : getNestedValue(row, col.key) > 30 ? 'bg-warning' : 'bg-danger'">
                   </div>
                 </div>
-                <span class="progress-text">{{ getNestedValue(row, col.key) }}%</span>
+                <span class="progress-text">{{ displayValue(row, col.key) }}%</span>
               </div>
               }
 
@@ -92,7 +92,7 @@
               @case ('badge') {
               @if (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== undefined) {
               <span class="badge" [ngClass]="getBadgeClass(getNestedValue(row, col.key).toString())">
-                {{ getNestedValue(row, col.key) }}
+                {{ displayValue(row, col.key) }}
               </span>
               } @else {
               <span>-</span>
@@ -126,7 +126,7 @@
               @default {
               <span [class.clickable-cell]="col.isClickable"
                 (click)="col.isClickable ? onAction('row-click', row) : null">
-                {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? getNestedValue(row,
+                {{ (getNestedValue(row, col.key) !== null && getNestedValue(row, col.key) !== '') ? displayValue(row,
                 col.key) : '-' }}
               </span>
               }

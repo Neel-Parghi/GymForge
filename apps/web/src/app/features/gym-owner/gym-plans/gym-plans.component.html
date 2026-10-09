@@ -45,11 +45,11 @@
           <div class="plan-price">
             <div class="price-container">
               <span class="currency">₹</span>
-              <span class="amount">{{ plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price }}</span>
+              <span class="amount">{{ (plan.isOffer && plan.discountedPrice ? plan.discountedPrice : plan.price) | number:'1.0-2' }}</span>
               <span class="period">/ {{ plan.durationMonths }} {{ plan.durationMonths === 1 ? 'mo' : 'mos' }}</span>
             </div>
             <div *ngIf="plan.isOffer && plan.discountedPrice" class="original-price">
-              <span class="strikethrough">₹{{ plan.price }}</span>
+              <span class="strikethrough">₹{{ plan.price | number:'1.0-2' }}</span>
               <span class="savings">Save {{ ((plan.price - plan.discountedPrice) / plan.price * 100) | number:'1.0-0'
                 }}%</span>
             </div>

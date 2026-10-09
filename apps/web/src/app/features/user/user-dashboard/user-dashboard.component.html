@@ -1,4 +1,4 @@
-<div class="dashboard">
+<div class="dashboard" #dash>
 
   <header class="greeting">
     <div class="greeting-main">
@@ -8,7 +8,7 @@
         <h1>{{ userName() }}</h1>
       </div>
     </div>
-    <app-gym-buddy class="greeting-buddy" [facts]="buddyFacts()"></app-gym-buddy>
+    <app-gym-buddy class="greeting-buddy" [facts]="buddyFacts()" [roamArea]="dash"></app-gym-buddy>
     <div class="greeting-actions">
       <button type="button" class="btn-secondary" (click)="logMeal()">
         <i class="fa-solid fa-utensils" aria-hidden="true"></i> Log meal
@@ -159,7 +159,7 @@
           @for (m of n.macros; track m.tone) {
             <div class="macro">
               <span class="macro-label">{{ m.label }}</span>
-              <span class="macro-value">{{ m.value }}<small>/{{ m.target }}g</small></span>
+              <span class="macro-value">{{ m.value | number:'1.0-2' }}<small>/{{ m.target | number:'1.0-2' }}g</small></span>
               <div class="track sm"><span class="fill" [attr.data-macro]="m.tone" [style.width.%]="m.pct"></span></div>
             </div>
           }
@@ -170,7 +170,7 @@
             <span class="next-icon"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
             <div class="next-text">
               <span class="next-title">Next: {{ meal.name }}@if (meal.time) { · {{ meal.time }}}</span>
-              <span class="next-sub">{{ meal.items || 'Planned meal' }} · {{ meal.calories }} kcal</span>
+              <span class="next-sub">{{ meal.items || 'Planned meal' }} · {{ meal.calories | number:'1.0-2' }} kcal</span>
             </div>
             <button type="button" class="btn-primary" (click)="logMeal()">Log</button>
           </div>
@@ -265,7 +265,7 @@
         <dl class="legend">
           <div class="legend-row">
             <dt><span class="dot" data-ring="calories"></span>Calories</dt>
-            <dd>{{ activity().calories }}<small> / {{ activity().calorieTarget }} kcal</small></dd>
+            <dd>{{ activity().calories | number:'1.0-2' }}<small> / {{ activity().calorieTarget | number:'1.0-2' }} kcal</small></dd>
           </div>
           <div class="legend-row">
             <dt><span class="dot" data-ring="active"></span>Active</dt>
@@ -273,7 +273,7 @@
           </div>
           <div class="legend-row">
             <dt><span class="dot" data-ring="goal"></span>Goal · {{ goalTitle() }}</dt>
-            <dd>{{ activity().goalPct }}<small>% complete</small></dd>
+            <dd>{{ activity().goalPct | number:'1.0-2' }}<small>% complete</small></dd>
           </div>
         </dl>
       </div>

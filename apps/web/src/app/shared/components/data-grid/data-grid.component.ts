@@ -4,6 +4,7 @@ import { ColumnDef } from '../../models/column-def.model';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 import { DropdownOption } from '../../models/dropdown.model';
 import { GridConfigDef } from '../../models/grid-config.model';
+import { round2 } from '../../utils/number';
 
 @Directive({
   selector: '[gridCell]',
@@ -175,5 +176,11 @@ export class DataGrid {
     if (!row || !key) return '';
     if (!key.includes('.')) return row[key] ?? '';
     return key.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : '', row) || '';
+  }
+
+  /** Cell text: like getNestedValue, but fractional numbers are capped at 2 decimals. */
+  displayValue(row: any, key: string): any {
+    const value = this.getNestedValue(row, key);
+    return typeof value === 'number' && !Number.isInteger(value) ? round2(value) : value;
   }
 }

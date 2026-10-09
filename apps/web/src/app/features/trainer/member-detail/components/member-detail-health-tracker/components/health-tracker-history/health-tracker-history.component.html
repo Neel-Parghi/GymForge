@@ -34,12 +34,12 @@
                 {{ log.date | date:'mediumDate' }}
               </span>
             </td>
-            <td><strong>{{ log.weight }} kg</strong></td>
-            <td>{{ log.height }} cm</td>
-            <td>{{ log.bodyFatPercentage ? log.bodyFatPercentage + '%' : '--' }}</td>
+            <td><strong>{{ log.weight | number:'1.0-2' }} kg</strong></td>
+            <td>{{ log.height | number:'1.0-2' }} cm</td>
+            <td>{{ log.bodyFatPercentage ? (log.bodyFatPercentage | number:'1.0-2') + '%' : '--' }}</td>
             <td>
               <span class="bmi-badge-inline" [ngClass]="getBmiClass(log.bmi)">
-                {{ log.bmi }} ({{ getBmiText(log.bmi) }})
+                {{ log.bmi | number:'1.0-2' }} ({{ getBmiText(log.bmi) }})
               </span>
             </td>
             <td>
@@ -68,22 +68,22 @@
             {{ log.date | date:'mediumDate' }}
           </span>
           <span class="bmi-badge-inline" [ngClass]="getBmiClass(log.bmi)">
-            {{ log.bmi }} ({{ getBmiText(log.bmi) }})
+            {{ log.bmi | number:'1.0-2' }} ({{ getBmiText(log.bmi) }})
           </span>
         </div>
 
         <div class="metrics-grid">
           <div class="metric-item">
             <span class="label">Weight</span>
-            <span class="value">{{ log.weight }} kg</span>
+            <span class="value">{{ log.weight | number:'1.0-2' }} kg</span>
           </div>
           <div class="metric-item">
             <span class="label">Height</span>
-            <span class="value">{{ log.height }} cm</span>
+            <span class="value">{{ log.height | number:'1.0-2' }} cm</span>
           </div>
           <div class="metric-item">
             <span class="label">Body Fat</span>
-            <span class="value">{{ log.bodyFatPercentage ? log.bodyFatPercentage + '%' : '--' }}</span>
+            <span class="value">{{ log.bodyFatPercentage ? (log.bodyFatPercentage | number:'1.0-2') + '%' : '--' }}</span>
           </div>
         </div>
 

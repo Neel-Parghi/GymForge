@@ -109,7 +109,7 @@
           <div class="assign-template-item" *ngFor="let plan of dietPlans" (click)="assignDietPlan(plan)">
             <div class="item-left">
               <strong>{{ plan.name }}</strong>
-              <span>{{ plan.calories }} kcal • {{ plan.protein }}g P / {{ plan.carbs }}g C / {{ plan.fats }}g F • {{
+              <span>{{ plan.calories | number:'1.0-2' }} kcal • {{ plan.protein | number:'1.0-2' }}g P / {{ plan.carbs | number:'1.0-2' }}g C / {{ plan.fats | number:'1.0-2' }}g F • {{
                 plan.goal }} • {{ plan.meals?.length || 0 }} meals</span>
             </div>
             <i class="fa-solid fa-chevron-right arrow-icon"></i>

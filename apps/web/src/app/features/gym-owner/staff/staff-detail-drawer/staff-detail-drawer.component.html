@@ -293,7 +293,7 @@
                 <div class="duration-and-notes">
                   <div class="hours-worked-row">
                     <span>Hours Worked:</span>
-                    <strong>{{ s.checkOutTime ? (s.hoursWorked + ' hrs') : 'Active Shift' }}</strong>
+                    <strong>{{ s.checkOutTime ? ((s.hoursWorked | number:'1.0-2') + ' hrs') : 'Active Shift' }}</strong>
                   </div>
                   <div *ngIf="s.notes" class="shift-notes-box">
                     <span>Notes</span>

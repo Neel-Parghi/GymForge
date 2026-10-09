@@ -38,13 +38,13 @@
           </svg>
           <div class="ring-center">
             @if (totals().over > 0) {
-              <span class="ring-value">{{ totals().over }}</span>
+              <span class="ring-value">{{ totals().over | number:'1.0-2' }}</span>
               <span class="ring-label">kcal over</span>
             } @else {
-              <span class="ring-value">{{ totals().left }}</span>
+              <span class="ring-value">{{ totals().left | number:'1.0-2' }}</span>
               <span class="ring-label">kcal left</span>
             }
-            <span class="ring-sub">{{ totals().eaten }} of {{ totals().target }} eaten</span>
+            <span class="ring-sub">{{ totals().eaten | number:'1.0-2' }} of {{ totals().target | number:'1.0-2' }} eaten</span>
           </div>
         </div>
 
@@ -52,7 +52,7 @@
           @for (m of macros(); track m.tone) {
             <div class="macro">
               <span class="macro-label">{{ m.label }}</span>
-              <span class="macro-value">{{ m.value }}<small>/{{ m.target }}g</small></span>
+              <span class="macro-value">{{ m.value | number:'1.0-2' }}<small>/{{ m.target | number:'1.0-2' }}g</small></span>
               <div class="track"><span class="fill" [attr.data-macro]="m.tone" [style.width.%]="m.pct"></span></div>
             </div>
           }
@@ -121,13 +121,13 @@
                   @if (item.entry; as entry) {
                     <p class="meal-items">{{ entry.foodName }}</p>
                     <div class="meal-chips">
-                      <span class="chip kcal">{{ entry.calories }} kcal</span>
-                      <span class="macro-line">P {{ entry.protein }}g · C {{ entry.carbs }}g · F {{ entry.fats }}g</span>
+                      <span class="chip kcal">{{ entry.calories | number:'1.0-2' }} kcal</span>
+                      <span class="macro-line">P {{ entry.protein | number:'1.0-2' }}g · C {{ entry.carbs | number:'1.0-2' }}g · F {{ entry.fats | number:'1.0-2' }}g</span>
                     </div>
                     @if (item.isAdjusted) {
                       <p class="plan-note">
                         <i class="fa-regular fa-clipboard" aria-hidden="true"></i>
-                        Plan: {{ item.meal.calories }} kcal · P {{ item.meal.protein }}g · C {{ item.meal.carbs }}g · F {{ item.meal.fats }}g
+                        Plan: {{ item.meal.calories | number:'1.0-2' }} kcal · P {{ item.meal.protein | number:'1.0-2' }}g · C {{ item.meal.carbs | number:'1.0-2' }}g · F {{ item.meal.fats | number:'1.0-2' }}g
                       </p>
                     }
                   } @else {
@@ -135,8 +135,8 @@
                       <p class="meal-items">{{ item.meal.items }}</p>
                     }
                     <div class="meal-chips">
-                      <span class="chip kcal">{{ item.meal.calories }} kcal</span>
-                      <span class="macro-line">P {{ item.meal.protein }}g · C {{ item.meal.carbs }}g · F {{ item.meal.fats }}g</span>
+                      <span class="chip kcal">{{ item.meal.calories | number:'1.0-2' }} kcal</span>
+                      <span class="macro-line">P {{ item.meal.protein | number:'1.0-2' }}g · C {{ item.meal.carbs | number:'1.0-2' }}g · F {{ item.meal.fats | number:'1.0-2' }}g</span>
                     </div>
                   }
                 </article>
@@ -164,9 +164,9 @@
                 <button type="button" class="other" (click)="openEditSheet(entry)" [attr.aria-label]="'Edit ' + entry.foodName">
                   <span class="other-text">
                     <span class="other-name">{{ entry.foodName }}</span>
-                    <span class="other-macros">P {{ entry.protein }}g · C {{ entry.carbs }}g · F {{ entry.fats }}g</span>
+                    <span class="other-macros">P {{ entry.protein | number:'1.0-2' }}g · C {{ entry.carbs | number:'1.0-2' }}g · F {{ entry.fats | number:'1.0-2' }}g</span>
                   </span>
-                  <span class="chip kcal">{{ entry.calories }} kcal</span>
+                  <span class="chip kcal">{{ entry.calories | number:'1.0-2' }} kcal</span>
                   <i class="fa-solid fa-chevron-right other-chevron" aria-hidden="true"></i>
                 </button>
               </li>
@@ -204,7 +204,7 @@
         <div class="plan-ref">
           <div class="plan-ref-text">
             <span class="plan-ref-label">Your plan{{ planned.time ? ' · ' + planned.time : '' }}</span>
-            <span class="plan-ref-values">{{ planned.calories }} kcal · P {{ planned.protein }}g · C {{ planned.carbs }}g · F {{ planned.fats }}g</span>
+            <span class="plan-ref-values">{{ planned.calories | number:'1.0-2' }} kcal · P {{ planned.protein | number:'1.0-2' }}g · C {{ planned.carbs | number:'1.0-2' }}g · F {{ planned.fats | number:'1.0-2' }}g</span>
           </div>
           <button type="button" class="text-btn" (click)="resetToPlan()">Reset to plan</button>
         </div>
@@ -266,7 +266,7 @@
                   <span class="result-text">
                     <span class="result-name">{{ row.name }}</span>
                     <span class="result-meta">
-                      @if (row.quantity) { {{ row.quantity }}{{ row.portion !== 1 ? ' × ' + row.portion : '' }} · }P {{ row.protein }}g · C {{ row.carbs }}g · F {{ row.fats }}g
+                      @if (row.quantity) { {{ row.quantity }}{{ row.portion !== 1 ? ' × ' + row.portion : '' }} · }P {{ row.protein | number:'1.0-2' }}g · C {{ row.carbs | number:'1.0-2' }}g · F {{ row.fats | number:'1.0-2' }}g
                     </span>
                     @if (row.sourceLabel) {
                       <span class="item-source" [class.estimate]="row.isEstimate"
@@ -275,7 +275,7 @@
                       </span>
                     }
                   </span>
-                  <span class="chip kcal">{{ row.calories }} kcal</span>
+                  <span class="chip kcal">{{ row.calories | number:'1.0-2' }} kcal</span>
                   @if (searchItems().length > 1) {
                     <button type="button" class="icon-btn quiet small" (click)="removeSearchItem($index)" [attr.aria-label]="'Remove ' + row.name">
                       <i class="fa-solid fa-xmark" aria-hidden="true"></i>

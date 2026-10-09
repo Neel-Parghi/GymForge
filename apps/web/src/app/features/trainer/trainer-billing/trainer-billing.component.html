@@ -52,7 +52,7 @@
           </div>
           <div class="info-item">
             <span class="label">Commission Rates</span>
-            <span class="val">PT: {{ payoutDetails.ptCommissionRate }}% | Rehab: {{ payoutDetails.rehabCommissionRate
+            <span class="val">PT: {{ payoutDetails.ptCommissionRate | number:'1.0-2' }}% | Rehab: {{ payoutDetails.rehabCommissionRate
               }}%</span>
           </div>
           <div class="info-item">

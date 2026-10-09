@@ -7,6 +7,7 @@ import { DropdownComponent } from '../../dropdown/dropdown.component';
 import { DropdownOption } from '../../../../shared/models/dropdown.model';
 import { CONSTANTS } from '../../../../core/constants/constants';
 import { TimePickerComponent } from '../../time-picker/time-picker.component';
+import { round2 } from '../../../utils/number';
 
 @Component({
   selector: 'app-diet-template-creator',
@@ -187,7 +188,7 @@ export class DietTemplateCreatorComponent implements OnInit {
     const p = this.createForm.get('protein')?.value || 0;
     const c = this.createForm.get('carbs')?.value || 0;
     const f = this.createForm.get('fats')?.value || 0;
-    return (p * 4) + (c * 4) + (f * 9);
+    return round2((p * 4) + (c * 4) + (f * 9));
   }
 
   get macroPercentages(): { protein: number, carbs: number, fats: number } {
@@ -210,7 +211,7 @@ export class DietTemplateCreatorComponent implements OnInit {
 
   get mealsTotalCalories(): number {
     const mealList = this.meals.value || [];
-    return mealList.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
+    return round2(mealList.reduce((sum: number, m: any) => sum + (m.calories || 0), 0));
   }
 
   getCircumference(): number {

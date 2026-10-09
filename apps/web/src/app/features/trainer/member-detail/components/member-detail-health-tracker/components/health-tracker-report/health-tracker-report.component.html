@@ -27,22 +27,22 @@
                 {{ selectedLog?.isAdvanced ? 'Advanced Tracker' : 'Basic Tracker' }}
               </span>
               <span class="bmi-badge-inline" [ngClass]="getBmiClass(selectedLog?.bmi)">
-                BMI: {{ selectedLog?.bmi }}
+                BMI: {{ selectedLog?.bmi | number:'1.0-2' }}
               </span>
             </div>
 
             <div class="summary-metrics-layout">
               <div class="metric-block">
                 <span class="lbl">Weight</span>
-                <span class="val">{{ selectedLog?.weight }} <span class="unit">kg</span></span>
+                <span class="val">{{ selectedLog?.weight | number:'1.0-2' }} <span class="unit">kg</span></span>
               </div>
               <div class="metric-block">
                 <span class="lbl">Height</span>
-                <span class="val">{{ selectedLog?.height }} <span class="unit">cm</span></span>
+                <span class="val">{{ selectedLog?.height | number:'1.0-2' }} <span class="unit">cm</span></span>
               </div>
               <div class="metric-block" *ngIf="selectedLog?.bodyFatPercentage">
                 <span class="lbl">Body Fat</span>
-                <span class="val">{{ selectedLog?.bodyFatPercentage }}<span class="unit">%</span></span>
+                <span class="val">{{ selectedLog?.bodyFatPercentage | number:'1.0-2' }}<span class="unit">%</span></span>
               </div>
             </div>
 
@@ -59,23 +59,23 @@
               <div class="dimensions-grid-details">
                 <div class="dim-row" *ngIf="selectedLog?.neck">
                   <span class="label">Neck</span>
-                  <span class="val">{{ selectedLog?.neck }} cm</span>
+                  <span class="val">{{ selectedLog?.neck | number:'1.0-2' }} cm</span>
                 </div>
                 <div class="dim-row" *ngIf="selectedLog?.shoulders">
                   <span class="label">Shoulders</span>
-                  <span class="val">{{ selectedLog?.shoulders }} cm</span>
+                  <span class="val">{{ selectedLog?.shoulders | number:'1.0-2' }} cm</span>
                 </div>
                 <div class="dim-row" *ngIf="selectedLog?.chest">
                   <span class="label">Chest</span>
-                  <span class="val">{{ selectedLog?.chest }} cm</span>
+                  <span class="val">{{ selectedLog?.chest | number:'1.0-2' }} cm</span>
                 </div>
                 <div class="dim-row" *ngIf="selectedLog?.waist">
                   <span class="label">Waist</span>
-                  <span class="val">{{ selectedLog?.waist }} cm</span>
+                  <span class="val">{{ selectedLog?.waist | number:'1.0-2' }} cm</span>
                 </div>
                 <div class="dim-row" *ngIf="selectedLog?.hips">
                   <span class="label">Hips</span>
-                  <span class="val">{{ selectedLog?.hips }} cm</span>
+                  <span class="val">{{ selectedLog?.hips | number:'1.0-2' }} cm</span>
                 </div>
                 <div class="dim-row" *ngIf="selectedLog?.upperAbs || selectedLog?.lowerAbs">
                   <span class="label">Abs (Upper/Lower)</span>
@@ -133,9 +133,9 @@
                 <div class="compare-row">
                   <span class="lbl">Weight</span>
                   <span class="vals">
-                    <span class="prev">{{ previousLog.weight }}</span>
+                    <span class="prev">{{ previousLog.weight | number:'1.0-2' }}</span>
                     <i class="fa-solid fa-arrow-right-long"></i>
-                    <span class="curr">{{ selectedLog.weight }} kg</span>
+                    <span class="curr">{{ selectedLog.weight | number:'1.0-2' }} kg</span>
                   </span>
                   <span class="delta" *ngIf="getDelta(selectedLog.weight, previousLog.weight) as d" [ngClass]="d.class">
                     <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}
@@ -161,9 +161,9 @@
                 <div class="compare-row">
                   <span class="lbl">BMI</span>
                   <span class="vals">
-                    <span class="prev">{{ previousLog.bmi }}</span>
+                    <span class="prev">{{ previousLog.bmi | number:'1.0-2' }}</span>
                     <i class="fa-solid fa-arrow-right-long"></i>
-                    <span class="curr">{{ selectedLog.bmi }}</span>
+                    <span class="curr">{{ selectedLog.bmi | number:'1.0-2' }}</span>
                   </span>
                   <span class="delta" *ngIf="getDelta(selectedLog.bmi, previousLog.bmi) as d" [ngClass]="d.class">
                     <i class="fa-solid" [ngClass]="d.icon"></i> {{ d.value }}

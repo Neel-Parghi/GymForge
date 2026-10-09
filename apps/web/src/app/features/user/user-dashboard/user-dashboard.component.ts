@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal, viewChild } from '@angular/core';
+import { DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -18,19 +18,22 @@ import { exerciseSetCount, resolveScheduledDay, startOfWeek, toDateKey } from '.
 import { mealTimeToMinutes } from '../../../shared/utils/meal-time';
 import { NUTRITION_TARGET_FALLBACK, percentOf } from '../../../shared/utils/nutrition';
 import { GymBuddyComponent } from './components/gym-buddy/gym-buddy.component';
+import { recall, remember } from './components/gym-buddy/buddy-memory';
 import {
-  ActivityRing, BuddyFacts, DailyRoutineItem, MacroProgress, NutritionToday, RoutineForm, TodayWorkout,
+  ActivityRing, BuddyEvent, BuddyFacts, DailyRoutineItem, MacroProgress, NutritionToday, RoutineForm, TodayWorkout,
   UserDashboardSummary, WeekDay, WeekDayState
 } from '../../../core/models/user-dashboard.model';
 
 const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const RING_RADII = { calories: 58, active: 44, goal: 30 };
 const ROUTINE_PREVIEW = 5;
+/** From this hour the buddy points out a planned workout that hasn't been logged yet. */
+const NUDGE_FROM_HOUR = 18;
 
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -52,6 +55,8 @@ export class UserDashboardComponent implements OnInit {
   readonly isFirstTime = signal(false);
 
   private readonly profile = toSignal(this.authService.userProfile$, { initialValue: null });
+  private readonly buddy = viewChild(GymBuddyComponent);
+  private readonly todayKey = toDateKey(this.today);
 
   readonly summary = signal<UserDashboardSummary | null>(null);
   readonly routines = signal<DailyRoutineItem[]>([]);
@@ -187,6 +192,7 @@ export class UserDashboardComponent implements OnInit {
       next: summary => {
         this.summary.set(summary);
         this.routines.set([...(summary?.dailyRoutines ?? [])]);
+        this.checkNewRecord(summary?.personalRecords ?? []);
       },
       error: err => console.error('Error fetching dashboard summary:', err)
     });
@@ -195,7 +201,9 @@ export class UserDashboardComponent implements OnInit {
   private loadTraining(userId: string): void {
     this.memberService.getTrainingOverview(userId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ plan, logs }) => {
       this.week.set(this.buildWeek(logs));
-      this.todayWorkout.set(this.buildTodayWorkout(plan, logs));
+      const workout = this.buildTodayWorkout(plan, logs);
+      this.todayWorkout.set(workout);
+      this.checkWorkout(workout);
     });
   }
 
@@ -211,7 +219,10 @@ export class UserDashboardComponent implements OnInit {
       map(res => res?.data ?? null),
       catchError(() => of(null)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(log => this.nutrition.set(log ? this.buildNutrition(log) : null));
+    ).subscribe(log => {
+      this.nutrition.set(log ? this.buildNutrition(log) : null);
+      this.checkMealLogged(log?.mealEntries?.length ?? 0);
+    });
   }
 
   private buildTodayWorkout(plan: ActivePlanView | null, logs: WorkoutSessionLogDto[]): TodayWorkout {
@@ -331,6 +342,84 @@ export class UserDashboardComponent implements OnInit {
   toggleRoutine(item: DailyRoutineItem): void {
     this.routines.update(list => list.map(r => (r.id === item.id ? { ...r, completed: !r.completed } : r)));
     this.userService.toggleDailyRoutine(item.id).subscribe();
+
+    if (!item.completed) {
+      const allDone = this.routines().every(r => r.completed);
+      this.buddyReact({
+        act: 'dance',
+        target: '.area-routines',
+        text: allDone ? 'Every routine done today. Legend!' : `${item.title}, done. Nice one!`,
+        icon: allDone ? 'fa-star' : 'fa-circle-check'
+      });
+    }
+  }
+
+  // ---------- gym buddy reactions ----------
+
+  private buddyReact(event: BuddyEvent): void {
+    if (isPlatformBrowser(this.platformId)) this.buddy()?.react(event);
+  }
+
+  /** Per-user key, so two members sharing a browser don't share the buddy's memory. */
+  private memoryKey(name: string): string {
+    return `${this.profile()?.id ?? 'me'}.${name}`;
+  }
+
+  /** Dance on the hero once a day when today's workout is logged; otherwise, in the evening, point at it. */
+  private checkWorkout(workout: TodayWorkout): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (workout.state === 'done' && recall(this.memoryKey('workout')) !== this.todayKey) {
+      remember(this.memoryKey('workout'), this.todayKey);
+      this.buddyReact({ act: 'dance', target: '.area-hero', text: `${workout.title} done. You crushed it!`, icon: 'fa-medal' });
+    } else if (workout.state === 'ready' && this.today.getHours() >= NUDGE_FROM_HOUR
+      && recall(this.memoryKey('nudge')) !== this.todayKey) {
+      remember(this.memoryKey('nudge'), this.todayKey);
+      this.buddyReact({
+        act: 'point',
+        target: '.area-hero',
+        focus: '.area-hero .hero-cta',
+        text: `${workout.title} is still waiting. Log it?`,
+        icon: 'fa-hand-point-right'
+      });
+    }
+  }
+
+  /** Dance on the nutrition card when there are more meals logged today than last time he looked. */
+  private checkMealLogged(count: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const [day, seen] = (recall(this.memoryKey('meals')) ?? '').split('|');
+    const before = day === this.todayKey ? Number(seen) || 0 : 0;
+    remember(this.memoryKey('meals'), `${this.todayKey}|${count}`);
+    if (count > before) {
+      this.buddyReact({
+        act: 'dance',
+        target: '.area-nutrition',
+        text: before === 0 && count === 1 ? 'First meal logged. Fuel up!' : 'Meal logged. Good fuel!',
+        icon: 'fa-utensils'
+      });
+    }
+  }
+
+  /** Barbell party on the trophy card when a record is heavier than the last one he saw (or new to the top list). */
+  private checkNewRecord(records: UserDashboardSummary['personalRecords']): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const kg = (weight: string) => parseFloat((weight ?? '').replace(',', '')) || 0;
+    const current = Object.fromEntries(records.map(r => [r.name, kg(r.weight)]));
+    const stored = recall(this.memoryKey('prs'));
+    remember(this.memoryKey('prs'), JSON.stringify(current));
+    // First visit: just learn the records, nothing to celebrate yet.
+    if (!stored) return;
+
+    let previous: Record<string, number> = {};
+    try {
+      previous = JSON.parse(stored);
+    } catch {
+      return;
+    }
+    const record = records.find(r => kg(r.weight) > (previous[r.name] ?? 0));
+    if (record) {
+      this.buddyReact({ act: 'lift', target: '.area-prs', text: `New PR! ${record.name} at ${record.weight}!`, icon: 'fa-trophy' });
+    }
   }
 
   addRoutine(): void {

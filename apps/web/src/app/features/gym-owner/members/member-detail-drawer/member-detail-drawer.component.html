@@ -176,7 +176,7 @@
               [class.active-item]="history.isActive">
               <div class="history-main">
                 <span class="plan-name">{{ history.planNameSnapshot }}</span>
-                <span class="price">₹{{ history.pricePaid }}</span>
+                <span class="price">₹{{ history.pricePaid | number:'1.0-2' }}</span>
               </div>
               <div class="history-meta">
                 <span class="date-range">{{ history.startDate | date:'dd MMM yyyy' }} -

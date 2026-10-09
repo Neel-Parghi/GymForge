@@ -25,7 +25,7 @@
         <article class="plan-card" [class.active]="activeDietId === diet.id" (click)="openMealDrawer(diet)">
           <div class="card-top">
             <div class="badges">
-              <span class="pill energy">{{ diet.calories }} kcal</span>
+              <span class="pill energy">{{ diet.calories | number:'1.0-2' }} kcal</span>
               @if (diet.goal) {
                 <span class="pill">{{ diet.goal }}</span>
               }
@@ -63,9 +63,9 @@
               <span data-macro="fats" [style.flex-grow]="getMacroPercentageForCard(diet, 'fats')"></span>
             </div>
             <dl class="macro-stats">
-              <div><dt><span class="dot" data-macro="protein"></span>Protein</dt><dd>{{ diet.protein }}g</dd></div>
-              <div><dt><span class="dot" data-macro="carbs"></span>Carbs</dt><dd>{{ diet.carbs }}g</dd></div>
-              <div><dt><span class="dot" data-macro="fats"></span>Fat</dt><dd>{{ diet.fats }}g</dd></div>
+              <div><dt><span class="dot" data-macro="protein"></span>Protein</dt><dd>{{ diet.protein | number:'1.0-2' }}g</dd></div>
+              <div><dt><span class="dot" data-macro="carbs"></span>Carbs</dt><dd>{{ diet.carbs | number:'1.0-2' }}g</dd></div>
+              <div><dt><span class="dot" data-macro="fats"></span>Fat</dt><dd>{{ diet.fats | number:'1.0-2' }}g</dd></div>
             </dl>
           </div>
 
@@ -102,7 +102,7 @@
       <header class="drawer-head">
         <div>
           <h2>{{ plan.name }}</h2>
-          <p>{{ plan.meals?.length || 0 }} meals · {{ plan.calories }} kcal a day</p>
+          <p>{{ plan.meals?.length || 0 }} meals · {{ plan.calories | number:'1.0-2' }} kcal a day</p>
         </div>
         <button type="button" class="icon-btn" (click)="closeMealDrawer()" aria-label="Close">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -110,9 +110,9 @@
       </header>
 
       <dl class="drawer-macros">
-        <div><dt><span class="dot" data-macro="protein"></span>Protein</dt><dd>{{ plan.protein }}<small>g</small></dd></div>
-        <div><dt><span class="dot" data-macro="carbs"></span>Carbs</dt><dd>{{ plan.carbs }}<small>g</small></dd></div>
-        <div><dt><span class="dot" data-macro="fats"></span>Fat</dt><dd>{{ plan.fats }}<small>g</small></dd></div>
+        <div><dt><span class="dot" data-macro="protein"></span>Protein</dt><dd>{{ plan.protein | number:'1.0-2' }}<small>g</small></dd></div>
+        <div><dt><span class="dot" data-macro="carbs"></span>Carbs</dt><dd>{{ plan.carbs | number:'1.0-2' }}<small>g</small></dd></div>
+        <div><dt><span class="dot" data-macro="fats"></span>Fat</dt><dd>{{ plan.fats | number:'1.0-2' }}<small>g</small></dd></div>
       </dl>
 
       <ol class="timeline">
@@ -131,9 +131,9 @@
                 <p>{{ meal.items }}</p>
               }
               <div class="meal-chips">
-                <span class="chip kcal">{{ meal.calories }} kcal</span>
+                <span class="chip kcal">{{ meal.calories | number:'1.0-2' }} kcal</span>
                 @if (meal.protein) {
-                  <span class="chip protein">{{ meal.protein }}g protein</span>
+                  <span class="chip protein">{{ meal.protein | number:'1.0-2' }}g protein</span>
                 }
               </div>
             </article>

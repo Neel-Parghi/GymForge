@@ -93,20 +93,20 @@
             <div class="log-card" *ngFor="let log of measurements">
               <div class="log-header">
                 <span class="log-date"><i class="fa-regular fa-clock"></i> {{ log.date | date:'mediumDate' }}</span>
-                <span class="bmi-badge" *ngIf="log.bmi">BMI: {{ log.bmi }}</span>
+                <span class="bmi-badge" *ngIf="log.bmi">BMI: {{ log.bmi | number:'1.0-2' }}</span>
               </div>
               <div class="metrics-grid">
                 <div class="metric-item">
                   <span class="label">Weight</span>
-                  <span class="value">{{ log.weight }} kg</span>
+                  <span class="value">{{ log.weight | number:'1.0-2' }} kg</span>
                 </div>
                 <div class="metric-item">
                   <span class="label">Height</span>
-                  <span class="value">{{ log.height }} cm</span>
+                  <span class="value">{{ log.height | number:'1.0-2' }} cm</span>
                 </div>
                 <div class="metric-item" *ngIf="log.bodyFatPercentage">
                   <span class="label">Body Fat</span>
-                  <span class="value">{{ log.bodyFatPercentage }}%</span>
+                  <span class="value">{{ log.bodyFatPercentage | number:'1.0-2' }}%</span>
                 </div>
               </div>
               <p class="log-notes" *ngIf="log.notes"><strong>Notes:</strong> {{ log.notes }}</p>

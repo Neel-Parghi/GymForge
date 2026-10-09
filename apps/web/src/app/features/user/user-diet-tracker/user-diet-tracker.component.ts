@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -27,7 +27,7 @@ type MealFormValue = ReturnType<FormGroup<MealForm>['getRawValue']>;
 @Component({
   selector: 'app-user-diet-tracker',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule, SegmentedTabsComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, SegmentedTabsComponent],
   templateUrl: './user-diet-tracker.component.html',
   styleUrl: './user-diet-tracker.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
