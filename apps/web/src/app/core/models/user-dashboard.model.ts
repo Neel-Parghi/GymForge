@@ -78,6 +78,20 @@ export interface BuddyFacts {
   goalTitle: string;
 }
 
+/** How the gym buddy reacts when it gets to the card. */
+export type BuddyAct = 'dance' | 'lift' | 'point';
+
+/** Something worth reacting to: the buddy goes to `target`, does `act` and says `text`. */
+export interface BuddyEvent {
+  act: BuddyAct;
+  /** Selector, inside the buddy's roam area, of the card to go to. */
+  target: string;
+  /** Selector of the element to stand beside and point at. */
+  focus?: string;
+  text: string;
+  icon: string;
+}
+
 export interface TodayWorkout {
   state: WorkoutState;
   planName: string;

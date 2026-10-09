@@ -1,4 +1,4 @@
-<div class="dashboard">
+<div class="dashboard" #dash>
 
   <header class="greeting">
     <div class="greeting-main">
@@ -8,7 +8,7 @@
         <h1>{{ userName() }}</h1>
       </div>
     </div>
-    <app-gym-buddy class="greeting-buddy" [facts]="buddyFacts()"></app-gym-buddy>
+    <app-gym-buddy class="greeting-buddy" [facts]="buddyFacts()" [roamArea]="dash"></app-gym-buddy>
     <div class="greeting-actions">
       <button type="button" class="btn-secondary" (click)="logMeal()">
         <i class="fa-solid fa-utensils" aria-hidden="true"></i> Log meal

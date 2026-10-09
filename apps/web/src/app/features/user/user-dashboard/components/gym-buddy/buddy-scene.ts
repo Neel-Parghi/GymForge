@@ -11,9 +11,23 @@ export interface BuddyScene {
   wave(): void;
   /** Tap reaction: a little hop and a bicep flex. */
   cheer(): void;
+  /** Happy dance: hops with alternating arm pumps. */
+  dance(): void;
+  /** Point toward a side (-1 left, 1 right) until cleared with 0. */
+  point(dir: number): void;
+  /** PR celebration: pulls a barbell up to the chest, holds it shaking, drops it and throws both arms up. */
+  lift(): void;
   setMood(state: WorkoutState | null): void;
+  /** Body pose while roaming the dashboard; poses blend smoothly into each other. */
+  setPose(pose: BuddyPose): void;
+  /** Turn toward the direction of travel (-1 left, 1 right) or face the viewer (0). */
+  setFacing(dir: number): void;
+  /** Sideways swing while being carried, from the drag velocity. */
+  setSwing(amount: number): void;
   dispose(): void;
 }
+
+export type BuddyPose = 'stand' | 'walk' | 'jump' | 'sit' | 'held';
 
 const COLORS = {
   skin: '#f6c39b',
@@ -35,10 +49,16 @@ const COLORS = {
 const POP_SECONDS = 0.65;
 const WAVE_SECONDS = 1.4;
 const CHEER_SECONDS = 1;
+export const DANCE_SECONDS = 2.6;
+export const LIFT_SECONDS = 3.4;
 /** Speeds up the idle loop (breathing, sway, head bob). */
 const IDLE_SPEED = 1.3;
 
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
+const smooth = (v: number) => {
+  const t = clamp01(v);
+  return t * t * (3 - 2 * t);
+};
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const easeOutBack = (t: number) => {
   const c = 1.9;
@@ -140,13 +160,19 @@ export function createBuddyScene(canvas: HTMLCanvasElement): BuddyScene {
   shorts.scale.z = 0.85;
   rig.add(shorts);
 
+  // Legs hang from hip joints so they can walk, dangle and tuck.
+  const hips: Group[] = [];
   for (const side of [-1, 1]) {
+    const hip = new Group();
+    hip.position.set(0.15 * side, -0.7, 0);
     const leg = part(new CapsuleGeometry(0.085, 0.1, 8, 20), COLORS.skin);
-    leg.position.set(0.15 * side, -0.8, 0);
+    leg.position.y = -0.1;
     const shoe = part(new SphereGeometry(0.13, 24, 16), COLORS.shoe, 'gloss');
     shoe.scale.set(1.05, 0.62, 1.45);
-    shoe.position.set(0.16 * side, -0.94, 0.07);
-    rig.add(leg, shoe);
+    shoe.position.set(0.01 * side, -0.24, 0.07);
+    hip.add(leg, shoe);
+    rig.add(hip);
+    hips.push(hip);
   }
 
   // ---- arms: shoulder → upper arm → elbow → forearm + hand ----
@@ -266,6 +292,23 @@ export function createBuddyScene(canvas: HTMLCanvasElement): BuddyScene {
   sweat.add(drop, tip);
   sweat.position.set(0.5, 0.12, 0.38);
   sweat.visible = false;
+
+  // Tiny barbell, only shown during a PR lift.
+  const barbell = new Group();
+  const bar = new Mesh(new CylinderGeometry(0.025, 0.025, 1.5, 12), mat('#cbd5e1', 'gloss'));
+  bar.rotation.z = Math.PI / 2;
+  barbell.add(bar);
+  for (const side of [-1, 1]) {
+    for (const [x, r] of [[0.6, 0.21], [0.68, 0.16]] as const) {
+      const plate = new Mesh(new CylinderGeometry(r, r, 0.07, 24), mat(side > 0 && x === 0.6 ? COLORS.top : COLORS.shorts));
+      plate.rotation.z = Math.PI / 2;
+      plate.position.x = x * side;
+      barbell.add(plate);
+    }
+  }
+  barbell.position.set(0, -0.72, 0.42);
+  barbell.visible = false;
+  rig.add(barbell);
   head.add(sweat);
 
   // Soft contact shadow that shrinks as the buddy jumps.
@@ -279,9 +322,17 @@ export function createBuddyScene(canvas: HTMLCanvasElement): BuddyScene {
   const start = performance.now() / 1000;
   let waveAt = start + POP_SECONDS * 0.6;
   let cheerAt = -10;
+  let danceAt = -10;
+  let liftAt = -10;
+  let pointDir = 0;
+  let pointWeight = 0;
   let nextBlink = start + 2.5;
   let mood: WorkoutState | null = null;
   const look = { x: 0, y: 0, tx: 0, ty: 0 };
+  let pose: BuddyPose = 'stand';
+  const weight = { walk: 0, jump: 0, sit: 0, held: 0 };
+  const turn = { value: 0, target: 0 };
+  const swing = { value: 0, target: 0 };
 
   const onPointer = (e: PointerEvent) => {
     const r = canvas.getBoundingClientRect();
@@ -300,6 +351,90 @@ export function createBuddyScene(canvas: HTMLCanvasElement): BuddyScene {
   resize();
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
+
+  /** Layers the roaming pose over the idle/wave/flex animation already set for this frame. */
+  const applyPose = (now: number) => {
+    for (const key of Object.keys(weight) as (keyof typeof weight)[]) {
+      weight[key] = lerp(weight[key], pose === key ? 1 : 0, 0.18);
+    }
+    turn.value = lerp(turn.value, turn.target, 0.12);
+    swing.value = lerp(swing.value, swing.target, 0.15);
+    swing.target *= 0.85;
+
+    const stride = Math.sin(now * 11);
+    const airborne = Math.max(weight.jump, weight.held);
+
+    hips.forEach((hip, i) => {
+      const side = i === 0 ? -1 : 1;
+      hip.rotation.x =
+        weight.walk * stride * 0.55 * side +
+        weight.jump * -0.55 +
+        weight.sit * (-1.3 + Math.sin(now * 2.4 + i * Math.PI) * 0.22) +
+        weight.held * (Math.sin(now * 5 + i * 2) * 0.25 + swing.value * 0.5 * side);
+    });
+
+    // Arms swing opposite the legs when walking, and go up when jumping or carried.
+    leftArm.shoulder.rotation.x = weight.walk * -stride * 0.5;
+    rightArm.shoulder.rotation.x += weight.walk * stride * 0.5;
+    leftArm.shoulder.rotation.z = lerp(leftArm.shoulder.rotation.z, weight.held > weight.jump ? -2.6 : -2.1, airborne);
+    rightArm.shoulder.rotation.z = lerp(rightArm.shoulder.rotation.z, weight.held > weight.jump ? 2.6 : 2.1, airborne);
+
+    rig.position.y += Math.abs(stride) * 0.06 * weight.walk;
+    root.rotation.y += turn.value * 0.7;
+    root.rotation.z = swing.value * 0.35 * weight.held;
+
+    // Dance: bouncy hops, hip wiggle and alternating arm pumps.
+    const d = (now - danceAt) / DANCE_SECONDS;
+    const dancing = d >= 0 && d <= 1 ? clamp01(Math.min(d, 1 - d) * 6) : 0;
+    if (dancing > 0) {
+      const beat = now * 9;
+      const leftUp = (Math.sin(beat) + 1) / 2;
+      rig.position.y += Math.abs(Math.sin(beat)) * 0.12 * dancing;
+      rig.rotation.z += Math.sin(beat) * 0.12 * dancing;
+      leftArm.shoulder.rotation.z = lerp(leftArm.shoulder.rotation.z, lerp(-0.6, -2.5, leftUp), dancing);
+      rightArm.shoulder.rotation.z = lerp(rightArm.shoulder.rotation.z, lerp(0.6, 2.5, 1 - leftUp), dancing);
+    }
+
+    // Point: one straight arm out toward the target, body turned a little that way.
+    pointWeight = lerp(pointWeight, pointDir ? 1 : 0, 0.15);
+    if (pointWeight > 0.01) {
+      const side = pointDir || 1;
+      const arm = side > 0 ? rightArm : leftArm;
+      arm.shoulder.rotation.z = lerp(arm.shoulder.rotation.z, side * (1.05 + Math.sin(now * 6) * 0.08), pointWeight);
+      arm.elbow.rotation.z = lerp(arm.elbow.rotation.z, side * 0.05, pointWeight);
+      root.rotation.y += side * 0.35 * pointWeight;
+    }
+
+    // PR lift: crouch, pull the bar to the chest, hold it shaking, drop it, arms up.
+    const l = (now - liftAt) / LIFT_SECONDS;
+    const lifting = l >= 0 && l <= 1;
+    barbell.visible = lifting && l < 0.82;
+    let elbowBend = 0;
+    if (lifting) {
+      const crouch = smooth(l / 0.2);
+      const pull = smooth((l - 0.2) / 0.2);
+      const drop = smooth((l - 0.72) / 0.1);
+      const victory = pulse((l - 0.82) / 0.18);
+      const strain = l > 0.4 && l < 0.72 ? Math.sin(now * 40) * 0.015 : 0;
+      barbell.position.set(strain, lerp(lerp(-0.72, -0.12, pull), -1.1, drop), 0.42);
+      rig.position.y += -0.12 * crouch * (1 - pull) + victory * 0.2;
+      const reach = lerp(-0.3 * crouch, -1.35, pull) * (1 - drop);
+      leftArm.shoulder.rotation.x = reach;
+      rightArm.shoulder.rotation.x = reach;
+      elbowBend = -1 * pull * (1 - drop);
+      leftArm.shoulder.rotation.z = lerp(-0.3, -2.5, victory);
+      rightArm.shoulder.rotation.z = lerp(0.3, 2.5, victory);
+      if (l > 0.4) head.rotation.z += Math.sin(now * 30) * 0.02 * (1 - drop);
+    }
+    leftArm.elbow.rotation.x = elbowBend;
+    rightArm.elbow.rotation.x = elbowBend;
+
+    if (airborne > 0.05 || dancing > 0.05 || lifting) {
+      grin.visible = true;
+      smile.visible = false;
+    }
+    (shadow.material as MeshBasicMaterial).opacity *= 1 - Math.max(weight.sit, airborne);
+  };
 
   const tick = () => {
     const now = performance.now() / 1000;
@@ -366,6 +501,8 @@ export function createBuddyScene(canvas: HTMLCanvasElement): BuddyScene {
 
     sweat.position.y = 0.12 - ((t * 0.25) % 1) * 0.12;
 
+    applyPose(now);
+
     renderer.render(scene, camera);
   };
 
@@ -384,12 +521,30 @@ export function createBuddyScene(canvas: HTMLCanvasElement): BuddyScene {
     wave() {
       waveAt = performance.now() / 1000;
     },
+    dance() {
+      danceAt = performance.now() / 1000;
+    },
+    point(dir) {
+      pointDir = Math.sign(dir);
+    },
+    lift() {
+      liftAt = performance.now() / 1000;
+    },
     cheer() {
       cheerAt = performance.now() / 1000;
     },
     setMood(state) {
       mood = state;
       sweat.visible = state === 'done';
+    },
+    setPose(next) {
+      pose = next;
+    },
+    setFacing(dir) {
+      turn.target = Math.sign(dir);
+    },
+    setSwing(amount) {
+      swing.target = Math.max(-1, Math.min(1, amount));
     },
     dispose() {
       renderer.setAnimationLoop(null);
