@@ -30,7 +30,7 @@ const ROUTINE_PREVIEW = 5;
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, ReactiveFormsModule, DragDropModule, GymBuddyComponent, GymBuddyComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
